@@ -1,6 +1,6 @@
 import { scenes, defaultMix, initialDrafts, BPM, TOTAL_BARS } from "../musicData";
 import { performanceScript } from "../performanceScript";
-import { RECONSTRUCTION_PACK_SCHEMA_VERSION, type ReconstructionPack, type ScenePlacementMap } from "./reconstructionPack";
+import { DEFAULT_SOUND_DESIGN, RECONSTRUCTION_PACK_SCHEMA_VERSION, type ReconstructionPack, type ScenePlacementMap } from "./reconstructionPack";
 import type { LiveStructuralOperation, Participant, ProductionAction, TrackDefinition, Workspace } from "./sessionTypes";
 import type { BrainId, PatternDraft } from "../types";
 
@@ -164,6 +164,7 @@ export const placeholderReconstructionPack: ReconstructionPack = {
   scenes: structuredClone(scenes),
   scenePlacements: SCENE_PLACEMENTS,
   defaultMix: structuredClone(defaultMix),
+  soundDesign: structuredClone(DEFAULT_SOUND_DESIGN),
   arrangement: {
     id: "canonical-arrangement",
     title: "Canonical placeholder song",

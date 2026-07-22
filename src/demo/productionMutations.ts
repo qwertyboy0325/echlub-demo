@@ -11,8 +11,10 @@ function emptyDraftShell(id: string, target: PatternDraft): PatternDraft {
     kind: target.kind,
     status: "editing",
     revision: 0,
+    patternBars: target.patternBars,
     notes: target.kind === "bass" || target.kind === "melody" ? [] : undefined,
     steps: target.kind === "drums" ? [] : undefined,
+    drumHits: target.kind === "drums" ? [] : undefined,
     harmonyChords: target.kind === "harmony" ? [] : undefined,
     textureParams: target.kind === "texture" && target.textureParams
       ? { ...structuredClone(target.textureParams), level: 0 }
@@ -44,6 +46,7 @@ export function createIncompleteSession(pack: ReconstructionPack): ProductionSes
     scenes: pack.scenes.map((s) => ({
       ...structuredClone(s),
       layers: { drums: null, bass: null, harmony: null, melody: null, texture: null },
+      layerStacks: {},
     })),
     arrangement: {
       id: pack.arrangement.id,
@@ -161,28 +164,10 @@ export function applyProductionAction(
       const draft = session.drafts[action.target];
       if (!draft || draft.kind !== "bass") break;
       const seed = pack.drafts.find((d) => d.id === action.target);
-      const pitch = String(action.value ?? "A2");
-      let changed = false;
-      const note: NoteEvent = {
-        id: `bass-${draft.revision}-${draft.notes?.length ?? 0}`,
-        step: (draft.notes?.length ?? 0) * 2,
-        pitch: 0,
-        note: pitch,
-        duration: "8n",
-        velocity: 0.48,
-      };
-      if (!seed?.notes?.length) {
-        draft.notes = [note];
-        changed = true;
-      } else {
-        const idx = Number(action.value ?? 0);
-        const src = seed.notes[idx % seed.notes.length];
-        if (src && !draft.notes?.some((n) => n.id === src.id)) {
-          draft.notes = [...(draft.notes ?? []), structuredClone(src)];
-          changed = true;
-        }
-      }
-      if (!changed) break;
+      if (!seed?.notes?.length) break;
+      const nextNotes = structuredClone(seed.notes);
+      if (JSON.stringify(draft.notes ?? []) === JSON.stringify(nextNotes)) break;
+      draft.notes = nextNotes;
       bumpRevision(draft);
       contentChanged = true;
       materialRef = materialRefForDraft(draft);
@@ -193,14 +178,10 @@ export function applyProductionAction(
       const draft = session.drafts[action.target];
       if (!draft || draft.kind !== "harmony") break;
       const seed = pack.drafts.find((d) => d.id === action.target);
-      const barIdx = Number(action.value ?? 0);
-      const chord = seed?.harmonyChords?.[barIdx];
-      let changed = false;
-      if (chord && !draft.harmonyChords?.some((c) => c.bar === chord.bar)) {
-        draft.harmonyChords = [...(draft.harmonyChords ?? []), structuredClone(chord)];
-        changed = true;
-      }
-      if (!changed) break;
+      if (!seed?.harmonyChords?.length) break;
+      const nextChords = structuredClone(seed.harmonyChords);
+      if (JSON.stringify(draft.harmonyChords ?? []) === JSON.stringify(nextChords)) break;
+      draft.harmonyChords = nextChords;
       bumpRevision(draft);
       contentChanged = true;
       materialRef = materialRefForDraft(draft);
@@ -286,6 +267,15 @@ export function applyProductionAction(
         scene.layers[layer as LayerId] = ref;
         materialRef = ref;
       }
+      const stackHints = pack.sceneLayerStacks?.[sceneId] ?? {};
+      scene.layerStacks ??= {};
+      for (const [layer, draftIds] of Object.entries(stackHints)) {
+        const refs = draftIds.flatMap((draftId) => {
+          const draft = session.drafts[draftId];
+          return draft ? [materialRefForDraft(draft)] : [];
+        });
+        if (refs.length) scene.layerStacks[layer as LayerId] = refs;
+      }
       contentChanged = true;
       break;
     }
@@ -297,7 +287,8 @@ export function applyProductionAction(
     }
     case "assembleArrangement": {
       session.arrangement.scenes = session.scenes
-        .filter((s) => Object.values(s.layers).some((ref) => ref !== null))
+        .filter((s) => Object.values(s.layers).some((ref) => ref !== null)
+          || Object.values(s.layerStacks ?? {}).some((refs) => refs && refs.length > 0))
         .map((s) => ({ sceneId: s.id, startBar: s.startBar }));
       if (!session.arrangement.scenes.length) {
         session.arrangement.scenes = pack.sections.map((sec) => ({
@@ -357,6 +348,13 @@ export function validateSceneMaterialRefs(
         errors.push(`scene ${scene.id} layer ${layer} missing material ${ref.draftId}@${ref.revision}`);
       } else if (material.contentFingerprint !== ref.fingerprint) {
         errors.push(`scene ${scene.id} layer ${layer} fingerprint mismatch for ${ref.draftId}`);
+      }
+    }
+    for (const [layer, refs] of Object.entries(scene.layerStacks ?? {})) {
+      for (const ref of refs ?? []) {
+        const material = bank.materials.get(`${ref.draftId}@${ref.revision}`);
+        if (!material) errors.push(`scene ${scene.id} layer stack ${layer} missing material ${ref.draftId}@${ref.revision}`);
+        else if (material.contentFingerprint !== ref.fingerprint) errors.push(`scene ${scene.id} layer stack ${layer} fingerprint mismatch for ${ref.draftId}`);
       }
     }
   }

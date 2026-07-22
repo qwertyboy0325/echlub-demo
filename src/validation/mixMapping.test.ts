@@ -12,8 +12,10 @@ import { defaultMix } from "../musicData";
 
 describe("mix mapping", () => {
   it("maps fader UI to dB and gain", () => {
-    expect(faderUiToDb(64)).toBeCloseTo(-11.2);
-    expect(faderUiToGain(64)).toBeCloseTo(Math.pow(10, -11.2 / 20), 4);
+    expect(faderUiToDb(64)).toBeCloseTo(-3.8764);
+    expect(faderUiToDb(0)).toBe(-60);
+    expect(faderUiToDb(100)).toBe(0);
+    expect(faderUiToGain(64)).toBeCloseTo(0.64, 4);
   });
 
   it("maps filter and delay UI values", () => {

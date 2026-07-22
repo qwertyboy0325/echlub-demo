@@ -1,0 +1,7201 @@
+{
+  "schemaVersion": 3,
+  "metadata": {
+    "id": "shiki-no-uta-cover-public-demo-v1",
+    "title": "Shiki No Uta · EchLub browser cover demo",
+    "bpm": 92.285,
+    "prototypeOnly": true,
+    "source": "public-demo"
+  },
+  "provenance": {
+    "createdBy": "EchLub owner-authorized public cover demo",
+    "sourceDescription": "Owner-provided legal piano score, three standard-tuning guitar-tab screenshots and descriptor-only analysis of an owner-purchased recording; form, tempo relationship, voicing contour, rhythmic density and broad energy trajectory are reference-guided, while drums, bass treatment and timbre are original cover design.",
+    "rightsBasis": "owner-authorized-public-cover",
+    "referenceAssetIds": []
+  },
+  "confidence": {
+    "overall": 0.81,
+    "rhythm": 0.9,
+    "harmony": 0.84,
+    "melody": 0.76,
+    "arrangement": 0.9,
+    "notes": [
+      "The piano score confirms a 90 BPM slow pulse, five-flat key signature and broad melodic/harmonic contour.",
+      "The standard-tuning tab confirms a 78-bar written timeline, 4/4, 185 BPM at bar 1, 179 BPM at bar 21, Segno at bar 26, To Coda at bar 35, D.S. al Coda at bar 57, later repeat endings and a diminuendo across bars 75-78.",
+      "Demucs htdemucs stems and librosa analysis locate a stable 92.285 BPM MP3 pulse, an initial complete B-flat-minor downbeat around 4.16 seconds, drums entering around performance bar 11-12, a breakdown near bar 47 and outro subtraction after bar 103.",
+      "The recurring two-bar foundation is Bbm-centered: a Bbm bass bar followed by Ebm-to-Fm/F7 turnaround color anticipating the next Bbm, not a four-chord-per-bar loop.",
+      "Vocal pYIN contours are scale-corrected against the five-flat PDF and manually reduced; Demucs bleed and octave errors are not copied into the pack.",
+      "Drums, bass treatment, vinyl texture, synth envelopes, filters, spatial effects and live recomposition are explicitly original cover design."
+    ]
+  },
+  "tempoMap": [
+    {
+      "bar": 0,
+      "bpm": 92.285
+    }
+  ],
+  "timeSignatures": [
+    {
+      "bar": 0,
+      "numerator": 4,
+      "denominator": 4
+    }
+  ],
+  "sections": [
+    {
+      "id": "opening",
+      "label": "Sample-led opening vamp",
+      "startBar": 0,
+      "bars": 12
+    },
+    {
+      "id": "groove",
+      "label": "Primary vocal groove",
+      "startBar": 12,
+      "bars": 34
+    },
+    {
+      "id": "tease",
+      "label": "Sax trading and drum-drop transition",
+      "startBar": 46,
+      "bars": 10
+    },
+    {
+      "id": "release",
+      "label": "Return with extended turnaround",
+      "startBar": 56,
+      "bars": 24
+    },
+    {
+      "id": "recompose",
+      "label": "Late verse and DJ variations",
+      "startBar": 80,
+      "bars": 24
+    },
+    {
+      "id": "return",
+      "label": "Bass-led outro and diminuendo",
+      "startBar": 104,
+      "bars": 10
+    }
+  ],
+  "participants": [
+    {
+      "id": "p-rhythm",
+      "roleId": "rhythm",
+      "displayName": "Rhythm Producer",
+      "performanceBrain": "pulse",
+      "workspaceIds": [
+        "ws-rhythm"
+      ]
+    },
+    {
+      "id": "p-perc",
+      "roleId": "percussion",
+      "displayName": "Percussion Producer",
+      "performanceBrain": "pulse",
+      "workspaceIds": [
+        "ws-perc"
+      ]
+    },
+    {
+      "id": "p-bass",
+      "roleId": "bass",
+      "displayName": "Bass Producer",
+      "workspaceIds": [
+        "ws-bass"
+      ]
+    },
+    {
+      "id": "p-harmony",
+      "roleId": "harmony",
+      "displayName": "Harmony / Keys Producer",
+      "performanceBrain": "blend",
+      "workspaceIds": [
+        "ws-harmony"
+      ]
+    },
+    {
+      "id": "p-melody",
+      "roleId": "melody",
+      "displayName": "Melody Arranger",
+      "performanceBrain": "memory",
+      "workspaceIds": [
+        "ws-melody"
+      ]
+    },
+    {
+      "id": "p-texture",
+      "roleId": "texture",
+      "displayName": "Texture / Sound Designer",
+      "performanceBrain": "blend",
+      "workspaceIds": [
+        "ws-texture"
+      ]
+    },
+    {
+      "id": "p-mix",
+      "roleId": "mix",
+      "displayName": "Mix / FX Engineer",
+      "performanceBrain": "blend",
+      "workspaceIds": [
+        "ws-mix"
+      ]
+    },
+    {
+      "id": "p-arrange",
+      "roleId": "arrangement",
+      "displayName": "Arrangement Director",
+      "performanceBrain": "story",
+      "workspaceIds": [
+        "ws-arrange"
+      ]
+    }
+  ],
+  "workspaces": [
+    {
+      "id": "ws-rhythm",
+      "participantId": "p-rhythm",
+      "label": "Groove grid",
+      "trackIds": [
+        "track-drums"
+      ],
+      "focusPriority": 1
+    },
+    {
+      "id": "ws-perc",
+      "participantId": "p-perc",
+      "label": "Percussion lane",
+      "trackIds": [
+        "track-drums"
+      ],
+      "focusPriority": 2
+    },
+    {
+      "id": "ws-bass",
+      "participantId": "p-bass",
+      "label": "Bass editor",
+      "trackIds": [
+        "track-bass"
+      ],
+      "focusPriority": 3
+    },
+    {
+      "id": "ws-harmony",
+      "participantId": "p-harmony",
+      "label": "Harmony keys",
+      "trackIds": [
+        "track-harmony"
+      ],
+      "focusPriority": 4
+    },
+    {
+      "id": "ws-melody",
+      "participantId": "p-melody",
+      "label": "Melody roll",
+      "trackIds": [
+        "track-melody"
+      ],
+      "focusPriority": 5
+    },
+    {
+      "id": "ws-texture",
+      "participantId": "p-texture",
+      "label": "Texture design",
+      "trackIds": [
+        "track-texture"
+      ],
+      "focusPriority": 6
+    },
+    {
+      "id": "ws-mix",
+      "participantId": "p-mix",
+      "label": "Mix console",
+      "trackIds": [
+        "track-drums",
+        "track-bass",
+        "track-harmony",
+        "track-melody",
+        "track-texture"
+      ],
+      "focusPriority": 7
+    },
+    {
+      "id": "ws-arrange",
+      "participantId": "p-arrange",
+      "label": "Arrangement timeline",
+      "trackIds": [
+        "track-drums",
+        "track-bass",
+        "track-harmony",
+        "track-melody",
+        "track-texture"
+      ],
+      "focusPriority": 8
+    }
+  ],
+  "tracks": [
+    {
+      "id": "track-drums",
+      "label": "Drums",
+      "layerKind": "drums",
+      "draftIds": [
+        "pulse-sparse",
+        "pulse-full",
+        "pulse-break"
+      ],
+      "gain": 0.78
+    },
+    {
+      "id": "track-bass",
+      "label": "Bass",
+      "layerKind": "bass",
+      "draftIds": [
+        "bass-main",
+        "bass-alt",
+        "bass-response",
+        "bass-verse",
+        "bass-sax",
+        "bass-outro"
+      ],
+      "gain": 0.7
+    },
+    {
+      "id": "track-harmony",
+      "label": "Harmony",
+      "layerKind": "harmony",
+      "draftIds": [
+        "story-opening",
+        "story-release",
+        "story-comp",
+        "story-verse",
+        "story-sax",
+        "story-outro"
+      ],
+      "gain": 0.62
+    },
+    {
+      "id": "track-melody",
+      "label": "Melody",
+      "layerKind": "melody",
+      "draftIds": [
+        "memory-opening",
+        "memory-main",
+        "memory-response",
+        "memory-sax-solo",
+        "memory-sax-alto",
+        "memory-verse-a",
+        "memory-release",
+        "memory-guitar-late",
+        "memory-outro",
+        "memory-counter"
+      ],
+      "gain": 0.72
+    },
+    {
+      "id": "track-texture",
+      "label": "Texture",
+      "layerKind": "texture",
+      "draftIds": [
+        "blend-warm",
+        "blend-filtered",
+        "blend-release"
+      ],
+      "gain": 0.58
+    }
+  ],
+  "drafts": [
+    {
+      "id": "memory-opening",
+      "owner": "memory",
+      "title": "Opening fragment",
+      "kind": "melody",
+      "status": "editing",
+      "revision": 0,
+      "notes": [
+        {
+          "id": "open-20",
+          "bar": 2,
+          "step": 7,
+          "pitch": 1,
+          "note": "C4",
+          "duration": "16n",
+          "velocity": 0.38,
+          "timingOffset": 0.12
+        },
+        {
+          "id": "open-21",
+          "bar": 2,
+          "step": 8,
+          "pitch": 2,
+          "note": "Eb4",
+          "duration": "8n.",
+          "velocity": 0.48
+        },
+        {
+          "id": "open-22",
+          "bar": 2,
+          "step": 12,
+          "pitch": 2,
+          "note": "F4",
+          "duration": "8n.",
+          "velocity": 0.57
+        },
+        {
+          "id": "open-23",
+          "bar": 2,
+          "step": 14,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.43
+        },
+        {
+          "id": "open-30",
+          "bar": 3,
+          "step": 0,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "8n.",
+          "velocity": 0.49
+        },
+        {
+          "id": "open-31",
+          "bar": 3,
+          "step": 3,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "16n",
+          "velocity": 0.38,
+          "timingOffset": 0.08
+        },
+        {
+          "id": "open-32",
+          "bar": 3,
+          "step": 6,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "8n",
+          "velocity": 0.5
+        },
+        {
+          "id": "open-33",
+          "bar": 3,
+          "step": 8,
+          "pitch": 2,
+          "note": "F4",
+          "duration": "8n",
+          "velocity": 0.55
+        },
+        {
+          "id": "open-34",
+          "bar": 3,
+          "step": 10,
+          "pitch": 3,
+          "note": "Ab4",
+          "duration": "8n.",
+          "velocity": 0.6
+        },
+        {
+          "id": "open-35",
+          "bar": 3,
+          "step": 12,
+          "pitch": 2,
+          "note": "Gb4",
+          "duration": "16n",
+          "velocity": 0.47
+        },
+        {
+          "id": "open-36",
+          "bar": 3,
+          "step": 13,
+          "pitch": 2,
+          "note": "F4",
+          "duration": "16n",
+          "velocity": 0.45
+        },
+        {
+          "id": "open-37",
+          "bar": 3,
+          "step": 14,
+          "pitch": 3,
+          "note": "Ab4",
+          "duration": "8n.",
+          "velocity": 0.57
+        },
+        {
+          "id": "open-40",
+          "bar": 4,
+          "step": 0,
+          "pitch": 3,
+          "note": "Bb4",
+          "duration": "8n.",
+          "velocity": 0.64,
+          "articulation": "accent"
+        },
+        {
+          "id": "open-41",
+          "bar": 4,
+          "step": 2,
+          "pitch": 2,
+          "note": "Ab4",
+          "duration": "8n",
+          "velocity": 0.52
+        },
+        {
+          "id": "open-42",
+          "bar": 4,
+          "step": 5,
+          "pitch": 3,
+          "note": "Bb4",
+          "duration": "8n",
+          "velocity": 0.58
+        },
+        {
+          "id": "open-43",
+          "bar": 4,
+          "step": 7,
+          "pitch": 4,
+          "note": "Db5",
+          "duration": "16n",
+          "velocity": 0.6
+        },
+        {
+          "id": "open-44",
+          "bar": 4,
+          "step": 8,
+          "pitch": 4,
+          "note": "C5",
+          "duration": "8n.",
+          "velocity": 0.58
+        },
+        {
+          "id": "open-45",
+          "bar": 4,
+          "step": 10,
+          "pitch": 2,
+          "note": "Ab4",
+          "duration": "8n",
+          "velocity": 0.5
+        },
+        {
+          "id": "open-46",
+          "bar": 4,
+          "step": 13,
+          "pitch": 1,
+          "note": "F4",
+          "duration": "8n",
+          "velocity": 0.48
+        },
+        {
+          "id": "open-47",
+          "bar": 4,
+          "step": 14,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.42
+        },
+        {
+          "id": "open-50",
+          "bar": 5,
+          "step": 0,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "8n.",
+          "velocity": 0.48
+        },
+        {
+          "id": "open-51",
+          "bar": 5,
+          "step": 2,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "16n",
+          "velocity": 0.38
+        },
+        {
+          "id": "open-52",
+          "bar": 5,
+          "step": 4,
+          "pitch": 1,
+          "note": "Db4",
+          "duration": "8n",
+          "velocity": 0.48
+        },
+        {
+          "id": "open-53",
+          "bar": 5,
+          "step": 6,
+          "pitch": 2,
+          "note": "Gb4",
+          "duration": "8n",
+          "velocity": 0.54
+        },
+        {
+          "id": "open-54",
+          "bar": 5,
+          "step": 7,
+          "pitch": 3,
+          "note": "Ab4",
+          "duration": "4n.",
+          "velocity": 0.6,
+          "articulation": "accent"
+        },
+        {
+          "id": "open-55",
+          "bar": 5,
+          "step": 13,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.41,
+          "timingOffset": 0.1
+        }
+      ],
+      "patternBars": 8
+    },
+    {
+      "id": "memory-main",
+      "owner": "memory",
+      "title": "Main phrase",
+      "kind": "melody",
+      "status": "editing",
+      "revision": 0,
+      "notes": [
+        {
+          "id": "main-0",
+          "bar": 2,
+          "step": 7,
+          "pitch": 1,
+          "note": "C4",
+          "duration": "16n",
+          "velocity": 0.44,
+          "timingOffset": 0.12
+        },
+        {
+          "id": "main-1",
+          "bar": 2,
+          "step": 8,
+          "pitch": 2,
+          "note": "Eb4",
+          "duration": "8n.",
+          "velocity": 0.54
+        },
+        {
+          "id": "main-2",
+          "bar": 2,
+          "step": 12,
+          "pitch": 2,
+          "note": "F4",
+          "duration": "8n.",
+          "velocity": 0.6299999999999999
+        },
+        {
+          "id": "main-3",
+          "bar": 2,
+          "step": 14,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.49
+        },
+        {
+          "id": "main-4",
+          "bar": 3,
+          "step": 0,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "8n.",
+          "velocity": 0.55
+        },
+        {
+          "id": "main-5",
+          "bar": 3,
+          "step": 3,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "16n",
+          "velocity": 0.44,
+          "timingOffset": 0.08
+        },
+        {
+          "id": "main-6",
+          "bar": 3,
+          "step": 6,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "8n",
+          "velocity": 0.56
+        },
+        {
+          "id": "main-7",
+          "bar": 3,
+          "step": 8,
+          "pitch": 2,
+          "note": "F4",
+          "duration": "8n",
+          "velocity": 0.6100000000000001
+        },
+        {
+          "id": "main-8",
+          "bar": 3,
+          "step": 10,
+          "pitch": 3,
+          "note": "Ab4",
+          "duration": "8n.",
+          "velocity": 0.6599999999999999
+        },
+        {
+          "id": "main-9",
+          "bar": 3,
+          "step": 12,
+          "pitch": 2,
+          "note": "Gb4",
+          "duration": "16n",
+          "velocity": 0.53
+        },
+        {
+          "id": "main-10",
+          "bar": 3,
+          "step": 13,
+          "pitch": 2,
+          "note": "F4",
+          "duration": "16n",
+          "velocity": 0.51
+        },
+        {
+          "id": "main-11",
+          "bar": 3,
+          "step": 14,
+          "pitch": 3,
+          "note": "Ab4",
+          "duration": "8n.",
+          "velocity": 0.6299999999999999
+        },
+        {
+          "id": "main-12",
+          "bar": 4,
+          "step": 0,
+          "pitch": 3,
+          "note": "Bb4",
+          "duration": "8n.",
+          "velocity": 0.7,
+          "articulation": "accent"
+        },
+        {
+          "id": "main-13",
+          "bar": 4,
+          "step": 2,
+          "pitch": 2,
+          "note": "Ab4",
+          "duration": "8n",
+          "velocity": 0.5800000000000001
+        },
+        {
+          "id": "main-14",
+          "bar": 4,
+          "step": 5,
+          "pitch": 3,
+          "note": "Bb4",
+          "duration": "8n",
+          "velocity": 0.6399999999999999
+        },
+        {
+          "id": "main-15",
+          "bar": 4,
+          "step": 7,
+          "pitch": 4,
+          "note": "Db5",
+          "duration": "16n",
+          "velocity": 0.6599999999999999
+        },
+        {
+          "id": "main-16",
+          "bar": 4,
+          "step": 8,
+          "pitch": 4,
+          "note": "C5",
+          "duration": "8n.",
+          "velocity": 0.6399999999999999
+        },
+        {
+          "id": "main-17",
+          "bar": 4,
+          "step": 10,
+          "pitch": 2,
+          "note": "Ab4",
+          "duration": "8n",
+          "velocity": 0.56
+        },
+        {
+          "id": "main-18",
+          "bar": 4,
+          "step": 13,
+          "pitch": 1,
+          "note": "F4",
+          "duration": "8n",
+          "velocity": 0.54
+        },
+        {
+          "id": "main-19",
+          "bar": 4,
+          "step": 14,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.48
+        },
+        {
+          "id": "main-20",
+          "bar": 5,
+          "step": 0,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "8n.",
+          "velocity": 0.54
+        },
+        {
+          "id": "main-21",
+          "bar": 5,
+          "step": 2,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "16n",
+          "velocity": 0.44
+        },
+        {
+          "id": "main-22",
+          "bar": 5,
+          "step": 4,
+          "pitch": 1,
+          "note": "Db4",
+          "duration": "8n",
+          "velocity": 0.54
+        },
+        {
+          "id": "main-23",
+          "bar": 5,
+          "step": 6,
+          "pitch": 2,
+          "note": "Gb4",
+          "duration": "8n",
+          "velocity": 0.6000000000000001
+        },
+        {
+          "id": "main-24",
+          "bar": 5,
+          "step": 7,
+          "pitch": 3,
+          "note": "Ab4",
+          "duration": "4n.",
+          "velocity": 0.6599999999999999,
+          "articulation": "accent"
+        },
+        {
+          "id": "main-25",
+          "bar": 5,
+          "step": 13,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.47,
+          "timingOffset": 0.1
+        }
+      ],
+      "patternBars": 8
+    },
+    {
+      "id": "memory-response",
+      "owner": "memory",
+      "title": "Response fragment",
+      "kind": "melody",
+      "status": "editing",
+      "revision": 0,
+      "notes": [
+        {
+          "id": "response-mute-0",
+          "bar": 0,
+          "step": 3,
+          "pitch": 1,
+          "note": "Bb4",
+          "duration": "32n",
+          "velocity": 0.5,
+          "articulation": "muted",
+          "timingOffset": 0.12,
+          "instrument": "guitar"
+        },
+        {
+          "id": "response-slide-0",
+          "bar": 0,
+          "step": 4,
+          "pitch": 3,
+          "note": "Db5",
+          "duration": "8n",
+          "velocity": 0.63,
+          "articulation": "slide",
+          "glideFrom": "Bb4",
+          "timingOffset": 0.08,
+          "instrument": "guitar"
+        },
+        {
+          "id": "response-0",
+          "bar": 0,
+          "step": 8,
+          "pitch": 2,
+          "note": "Bb4",
+          "duration": "8n",
+          "velocity": 0.5900000000000001,
+          "instrument": "guitar"
+        },
+        {
+          "id": "response-mute-1",
+          "bar": 1,
+          "step": 3,
+          "pitch": 1,
+          "note": "Ab4",
+          "duration": "32n",
+          "velocity": 0.46,
+          "articulation": "muted",
+          "timingOffset": 0.1,
+          "instrument": "guitar"
+        },
+        {
+          "id": "response-slide-1",
+          "bar": 1,
+          "step": 4,
+          "pitch": 2,
+          "note": "Bb4",
+          "duration": "8n",
+          "velocity": 0.6,
+          "articulation": "legato",
+          "glideFrom": "Ab4",
+          "timingOffset": 0.08,
+          "instrument": "guitar"
+        },
+        {
+          "id": "response-1",
+          "bar": 1,
+          "step": 11,
+          "pitch": 1,
+          "note": "F4",
+          "duration": "8n",
+          "velocity": 0.56,
+          "instrument": "guitar"
+        },
+        {
+          "id": "response-2",
+          "bar": 1,
+          "step": 14,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.53,
+          "instrument": "guitar"
+        },
+        {
+          "id": "response-30",
+          "bar": 3,
+          "step": 10,
+          "pitch": 1,
+          "note": "F4",
+          "duration": "16n",
+          "velocity": 0.51,
+          "articulation": "ghost",
+          "instrument": "guitar"
+        },
+        {
+          "id": "response-31",
+          "bar": 3,
+          "step": 12,
+          "pitch": 2,
+          "note": "Gb4",
+          "duration": "8n",
+          "velocity": 0.5800000000000001,
+          "instrument": "guitar"
+        }
+      ],
+      "patternBars": 4
+    },
+    {
+      "id": "pulse-sparse",
+      "owner": "pulse",
+      "title": "Sparse groove",
+      "kind": "drums",
+      "status": "editing",
+      "revision": 0,
+      "patternBars": 2,
+      "drumHits": [
+        {
+          "bar": 0,
+          "step": 0,
+          "voice": "kick",
+          "velocity": 0.76
+        },
+        {
+          "bar": 0,
+          "step": 4,
+          "voice": "snare",
+          "velocity": 0.58
+        },
+        {
+          "bar": 0,
+          "step": 8,
+          "voice": "kick",
+          "velocity": 0.68
+        },
+        {
+          "bar": 0,
+          "step": 12,
+          "voice": "snare",
+          "velocity": 0.55
+        },
+        {
+          "bar": 0,
+          "step": 3,
+          "voice": "hat",
+          "velocity": 0.2
+        },
+        {
+          "bar": 0,
+          "step": 11,
+          "voice": "hat",
+          "velocity": 0.22
+        },
+        {
+          "bar": 1,
+          "step": 0,
+          "voice": "kick",
+          "velocity": 0.72
+        },
+        {
+          "bar": 1,
+          "step": 6,
+          "voice": "snare",
+          "velocity": 0.5
+        },
+        {
+          "bar": 1,
+          "step": 10,
+          "voice": "kick",
+          "velocity": 0.58
+        },
+        {
+          "bar": 1,
+          "step": 12,
+          "voice": "snare",
+          "velocity": 0.56
+        },
+        {
+          "bar": 1,
+          "step": 14,
+          "voice": "hat",
+          "velocity": 0.2
+        }
+      ]
+    },
+    {
+      "id": "pulse-full",
+      "owner": "pulse",
+      "title": "Full groove",
+      "kind": "drums",
+      "status": "editing",
+      "revision": 0,
+      "patternBars": 2,
+      "drumHits": [
+        {
+          "bar": 0,
+          "step": 0,
+          "voice": "kick",
+          "velocity": 0.8
+        },
+        {
+          "bar": 0,
+          "step": 4,
+          "voice": "snare",
+          "velocity": 0.62
+        },
+        {
+          "bar": 0,
+          "step": 8,
+          "voice": "kick",
+          "velocity": 0.7
+        },
+        {
+          "bar": 0,
+          "step": 12,
+          "voice": "snare",
+          "velocity": 0.6
+        },
+        {
+          "bar": 0,
+          "step": 2,
+          "voice": "hat",
+          "velocity": 0.22
+        },
+        {
+          "bar": 0,
+          "step": 6,
+          "voice": "hat",
+          "velocity": 0.24
+        },
+        {
+          "bar": 0,
+          "step": 10,
+          "voice": "hat",
+          "velocity": 0.22
+        },
+        {
+          "bar": 0,
+          "step": 14,
+          "voice": "hat",
+          "velocity": 0.26
+        },
+        {
+          "bar": 1,
+          "step": 0,
+          "voice": "kick",
+          "velocity": 0.76
+        },
+        {
+          "bar": 1,
+          "step": 3,
+          "voice": "hat",
+          "velocity": 0.2
+        },
+        {
+          "bar": 1,
+          "step": 6,
+          "voice": "snare",
+          "velocity": 0.58
+        },
+        {
+          "bar": 1,
+          "step": 9,
+          "voice": "kick",
+          "velocity": 0.62
+        },
+        {
+          "bar": 1,
+          "step": 12,
+          "voice": "snare",
+          "velocity": 0.61
+        },
+        {
+          "bar": 1,
+          "step": 15,
+          "voice": "hat",
+          "velocity": 0.24
+        }
+      ]
+    },
+    {
+      "id": "pulse-break",
+      "owner": "pulse",
+      "title": "One-beat break",
+      "kind": "drums",
+      "status": "editing",
+      "revision": 0,
+      "patternBars": 2,
+      "drumHits": [
+        {
+          "bar": 0,
+          "step": 0,
+          "voice": "kick",
+          "velocity": 0.7
+        },
+        {
+          "bar": 0,
+          "step": 4,
+          "voice": "snare",
+          "velocity": 0.54
+        },
+        {
+          "bar": 0,
+          "step": 10,
+          "voice": "hat",
+          "velocity": 0.2
+        },
+        {
+          "bar": 1,
+          "step": 0,
+          "voice": "kick",
+          "velocity": 0.64
+        },
+        {
+          "bar": 1,
+          "step": 7,
+          "voice": "hat",
+          "velocity": 0.18
+        },
+        {
+          "bar": 1,
+          "step": 12,
+          "voice": "snare",
+          "velocity": 0.5
+        }
+      ]
+    },
+    {
+      "id": "blend-warm",
+      "owner": "blend",
+      "title": "Warm room",
+      "kind": "texture",
+      "status": "editing",
+      "revision": 0,
+      "textureParams": {
+        "noise": "brown",
+        "level": 0.075,
+        "duration": "1m",
+        "patchId": "score-vinyl-room"
+      }
+    },
+    {
+      "id": "blend-filtered",
+      "owner": "blend",
+      "title": "Filtered memory",
+      "kind": "texture",
+      "status": "editing",
+      "revision": 0,
+      "textureParams": {
+        "noise": "pink",
+        "level": 0.055,
+        "duration": "2n",
+        "patchId": "score-tape-haze"
+      }
+    },
+    {
+      "id": "blend-release",
+      "owner": "blend",
+      "title": "Wide release",
+      "kind": "texture",
+      "status": "editing",
+      "revision": 0,
+      "textureParams": {
+        "noise": "brown",
+        "level": 0.045,
+        "duration": "1m",
+        "patchId": "score-wide-room"
+      }
+    },
+    {
+      "id": "story-opening",
+      "owner": "story",
+      "title": "Opening harmony",
+      "kind": "harmony",
+      "status": "editing",
+      "revision": 0,
+      "harmonyChords": [
+        {
+          "bar": 0,
+          "step": 0,
+          "notes": [
+            "Bb2",
+            "F3",
+            "Ab3",
+            "C4",
+            "Db4"
+          ],
+          "duration": "1m",
+          "velocity": 0.4,
+          "articulation": "held"
+        },
+        {
+          "bar": 1,
+          "step": 0,
+          "notes": [
+            "Eb3",
+            "Bb3",
+            "Db4",
+            "F4",
+            "Gb4"
+          ],
+          "duration": "2n",
+          "velocity": 0.4,
+          "articulation": "pluck"
+        },
+        {
+          "bar": 1,
+          "step": 8,
+          "notes": [
+            "F3",
+            "C4",
+            "Eb4",
+            "Ab4"
+          ],
+          "duration": "4n",
+          "velocity": 0.39,
+          "articulation": "pluck"
+        },
+        {
+          "bar": 1,
+          "step": 14,
+          "notes": [
+            "Bb2",
+            "F3",
+            "Ab3",
+            "Db4"
+          ],
+          "duration": "8n",
+          "velocity": 0.31,
+          "articulation": "muted"
+        }
+      ],
+      "patternBars": 2
+    },
+    {
+      "id": "story-release",
+      "owner": "story",
+      "title": "Main release harmony",
+      "kind": "harmony",
+      "status": "editing",
+      "revision": 0,
+      "harmonyChords": [
+        {
+          "bar": 0,
+          "step": 0,
+          "notes": [
+            "Bb2",
+            "F3",
+            "Ab3",
+            "C4",
+            "Db4"
+          ],
+          "duration": "1m",
+          "velocity": 0.43,
+          "articulation": "held"
+        },
+        {
+          "bar": 1,
+          "step": 0,
+          "notes": [
+            "Eb3",
+            "Bb3",
+            "Db4",
+            "F4",
+            "Gb4"
+          ],
+          "duration": "2n",
+          "velocity": 0.42,
+          "articulation": "pluck"
+        },
+        {
+          "bar": 1,
+          "step": 8,
+          "notes": [
+            "F3",
+            "C4",
+            "Eb4",
+            "Ab4"
+          ],
+          "duration": "4n",
+          "velocity": 0.4,
+          "articulation": "pluck"
+        },
+        {
+          "bar": 1,
+          "step": 14,
+          "notes": [
+            "Bb2",
+            "F3",
+            "Ab3",
+            "Db4"
+          ],
+          "duration": "8n",
+          "velocity": 0.31,
+          "articulation": "muted"
+        },
+        {
+          "bar": 2,
+          "step": 0,
+          "notes": [
+            "Bb2",
+            "F3",
+            "Ab3",
+            "C4",
+            "Db4"
+          ],
+          "duration": "1m",
+          "velocity": 0.43,
+          "articulation": "held"
+        },
+        {
+          "bar": 3,
+          "step": 0,
+          "notes": [
+            "Eb3",
+            "Bb3",
+            "Db4",
+            "F4",
+            "Gb4"
+          ],
+          "duration": "2n",
+          "velocity": 0.42,
+          "articulation": "pluck"
+        },
+        {
+          "bar": 3,
+          "step": 8,
+          "notes": [
+            "F3",
+            "A3",
+            "C4",
+            "Eb4",
+            "Gb4"
+          ],
+          "duration": "4n",
+          "velocity": 0.37,
+          "articulation": "accent"
+        },
+        {
+          "bar": 3,
+          "step": 14,
+          "notes": [
+            "Bb2",
+            "F3",
+            "Ab3",
+            "Db4"
+          ],
+          "duration": "8n",
+          "velocity": 0.32,
+          "articulation": "muted"
+        }
+      ],
+      "patternBars": 4
+    },
+    {
+      "id": "bass-main",
+      "owner": "pulse",
+      "title": "Main bass",
+      "kind": "bass",
+      "status": "editing",
+      "revision": 0,
+      "notes": [
+        {
+          "id": "bass-00",
+          "bar": 0,
+          "step": 0,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "4n",
+          "velocity": 0.56,
+          "articulation": "accent",
+          "timingOffset": -0.08
+        },
+        {
+          "id": "bass-01",
+          "bar": 0,
+          "step": 9,
+          "pitch": 1,
+          "note": "Bb2",
+          "duration": "8n",
+          "velocity": 0.45
+        },
+        {
+          "id": "bass-02",
+          "bar": 0,
+          "step": 12,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "8n",
+          "velocity": 0.5
+        },
+        {
+          "id": "bass-03",
+          "bar": 0,
+          "step": 14,
+          "pitch": 0,
+          "note": "Eb2",
+          "duration": "8n",
+          "velocity": 0.46
+        },
+        {
+          "id": "bass-10",
+          "bar": 1,
+          "step": 0,
+          "pitch": 0,
+          "note": "Eb2",
+          "duration": "8n",
+          "velocity": 0.52
+        },
+        {
+          "id": "bass-11",
+          "bar": 1,
+          "step": 5,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "4n",
+          "velocity": 0.54,
+          "articulation": "legato",
+          "glideFrom": "Eb2"
+        },
+        {
+          "id": "bass-12",
+          "bar": 1,
+          "step": 14,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "8n",
+          "velocity": 0.54,
+          "articulation": "accent",
+          "timingOffset": -0.12
+        }
+      ],
+      "patternBars": 2
+    },
+    {
+      "id": "bass-alt",
+      "owner": "pulse",
+      "title": "Alt bass",
+      "kind": "bass",
+      "status": "editing",
+      "revision": 0,
+      "notes": [
+        {
+          "id": "alt-bass-00",
+          "bar": 0,
+          "step": 0,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "4n",
+          "velocity": 0.56,
+          "articulation": "accent",
+          "timingOffset": -0.08
+        },
+        {
+          "id": "alt-bass-01",
+          "bar": 0,
+          "step": 9,
+          "pitch": 1,
+          "note": "Bb2",
+          "duration": "8n",
+          "velocity": 0.45
+        },
+        {
+          "id": "alt-bass-02",
+          "bar": 0,
+          "step": 12,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "8n",
+          "velocity": 0.5
+        },
+        {
+          "id": "alt-bass-03",
+          "bar": 0,
+          "step": 14,
+          "pitch": 0,
+          "note": "Eb2",
+          "duration": "8n",
+          "velocity": 0.46
+        },
+        {
+          "id": "alt-bass-10",
+          "bar": 1,
+          "step": 0,
+          "pitch": 0,
+          "note": "Eb2",
+          "duration": "8n",
+          "velocity": 0.52
+        },
+        {
+          "id": "alt-bass-11",
+          "bar": 1,
+          "step": 5,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "4n",
+          "velocity": 0.54,
+          "articulation": "legato",
+          "glideFrom": "Eb2"
+        },
+        {
+          "id": "alt-bass-12",
+          "bar": 1,
+          "step": 14,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "8n",
+          "velocity": 0.54,
+          "articulation": "accent",
+          "timingOffset": -0.12
+        },
+        {
+          "id": "bass-alt-mute",
+          "bar": 2,
+          "step": 3,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "32n",
+          "velocity": 0.4,
+          "articulation": "muted"
+        },
+        {
+          "id": "bass-alt-20",
+          "bar": 2,
+          "step": 4,
+          "pitch": 0,
+          "note": "Db2",
+          "duration": "16n",
+          "velocity": 0.46
+        },
+        {
+          "id": "bass-alt-21",
+          "bar": 2,
+          "step": 6,
+          "pitch": 0,
+          "note": "Eb2",
+          "duration": "16n",
+          "velocity": 0.48
+        },
+        {
+          "id": "bass-alt-22",
+          "bar": 2,
+          "step": 8,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "16n",
+          "velocity": 0.5
+        },
+        {
+          "id": "bass-alt-23",
+          "bar": 2,
+          "step": 10,
+          "pitch": 1,
+          "note": "Ab2",
+          "duration": "8n",
+          "velocity": 0.5,
+          "articulation": "slide",
+          "glideFrom": "F2"
+        },
+        {
+          "id": "bass-alt-24",
+          "bar": 2,
+          "step": 14,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "8n",
+          "velocity": 0.54
+        },
+        {
+          "id": "bass-alt-30",
+          "bar": 3,
+          "step": 0,
+          "pitch": 0,
+          "note": "Eb2",
+          "duration": "8n",
+          "velocity": 0.5
+        },
+        {
+          "id": "bass-alt-31",
+          "bar": 3,
+          "step": 5,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "8n",
+          "velocity": 0.52
+        },
+        {
+          "id": "bass-alt-32",
+          "bar": 3,
+          "step": 10,
+          "pitch": 1,
+          "note": "Gb2",
+          "duration": "16n",
+          "velocity": 0.43,
+          "articulation": "ghost"
+        },
+        {
+          "id": "bass-alt-33",
+          "bar": 3,
+          "step": 12,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "16n",
+          "velocity": 0.46
+        },
+        {
+          "id": "bass-alt-34",
+          "bar": 3,
+          "step": 14,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "8n",
+          "velocity": 0.55
+        }
+      ],
+      "patternBars": 4
+    },
+    {
+      "id": "memory-sax-solo",
+      "owner": "memory",
+      "title": "Tenor sax trading - score-guided concert pitch",
+      "kind": "melody",
+      "status": "editing",
+      "revision": 0,
+      "patternBars": 10,
+      "notes": [
+        {
+          "id": "tenor-21-00",
+          "bar": 0,
+          "step": 13,
+          "pitch": 0,
+          "note": "Eb3",
+          "duration": "16n",
+          "velocity": 0.48,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-21-01",
+          "bar": 0,
+          "step": 14,
+          "pitch": 0,
+          "note": "F3",
+          "duration": "16n",
+          "velocity": 0.5,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-21-02",
+          "bar": 0,
+          "step": 15,
+          "pitch": 0,
+          "note": "Gb3",
+          "duration": "16n",
+          "velocity": 0.52,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-21-03",
+          "bar": 1,
+          "step": 0,
+          "pitch": 0,
+          "note": "Ab3",
+          "duration": "16n",
+          "velocity": 0.55,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-21-04",
+          "bar": 1,
+          "step": 1,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "16n",
+          "velocity": 0.58,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-21-05",
+          "bar": 1,
+          "step": 2,
+          "pitch": 0,
+          "note": "Db4",
+          "duration": "16n",
+          "velocity": 0.61,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-21-06",
+          "bar": 1,
+          "step": 3,
+          "pitch": 0,
+          "note": "C4",
+          "duration": "16n",
+          "velocity": 0.56,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-21-07",
+          "bar": 1,
+          "step": 4,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "16n",
+          "velocity": 0.52,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-21-08",
+          "bar": 1,
+          "step": 5,
+          "pitch": 0,
+          "note": "C4",
+          "duration": "16n",
+          "velocity": 0.55,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-21-09",
+          "bar": 1,
+          "step": 6,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "16n",
+          "velocity": 0.51,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-21-10",
+          "bar": 1,
+          "step": 7,
+          "pitch": 0,
+          "note": "C4",
+          "duration": "16n",
+          "velocity": 0.55,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-21-11",
+          "bar": 1,
+          "step": 8,
+          "pitch": 0,
+          "note": "Db4",
+          "duration": "16n",
+          "velocity": 0.58,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-21-12",
+          "bar": 1,
+          "step": 9,
+          "pitch": 0,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.61,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-21-13",
+          "bar": 1,
+          "step": 10,
+          "pitch": 0,
+          "note": "F4",
+          "duration": "16n",
+          "velocity": 0.64,
+          "instrument": "reed",
+          "articulation": "accent"
+        },
+        {
+          "id": "tenor-22-00",
+          "bar": 1,
+          "step": 11,
+          "pitch": 0,
+          "note": "Ab4",
+          "duration": "8n",
+          "velocity": 0.64,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-22-01",
+          "bar": 1,
+          "step": 13,
+          "pitch": 0,
+          "note": "Gb4",
+          "duration": "16n",
+          "velocity": 0.56,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-22-02",
+          "bar": 1,
+          "step": 14,
+          "pitch": 0,
+          "note": "Ab4",
+          "duration": "16n",
+          "velocity": 0.6,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-22-03",
+          "bar": 1,
+          "step": 15,
+          "pitch": 0,
+          "note": "A4",
+          "duration": "16n",
+          "velocity": 0.57,
+          "instrument": "reed",
+          "articulation": "legato",
+          "glideFrom": "Ab4"
+        },
+        {
+          "id": "tenor-22-04",
+          "bar": 2,
+          "step": 0,
+          "pitch": 0,
+          "note": "Ab4",
+          "duration": "16n",
+          "velocity": 0.54,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-22-05",
+          "bar": 2,
+          "step": 1,
+          "pitch": 0,
+          "note": "Gb4",
+          "duration": "16n",
+          "velocity": 0.52,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-22-06",
+          "bar": 2,
+          "step": 2,
+          "pitch": 0,
+          "note": "Bb4",
+          "duration": "8n",
+          "velocity": 0.62,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-24-00",
+          "bar": 4,
+          "step": 4,
+          "pitch": 0,
+          "note": "Ab4",
+          "duration": "8n",
+          "velocity": 0.58,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-24-01",
+          "bar": 4,
+          "step": 6,
+          "pitch": 0,
+          "note": "C5",
+          "duration": "16n",
+          "velocity": 0.63,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-24-02",
+          "bar": 4,
+          "step": 7,
+          "pitch": 0,
+          "note": "Bb4",
+          "duration": "16n",
+          "velocity": 0.6,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-24-03",
+          "bar": 4,
+          "step": 9,
+          "pitch": 0,
+          "note": "Ab4",
+          "duration": "16n",
+          "velocity": 0.55,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-24-04",
+          "bar": 4,
+          "step": 10,
+          "pitch": 0,
+          "note": "Gb4",
+          "duration": "16n",
+          "velocity": 0.52,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-25-00",
+          "bar": 4,
+          "step": 13,
+          "pitch": 0,
+          "note": "Eb3",
+          "duration": "16n",
+          "velocity": 0.47,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-25-01",
+          "bar": 4,
+          "step": 14,
+          "pitch": 0,
+          "note": "F3",
+          "duration": "16n",
+          "velocity": 0.49,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-25-02",
+          "bar": 4,
+          "step": 15,
+          "pitch": 0,
+          "note": "Gb3",
+          "duration": "16n",
+          "velocity": 0.51,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-25-03",
+          "bar": 5,
+          "step": 0,
+          "pitch": 0,
+          "note": "Ab3",
+          "duration": "16n",
+          "velocity": 0.53,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-25-04",
+          "bar": 5,
+          "step": 1,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "16n",
+          "velocity": 0.55,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-25-05",
+          "bar": 5,
+          "step": 2,
+          "pitch": 0,
+          "note": "Db4",
+          "duration": "16n",
+          "velocity": 0.58,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-25-06",
+          "bar": 5,
+          "step": 3,
+          "pitch": 0,
+          "note": "C4",
+          "duration": "16n",
+          "velocity": 0.54,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-25-07",
+          "bar": 5,
+          "step": 4,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "16n",
+          "velocity": 0.51,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-25-08",
+          "bar": 5,
+          "step": 5,
+          "pitch": 0,
+          "note": "C4",
+          "duration": "16n",
+          "velocity": 0.54,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-25-09",
+          "bar": 5,
+          "step": 6,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "16n",
+          "velocity": 0.5,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-25-10",
+          "bar": 5,
+          "step": 7,
+          "pitch": 0,
+          "note": "C4",
+          "duration": "16n",
+          "velocity": 0.54,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-25-11",
+          "bar": 5,
+          "step": 8,
+          "pitch": 0,
+          "note": "Db4",
+          "duration": "16n",
+          "velocity": 0.57,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-25-12",
+          "bar": 5,
+          "step": 9,
+          "pitch": 0,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.6,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-25-13",
+          "bar": 5,
+          "step": 10,
+          "pitch": 0,
+          "note": "F4",
+          "duration": "16n",
+          "velocity": 0.62,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-26-00",
+          "bar": 5,
+          "step": 11,
+          "pitch": 0,
+          "note": "Ab4",
+          "duration": "8n",
+          "velocity": 0.62,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-26-01",
+          "bar": 5,
+          "step": 13,
+          "pitch": 0,
+          "note": "Gb4",
+          "duration": "16n",
+          "velocity": 0.55,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-26-02",
+          "bar": 5,
+          "step": 14,
+          "pitch": 0,
+          "note": "Ab4",
+          "duration": "16n",
+          "velocity": 0.58,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-26-03",
+          "bar": 5,
+          "step": 15,
+          "pitch": 0,
+          "note": "A4",
+          "duration": "8n",
+          "velocity": 0.59,
+          "instrument": "reed",
+          "articulation": "legato",
+          "glideFrom": "Ab4"
+        },
+        {
+          "id": "tenor-26-04",
+          "bar": 6,
+          "step": 1,
+          "pitch": 0,
+          "note": "Ab4",
+          "duration": "16n",
+          "velocity": 0.55,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-26-05",
+          "bar": 6,
+          "step": 2,
+          "pitch": 0,
+          "note": "Bb4",
+          "duration": "8n",
+          "velocity": 0.61,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-26-06",
+          "bar": 6,
+          "step": 4,
+          "pitch": 0,
+          "note": "Bb4",
+          "duration": "8n",
+          "velocity": 0.6,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-26-07",
+          "bar": 6,
+          "step": 6,
+          "pitch": 0,
+          "note": "Db5",
+          "duration": "16n",
+          "velocity": 0.64,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-26-08",
+          "bar": 6,
+          "step": 7,
+          "pitch": 0,
+          "note": "C5",
+          "duration": "16n",
+          "velocity": 0.61,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-26-09",
+          "bar": 6,
+          "step": 8,
+          "pitch": 0,
+          "note": "Bb4",
+          "duration": "16n",
+          "velocity": 0.58,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-26-10",
+          "bar": 6,
+          "step": 9,
+          "pitch": 0,
+          "note": "Ab4",
+          "duration": "16n",
+          "velocity": 0.55,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-26-11",
+          "bar": 6,
+          "step": 10,
+          "pitch": 0,
+          "note": "Gb4",
+          "duration": "16n",
+          "velocity": 0.52,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-27-00",
+          "bar": 6,
+          "step": 13,
+          "pitch": 0,
+          "note": "C5",
+          "duration": "16n",
+          "velocity": 0.61,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-27-01",
+          "bar": 6,
+          "step": 14,
+          "pitch": 0,
+          "note": "Db5",
+          "duration": "16n",
+          "velocity": 0.63,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-27-02",
+          "bar": 6,
+          "step": 15,
+          "pitch": 0,
+          "note": "Eb5",
+          "duration": "16n",
+          "velocity": 0.66,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-27-03",
+          "bar": 7,
+          "step": 0,
+          "pitch": 0,
+          "note": "F5",
+          "duration": "4n.",
+          "velocity": 0.7,
+          "instrument": "reed",
+          "articulation": "accent",
+          "glideFrom": "Eb5"
+        },
+        {
+          "id": "tenor-27-04",
+          "bar": 7,
+          "step": 7,
+          "pitch": 0,
+          "note": "Eb5",
+          "duration": "16n",
+          "velocity": 0.62,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-27-05",
+          "bar": 7,
+          "step": 9,
+          "pitch": 0,
+          "note": "Db5",
+          "duration": "16n",
+          "velocity": 0.58,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-27-06",
+          "bar": 7,
+          "step": 10,
+          "pitch": 0,
+          "note": "Bb4",
+          "duration": "16n",
+          "velocity": 0.54,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-28-00",
+          "bar": 7,
+          "step": 11,
+          "pitch": 0,
+          "note": "C5",
+          "duration": "8n",
+          "velocity": 0.6,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-28-01",
+          "bar": 7,
+          "step": 13,
+          "pitch": 0,
+          "note": "Ab4",
+          "duration": "16n",
+          "velocity": 0.54,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-28-02",
+          "bar": 7,
+          "step": 14,
+          "pitch": 0,
+          "note": "Bb4",
+          "duration": "16n",
+          "velocity": 0.57,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-28-03",
+          "bar": 7,
+          "step": 15,
+          "pitch": 0,
+          "note": "C5",
+          "duration": "4n",
+          "velocity": 0.62,
+          "instrument": "reed",
+          "articulation": "legato",
+          "glideFrom": "Bb4"
+        },
+        {
+          "id": "tenor-28-04",
+          "bar": 8,
+          "step": 3,
+          "pitch": 0,
+          "note": "Bb4",
+          "duration": "8n",
+          "velocity": 0.56,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-28-05",
+          "bar": 8,
+          "step": 5,
+          "pitch": 0,
+          "note": "Gb4",
+          "duration": "8n",
+          "velocity": 0.51,
+          "instrument": "reed"
+        },
+        {
+          "id": "tenor-28-06",
+          "bar": 8,
+          "step": 7,
+          "pitch": 0,
+          "note": "Eb4",
+          "duration": "8n",
+          "velocity": 0.48,
+          "instrument": "reed"
+        }
+      ]
+    },
+    {
+      "id": "memory-counter",
+      "owner": "memory",
+      "title": "Sparse counter melody",
+      "kind": "melody",
+      "status": "editing",
+      "revision": 0,
+      "patternBars": 4,
+      "notes": [
+        {
+          "id": "counter-00",
+          "bar": 0,
+          "step": 12,
+          "pitch": 3,
+          "note": "F5",
+          "duration": "16n",
+          "velocity": 0.3,
+          "articulation": "ghost"
+        },
+        {
+          "id": "counter-10",
+          "bar": 1,
+          "step": 10,
+          "pitch": 1,
+          "note": "Gb4",
+          "duration": "8n",
+          "velocity": 0.34
+        },
+        {
+          "id": "counter-11",
+          "bar": 1,
+          "step": 14,
+          "pitch": 2,
+          "note": "Ab4",
+          "duration": "16n",
+          "velocity": 0.32,
+          "articulation": "legato",
+          "glideFrom": "Gb4"
+        },
+        {
+          "id": "counter-20",
+          "bar": 2,
+          "step": 12,
+          "pitch": 2,
+          "note": "Db5",
+          "duration": "8n",
+          "velocity": 0.34
+        },
+        {
+          "id": "counter-30",
+          "bar": 3,
+          "step": 10,
+          "pitch": 2,
+          "note": "C5",
+          "duration": "16n",
+          "velocity": 0.31
+        },
+        {
+          "id": "counter-31",
+          "bar": 3,
+          "step": 14,
+          "pitch": 1,
+          "note": "Bb4",
+          "duration": "8n",
+          "velocity": 0.34
+        }
+      ]
+    },
+    {
+      "id": "bass-response",
+      "owner": "pulse",
+      "title": "Upper bass response",
+      "kind": "bass",
+      "status": "editing",
+      "revision": 0,
+      "patternBars": 4,
+      "notes": [
+        {
+          "id": "bass-response-mute",
+          "bar": 0,
+          "step": 11,
+          "pitch": 0,
+          "note": "Bb2",
+          "duration": "32n",
+          "velocity": 0.34,
+          "articulation": "muted"
+        },
+        {
+          "id": "bass-response-00",
+          "bar": 0,
+          "step": 12,
+          "pitch": 0,
+          "note": "Db3",
+          "duration": "16n",
+          "velocity": 0.36
+        },
+        {
+          "id": "bass-response-01",
+          "bar": 0,
+          "step": 14,
+          "pitch": 0,
+          "note": "Eb3",
+          "duration": "16n",
+          "velocity": 0.38
+        },
+        {
+          "id": "bass-response-10",
+          "bar": 1,
+          "step": 8,
+          "pitch": 0,
+          "note": "F3",
+          "duration": "8n",
+          "velocity": 0.4,
+          "articulation": "slide",
+          "glideFrom": "Eb3"
+        },
+        {
+          "id": "bass-response-11",
+          "bar": 1,
+          "step": 13,
+          "pitch": 0,
+          "note": "Db3",
+          "duration": "16n",
+          "velocity": 0.34
+        },
+        {
+          "id": "bass-response-30",
+          "bar": 3,
+          "step": 10,
+          "pitch": 0,
+          "note": "Gb3",
+          "duration": "16n",
+          "velocity": 0.32,
+          "articulation": "ghost"
+        },
+        {
+          "id": "bass-response-31",
+          "bar": 3,
+          "step": 12,
+          "pitch": 0,
+          "note": "F3",
+          "duration": "16n",
+          "velocity": 0.35
+        }
+      ]
+    },
+    {
+      "id": "story-comp",
+      "owner": "story",
+      "title": "Syncopated chord comp",
+      "kind": "harmony",
+      "status": "editing",
+      "revision": 0,
+      "patternBars": 4,
+      "harmonyChords": [
+        {
+          "bar": 0,
+          "step": 6,
+          "notes": [
+            "Ab3",
+            "C4",
+            "Db4",
+            "F4"
+          ],
+          "duration": "16n",
+          "velocity": 0.22,
+          "articulation": "muted"
+        },
+        {
+          "bar": 0,
+          "step": 14,
+          "notes": [
+            "Ab3",
+            "C4",
+            "Db4",
+            "F4"
+          ],
+          "duration": "16n",
+          "velocity": 0.2,
+          "articulation": "muted"
+        },
+        {
+          "bar": 1,
+          "step": 5,
+          "notes": [
+            "Bb3",
+            "Db4",
+            "F4",
+            "Gb4"
+          ],
+          "duration": "16n",
+          "velocity": 0.22,
+          "articulation": "muted"
+        },
+        {
+          "bar": 1,
+          "step": 12,
+          "notes": [
+            "C4",
+            "Eb4",
+            "Ab4"
+          ],
+          "duration": "16n",
+          "velocity": 0.21,
+          "articulation": "muted"
+        },
+        {
+          "bar": 2,
+          "step": 6,
+          "notes": [
+            "Ab3",
+            "C4",
+            "Db4",
+            "F4"
+          ],
+          "duration": "16n",
+          "velocity": 0.22,
+          "articulation": "muted"
+        },
+        {
+          "bar": 2,
+          "step": 14,
+          "notes": [
+            "Ab3",
+            "C4",
+            "Db4",
+            "F4"
+          ],
+          "duration": "16n",
+          "velocity": 0.2,
+          "articulation": "muted"
+        },
+        {
+          "bar": 3,
+          "step": 5,
+          "notes": [
+            "Bb3",
+            "Db4",
+            "F4",
+            "Gb4"
+          ],
+          "duration": "16n",
+          "velocity": 0.22,
+          "articulation": "muted"
+        },
+        {
+          "bar": 3,
+          "step": 12,
+          "notes": [
+            "A3",
+            "C4",
+            "Eb4",
+            "Gb4"
+          ],
+          "duration": "16n",
+          "velocity": 0.19,
+          "articulation": "muted"
+        }
+      ]
+    },
+    {
+      "id": "memory-sax-alto",
+      "owner": "memory",
+      "title": "Alto sax answer and harmony - score-guided concert pitch",
+      "kind": "melody",
+      "status": "editing",
+      "revision": 0,
+      "patternBars": 10,
+      "notes": [
+        {
+          "id": "alto-22-00",
+          "bar": 2,
+          "step": 6,
+          "pitch": 0,
+          "note": "Db4",
+          "duration": "16n",
+          "velocity": 0.6,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-22-01",
+          "bar": 2,
+          "step": 7,
+          "pitch": 0,
+          "note": "C4",
+          "duration": "16n",
+          "velocity": 0.57,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-22-02",
+          "bar": 2,
+          "step": 8,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "16n",
+          "velocity": 0.54,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-22-03",
+          "bar": 2,
+          "step": 9,
+          "pitch": 0,
+          "note": "Ab3",
+          "duration": "16n",
+          "velocity": 0.51,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-22-04",
+          "bar": 2,
+          "step": 10,
+          "pitch": 0,
+          "note": "Gb3",
+          "duration": "16n",
+          "velocity": 0.48,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-23-00",
+          "bar": 2,
+          "step": 13,
+          "pitch": 0,
+          "note": "Eb3",
+          "duration": "16n",
+          "velocity": 0.49,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-23-01",
+          "bar": 2,
+          "step": 14,
+          "pitch": 0,
+          "note": "F3",
+          "duration": "16n",
+          "velocity": 0.51,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-23-02",
+          "bar": 2,
+          "step": 15,
+          "pitch": 0,
+          "note": "Gb3",
+          "duration": "16n",
+          "velocity": 0.53,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-23-03",
+          "bar": 3,
+          "step": 0,
+          "pitch": 0,
+          "note": "Ab3",
+          "duration": "16n",
+          "velocity": 0.55,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-23-04",
+          "bar": 3,
+          "step": 1,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "16n",
+          "velocity": 0.58,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-23-05",
+          "bar": 3,
+          "step": 2,
+          "pitch": 0,
+          "note": "Db4",
+          "duration": "16n",
+          "velocity": 0.61,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-23-06",
+          "bar": 3,
+          "step": 3,
+          "pitch": 0,
+          "note": "C4",
+          "duration": "16n",
+          "velocity": 0.57,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-23-07",
+          "bar": 3,
+          "step": 4,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "16n",
+          "velocity": 0.54,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-23-08",
+          "bar": 3,
+          "step": 5,
+          "pitch": 0,
+          "note": "C4",
+          "duration": "16n",
+          "velocity": 0.57,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-23-09",
+          "bar": 3,
+          "step": 6,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "16n",
+          "velocity": 0.53,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-23-10",
+          "bar": 3,
+          "step": 7,
+          "pitch": 0,
+          "note": "C4",
+          "duration": "16n",
+          "velocity": 0.57,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-23-11",
+          "bar": 3,
+          "step": 8,
+          "pitch": 0,
+          "note": "Db4",
+          "duration": "16n",
+          "velocity": 0.6,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-23-12",
+          "bar": 3,
+          "step": 9,
+          "pitch": 0,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.63,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-23-13",
+          "bar": 3,
+          "step": 10,
+          "pitch": 0,
+          "note": "F4",
+          "duration": "16n",
+          "velocity": 0.66,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-24-00",
+          "bar": 3,
+          "step": 11,
+          "pitch": 0,
+          "note": "Ab4",
+          "duration": "8n",
+          "velocity": 0.66,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-24-01",
+          "bar": 3,
+          "step": 13,
+          "pitch": 0,
+          "note": "Gb4",
+          "duration": "16n",
+          "velocity": 0.59,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-24-02",
+          "bar": 3,
+          "step": 14,
+          "pitch": 0,
+          "note": "Ab4",
+          "duration": "16n",
+          "velocity": 0.62,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-24-03",
+          "bar": 3,
+          "step": 15,
+          "pitch": 0,
+          "note": "A4",
+          "duration": "16n",
+          "velocity": 0.6,
+          "instrument": "reed",
+          "articulation": "legato",
+          "glideFrom": "Ab4"
+        },
+        {
+          "id": "alto-24-04",
+          "bar": 4,
+          "step": 0,
+          "pitch": 0,
+          "note": "Ab4",
+          "duration": "16n",
+          "velocity": 0.57,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-24-05",
+          "bar": 4,
+          "step": 1,
+          "pitch": 0,
+          "note": "Gb4",
+          "duration": "16n",
+          "velocity": 0.54,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-24-06",
+          "bar": 4,
+          "step": 2,
+          "pitch": 0,
+          "note": "Bb4",
+          "duration": "8n",
+          "velocity": 0.64,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-25-00",
+          "bar": 4,
+          "step": 13,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "16n",
+          "velocity": 0.47,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-25-01",
+          "bar": 4,
+          "step": 14,
+          "pitch": 0,
+          "note": "C4",
+          "duration": "16n",
+          "velocity": 0.49,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-25-02",
+          "bar": 4,
+          "step": 15,
+          "pitch": 0,
+          "note": "Db4",
+          "duration": "16n",
+          "velocity": 0.51,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-25-03",
+          "bar": 5,
+          "step": 0,
+          "pitch": 0,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.53,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-25-04",
+          "bar": 5,
+          "step": 1,
+          "pitch": 0,
+          "note": "F4",
+          "duration": "16n",
+          "velocity": 0.56,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-25-05",
+          "bar": 5,
+          "step": 2,
+          "pitch": 0,
+          "note": "Ab4",
+          "duration": "16n",
+          "velocity": 0.59,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-25-06",
+          "bar": 5,
+          "step": 3,
+          "pitch": 0,
+          "note": "Gb4",
+          "duration": "16n",
+          "velocity": 0.55,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-25-07",
+          "bar": 5,
+          "step": 4,
+          "pitch": 0,
+          "note": "F4",
+          "duration": "16n",
+          "velocity": 0.52,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-25-08",
+          "bar": 5,
+          "step": 5,
+          "pitch": 0,
+          "note": "Gb4",
+          "duration": "16n",
+          "velocity": 0.55,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-25-09",
+          "bar": 5,
+          "step": 6,
+          "pitch": 0,
+          "note": "F4",
+          "duration": "16n",
+          "velocity": 0.51,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-25-10",
+          "bar": 5,
+          "step": 7,
+          "pitch": 0,
+          "note": "Gb4",
+          "duration": "16n",
+          "velocity": 0.55,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-25-11",
+          "bar": 5,
+          "step": 8,
+          "pitch": 0,
+          "note": "Ab4",
+          "duration": "16n",
+          "velocity": 0.58,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-25-12",
+          "bar": 5,
+          "step": 9,
+          "pitch": 0,
+          "note": "Bb4",
+          "duration": "16n",
+          "velocity": 0.61,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-25-13",
+          "bar": 5,
+          "step": 10,
+          "pitch": 0,
+          "note": "C5",
+          "duration": "16n",
+          "velocity": 0.63,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-26-00",
+          "bar": 5,
+          "step": 11,
+          "pitch": 0,
+          "note": "Eb5",
+          "duration": "8n",
+          "velocity": 0.64,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-26-01",
+          "bar": 5,
+          "step": 13,
+          "pitch": 0,
+          "note": "Db5",
+          "duration": "16n",
+          "velocity": 0.57,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-26-02",
+          "bar": 5,
+          "step": 14,
+          "pitch": 0,
+          "note": "Eb5",
+          "duration": "16n",
+          "velocity": 0.6,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-26-03",
+          "bar": 5,
+          "step": 15,
+          "pitch": 0,
+          "note": "E5",
+          "duration": "8n",
+          "velocity": 0.59,
+          "instrument": "reed",
+          "articulation": "legato",
+          "glideFrom": "Eb5"
+        },
+        {
+          "id": "alto-26-04",
+          "bar": 6,
+          "step": 1,
+          "pitch": 0,
+          "note": "Eb5",
+          "duration": "16n",
+          "velocity": 0.55,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-26-05",
+          "bar": 6,
+          "step": 2,
+          "pitch": 0,
+          "note": "F5",
+          "duration": "8n",
+          "velocity": 0.61,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-27-00",
+          "bar": 6,
+          "step": 13,
+          "pitch": 0,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.58,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-27-01",
+          "bar": 6,
+          "step": 14,
+          "pitch": 0,
+          "note": "F4",
+          "duration": "16n",
+          "velocity": 0.6,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-27-02",
+          "bar": 6,
+          "step": 15,
+          "pitch": 0,
+          "note": "Gb4",
+          "duration": "16n",
+          "velocity": 0.62,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-27-03",
+          "bar": 7,
+          "step": 0,
+          "pitch": 0,
+          "note": "Ab4",
+          "duration": "4n.",
+          "velocity": 0.66,
+          "instrument": "reed",
+          "articulation": "accent",
+          "glideFrom": "Gb4"
+        },
+        {
+          "id": "alto-27-04",
+          "bar": 7,
+          "step": 7,
+          "pitch": 0,
+          "note": "Gb4",
+          "duration": "16n",
+          "velocity": 0.59,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-27-05",
+          "bar": 7,
+          "step": 9,
+          "pitch": 0,
+          "note": "F4",
+          "duration": "16n",
+          "velocity": 0.56,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-27-06",
+          "bar": 7,
+          "step": 10,
+          "pitch": 0,
+          "note": "Db4",
+          "duration": "16n",
+          "velocity": 0.52,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-28-00",
+          "bar": 7,
+          "step": 11,
+          "pitch": 0,
+          "note": "Eb4",
+          "duration": "8n",
+          "velocity": 0.58,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-28-01",
+          "bar": 7,
+          "step": 13,
+          "pitch": 0,
+          "note": "F4",
+          "duration": "16n",
+          "velocity": 0.56,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-28-02",
+          "bar": 7,
+          "step": 14,
+          "pitch": 0,
+          "note": "Gb4",
+          "duration": "16n",
+          "velocity": 0.58,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-28-03",
+          "bar": 7,
+          "step": 15,
+          "pitch": 0,
+          "note": "F4",
+          "duration": "4n",
+          "velocity": 0.57,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-28-04",
+          "bar": 8,
+          "step": 4,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "8n",
+          "velocity": 0.52,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-28-05",
+          "bar": 8,
+          "step": 6,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "8n",
+          "velocity": 0.52,
+          "instrument": "reed"
+        },
+        {
+          "id": "alto-28-06",
+          "bar": 8,
+          "step": 8,
+          "pitch": 0,
+          "note": "Db4",
+          "duration": "8n",
+          "velocity": 0.55,
+          "instrument": "reed"
+        }
+      ]
+    },
+    {
+      "id": "memory-verse-a",
+      "owner": "memory",
+      "title": "Twelve-bar vocal form A/B/C",
+      "kind": "melody",
+      "status": "editing",
+      "revision": 0,
+      "patternBars": 12,
+      "notes": [
+        {
+          "id": "verse-0-0",
+          "bar": 0,
+          "step": 7,
+          "pitch": 1,
+          "note": "C4",
+          "duration": "16n",
+          "velocity": 0.38,
+          "timingOffset": 0.12
+        },
+        {
+          "id": "verse-0-1",
+          "bar": 0,
+          "step": 8,
+          "pitch": 2,
+          "note": "Eb4",
+          "duration": "8n.",
+          "velocity": 0.48
+        },
+        {
+          "id": "verse-0-2",
+          "bar": 0,
+          "step": 12,
+          "pitch": 2,
+          "note": "F4",
+          "duration": "8n.",
+          "velocity": 0.57
+        },
+        {
+          "id": "verse-0-3",
+          "bar": 0,
+          "step": 14,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.43
+        },
+        {
+          "id": "verse-0-4",
+          "bar": 1,
+          "step": 0,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "8n.",
+          "velocity": 0.49
+        },
+        {
+          "id": "verse-0-5",
+          "bar": 1,
+          "step": 3,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "16n",
+          "velocity": 0.38,
+          "timingOffset": 0.08
+        },
+        {
+          "id": "verse-0-6",
+          "bar": 1,
+          "step": 6,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "8n",
+          "velocity": 0.5
+        },
+        {
+          "id": "verse-0-7",
+          "bar": 1,
+          "step": 8,
+          "pitch": 2,
+          "note": "F4",
+          "duration": "8n",
+          "velocity": 0.55
+        },
+        {
+          "id": "verse-0-8",
+          "bar": 1,
+          "step": 10,
+          "pitch": 3,
+          "note": "Ab4",
+          "duration": "8n.",
+          "velocity": 0.6
+        },
+        {
+          "id": "verse-0-9",
+          "bar": 1,
+          "step": 12,
+          "pitch": 2,
+          "note": "Gb4",
+          "duration": "16n",
+          "velocity": 0.47
+        },
+        {
+          "id": "verse-0-10",
+          "bar": 1,
+          "step": 13,
+          "pitch": 2,
+          "note": "F4",
+          "duration": "16n",
+          "velocity": 0.45
+        },
+        {
+          "id": "verse-0-11",
+          "bar": 1,
+          "step": 14,
+          "pitch": 3,
+          "note": "Ab4",
+          "duration": "8n.",
+          "velocity": 0.57
+        },
+        {
+          "id": "verse-0-12",
+          "bar": 2,
+          "step": 0,
+          "pitch": 3,
+          "note": "Bb4",
+          "duration": "8n.",
+          "velocity": 0.64,
+          "articulation": "accent"
+        },
+        {
+          "id": "verse-0-13",
+          "bar": 2,
+          "step": 2,
+          "pitch": 2,
+          "note": "Ab4",
+          "duration": "8n",
+          "velocity": 0.52
+        },
+        {
+          "id": "verse-0-14",
+          "bar": 2,
+          "step": 5,
+          "pitch": 3,
+          "note": "Bb4",
+          "duration": "8n",
+          "velocity": 0.58
+        },
+        {
+          "id": "verse-0-15",
+          "bar": 2,
+          "step": 7,
+          "pitch": 4,
+          "note": "Db5",
+          "duration": "16n",
+          "velocity": 0.6
+        },
+        {
+          "id": "verse-0-16",
+          "bar": 2,
+          "step": 8,
+          "pitch": 4,
+          "note": "C5",
+          "duration": "8n.",
+          "velocity": 0.58
+        },
+        {
+          "id": "verse-0-17",
+          "bar": 2,
+          "step": 10,
+          "pitch": 2,
+          "note": "Ab4",
+          "duration": "8n",
+          "velocity": 0.5
+        },
+        {
+          "id": "verse-0-18",
+          "bar": 2,
+          "step": 13,
+          "pitch": 1,
+          "note": "F4",
+          "duration": "8n",
+          "velocity": 0.48
+        },
+        {
+          "id": "verse-0-19",
+          "bar": 2,
+          "step": 14,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.42
+        },
+        {
+          "id": "verse-0-20",
+          "bar": 3,
+          "step": 0,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "8n.",
+          "velocity": 0.48
+        },
+        {
+          "id": "verse-0-21",
+          "bar": 3,
+          "step": 2,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "16n",
+          "velocity": 0.38
+        },
+        {
+          "id": "verse-0-22",
+          "bar": 3,
+          "step": 4,
+          "pitch": 1,
+          "note": "Db4",
+          "duration": "8n",
+          "velocity": 0.48
+        },
+        {
+          "id": "verse-0-23",
+          "bar": 3,
+          "step": 6,
+          "pitch": 2,
+          "note": "Gb4",
+          "duration": "8n",
+          "velocity": 0.54
+        },
+        {
+          "id": "verse-0-24",
+          "bar": 3,
+          "step": 7,
+          "pitch": 3,
+          "note": "Ab4",
+          "duration": "4n.",
+          "velocity": 0.6,
+          "articulation": "accent"
+        },
+        {
+          "id": "verse-0-25",
+          "bar": 3,
+          "step": 13,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.41,
+          "timingOffset": 0.1
+        },
+        {
+          "id": "verse-1-0",
+          "bar": 4,
+          "step": 7,
+          "pitch": 1,
+          "note": "C4",
+          "duration": "16n",
+          "velocity": 0.43,
+          "timingOffset": 0.12
+        },
+        {
+          "id": "verse-1-1",
+          "bar": 4,
+          "step": 8,
+          "pitch": 2,
+          "note": "Eb4",
+          "duration": "8n.",
+          "velocity": 0.53
+        },
+        {
+          "id": "verse-1-2",
+          "bar": 4,
+          "step": 12,
+          "pitch": 2,
+          "note": "F4",
+          "duration": "8n.",
+          "velocity": 0.62
+        },
+        {
+          "id": "verse-1-3",
+          "bar": 4,
+          "step": 14,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.48
+        },
+        {
+          "id": "verse-1-4",
+          "bar": 5,
+          "step": 0,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "8n.",
+          "velocity": 0.54
+        },
+        {
+          "id": "verse-1-5",
+          "bar": 5,
+          "step": 3,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "16n",
+          "velocity": 0.43,
+          "timingOffset": 0.08
+        },
+        {
+          "id": "verse-1-6",
+          "bar": 5,
+          "step": 6,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "8n",
+          "velocity": 0.55
+        },
+        {
+          "id": "verse-1-7",
+          "bar": 5,
+          "step": 8,
+          "pitch": 2,
+          "note": "F4",
+          "duration": "8n",
+          "velocity": 0.6000000000000001
+        },
+        {
+          "id": "verse-1-8",
+          "bar": 5,
+          "step": 10,
+          "pitch": 3,
+          "note": "Ab4",
+          "duration": "8n.",
+          "velocity": 0.65
+        },
+        {
+          "id": "verse-1-9",
+          "bar": 5,
+          "step": 12,
+          "pitch": 2,
+          "note": "Gb4",
+          "duration": "16n",
+          "velocity": 0.52
+        },
+        {
+          "id": "verse-1-10",
+          "bar": 5,
+          "step": 13,
+          "pitch": 2,
+          "note": "F4",
+          "duration": "16n",
+          "velocity": 0.5
+        },
+        {
+          "id": "verse-1-11",
+          "bar": 5,
+          "step": 14,
+          "pitch": 3,
+          "note": "Ab4",
+          "duration": "8n.",
+          "velocity": 0.62
+        },
+        {
+          "id": "verse-1-12",
+          "bar": 6,
+          "step": 0,
+          "pitch": 3,
+          "note": "Bb4",
+          "duration": "8n.",
+          "velocity": 0.6900000000000001,
+          "articulation": "accent"
+        },
+        {
+          "id": "verse-1-13",
+          "bar": 6,
+          "step": 2,
+          "pitch": 2,
+          "note": "Ab4",
+          "duration": "8n",
+          "velocity": 0.5700000000000001
+        },
+        {
+          "id": "verse-1-14",
+          "bar": 6,
+          "step": 5,
+          "pitch": 3,
+          "note": "Bb4",
+          "duration": "8n",
+          "velocity": 0.63
+        },
+        {
+          "id": "verse-1-15",
+          "bar": 6,
+          "step": 7,
+          "pitch": 4,
+          "note": "Db5",
+          "duration": "16n",
+          "velocity": 0.65
+        },
+        {
+          "id": "verse-1-16",
+          "bar": 6,
+          "step": 8,
+          "pitch": 4,
+          "note": "C5",
+          "duration": "8n.",
+          "velocity": 0.63
+        },
+        {
+          "id": "verse-1-17",
+          "bar": 6,
+          "step": 10,
+          "pitch": 2,
+          "note": "Ab4",
+          "duration": "8n",
+          "velocity": 0.55
+        },
+        {
+          "id": "verse-1-18",
+          "bar": 6,
+          "step": 13,
+          "pitch": 1,
+          "note": "F4",
+          "duration": "8n",
+          "velocity": 0.53
+        },
+        {
+          "id": "verse-1-19",
+          "bar": 6,
+          "step": 14,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.47
+        },
+        {
+          "id": "verse-1-20",
+          "bar": 7,
+          "step": 0,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "8n.",
+          "velocity": 0.53
+        },
+        {
+          "id": "verse-1-21",
+          "bar": 7,
+          "step": 2,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "16n",
+          "velocity": 0.43
+        },
+        {
+          "id": "verse-1-22",
+          "bar": 7,
+          "step": 4,
+          "pitch": 1,
+          "note": "Db4",
+          "duration": "8n",
+          "velocity": 0.53
+        },
+        {
+          "id": "verse-1-23",
+          "bar": 7,
+          "step": 6,
+          "pitch": 2,
+          "note": "Gb4",
+          "duration": "8n",
+          "velocity": 0.5900000000000001
+        },
+        {
+          "id": "verse-1-24",
+          "bar": 7,
+          "step": 7,
+          "pitch": 3,
+          "note": "Ab4",
+          "duration": "4n.",
+          "velocity": 0.65,
+          "articulation": "accent"
+        },
+        {
+          "id": "verse-1-25",
+          "bar": 7,
+          "step": 13,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.45999999999999996,
+          "timingOffset": 0.1
+        },
+        {
+          "id": "verse-2-0",
+          "bar": 8,
+          "step": 7,
+          "pitch": 1,
+          "note": "C4",
+          "duration": "16n",
+          "velocity": 0.35,
+          "timingOffset": 0.12
+        },
+        {
+          "id": "verse-2-1",
+          "bar": 8,
+          "step": 8,
+          "pitch": 2,
+          "note": "Eb4",
+          "duration": "8n.",
+          "velocity": 0.44999999999999996
+        },
+        {
+          "id": "verse-2-2",
+          "bar": 8,
+          "step": 12,
+          "pitch": 2,
+          "note": "F4",
+          "duration": "8n.",
+          "velocity": 0.5399999999999999
+        },
+        {
+          "id": "verse-2-3",
+          "bar": 8,
+          "step": 14,
+          "pitch": 1,
+          "note": "Db5",
+          "duration": "16n",
+          "velocity": 0.4,
+          "articulation": "legato",
+          "glideFrom": "Bb4"
+        },
+        {
+          "id": "verse-2-4",
+          "bar": 9,
+          "step": 0,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "8n.",
+          "velocity": 0.45999999999999996
+        },
+        {
+          "id": "verse-2-5",
+          "bar": 9,
+          "step": 3,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "16n",
+          "velocity": 0.35,
+          "timingOffset": 0.08
+        },
+        {
+          "id": "verse-2-6",
+          "bar": 9,
+          "step": 6,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "8n",
+          "velocity": 0.47
+        },
+        {
+          "id": "verse-2-7",
+          "bar": 9,
+          "step": 8,
+          "pitch": 2,
+          "note": "F4",
+          "duration": "8n",
+          "velocity": 0.52
+        },
+        {
+          "id": "verse-2-8",
+          "bar": 9,
+          "step": 10,
+          "pitch": 3,
+          "note": "Ab4",
+          "duration": "8n.",
+          "velocity": 0.57
+        },
+        {
+          "id": "verse-2-9",
+          "bar": 9,
+          "step": 12,
+          "pitch": 2,
+          "note": "Gb4",
+          "duration": "16n",
+          "velocity": 0.43999999999999995
+        },
+        {
+          "id": "verse-2-10",
+          "bar": 9,
+          "step": 13,
+          "pitch": 2,
+          "note": "F4",
+          "duration": "16n",
+          "velocity": 0.42000000000000004
+        },
+        {
+          "id": "verse-2-11",
+          "bar": 9,
+          "step": 14,
+          "pitch": 3,
+          "note": "Db5",
+          "duration": "8n.",
+          "velocity": 0.5399999999999999,
+          "articulation": "legato",
+          "glideFrom": "Bb4"
+        },
+        {
+          "id": "verse-2-12",
+          "bar": 10,
+          "step": 0,
+          "pitch": 3,
+          "note": "Bb4",
+          "duration": "8n.",
+          "velocity": 0.61,
+          "articulation": "accent"
+        },
+        {
+          "id": "verse-2-13",
+          "bar": 10,
+          "step": 2,
+          "pitch": 2,
+          "note": "Ab4",
+          "duration": "8n",
+          "velocity": 0.49
+        },
+        {
+          "id": "verse-2-14",
+          "bar": 10,
+          "step": 5,
+          "pitch": 3,
+          "note": "Bb4",
+          "duration": "8n",
+          "velocity": 0.5499999999999999
+        },
+        {
+          "id": "verse-2-15",
+          "bar": 10,
+          "step": 7,
+          "pitch": 4,
+          "note": "Db5",
+          "duration": "16n",
+          "velocity": 0.57
+        },
+        {
+          "id": "verse-2-16",
+          "bar": 10,
+          "step": 8,
+          "pitch": 4,
+          "note": "C5",
+          "duration": "8n.",
+          "velocity": 0.5499999999999999
+        },
+        {
+          "id": "verse-2-17",
+          "bar": 10,
+          "step": 10,
+          "pitch": 2,
+          "note": "Ab4",
+          "duration": "8n",
+          "velocity": 0.47
+        },
+        {
+          "id": "verse-2-18",
+          "bar": 10,
+          "step": 13,
+          "pitch": 1,
+          "note": "F4",
+          "duration": "8n",
+          "velocity": 0.44999999999999996
+        },
+        {
+          "id": "verse-2-19",
+          "bar": 10,
+          "step": 14,
+          "pitch": 1,
+          "note": "Db5",
+          "duration": "16n",
+          "velocity": 0.39,
+          "articulation": "legato",
+          "glideFrom": "Bb4"
+        },
+        {
+          "id": "verse-2-20",
+          "bar": 11,
+          "step": 0,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "8n.",
+          "velocity": 0.44999999999999996
+        },
+        {
+          "id": "verse-2-21",
+          "bar": 11,
+          "step": 2,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "16n",
+          "velocity": 0.35
+        },
+        {
+          "id": "verse-2-22",
+          "bar": 11,
+          "step": 4,
+          "pitch": 1,
+          "note": "Db4",
+          "duration": "8n",
+          "velocity": 0.44999999999999996
+        },
+        {
+          "id": "verse-2-23",
+          "bar": 11,
+          "step": 6,
+          "pitch": 2,
+          "note": "Gb4",
+          "duration": "8n",
+          "velocity": 0.51
+        },
+        {
+          "id": "verse-2-24",
+          "bar": 11,
+          "step": 7,
+          "pitch": 3,
+          "note": "Ab4",
+          "duration": "4n.",
+          "velocity": 0.57,
+          "articulation": "accent"
+        },
+        {
+          "id": "verse-2-25",
+          "bar": 11,
+          "step": 13,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.38,
+          "timingOffset": 0.1
+        }
+      ]
+    },
+    {
+      "id": "memory-release",
+      "owner": "memory",
+      "title": "Return vocal with electric-guitar answers",
+      "kind": "melody",
+      "status": "editing",
+      "revision": 0,
+      "patternBars": 12,
+      "notes": [
+        {
+          "id": "release-vocal-0-0",
+          "bar": 0,
+          "step": 7,
+          "pitch": 1,
+          "note": "C4",
+          "duration": "16n",
+          "velocity": 0.46,
+          "timingOffset": 0.12
+        },
+        {
+          "id": "release-vocal-0-1",
+          "bar": 0,
+          "step": 8,
+          "pitch": 2,
+          "note": "Eb4",
+          "duration": "8n.",
+          "velocity": 0.56
+        },
+        {
+          "id": "release-vocal-0-2",
+          "bar": 0,
+          "step": 12,
+          "pitch": 2,
+          "note": "F4",
+          "duration": "8n.",
+          "velocity": 0.6499999999999999
+        },
+        {
+          "id": "release-vocal-0-3",
+          "bar": 0,
+          "step": 14,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.51
+        },
+        {
+          "id": "release-vocal-0-4",
+          "bar": 1,
+          "step": 0,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "8n.",
+          "velocity": 0.5700000000000001
+        },
+        {
+          "id": "release-vocal-0-5",
+          "bar": 1,
+          "step": 3,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "16n",
+          "velocity": 0.46,
+          "timingOffset": 0.08
+        },
+        {
+          "id": "release-vocal-0-6",
+          "bar": 1,
+          "step": 6,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "8n",
+          "velocity": 0.5800000000000001
+        },
+        {
+          "id": "release-vocal-0-7",
+          "bar": 1,
+          "step": 8,
+          "pitch": 2,
+          "note": "F4",
+          "duration": "8n",
+          "velocity": 0.6300000000000001
+        },
+        {
+          "id": "release-vocal-0-8",
+          "bar": 1,
+          "step": 10,
+          "pitch": 3,
+          "note": "Ab4",
+          "duration": "8n.",
+          "velocity": 0.6799999999999999
+        },
+        {
+          "id": "release-vocal-0-9",
+          "bar": 1,
+          "step": 12,
+          "pitch": 2,
+          "note": "Gb4",
+          "duration": "16n",
+          "velocity": 0.55
+        },
+        {
+          "id": "release-vocal-0-10",
+          "bar": 1,
+          "step": 13,
+          "pitch": 2,
+          "note": "F4",
+          "duration": "16n",
+          "velocity": 0.53
+        },
+        {
+          "id": "release-vocal-0-11",
+          "bar": 1,
+          "step": 14,
+          "pitch": 3,
+          "note": "Ab4",
+          "duration": "8n.",
+          "velocity": 0.6499999999999999
+        },
+        {
+          "id": "release-vocal-0-12",
+          "bar": 2,
+          "step": 0,
+          "pitch": 3,
+          "note": "Bb4",
+          "duration": "8n.",
+          "velocity": 0.72,
+          "articulation": "accent"
+        },
+        {
+          "id": "release-vocal-0-13",
+          "bar": 2,
+          "step": 2,
+          "pitch": 2,
+          "note": "Ab4",
+          "duration": "8n",
+          "velocity": 0.6000000000000001
+        },
+        {
+          "id": "release-vocal-0-14",
+          "bar": 2,
+          "step": 5,
+          "pitch": 3,
+          "note": "Bb4",
+          "duration": "8n",
+          "velocity": 0.6599999999999999
+        },
+        {
+          "id": "release-vocal-0-15",
+          "bar": 2,
+          "step": 7,
+          "pitch": 4,
+          "note": "Db5",
+          "duration": "16n",
+          "velocity": 0.6799999999999999
+        },
+        {
+          "id": "release-vocal-0-16",
+          "bar": 2,
+          "step": 8,
+          "pitch": 4,
+          "note": "C5",
+          "duration": "8n.",
+          "velocity": 0.6599999999999999
+        },
+        {
+          "id": "release-vocal-0-17",
+          "bar": 2,
+          "step": 10,
+          "pitch": 2,
+          "note": "Ab4",
+          "duration": "8n",
+          "velocity": 0.5800000000000001
+        },
+        {
+          "id": "release-vocal-0-18",
+          "bar": 2,
+          "step": 13,
+          "pitch": 1,
+          "note": "F4",
+          "duration": "8n",
+          "velocity": 0.56
+        },
+        {
+          "id": "release-vocal-0-19",
+          "bar": 2,
+          "step": 14,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.5
+        },
+        {
+          "id": "release-vocal-0-20",
+          "bar": 3,
+          "step": 0,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "8n.",
+          "velocity": 0.56
+        },
+        {
+          "id": "release-vocal-0-21",
+          "bar": 3,
+          "step": 2,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "16n",
+          "velocity": 0.46
+        },
+        {
+          "id": "release-vocal-0-22",
+          "bar": 3,
+          "step": 4,
+          "pitch": 1,
+          "note": "Db4",
+          "duration": "8n",
+          "velocity": 0.56
+        },
+        {
+          "id": "release-vocal-0-23",
+          "bar": 3,
+          "step": 6,
+          "pitch": 2,
+          "note": "Gb4",
+          "duration": "8n",
+          "velocity": 0.6200000000000001
+        },
+        {
+          "id": "release-vocal-0-24",
+          "bar": 3,
+          "step": 7,
+          "pitch": 3,
+          "note": "Ab4",
+          "duration": "4n.",
+          "velocity": 0.6799999999999999,
+          "articulation": "accent"
+        },
+        {
+          "id": "release-vocal-0-25",
+          "bar": 3,
+          "step": 13,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.49,
+          "timingOffset": 0.1
+        },
+        {
+          "id": "release-vocal-1-0",
+          "bar": 8,
+          "step": 7,
+          "pitch": 1,
+          "note": "C4",
+          "duration": "16n",
+          "velocity": 0.5,
+          "timingOffset": 0.12
+        },
+        {
+          "id": "release-vocal-1-1",
+          "bar": 8,
+          "step": 8,
+          "pitch": 2,
+          "note": "Eb4",
+          "duration": "8n.",
+          "velocity": 0.6000000000000001
+        },
+        {
+          "id": "release-vocal-1-2",
+          "bar": 8,
+          "step": 12,
+          "pitch": 2,
+          "note": "F4",
+          "duration": "8n.",
+          "velocity": 0.69
+        },
+        {
+          "id": "release-vocal-1-3",
+          "bar": 8,
+          "step": 14,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.55
+        },
+        {
+          "id": "release-vocal-1-4",
+          "bar": 9,
+          "step": 0,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "8n.",
+          "velocity": 0.6100000000000001
+        },
+        {
+          "id": "release-vocal-1-5",
+          "bar": 9,
+          "step": 3,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "16n",
+          "velocity": 0.5,
+          "timingOffset": 0.08
+        },
+        {
+          "id": "release-vocal-1-6",
+          "bar": 9,
+          "step": 6,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "8n",
+          "velocity": 0.6200000000000001
+        },
+        {
+          "id": "release-vocal-1-7",
+          "bar": 9,
+          "step": 8,
+          "pitch": 2,
+          "note": "F4",
+          "duration": "8n",
+          "velocity": 0.6700000000000002
+        },
+        {
+          "id": "release-vocal-1-8",
+          "bar": 9,
+          "step": 10,
+          "pitch": 3,
+          "note": "Ab4",
+          "duration": "8n.",
+          "velocity": 0.72
+        },
+        {
+          "id": "release-vocal-1-9",
+          "bar": 9,
+          "step": 12,
+          "pitch": 2,
+          "note": "Gb4",
+          "duration": "16n",
+          "velocity": 0.5900000000000001
+        },
+        {
+          "id": "release-vocal-1-10",
+          "bar": 9,
+          "step": 13,
+          "pitch": 2,
+          "note": "F4",
+          "duration": "16n",
+          "velocity": 0.5700000000000001
+        },
+        {
+          "id": "release-vocal-1-11",
+          "bar": 9,
+          "step": 14,
+          "pitch": 3,
+          "note": "Ab4",
+          "duration": "8n.",
+          "velocity": 0.69
+        },
+        {
+          "id": "release-vocal-1-12",
+          "bar": 10,
+          "step": 0,
+          "pitch": 3,
+          "note": "Bb4",
+          "duration": "8n.",
+          "velocity": 0.76,
+          "articulation": "accent"
+        },
+        {
+          "id": "release-vocal-1-13",
+          "bar": 10,
+          "step": 2,
+          "pitch": 2,
+          "note": "Ab4",
+          "duration": "8n",
+          "velocity": 0.6400000000000001
+        },
+        {
+          "id": "release-vocal-1-14",
+          "bar": 10,
+          "step": 5,
+          "pitch": 3,
+          "note": "Bb4",
+          "duration": "8n",
+          "velocity": 0.7
+        },
+        {
+          "id": "release-vocal-1-15",
+          "bar": 10,
+          "step": 7,
+          "pitch": 4,
+          "note": "Db5",
+          "duration": "16n",
+          "velocity": 0.72
+        },
+        {
+          "id": "release-vocal-1-16",
+          "bar": 10,
+          "step": 8,
+          "pitch": 4,
+          "note": "C5",
+          "duration": "8n.",
+          "velocity": 0.7
+        },
+        {
+          "id": "release-vocal-1-17",
+          "bar": 10,
+          "step": 10,
+          "pitch": 2,
+          "note": "Ab4",
+          "duration": "8n",
+          "velocity": 0.6200000000000001
+        },
+        {
+          "id": "release-vocal-1-18",
+          "bar": 10,
+          "step": 13,
+          "pitch": 1,
+          "note": "F4",
+          "duration": "8n",
+          "velocity": 0.6000000000000001
+        },
+        {
+          "id": "release-vocal-1-19",
+          "bar": 10,
+          "step": 14,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.54
+        },
+        {
+          "id": "release-vocal-1-20",
+          "bar": 11,
+          "step": 0,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "8n.",
+          "velocity": 0.6000000000000001
+        },
+        {
+          "id": "release-vocal-1-21",
+          "bar": 11,
+          "step": 2,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "16n",
+          "velocity": 0.5
+        },
+        {
+          "id": "release-vocal-1-22",
+          "bar": 11,
+          "step": 4,
+          "pitch": 1,
+          "note": "Db4",
+          "duration": "8n",
+          "velocity": 0.6000000000000001
+        },
+        {
+          "id": "release-vocal-1-23",
+          "bar": 11,
+          "step": 6,
+          "pitch": 2,
+          "note": "Gb4",
+          "duration": "8n",
+          "velocity": 0.6600000000000001
+        },
+        {
+          "id": "release-vocal-1-24",
+          "bar": 11,
+          "step": 7,
+          "pitch": 3,
+          "note": "Ab4",
+          "duration": "4n.",
+          "velocity": 0.72,
+          "articulation": "accent"
+        },
+        {
+          "id": "release-vocal-1-25",
+          "bar": 11,
+          "step": 13,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.53,
+          "timingOffset": 0.1
+        },
+        {
+          "id": "release-guitar-0-0",
+          "bar": 4,
+          "step": 3,
+          "pitch": 1,
+          "note": "Bb4",
+          "duration": "32n",
+          "velocity": 0.5,
+          "articulation": "muted",
+          "timingOffset": 0.12,
+          "instrument": "guitar"
+        },
+        {
+          "id": "release-guitar-0-1",
+          "bar": 4,
+          "step": 4,
+          "pitch": 3,
+          "note": "Db5",
+          "duration": "8n",
+          "velocity": 0.58,
+          "articulation": "slide",
+          "glideFrom": "Bb4",
+          "timingOffset": 0.08,
+          "instrument": "guitar"
+        },
+        {
+          "id": "release-guitar-0-2",
+          "bar": 4,
+          "step": 8,
+          "pitch": 2,
+          "note": "Bb4",
+          "duration": "8n",
+          "velocity": 0.54,
+          "instrument": "guitar"
+        },
+        {
+          "id": "release-guitar-0-3",
+          "bar": 5,
+          "step": 3,
+          "pitch": 1,
+          "note": "Ab4",
+          "duration": "32n",
+          "velocity": 0.46,
+          "articulation": "muted",
+          "timingOffset": 0.1,
+          "instrument": "guitar"
+        },
+        {
+          "id": "release-guitar-0-4",
+          "bar": 5,
+          "step": 4,
+          "pitch": 2,
+          "note": "Bb4",
+          "duration": "8n",
+          "velocity": 0.5499999999999999,
+          "articulation": "legato",
+          "glideFrom": "Ab4",
+          "timingOffset": 0.08,
+          "instrument": "guitar"
+        },
+        {
+          "id": "release-guitar-0-5",
+          "bar": 5,
+          "step": 11,
+          "pitch": 1,
+          "note": "F4",
+          "duration": "8n",
+          "velocity": 0.51,
+          "instrument": "guitar"
+        },
+        {
+          "id": "release-guitar-0-6",
+          "bar": 5,
+          "step": 14,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.48000000000000004,
+          "instrument": "guitar"
+        },
+        {
+          "id": "release-guitar-0-7",
+          "bar": 7,
+          "step": 10,
+          "pitch": 1,
+          "note": "F4",
+          "duration": "16n",
+          "velocity": 0.46,
+          "articulation": "ghost",
+          "instrument": "guitar"
+        },
+        {
+          "id": "release-guitar-0-8",
+          "bar": 7,
+          "step": 12,
+          "pitch": 2,
+          "note": "Gb4",
+          "duration": "8n",
+          "velocity": 0.53,
+          "instrument": "guitar"
+        }
+      ]
+    },
+    {
+      "id": "memory-guitar-late",
+      "owner": "memory",
+      "title": "Electric triangle-lead guitar variations",
+      "kind": "melody",
+      "status": "editing",
+      "revision": 0,
+      "patternBars": 8,
+      "notes": [
+        {
+          "id": "late-guitar-0-0",
+          "bar": 0,
+          "step": 3,
+          "pitch": 1,
+          "note": "Bb4",
+          "duration": "32n",
+          "velocity": 0.52,
+          "articulation": "muted",
+          "timingOffset": 0.12,
+          "instrument": "guitar"
+        },
+        {
+          "id": "late-guitar-0-1",
+          "bar": 0,
+          "step": 4,
+          "pitch": 3,
+          "note": "Db5",
+          "duration": "8n",
+          "velocity": 0.6,
+          "articulation": "slide",
+          "glideFrom": "Bb4",
+          "timingOffset": 0.08,
+          "instrument": "guitar"
+        },
+        {
+          "id": "late-guitar-0-2",
+          "bar": 0,
+          "step": 8,
+          "pitch": 2,
+          "note": "Bb4",
+          "duration": "8n",
+          "velocity": 0.56,
+          "instrument": "guitar"
+        },
+        {
+          "id": "late-guitar-0-3",
+          "bar": 1,
+          "step": 3,
+          "pitch": 1,
+          "note": "Ab4",
+          "duration": "32n",
+          "velocity": 0.48,
+          "articulation": "muted",
+          "timingOffset": 0.1,
+          "instrument": "guitar"
+        },
+        {
+          "id": "late-guitar-0-4",
+          "bar": 1,
+          "step": 4,
+          "pitch": 2,
+          "note": "Bb4",
+          "duration": "8n",
+          "velocity": 0.57,
+          "articulation": "legato",
+          "glideFrom": "Ab4",
+          "timingOffset": 0.08,
+          "instrument": "guitar"
+        },
+        {
+          "id": "late-guitar-0-5",
+          "bar": 1,
+          "step": 11,
+          "pitch": 1,
+          "note": "F4",
+          "duration": "8n",
+          "velocity": 0.53,
+          "instrument": "guitar"
+        },
+        {
+          "id": "late-guitar-0-6",
+          "bar": 1,
+          "step": 14,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.5,
+          "instrument": "guitar"
+        },
+        {
+          "id": "late-guitar-0-7",
+          "bar": 3,
+          "step": 10,
+          "pitch": 1,
+          "note": "F4",
+          "duration": "16n",
+          "velocity": 0.48,
+          "articulation": "ghost",
+          "instrument": "guitar"
+        },
+        {
+          "id": "late-guitar-0-8",
+          "bar": 3,
+          "step": 12,
+          "pitch": 2,
+          "note": "Gb4",
+          "duration": "8n",
+          "velocity": 0.55,
+          "instrument": "guitar"
+        },
+        {
+          "id": "late-guitar-1-0",
+          "bar": 4,
+          "step": 3,
+          "pitch": 1,
+          "note": "Bb4",
+          "duration": "32n",
+          "velocity": 0.57,
+          "articulation": "muted",
+          "timingOffset": 0.12,
+          "instrument": "guitar"
+        },
+        {
+          "id": "late-guitar-1-1",
+          "bar": 4,
+          "step": 4,
+          "pitch": 3,
+          "note": "Db5",
+          "duration": "8n",
+          "velocity": 0.65,
+          "articulation": "slide",
+          "glideFrom": "Bb4",
+          "timingOffset": 0.08,
+          "instrument": "guitar"
+        },
+        {
+          "id": "late-guitar-1-2",
+          "bar": 4,
+          "step": 8,
+          "pitch": 2,
+          "note": "Bb4",
+          "duration": "8n",
+          "velocity": 0.61,
+          "instrument": "guitar"
+        },
+        {
+          "id": "late-guitar-1-3",
+          "bar": 5,
+          "step": 3,
+          "pitch": 1,
+          "note": "Ab4",
+          "duration": "32n",
+          "velocity": 0.53,
+          "articulation": "muted",
+          "timingOffset": 0.1,
+          "instrument": "guitar"
+        },
+        {
+          "id": "late-guitar-1-4",
+          "bar": 5,
+          "step": 4,
+          "pitch": 2,
+          "note": "Bb4",
+          "duration": "8n",
+          "velocity": 0.62,
+          "articulation": "legato",
+          "glideFrom": "Ab4",
+          "timingOffset": 0.08,
+          "instrument": "guitar"
+        },
+        {
+          "id": "late-guitar-1-5",
+          "bar": 5,
+          "step": 11,
+          "pitch": 1,
+          "note": "F4",
+          "duration": "8n",
+          "velocity": 0.58,
+          "instrument": "guitar"
+        },
+        {
+          "id": "late-guitar-1-6",
+          "bar": 5,
+          "step": 14,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.55,
+          "instrument": "guitar"
+        },
+        {
+          "id": "late-guitar-1-7",
+          "bar": 7,
+          "step": 10,
+          "pitch": 1,
+          "note": "F4",
+          "duration": "16n",
+          "velocity": 0.53,
+          "articulation": "ghost",
+          "instrument": "guitar"
+        },
+        {
+          "id": "late-guitar-1-8",
+          "bar": 7,
+          "step": 12,
+          "pitch": 2,
+          "note": "Gb4",
+          "duration": "8n",
+          "velocity": 0.6,
+          "instrument": "guitar"
+        },
+        {
+          "id": "late-guitar-slide-a",
+          "bar": 2,
+          "step": 8,
+          "pitch": 3,
+          "note": "Db5",
+          "duration": "8n",
+          "velocity": 0.62,
+          "instrument": "guitar",
+          "articulation": "slide",
+          "glideFrom": "Bb4"
+        },
+        {
+          "id": "late-guitar-slide-b",
+          "bar": 6,
+          "step": 8,
+          "pitch": 4,
+          "note": "F5",
+          "duration": "8n",
+          "velocity": 0.66,
+          "instrument": "guitar",
+          "articulation": "slide",
+          "glideFrom": "Db5"
+        }
+      ]
+    },
+    {
+      "id": "memory-outro",
+      "owner": "memory",
+      "title": "Sparse ten-bar outro replies",
+      "kind": "melody",
+      "status": "editing",
+      "revision": 0,
+      "patternBars": 10,
+      "notes": [
+        {
+          "id": "outro-0-0",
+          "bar": 0,
+          "step": 7,
+          "pitch": 1,
+          "note": "C4",
+          "duration": "16n",
+          "velocity": 0.3,
+          "timingOffset": 0.12
+        },
+        {
+          "id": "outro-0-1",
+          "bar": 0,
+          "step": 8,
+          "pitch": 2,
+          "note": "Eb4",
+          "duration": "8n.",
+          "velocity": 0.39999999999999997
+        },
+        {
+          "id": "outro-0-2",
+          "bar": 0,
+          "step": 12,
+          "pitch": 2,
+          "note": "F4",
+          "duration": "8n.",
+          "velocity": 0.48999999999999994
+        },
+        {
+          "id": "outro-0-3",
+          "bar": 0,
+          "step": 14,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.35
+        },
+        {
+          "id": "outro-0-4",
+          "bar": 1,
+          "step": 0,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "8n.",
+          "velocity": 0.41
+        },
+        {
+          "id": "outro-0-5",
+          "bar": 1,
+          "step": 3,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "16n",
+          "velocity": 0.3,
+          "timingOffset": 0.08
+        },
+        {
+          "id": "outro-0-6",
+          "bar": 1,
+          "step": 6,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "8n",
+          "velocity": 0.42
+        },
+        {
+          "id": "outro-0-7",
+          "bar": 1,
+          "step": 8,
+          "pitch": 2,
+          "note": "F4",
+          "duration": "8n",
+          "velocity": 0.47000000000000003
+        },
+        {
+          "id": "outro-0-8",
+          "bar": 1,
+          "step": 10,
+          "pitch": 3,
+          "note": "Ab4",
+          "duration": "8n.",
+          "velocity": 0.52
+        },
+        {
+          "id": "outro-0-9",
+          "bar": 1,
+          "step": 12,
+          "pitch": 2,
+          "note": "Gb4",
+          "duration": "16n",
+          "velocity": 0.38999999999999996
+        },
+        {
+          "id": "outro-0-10",
+          "bar": 1,
+          "step": 13,
+          "pitch": 2,
+          "note": "F4",
+          "duration": "16n",
+          "velocity": 0.37
+        },
+        {
+          "id": "outro-0-11",
+          "bar": 1,
+          "step": 14,
+          "pitch": 3,
+          "note": "Ab4",
+          "duration": "8n.",
+          "velocity": 0.48999999999999994
+        },
+        {
+          "id": "outro-1-0",
+          "bar": 4,
+          "step": 7,
+          "pitch": 1,
+          "note": "C4",
+          "duration": "16n",
+          "velocity": 0.24,
+          "timingOffset": 0.12
+        },
+        {
+          "id": "outro-1-1",
+          "bar": 4,
+          "step": 8,
+          "pitch": 2,
+          "note": "Eb4",
+          "duration": "8n.",
+          "velocity": 0.33999999999999997
+        },
+        {
+          "id": "outro-1-2",
+          "bar": 4,
+          "step": 12,
+          "pitch": 2,
+          "note": "F4",
+          "duration": "8n.",
+          "velocity": 0.42999999999999994
+        },
+        {
+          "id": "outro-1-3",
+          "bar": 4,
+          "step": 14,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "16n",
+          "velocity": 0.29
+        },
+        {
+          "id": "outro-1-4",
+          "bar": 5,
+          "step": 0,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "8n.",
+          "velocity": 0.35
+        },
+        {
+          "id": "outro-1-5",
+          "bar": 5,
+          "step": 3,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "16n",
+          "velocity": 0.24,
+          "timingOffset": 0.08
+        },
+        {
+          "id": "outro-1-6",
+          "bar": 5,
+          "step": 6,
+          "pitch": 1,
+          "note": "Eb4",
+          "duration": "8n",
+          "velocity": 0.36
+        },
+        {
+          "id": "outro-1-7",
+          "bar": 5,
+          "step": 8,
+          "pitch": 2,
+          "note": "F4",
+          "duration": "8n",
+          "velocity": 0.41000000000000003
+        },
+        {
+          "id": "outro-1-8",
+          "bar": 5,
+          "step": 10,
+          "pitch": 3,
+          "note": "Ab4",
+          "duration": "8n.",
+          "velocity": 0.45999999999999996
+        },
+        {
+          "id": "outro-1-9",
+          "bar": 5,
+          "step": 12,
+          "pitch": 2,
+          "note": "Gb4",
+          "duration": "16n",
+          "velocity": 0.32999999999999996
+        },
+        {
+          "id": "outro-1-10",
+          "bar": 5,
+          "step": 13,
+          "pitch": 2,
+          "note": "F4",
+          "duration": "16n",
+          "velocity": 0.31
+        },
+        {
+          "id": "outro-1-11",
+          "bar": 5,
+          "step": 14,
+          "pitch": 3,
+          "note": "Ab4",
+          "duration": "8n.",
+          "velocity": 0.42999999999999994
+        },
+        {
+          "id": "outro-guitar-0",
+          "bar": 2,
+          "step": 12,
+          "pitch": 2,
+          "note": "Bb4",
+          "duration": "8n",
+          "velocity": 0.46,
+          "instrument": "guitar",
+          "articulation": "slide",
+          "glideFrom": "Ab4"
+        },
+        {
+          "id": "outro-guitar-1",
+          "bar": 6,
+          "step": 12,
+          "pitch": 1,
+          "note": "Gb4",
+          "duration": "8n",
+          "velocity": 0.4,
+          "instrument": "guitar",
+          "articulation": "legato",
+          "glideFrom": "F4"
+        },
+        {
+          "id": "outro-tail",
+          "bar": 8,
+          "step": 8,
+          "pitch": 0,
+          "note": "Bb3",
+          "duration": "2n",
+          "velocity": 0.34,
+          "instrument": "guitar"
+        }
+      ]
+    },
+    {
+      "id": "bass-verse",
+      "owner": "pulse",
+      "title": "Six-bar evolving bass form",
+      "kind": "bass",
+      "status": "editing",
+      "revision": 0,
+      "patternBars": 6,
+      "notes": [
+        {
+          "id": "verse-bass-0-0",
+          "bar": 0,
+          "step": 0,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "4n",
+          "velocity": 0.56,
+          "articulation": "accent",
+          "timingOffset": -0.08
+        },
+        {
+          "id": "verse-bass-0-1",
+          "bar": 0,
+          "step": 9,
+          "pitch": 1,
+          "note": "Bb2",
+          "duration": "8n",
+          "velocity": 0.45
+        },
+        {
+          "id": "verse-bass-0-2",
+          "bar": 0,
+          "step": 12,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "8n",
+          "velocity": 0.5
+        },
+        {
+          "id": "verse-bass-0-3",
+          "bar": 0,
+          "step": 14,
+          "pitch": 0,
+          "note": "Eb2",
+          "duration": "8n",
+          "velocity": 0.46
+        },
+        {
+          "id": "verse-bass-0-4",
+          "bar": 1,
+          "step": 0,
+          "pitch": 0,
+          "note": "Eb2",
+          "duration": "8n",
+          "velocity": 0.52
+        },
+        {
+          "id": "verse-bass-0-5",
+          "bar": 1,
+          "step": 5,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "4n",
+          "velocity": 0.54,
+          "articulation": "legato",
+          "glideFrom": "Eb2"
+        },
+        {
+          "id": "verse-bass-0-6",
+          "bar": 1,
+          "step": 14,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "8n",
+          "velocity": 0.54,
+          "articulation": "accent",
+          "timingOffset": -0.12
+        },
+        {
+          "id": "verse-bass-alt-0-0",
+          "bar": 2,
+          "step": 0,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "4n",
+          "velocity": 0.5900000000000001,
+          "articulation": "accent",
+          "timingOffset": -0.08
+        },
+        {
+          "id": "verse-bass-alt-0-1",
+          "bar": 2,
+          "step": 9,
+          "pitch": 1,
+          "note": "Bb2",
+          "duration": "8n",
+          "velocity": 0.48
+        },
+        {
+          "id": "verse-bass-alt-0-2",
+          "bar": 2,
+          "step": 12,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "8n",
+          "velocity": 0.53
+        },
+        {
+          "id": "verse-bass-alt-0-3",
+          "bar": 2,
+          "step": 14,
+          "pitch": 0,
+          "note": "Eb2",
+          "duration": "8n",
+          "velocity": 0.49
+        },
+        {
+          "id": "verse-bass-alt-0-4",
+          "bar": 3,
+          "step": 0,
+          "pitch": 0,
+          "note": "Eb2",
+          "duration": "8n",
+          "velocity": 0.55
+        },
+        {
+          "id": "verse-bass-alt-0-5",
+          "bar": 3,
+          "step": 5,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "4n",
+          "velocity": 0.5700000000000001,
+          "articulation": "legato",
+          "glideFrom": "Eb2"
+        },
+        {
+          "id": "verse-bass-alt-0-6",
+          "bar": 3,
+          "step": 14,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "8n",
+          "velocity": 0.5700000000000001,
+          "articulation": "accent",
+          "timingOffset": -0.12
+        },
+        {
+          "id": "verse-bass-alt-0-7",
+          "bar": 4,
+          "step": 3,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "32n",
+          "velocity": 0.43000000000000005,
+          "articulation": "muted"
+        },
+        {
+          "id": "verse-bass-alt-0-8",
+          "bar": 4,
+          "step": 4,
+          "pitch": 0,
+          "note": "Db2",
+          "duration": "16n",
+          "velocity": 0.49
+        },
+        {
+          "id": "verse-bass-alt-0-9",
+          "bar": 4,
+          "step": 6,
+          "pitch": 0,
+          "note": "Eb2",
+          "duration": "16n",
+          "velocity": 0.51
+        },
+        {
+          "id": "verse-bass-alt-0-10",
+          "bar": 4,
+          "step": 8,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "16n",
+          "velocity": 0.53
+        },
+        {
+          "id": "verse-bass-alt-0-11",
+          "bar": 4,
+          "step": 10,
+          "pitch": 1,
+          "note": "Ab2",
+          "duration": "8n",
+          "velocity": 0.53,
+          "articulation": "slide",
+          "glideFrom": "F2"
+        },
+        {
+          "id": "verse-bass-alt-0-12",
+          "bar": 4,
+          "step": 14,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "8n",
+          "velocity": 0.5700000000000001
+        },
+        {
+          "id": "verse-bass-alt-0-13",
+          "bar": 5,
+          "step": 0,
+          "pitch": 0,
+          "note": "Eb2",
+          "duration": "8n",
+          "velocity": 0.53
+        },
+        {
+          "id": "verse-bass-alt-0-14",
+          "bar": 5,
+          "step": 5,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "8n",
+          "velocity": 0.55
+        },
+        {
+          "id": "verse-bass-alt-0-15",
+          "bar": 5,
+          "step": 10,
+          "pitch": 1,
+          "note": "Gb2",
+          "duration": "16n",
+          "velocity": 0.45999999999999996,
+          "articulation": "ghost"
+        },
+        {
+          "id": "verse-bass-alt-0-16",
+          "bar": 5,
+          "step": 12,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "16n",
+          "velocity": 0.49
+        },
+        {
+          "id": "verse-bass-alt-0-17",
+          "bar": 5,
+          "step": 14,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "8n",
+          "velocity": 0.5800000000000001
+        }
+      ]
+    },
+    {
+      "id": "bass-sax",
+      "owner": "pulse",
+      "title": "Score sax-section bass foundation",
+      "kind": "bass",
+      "status": "editing",
+      "revision": 0,
+      "patternBars": 2,
+      "notes": [
+        {
+          "id": "sax-bass-00",
+          "bar": 0,
+          "step": 0,
+          "pitch": 0,
+          "note": "Gb1",
+          "duration": "4n.",
+          "velocity": 0.54
+        },
+        {
+          "id": "sax-bass-01",
+          "bar": 0,
+          "step": 8,
+          "pitch": 0,
+          "note": "F1",
+          "duration": "4n",
+          "velocity": 0.52
+        },
+        {
+          "id": "sax-bass-02",
+          "bar": 0,
+          "step": 14,
+          "pitch": 0,
+          "note": "Ab1",
+          "duration": "8n",
+          "velocity": 0.44
+        },
+        {
+          "id": "sax-bass-10",
+          "bar": 1,
+          "step": 0,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "2n",
+          "velocity": 0.58,
+          "articulation": "accent"
+        },
+        {
+          "id": "sax-bass-11",
+          "bar": 1,
+          "step": 10,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "16n",
+          "velocity": 0.46
+        },
+        {
+          "id": "sax-bass-12",
+          "bar": 1,
+          "step": 12,
+          "pitch": 0,
+          "note": "Eb2",
+          "duration": "16n",
+          "velocity": 0.44
+        },
+        {
+          "id": "sax-bass-13",
+          "bar": 1,
+          "step": 14,
+          "pitch": 0,
+          "note": "Db2",
+          "duration": "16n",
+          "velocity": 0.42
+        }
+      ]
+    },
+    {
+      "id": "bass-outro",
+      "owner": "pulse",
+      "title": "Ten-bar bass-led diminuendo",
+      "kind": "bass",
+      "status": "editing",
+      "revision": 0,
+      "patternBars": 10,
+      "notes": [
+        {
+          "id": "outro-bass-0-0",
+          "bar": 0,
+          "step": 0,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "4n",
+          "velocity": 0.56,
+          "articulation": "accent",
+          "timingOffset": -0.08
+        },
+        {
+          "id": "outro-bass-0-1",
+          "bar": 0,
+          "step": 9,
+          "pitch": 1,
+          "note": "Bb2",
+          "duration": "8n",
+          "velocity": 0.45
+        },
+        {
+          "id": "outro-bass-0-2",
+          "bar": 0,
+          "step": 12,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "8n",
+          "velocity": 0.5
+        },
+        {
+          "id": "outro-bass-0-3",
+          "bar": 0,
+          "step": 14,
+          "pitch": 0,
+          "note": "Eb2",
+          "duration": "8n",
+          "velocity": 0.46
+        },
+        {
+          "id": "outro-bass-0-4",
+          "bar": 1,
+          "step": 0,
+          "pitch": 0,
+          "note": "Eb2",
+          "duration": "8n",
+          "velocity": 0.52
+        },
+        {
+          "id": "outro-bass-0-5",
+          "bar": 1,
+          "step": 5,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "4n",
+          "velocity": 0.54,
+          "articulation": "legato",
+          "glideFrom": "Eb2"
+        },
+        {
+          "id": "outro-bass-0-6",
+          "bar": 1,
+          "step": 14,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "8n",
+          "velocity": 0.54,
+          "articulation": "accent",
+          "timingOffset": -0.12
+        },
+        {
+          "id": "outro-bass-0-7",
+          "bar": 2,
+          "step": 3,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "32n",
+          "velocity": 0.4,
+          "articulation": "muted"
+        },
+        {
+          "id": "outro-bass-0-8",
+          "bar": 2,
+          "step": 4,
+          "pitch": 0,
+          "note": "Db2",
+          "duration": "16n",
+          "velocity": 0.46
+        },
+        {
+          "id": "outro-bass-0-9",
+          "bar": 2,
+          "step": 6,
+          "pitch": 0,
+          "note": "Eb2",
+          "duration": "16n",
+          "velocity": 0.48
+        },
+        {
+          "id": "outro-bass-0-10",
+          "bar": 2,
+          "step": 8,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "16n",
+          "velocity": 0.5
+        },
+        {
+          "id": "outro-bass-0-11",
+          "bar": 2,
+          "step": 10,
+          "pitch": 1,
+          "note": "Ab2",
+          "duration": "8n",
+          "velocity": 0.5,
+          "articulation": "slide",
+          "glideFrom": "F2"
+        },
+        {
+          "id": "outro-bass-0-12",
+          "bar": 2,
+          "step": 14,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "8n",
+          "velocity": 0.54
+        },
+        {
+          "id": "outro-bass-0-13",
+          "bar": 3,
+          "step": 0,
+          "pitch": 0,
+          "note": "Eb2",
+          "duration": "8n",
+          "velocity": 0.5
+        },
+        {
+          "id": "outro-bass-0-14",
+          "bar": 3,
+          "step": 5,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "8n",
+          "velocity": 0.52
+        },
+        {
+          "id": "outro-bass-0-15",
+          "bar": 3,
+          "step": 10,
+          "pitch": 1,
+          "note": "Gb2",
+          "duration": "16n",
+          "velocity": 0.43,
+          "articulation": "ghost"
+        },
+        {
+          "id": "outro-bass-0-16",
+          "bar": 3,
+          "step": 12,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "16n",
+          "velocity": 0.46
+        },
+        {
+          "id": "outro-bass-0-17",
+          "bar": 3,
+          "step": 14,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "8n",
+          "velocity": 0.55
+        },
+        {
+          "id": "outro-bass-1-0",
+          "bar": 4,
+          "step": 0,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "4n",
+          "velocity": 0.49000000000000005,
+          "articulation": "accent",
+          "timingOffset": -0.08
+        },
+        {
+          "id": "outro-bass-1-1",
+          "bar": 4,
+          "step": 9,
+          "pitch": 1,
+          "note": "Bb2",
+          "duration": "8n",
+          "velocity": 0.38
+        },
+        {
+          "id": "outro-bass-1-2",
+          "bar": 4,
+          "step": 12,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "8n",
+          "velocity": 0.43
+        },
+        {
+          "id": "outro-bass-1-3",
+          "bar": 4,
+          "step": 14,
+          "pitch": 0,
+          "note": "Eb2",
+          "duration": "8n",
+          "velocity": 0.39
+        },
+        {
+          "id": "outro-bass-1-4",
+          "bar": 5,
+          "step": 0,
+          "pitch": 0,
+          "note": "Eb2",
+          "duration": "8n",
+          "velocity": 0.45
+        },
+        {
+          "id": "outro-bass-1-5",
+          "bar": 5,
+          "step": 5,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "4n",
+          "velocity": 0.47000000000000003,
+          "articulation": "legato",
+          "glideFrom": "Eb2"
+        },
+        {
+          "id": "outro-bass-1-6",
+          "bar": 5,
+          "step": 14,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "8n",
+          "velocity": 0.47000000000000003,
+          "articulation": "accent",
+          "timingOffset": -0.12
+        },
+        {
+          "id": "outro-bass-1-7",
+          "bar": 6,
+          "step": 3,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "32n",
+          "velocity": 0.33,
+          "articulation": "muted"
+        },
+        {
+          "id": "outro-bass-1-8",
+          "bar": 6,
+          "step": 4,
+          "pitch": 0,
+          "note": "Db2",
+          "duration": "16n",
+          "velocity": 0.39
+        },
+        {
+          "id": "outro-bass-1-9",
+          "bar": 6,
+          "step": 6,
+          "pitch": 0,
+          "note": "Eb2",
+          "duration": "16n",
+          "velocity": 0.41
+        },
+        {
+          "id": "outro-bass-1-10",
+          "bar": 6,
+          "step": 8,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "16n",
+          "velocity": 0.43
+        },
+        {
+          "id": "outro-bass-1-11",
+          "bar": 6,
+          "step": 10,
+          "pitch": 1,
+          "note": "Ab2",
+          "duration": "8n",
+          "velocity": 0.43,
+          "articulation": "slide",
+          "glideFrom": "F2"
+        },
+        {
+          "id": "outro-bass-1-12",
+          "bar": 6,
+          "step": 14,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "8n",
+          "velocity": 0.47000000000000003
+        },
+        {
+          "id": "outro-bass-1-13",
+          "bar": 7,
+          "step": 0,
+          "pitch": 0,
+          "note": "Eb2",
+          "duration": "8n",
+          "velocity": 0.43
+        },
+        {
+          "id": "outro-bass-1-14",
+          "bar": 7,
+          "step": 5,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "8n",
+          "velocity": 0.45
+        },
+        {
+          "id": "outro-bass-1-15",
+          "bar": 7,
+          "step": 10,
+          "pitch": 1,
+          "note": "Gb2",
+          "duration": "16n",
+          "velocity": 0.36,
+          "articulation": "ghost"
+        },
+        {
+          "id": "outro-bass-1-16",
+          "bar": 7,
+          "step": 12,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "16n",
+          "velocity": 0.39
+        },
+        {
+          "id": "outro-bass-1-17",
+          "bar": 7,
+          "step": 14,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "8n",
+          "velocity": 0.48000000000000004
+        },
+        {
+          "id": "outro-bass-tail",
+          "bar": 8,
+          "step": 0,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "1m",
+          "velocity": 0.4
+        },
+        {
+          "id": "outro-bass-last",
+          "bar": 9,
+          "step": 12,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "4n",
+          "velocity": 0.28
+        }
+      ]
+    },
+    {
+      "id": "story-verse",
+      "owner": "story",
+      "title": "Six-bar extended-chord verse",
+      "kind": "harmony",
+      "status": "editing",
+      "revision": 0,
+      "patternBars": 6,
+      "harmonyChords": [
+        {
+          "bar": 0,
+          "step": 0,
+          "notes": [
+            "Gb2",
+            "Db3",
+            "F3",
+            "Ab3",
+            "Bb3"
+          ],
+          "duration": "2n",
+          "velocity": 0.4,
+          "articulation": "held"
+        },
+        {
+          "bar": 0,
+          "step": 8,
+          "notes": [
+            "F2",
+            "C3",
+            "Eb3",
+            "Ab3"
+          ],
+          "duration": "2n",
+          "velocity": 0.38,
+          "articulation": "pluck"
+        },
+        {
+          "bar": 1,
+          "step": 0,
+          "notes": [
+            "Bb2",
+            "F3",
+            "Ab3",
+            "Db4"
+          ],
+          "duration": "1m",
+          "velocity": 0.42,
+          "articulation": "held"
+        },
+        {
+          "bar": 2,
+          "step": 0,
+          "notes": [
+            "Gb2",
+            "Db3",
+            "F3",
+            "Ab3"
+          ],
+          "duration": "2n",
+          "velocity": 0.4,
+          "articulation": "held"
+        },
+        {
+          "bar": 2,
+          "step": 8,
+          "notes": [
+            "F2",
+            "C3",
+            "Eb3",
+            "Ab3"
+          ],
+          "duration": "2n",
+          "velocity": 0.38,
+          "articulation": "pluck"
+        },
+        {
+          "bar": 3,
+          "step": 0,
+          "notes": [
+            "Bb2",
+            "F3",
+            "Ab3",
+            "C4",
+            "Db4"
+          ],
+          "duration": "1m",
+          "velocity": 0.43,
+          "articulation": "held"
+        },
+        {
+          "bar": 4,
+          "step": 0,
+          "notes": [
+            "Eb3",
+            "Bb3",
+            "Db4",
+            "F4"
+          ],
+          "duration": "2n",
+          "velocity": 0.39,
+          "articulation": "pluck"
+        },
+        {
+          "bar": 4,
+          "step": 8,
+          "notes": [
+            "F3",
+            "C4",
+            "Eb4",
+            "Ab4"
+          ],
+          "duration": "2n",
+          "velocity": 0.38,
+          "articulation": "pluck"
+        },
+        {
+          "bar": 5,
+          "step": 0,
+          "notes": [
+            "Bb2",
+            "F3",
+            "Ab3",
+            "Db4"
+          ],
+          "duration": "1m",
+          "velocity": 0.41,
+          "articulation": "held"
+        }
+      ]
+    },
+    {
+      "id": "story-sax",
+      "owner": "story",
+      "title": "Score sax-trading harmony",
+      "kind": "harmony",
+      "status": "editing",
+      "revision": 0,
+      "patternBars": 2,
+      "harmonyChords": [
+        {
+          "bar": 0,
+          "step": 0,
+          "notes": [
+            "Gb2",
+            "Db3",
+            "F3",
+            "Ab3",
+            "Bb3"
+          ],
+          "duration": "2n",
+          "velocity": 0.41,
+          "articulation": "held"
+        },
+        {
+          "bar": 0,
+          "step": 8,
+          "notes": [
+            "F2",
+            "C3",
+            "Eb3",
+            "Ab3"
+          ],
+          "duration": "2n",
+          "velocity": 0.39,
+          "articulation": "held"
+        },
+        {
+          "bar": 1,
+          "step": 0,
+          "notes": [
+            "Bb2",
+            "F3",
+            "Ab3",
+            "Db4"
+          ],
+          "duration": "1m",
+          "velocity": 0.43,
+          "articulation": "held"
+        }
+      ]
+    },
+    {
+      "id": "story-outro",
+      "owner": "story",
+      "title": "Ten-bar harmonic diminuendo",
+      "kind": "harmony",
+      "status": "editing",
+      "revision": 0,
+      "patternBars": 10,
+      "harmonyChords": [
+        {
+          "bar": 0,
+          "step": 0,
+          "notes": [
+            "Gb2",
+            "Db3",
+            "F3",
+            "Ab3"
+          ],
+          "duration": "2n",
+          "velocity": 0.36,
+          "articulation": "held"
+        },
+        {
+          "bar": 0,
+          "step": 8,
+          "notes": [
+            "F2",
+            "C3",
+            "Eb3",
+            "Ab3"
+          ],
+          "duration": "2n",
+          "velocity": 0.34,
+          "articulation": "held"
+        },
+        {
+          "bar": 1,
+          "step": 0,
+          "notes": [
+            "Bb2",
+            "F3",
+            "Ab3",
+            "Db4"
+          ],
+          "duration": "1m",
+          "velocity": 0.38,
+          "articulation": "held"
+        },
+        {
+          "bar": 4,
+          "step": 0,
+          "notes": [
+            "Gb2",
+            "Db3",
+            "F3",
+            "Ab3"
+          ],
+          "duration": "2n",
+          "velocity": 0.3,
+          "articulation": "held"
+        },
+        {
+          "bar": 4,
+          "step": 8,
+          "notes": [
+            "F2",
+            "C3",
+            "Eb3",
+            "Ab3"
+          ],
+          "duration": "2n",
+          "velocity": 0.28,
+          "articulation": "held"
+        },
+        {
+          "bar": 5,
+          "step": 0,
+          "notes": [
+            "Bb2",
+            "F3",
+            "Ab3",
+            "Db4"
+          ],
+          "duration": "1m",
+          "velocity": 0.31,
+          "articulation": "held"
+        },
+        {
+          "bar": 8,
+          "step": 0,
+          "notes": [
+            "Bb2",
+            "F3",
+            "Ab3",
+            "Db4"
+          ],
+          "duration": "1m",
+          "velocity": 0.24,
+          "articulation": "held"
+        }
+      ]
+    }
+  ],
+  "scenes": [
+    {
+      "id": "opening",
+      "title": "Sample-led opening vamp",
+      "bars": 12,
+      "startBar": 0,
+      "description": "Twelve-bar Bbm-centered opening with the bass ostinato audible before the drums enter.",
+      "layers": {
+        "drums": null,
+        "bass": null,
+        "harmony": null,
+        "melody": null,
+        "texture": null
+      },
+      "fx": {
+        "filter": 3900,
+        "delayWet": 0.06,
+        "reverbWet": 0.18,
+        "masterGain": 8,
+        "faders": {
+          "groove": 52,
+          "harmony": 62,
+          "melody": 62,
+          "texture": 20
+        }
+      }
+    },
+    {
+      "id": "groove",
+      "title": "Primary vocal groove",
+      "bars": 34,
+      "startBar": 12,
+      "description": "Stable two-bar Bbm / Ebm-Fm turnaround under the main scale-corrected vocal contour.",
+      "layers": {
+        "drums": null,
+        "bass": null,
+        "harmony": null,
+        "melody": null,
+        "texture": null
+      },
+      "fx": {
+        "filter": 5200,
+        "delayWet": 0.1,
+        "reverbWet": 0.18,
+        "masterGain": 8.5,
+        "faders": {
+          "groove": 68,
+          "harmony": 64,
+          "melody": 66,
+          "texture": 18
+        }
+      }
+    },
+    {
+      "id": "tease",
+      "title": "Sax trading and drum-drop transition",
+      "bars": 10,
+      "startBar": 46,
+      "description": "Ten-bar stem-aligned drum drop containing the score's measures 21-28 alto/tenor sax trading passage.",
+      "layers": {
+        "drums": null,
+        "bass": null,
+        "harmony": null,
+        "melody": null,
+        "texture": null
+      },
+      "fx": {
+        "filter": 5800,
+        "delayWet": 0.12,
+        "reverbWet": 0.2,
+        "masterGain": 4.5,
+        "faders": {
+          "groove": 62,
+          "harmony": 56,
+          "melody": 52,
+          "texture": 20
+        }
+      }
+    },
+    {
+      "id": "release",
+      "title": "Return with extended turnaround",
+      "bars": 24,
+      "startBar": 56,
+      "description": "Groove return with F7b9 used only as a turnaround accent and restrained guitar-style answers.",
+      "layers": {
+        "drums": null,
+        "bass": null,
+        "harmony": null,
+        "melody": null,
+        "texture": null
+      },
+      "fx": {
+        "filter": 6800,
+        "delayWet": 0.14,
+        "reverbWet": 0.23,
+        "masterGain": 8.5,
+        "faders": {
+          "groove": 72,
+          "harmony": 66,
+          "melody": 70,
+          "texture": 22
+        }
+      }
+    },
+    {
+      "id": "recompose",
+      "title": "Late verse and DJ variations",
+      "bars": 24,
+      "startBar": 80,
+      "description": "Late performance area where dead notes, slides, passing bass and chord extensions can enter as DJ variations.",
+      "layers": {
+        "drums": null,
+        "bass": null,
+        "harmony": null,
+        "melody": null,
+        "texture": null
+      },
+      "fx": {
+        "filter": 5600,
+        "delayWet": 0.14,
+        "reverbWet": 0.21,
+        "masterGain": 8.5,
+        "faders": {
+          "groove": 68,
+          "harmony": 64,
+          "melody": 70,
+          "texture": 24
+        }
+      }
+    },
+    {
+      "id": "return",
+      "title": "Bass-led outro and diminuendo",
+      "bars": 10,
+      "startBar": 104,
+      "description": "Drums subtract after bar 103 while bass and harmonic tail continue into the diminuendo.",
+      "layers": {
+        "drums": null,
+        "bass": null,
+        "harmony": null,
+        "melody": null,
+        "texture": null
+      },
+      "fx": {
+        "filter": 4200,
+        "delayWet": 0.18,
+        "reverbWet": 0.28,
+        "masterGain": 8,
+        "faders": {
+          "groove": 48,
+          "harmony": 60,
+          "melody": 64,
+          "texture": 18
+        }
+      }
+    }
+  ],
+  "scenePlacements": {
+    "opening": {
+      "harmony": "story-opening",
+      "melody": "memory-opening",
+      "texture": "blend-warm",
+      "bass": "bass-main"
+    },
+    "groove": {
+      "drums": "pulse-sparse",
+      "bass": "bass-verse",
+      "harmony": "story-verse",
+      "melody": "memory-verse-a",
+      "texture": "blend-warm"
+    },
+    "tease": {
+      "drums": "pulse-break",
+      "bass": "bass-sax",
+      "harmony": "story-sax",
+      "melody": "memory-sax-solo",
+      "texture": "blend-filtered"
+    },
+    "release": {
+      "drums": "pulse-full",
+      "bass": "bass-verse",
+      "harmony": "story-release",
+      "melody": "memory-release",
+      "texture": "blend-release"
+    },
+    "recompose": {
+      "drums": "pulse-sparse",
+      "bass": "bass-alt",
+      "harmony": "story-verse",
+      "melody": "memory-guitar-late",
+      "texture": "blend-warm"
+    },
+    "return": {
+      "harmony": "story-outro",
+      "melody": "memory-outro",
+      "texture": "blend-filtered",
+      "bass": "bass-outro"
+    }
+  },
+  "defaultMix": {
+    "filter": 4200,
+    "delayWet": 0.14,
+    "reverbWet": 0.28,
+    "masterGain": 8,
+    "faders": {
+      "groove": 68,
+      "harmony": 64,
+      "melody": 68,
+      "texture": 28
+    }
+  },
+  "soundDesign": {
+    "master": {
+      "filterRolloff": -24,
+      "delayTime": "8n",
+      "delayFeedback": 0.16,
+      "reverbDecay": 1.9,
+      "reverbPreDelay": 0.018,
+      "compressorThreshold": -10,
+      "compressorRatio": 1.5
+    },
+    "drums": {
+      "kickPitchDecay": 0.02,
+      "kickOctaves": 3.2,
+      "kickDecay": 0.22,
+      "snareNoise": "pink",
+      "snareDecay": 0.085,
+      "hatDecay": 0.025,
+      "hatResonance": 3300,
+      "drive": 0.07,
+      "filterFrequency": 8200
+    },
+    "bass": {
+      "oscillator": "triangle",
+      "volume": -3,
+      "filterQ": 1.4,
+      "filterBaseFrequency": 68,
+      "filterOctaves": 1.55,
+      "drive": 0.045,
+      "envelope": {
+        "attack": 0.008,
+        "decay": 0.18,
+        "sustain": 0.42,
+        "release": 0.18
+      }
+    },
+    "harmony": {
+      "generator": "fm",
+      "oscillator": "triangle",
+      "volume": -7,
+      "filterFrequency": 4800,
+      "chorusFrequency": 0.28,
+      "chorusDepth": 0.18,
+      "chorusWet": 0.09,
+      "envelope": {
+        "attack": 0.004,
+        "decay": 0.22,
+        "sustain": 0.12,
+        "release": 0.48
+      }
+    },
+    "melody": {
+      "generator": "synth",
+      "oscillator": "triangle",
+      "volume": -4,
+      "filterFrequency": 5200,
+      "chorusFrequency": 0.36,
+      "chorusDepth": 0.12,
+      "chorusWet": 0.07,
+      "envelope": {
+        "attack": 0.006,
+        "decay": 0.18,
+        "sustain": 0.16,
+        "release": 0.3
+      }
+    },
+    "texture": {
+      "noise": "brown",
+      "volume": -29,
+      "filterFrequency": 2300,
+      "envelope": {
+        "attack": 0.4,
+        "decay": 1.1,
+        "sustain": 0.06,
+        "release": 2.2
+      }
+    }
+  },
+  "arrangement": {
+    "id": "canonical-arrangement",
+    "title": "MP3-aligned private cover form",
+    "totalBars": 114,
+    "scenes": [
+      {
+        "sceneId": "opening",
+        "startBar": 0
+      },
+      {
+        "sceneId": "groove",
+        "startBar": 12
+      },
+      {
+        "sceneId": "tease",
+        "startBar": 46
+      },
+      {
+        "sceneId": "release",
+        "startBar": 56
+      },
+      {
+        "sceneId": "recompose",
+        "startBar": 80
+      },
+      {
+        "sceneId": "return",
+        "startBar": 104
+      }
+    ]
+  },
+  "productionChoreography": [
+    {
+      "id": "prod-01",
+      "atBeat": 0,
+      "participantId": "p-melody",
+      "workspaceId": "ws-melody",
+      "kind": "createDraft",
+      "target": "memory-opening",
+      "label": "Create scale-corrected eight-bar vocal phrase"
+    },
+    {
+      "id": "prod-02",
+      "atBeat": 4,
+      "participantId": "p-rhythm",
+      "workspaceId": "ws-rhythm",
+      "kind": "createDraft",
+      "target": "pulse-sparse",
+      "label": "Select score-pocket groove source"
+    },
+    {
+      "id": "prod-03",
+      "atBeat": 8,
+      "participantId": "p-perc",
+      "workspaceId": "ws-perc",
+      "kind": "createDraft",
+      "target": "pulse-full",
+      "label": "Create full-groove draft"
+    },
+    {
+      "id": "prod-04",
+      "atBeat": 12,
+      "participantId": "p-melody",
+      "workspaceId": "ws-melody",
+      "kind": "reviseDraft",
+      "target": "memory-opening",
+      "label": "Review opening phrase contour"
+    },
+    {
+      "id": "prod-04b",
+      "atBeat": 13,
+      "participantId": "p-melody",
+      "workspaceId": "ws-melody",
+      "kind": "setVelocity",
+      "target": "memory-opening",
+      "value": 0.64,
+      "label": "Shape opening velocity"
+    },
+    {
+      "id": "prod-05",
+      "atBeat": 16,
+      "participantId": "p-bass",
+      "workspaceId": "ws-bass",
+      "kind": "editBass",
+      "target": "bass-main",
+      "value": 0,
+      "label": "Write main bass line"
+    },
+    {
+      "id": "prod-06",
+      "atBeat": 20,
+      "participantId": "p-harmony",
+      "workspaceId": "ws-harmony",
+      "kind": "editHarmony",
+      "target": "story-opening",
+      "value": 0,
+      "label": "Voice opening harmony"
+    },
+    {
+      "id": "prod-07",
+      "atBeat": 24,
+      "participantId": "p-texture",
+      "workspaceId": "ws-texture",
+      "kind": "editTexture",
+      "target": "blend-warm",
+      "value": 0.1,
+      "label": "Design warm texture"
+    },
+    {
+      "id": "prod-08",
+      "atBeat": 28,
+      "participantId": "p-melody",
+      "workspaceId": "ws-melody",
+      "kind": "previewDraft",
+      "target": "memory-opening",
+      "label": "Private preview fragment"
+    },
+    {
+      "id": "prod-09",
+      "atBeat": 32,
+      "participantId": "p-melody",
+      "workspaceId": "ws-melody",
+      "kind": "offerDraft",
+      "target": "memory-opening",
+      "label": "Offer opening to collaborators"
+    },
+    {
+      "id": "prod-10",
+      "atBeat": 36,
+      "participantId": "p-arrange",
+      "workspaceId": "ws-arrange",
+      "kind": "acceptDraft",
+      "target": "memory-opening",
+      "label": "Accept opening draft"
+    },
+    {
+      "id": "prod-11",
+      "atBeat": 40,
+      "participantId": "p-rhythm",
+      "workspaceId": "ws-rhythm",
+      "kind": "reviseDraft",
+      "target": "pulse-full",
+      "label": "Review explicit two-bar groove"
+    },
+    {
+      "id": "prod-12",
+      "atBeat": 44,
+      "participantId": "p-perc",
+      "workspaceId": "ws-perc",
+      "kind": "reviseDraft",
+      "target": "pulse-full",
+      "label": "Review groove variation accents"
+    },
+    {
+      "id": "prod-13",
+      "atBeat": 48,
+      "participantId": "p-melody",
+      "workspaceId": "ws-melody",
+      "kind": "createDraft",
+      "target": "memory-main",
+      "label": "Create main phrase draft"
+    },
+    {
+      "id": "prod-14",
+      "atBeat": 52,
+      "participantId": "p-melody",
+      "workspaceId": "ws-melody",
+      "kind": "reviseDraft",
+      "target": "memory-main",
+      "label": "Review main phrase timing"
+    },
+    {
+      "id": "prod-15",
+      "atBeat": 56,
+      "participantId": "p-mix",
+      "workspaceId": "ws-mix",
+      "kind": "adjustFilter",
+      "target": "filter",
+      "value": 5200,
+      "label": "Shape filter for groove"
+    },
+    {
+      "id": "prod-16",
+      "atBeat": 60,
+      "participantId": "p-mix",
+      "workspaceId": "ws-mix",
+      "kind": "adjustDelay",
+      "target": "delayWet",
+      "value": 0.12,
+      "label": "Set delay send"
+    },
+    {
+      "id": "prod-17",
+      "atBeat": 64,
+      "participantId": "p-mix",
+      "workspaceId": "ws-mix",
+      "kind": "adjustGain",
+      "target": "groove",
+      "value": 64,
+      "label": "Balance groove fader"
+    },
+    {
+      "id": "prod-18",
+      "atBeat": 68,
+      "participantId": "p-arrange",
+      "workspaceId": "ws-arrange",
+      "kind": "reviseDraft",
+      "target": "memory-opening",
+      "label": "Return opening for final revision"
+    },
+    {
+      "id": "prod-private-comp",
+      "atBeat": 69,
+      "roleId": "harmony",
+      "participantId": "p-harmony",
+      "workspaceId": "ws-harmony",
+      "kind": "createDraft",
+      "target": "story-comp",
+      "label": "Create syncopated harmony comp"
+    },
+    {
+      "id": "prod-private-sax",
+      "atBeat": 69.5,
+      "roleId": "melody",
+      "participantId": "p-melody",
+      "workspaceId": "ws-melody",
+      "kind": "createDraft",
+      "target": "memory-sax-solo",
+      "label": "Shape source-guided reed solo reinterpretation"
+    },
+    {
+      "id": "prod-private-counter",
+      "atBeat": 70,
+      "roleId": "melody",
+      "participantId": "p-melody",
+      "workspaceId": "ws-melody",
+      "kind": "createDraft",
+      "target": "memory-counter",
+      "label": "Create sparse counter melody"
+    },
+    {
+      "id": "prod-private-bass-response",
+      "atBeat": 71,
+      "roleId": "bass",
+      "participantId": "p-bass",
+      "workspaceId": "ws-bass",
+      "kind": "createDraft",
+      "target": "bass-response",
+      "label": "Create upper bass response"
+    },
+    {
+      "id": "prod-19",
+      "atBeat": 72,
+      "participantId": "p-arrange",
+      "workspaceId": "ws-arrange",
+      "kind": "placeInScene",
+      "target": "opening",
+      "label": "Place drafts in Opening scene"
+    },
+    {
+      "id": "prod-20",
+      "atBeat": 76,
+      "participantId": "p-arrange",
+      "workspaceId": "ws-arrange",
+      "kind": "placeInScene",
+      "target": "groove",
+      "label": "Assemble Groove scene"
+    },
+    {
+      "id": "prod-21",
+      "atBeat": 80,
+      "participantId": "p-melody",
+      "workspaceId": "ws-melody",
+      "kind": "createDraft",
+      "target": "memory-response",
+      "label": "Cut response draft"
+    },
+    {
+      "id": "prod-22",
+      "atBeat": 84,
+      "participantId": "p-harmony",
+      "workspaceId": "ws-harmony",
+      "kind": "editHarmony",
+      "target": "story-release",
+      "value": 0,
+      "label": "Voice release harmony"
+    },
+    {
+      "id": "prod-23",
+      "atBeat": 88,
+      "participantId": "p-arrange",
+      "workspaceId": "ws-arrange",
+      "kind": "placeInScene",
+      "target": "tease",
+      "label": "Wire Tease scene"
+    },
+    {
+      "id": "prod-24",
+      "atBeat": 92,
+      "participantId": "p-rhythm",
+      "workspaceId": "ws-rhythm",
+      "kind": "createDraft",
+      "target": "pulse-break",
+      "label": "Create Coda break pattern"
+    },
+    {
+      "id": "prod-25",
+      "atBeat": 96,
+      "participantId": "p-bass",
+      "workspaceId": "ws-bass",
+      "kind": "editBass",
+      "target": "bass-alt",
+      "value": 0,
+      "label": "Write alt bass for recompose"
+    },
+    {
+      "id": "prod-26",
+      "atBeat": 100,
+      "participantId": "p-arrange",
+      "workspaceId": "ws-arrange",
+      "kind": "placeInScene",
+      "target": "release",
+      "label": "Assemble Main Release"
+    },
+    {
+      "id": "prod-27",
+      "atBeat": 104,
+      "participantId": "p-arrange",
+      "workspaceId": "ws-arrange",
+      "kind": "createTransition",
+      "target": "recompose",
+      "label": "Bridge to recomposition"
+    },
+    {
+      "id": "prod-28",
+      "atBeat": 108,
+      "participantId": "p-arrange",
+      "workspaceId": "ws-arrange",
+      "kind": "placeInScene",
+      "target": "recompose",
+      "label": "Add recomposition scene"
+    },
+    {
+      "id": "prod-29",
+      "atBeat": 112,
+      "participantId": "p-arrange",
+      "workspaceId": "ws-arrange",
+      "kind": "placeInScene",
+      "target": "return",
+      "label": "Close with return scene"
+    },
+    {
+      "id": "prod-30",
+      "atBeat": 116,
+      "participantId": "p-arrange",
+      "workspaceId": "ws-arrange",
+      "kind": "assembleArrangement",
+      "label": "Lock canonical arrangement"
+    }
+  ],
+  "livePerformanceChoreography": [
+    {
+      "id": "e01",
+      "at": "0:0:0",
+      "brain": "story",
+      "action": "thought",
+      "label": "Define the opening",
+      "detail": "Hold the full groove back. Let the listener enter through memory."
+    },
+    {
+      "id": "e02",
+      "at": "0:1:0",
+      "brain": "memory",
+      "action": "focus",
+      "target": "memory-opening",
+      "label": "Open phrase editor",
+      "detail": "Select the opening fragment draft."
+    },
+    {
+      "id": "e03",
+      "at": "0:2:0",
+      "brain": "memory",
+      "action": "addNote",
+      "target": "memory-opening",
+      "value": "{\"step\":9,\"pitch\":2,\"note\":\"D4\"}",
+      "label": "Add a note",
+      "detail": "Place a new note in the phrase grid."
+    },
+    {
+      "id": "e03b",
+      "at": "0:2:2",
+      "brain": "memory",
+      "action": "moveNote",
+      "target": "memory-opening",
+      "value": "open-55:14",
+      "label": "Move final note",
+      "detail": "Drag the last note later to open space."
+    },
+    {
+      "id": "e04",
+      "at": "1:0:0",
+      "brain": "blend",
+      "action": "filter",
+      "target": "blend-filtered",
+      "value": 780,
+      "label": "Close the room",
+      "detail": "Low-pass the harmonic bed and leave the texture distant."
+    },
+    {
+      "id": "e05",
+      "at": "2:0:0",
+      "brain": "memory",
+      "action": "preview",
+      "target": "memory-opening",
+      "label": "Private cue",
+      "detail": "Audition the fragment without sending it to master."
+    },
+    {
+      "id": "e06",
+      "at": "3:0:0",
+      "brain": "memory",
+      "action": "ready",
+      "target": "memory-opening",
+      "label": "Draft ready",
+      "detail": "The opening fragment is now reusable by Story."
+    },
+    {
+      "id": "e07",
+      "at": "4:0:0",
+      "brain": "story",
+      "action": "dragToQueue",
+      "target": "memory-opening",
+      "label": "Accept offered draft",
+      "detail": "Drag the opening fragment into the shared queue.",
+      "boundary": {
+        "type": "phrase",
+        "bar": 6
+      }
+    },
+    {
+      "id": "e08",
+      "at": "6:0:0",
+      "brain": "story",
+      "action": "launch",
+      "target": "opening",
+      "label": "Launch Scene A",
+      "detail": "Commit the first scene to the master timeline."
+    },
+    {
+      "id": "e09",
+      "at": "8:0:0",
+      "brain": "pulse",
+      "action": "focus",
+      "target": "pulse-sparse",
+      "label": "Open sequencer",
+      "detail": "Build a sparse groove under the memory layer."
+    },
+    {
+      "id": "e10",
+      "at": "8:2:0",
+      "brain": "pulse",
+      "action": "toggleStep",
+      "target": "pulse-sparse",
+      "value": 3,
+      "label": "Toggle step",
+      "detail": "Add a ghost hit on beat two."
+    },
+    {
+      "id": "e10b",
+      "at": "8:2:1",
+      "brain": "pulse",
+      "action": "toggleStep",
+      "target": "pulse-sparse",
+      "value": 10,
+      "label": "Toggle step",
+      "detail": "Add an offbeat accent."
+    },
+    {
+      "id": "e10c",
+      "at": "8:2:2",
+      "brain": "pulse",
+      "action": "toggleStep",
+      "target": "pulse-sparse",
+      "value": 6,
+      "label": "Remove step",
+      "detail": "Clear an overcrowded subdivision."
+    },
+    {
+      "id": "e11",
+      "at": "9:2:0",
+      "brain": "blend",
+      "action": "filter",
+      "target": "blend-warm",
+      "value": 1450,
+      "label": "Reveal low mids",
+      "detail": "Gradually make room for bass and harmony."
+    },
+    {
+      "id": "e12",
+      "at": "10:0:0",
+      "brain": "pulse",
+      "action": "preview",
+      "target": "pulse-sparse",
+      "label": "Preview groove",
+      "detail": "Listen against the active opening before offering it."
+    },
+    {
+      "id": "e12b",
+      "at": "10:1:0",
+      "brain": "pulse",
+      "action": "quantize",
+      "target": "pulse-sparse",
+      "label": "Quantize 1/16",
+      "detail": "Snap steps to the sixteenth grid."
+    },
+    {
+      "id": "e13",
+      "at": "11:0:0",
+      "brain": "pulse",
+      "action": "offer",
+      "target": "pulse-sparse",
+      "label": "Offer sparse groove",
+      "detail": "Make the groove available to Story at the next phrase boundary."
+    },
+    {
+      "id": "e14",
+      "at": "12:0:0",
+      "brain": "story",
+      "action": "queue",
+      "target": "groove",
+      "label": "Queue Groove Established",
+      "detail": "Accept Pulse's draft and add the bass layer.",
+      "boundary": {
+        "type": "phrase",
+        "bar": 14
+      }
+    },
+    {
+      "id": "e15",
+      "at": "14:0:0",
+      "brain": "story",
+      "action": "launch",
+      "target": "groove",
+      "label": "Launch Scene B",
+      "detail": "The piece now has a stable forward motion."
+    },
+    {
+      "id": "e16",
+      "at": "16:0:0",
+      "brain": "memory",
+      "action": "focus",
+      "target": "memory-main",
+      "label": "Open main phrase",
+      "detail": "Prepare the recognisable phrase, but do not release it yet."
+    },
+    {
+      "id": "e17",
+      "at": "17:0:0",
+      "brain": "memory",
+      "action": "edit",
+      "target": "memory-response",
+      "label": "Cut response fragment",
+      "detail": "Copy the main contour and remove the obvious opening notes."
+    },
+    {
+      "id": "e18",
+      "at": "18:0:0",
+      "brain": "memory",
+      "action": "preview",
+      "target": "memory-response",
+      "label": "Private cue response",
+      "detail": "Test a shorter phrase against the established groove."
+    },
+    {
+      "id": "e19",
+      "at": "19:0:0",
+      "brain": "memory",
+      "action": "offer",
+      "target": "memory-response",
+      "label": "Offer tease",
+      "detail": "Send only the response fragment to Story."
+    },
+    {
+      "id": "e20",
+      "at": "20:0:0",
+      "brain": "blend",
+      "action": "delay",
+      "target": "blend-filtered",
+      "value": 0.3,
+      "label": "Arm echo tail",
+      "detail": "Let the fragment leave a recognisable trace after it ends."
+    },
+    {
+      "id": "e21",
+      "at": "21:0:0",
+      "brain": "story",
+      "action": "queue",
+      "target": "tease",
+      "label": "Queue Melody Tease",
+      "detail": "Hold the full phrase and commit the shorter response instead.",
+      "boundary": {
+        "type": "phrase",
+        "bar": 22
+      }
+    },
+    {
+      "id": "e22",
+      "at": "22:0:0",
+      "brain": "story",
+      "action": "launch",
+      "target": "tease",
+      "label": "Launch Scene C",
+      "detail": "The listener receives enough information to expect a later release."
+    },
+    {
+      "id": "e23",
+      "at": "24:0:0",
+      "brain": "pulse",
+      "action": "focus",
+      "target": "pulse-break",
+      "label": "Prepare a gap",
+      "detail": "Remove the first beat before the full phrase enters."
+    },
+    {
+      "id": "e24",
+      "at": "24:2:0",
+      "brain": "memory",
+      "action": "ready",
+      "target": "memory-main",
+      "label": "Main phrase ready",
+      "detail": "The complete melodic draft is now available."
+    },
+    {
+      "id": "e25",
+      "at": "25:0:0",
+      "brain": "blend",
+      "action": "filter",
+      "target": "blend-release",
+      "value": 3200,
+      "label": "Open the mix",
+      "detail": "Widen the spectral space while keeping the bass muted for one beat."
+    },
+    {
+      "id": "e25b",
+      "at": "25:1:0",
+      "brain": "blend",
+      "action": "fader",
+      "target": "melody",
+      "value": 72,
+      "label": "Raise melody fader",
+      "detail": "Bring the phrase forward in the blend."
+    },
+    {
+      "id": "e26",
+      "at": "26:0:0",
+      "brain": "pulse",
+      "action": "offer",
+      "target": "pulse-break",
+      "label": "Offer one-beat break",
+      "detail": "Attach a timing condition to the phrase launch."
+    },
+    {
+      "id": "e27",
+      "at": "27:0:0",
+      "brain": "story",
+      "action": "queue",
+      "target": "release",
+      "label": "Queue Main Release",
+      "detail": "Combine the full phrase, timing gap and wide mix at Bar 28.",
+      "boundary": {
+        "type": "bar",
+        "bar": 28
+      }
+    },
+    {
+      "id": "e28",
+      "at": "28:0:0",
+      "brain": "story",
+      "action": "launch",
+      "target": "release",
+      "label": "Launch Scene D",
+      "detail": "All four brain decisions resolve into one phrase boundary."
+    },
+    {
+      "id": "e29",
+      "at": "30:0:0",
+      "brain": "blend",
+      "action": "delay",
+      "target": "blend-release",
+      "value": 0.2,
+      "label": "Reduce echo",
+      "detail": "Keep the main phrase in front after its entrance."
+    },
+    {
+      "id": "e30",
+      "at": "32:0:0",
+      "brain": "story",
+      "action": "thought",
+      "label": "Avoid the expected repeat",
+      "detail": "Replace the full phrase with its response and thin the groove."
+    },
+    {
+      "id": "e31",
+      "at": "32:2:0",
+      "brain": "pulse",
+      "action": "queue",
+      "target": "pulse-sparse",
+      "label": "Queue sparse groove",
+      "detail": "Make the recomposition breathe.",
+      "boundary": {
+        "type": "phrase",
+        "bar": 34
+      }
+    },
+    {
+      "id": "e32",
+      "at": "33:0:0",
+      "brain": "memory",
+      "action": "queue",
+      "target": "memory-response",
+      "label": "Recall response fragment",
+      "detail": "Reuse the draft in a different structural role.",
+      "boundary": {
+        "type": "phrase",
+        "bar": 34
+      }
+    },
+    {
+      "id": "e33",
+      "at": "34:0:0",
+      "brain": "story",
+      "action": "launch",
+      "target": "recompose",
+      "label": "Launch Recomposition",
+      "detail": "The expected repeat becomes an alternate take."
+    },
+    {
+      "id": "e34",
+      "at": "35:0:0",
+      "brain": "blend",
+      "action": "delay",
+      "target": "blend-filtered",
+      "value": 0.44,
+      "label": "Push melody backward",
+      "detail": "Let the fragment become memory again."
+    },
+    {
+      "id": "e35",
+      "at": "36:0:0",
+      "brain": "memory",
+      "action": "queue",
+      "target": "memory-opening",
+      "label": "Recall opening fragment",
+      "detail": "Bring the first idea back as an ending signal.",
+      "boundary": {
+        "type": "phrase",
+        "bar": 38
+      }
+    },
+    {
+      "id": "e36",
+      "at": "36:2:0",
+      "brain": "pulse",
+      "action": "queue",
+      "target": "silence",
+      "label": "Remove drums",
+      "detail": "Leave the final four bars without a full beat.",
+      "boundary": {
+        "type": "phrase",
+        "bar": 38
+      }
+    },
+    {
+      "id": "e37",
+      "at": "37:0:0",
+      "brain": "blend",
+      "action": "filter",
+      "target": "blend-filtered",
+      "value": 920,
+      "label": "Close the room",
+      "detail": "Return to the distant spectral shape from the opening."
+    },
+    {
+      "id": "e38",
+      "at": "38:0:0",
+      "brain": "story",
+      "action": "launch",
+      "target": "return",
+      "label": "Commit ending",
+      "detail": "Resolve the piece by restoring its earliest memory."
+    },
+    {
+      "id": "e39",
+      "at": "39:2:0",
+      "brain": "story",
+      "action": "memory",
+      "target": "ending",
+      "label": "Capture final silence",
+      "detail": "Store the completed 40-bar arrangement in Jam Memory."
+    }
+  ],
+  "liveStructuralOperations": [
+    {
+      "id": "structure-01-hold-opening",
+      "kind": "hold",
+      "executeAtBar": 14,
+      "sceneId": "opening",
+      "bars": 2
+    },
+    {
+      "id": "structure-02-replace-groove-melody",
+      "kind": "replaceLayer",
+      "executeAtBar": 16,
+      "sceneId": "groove",
+      "layer": "melody",
+      "draftId": "memory-response"
+    },
+    {
+      "id": "structure-03-remove-groove-drums",
+      "kind": "removeLayer",
+      "executeAtBar": 18,
+      "sceneId": "groove",
+      "layer": "drums"
+    },
+    {
+      "id": "structure-04-restore-groove-drums",
+      "kind": "restoreLayer",
+      "executeAtBar": 20,
+      "sceneId": "groove",
+      "layer": "drums"
+    },
+    {
+      "id": "structure-05-extend-tease",
+      "kind": "extendScene",
+      "executeAtBar": 24,
+      "sceneId": "tease",
+      "bars": 2
+    },
+    {
+      "id": "structure-06-alternate-transition",
+      "kind": "alternateTransition",
+      "executeAtBar": 32,
+      "replacementSceneId": "opening"
+    },
+    {
+      "id": "structure-07-replace-recompose-melody",
+      "kind": "replaceLayer",
+      "executeAtBar": 38,
+      "sceneId": "recompose",
+      "layer": "melody",
+      "draftId": "memory-main"
+    },
+    {
+      "id": "structure-08-alternate-ending",
+      "kind": "alternateEnding",
+      "executeAtBar": 42,
+      "replacementSceneId": "opening"
+    }
+  ],
+  "performanceViews": [
+    {
+      "id": "four-brain-performance",
+      "label": "Four-Brain performance view",
+      "brainOrder": [
+        "memory",
+        "pulse",
+        "blend",
+        "story"
+      ],
+      "participantIds": [
+        "p-melody",
+        "p-rhythm",
+        "p-mix",
+        "p-arrange"
+      ]
+    }
+  ],
+  "sceneLayerStacks": {
+    "groove": {
+      "harmony": [
+        "story-comp"
+      ],
+      "melody": [
+        "memory-counter"
+      ]
+    },
+    "tease": {
+      "melody": [
+        "memory-sax-alto"
+      ]
+    },
+    "release": {
+      "harmony": [
+        "story-comp"
+      ],
+      "melody": [
+        "memory-counter"
+      ]
+    },
+    "recompose": {
+      "harmony": [
+        "story-comp"
+      ],
+      "melody": [
+        "memory-counter"
+      ],
+      "bass": [
+        "bass-response"
+      ]
+    },
+    "return": {
+      "melody": [
+        "memory-counter"
+      ]
+    }
+  }
+}

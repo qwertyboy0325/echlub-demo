@@ -1,0 +1,5 @@
+# Generated GitHub Pages bundles and promoted data packs are machine output.
+docs/assets/*.js -diff
+docs/assets/*.css -diff
+docs/*.pack.json -diff
+public/*.pack.json -diff

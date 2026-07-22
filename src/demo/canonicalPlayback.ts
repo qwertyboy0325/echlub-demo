@@ -18,7 +18,10 @@ export function resolveSceneAtBar(session: ProductionSession, bar: number): Scen
 export function provenanceForScene(session: ProductionSession, sceneId: string): string[] {
   const scene = session.scenes.find((s) => s.id === sceneId);
   if (!scene) return [];
-  return Object.values(scene.layers)
+  return [
+    ...Object.values(scene.layers),
+    ...Object.values(scene.layerStacks ?? {}).flat(),
+  ]
     .filter((v): v is NonNullable<typeof v> => Boolean(v))
     .map((ref) => `${ref.draftId}@r${ref.revision}:${abbreviateFingerprint(ref.fingerprint)}`);
 }

@@ -11,6 +11,7 @@ import {
   ReconstructionPackValidationError,
   inspectReconstructionPack,
 } from "../domain/reconstructionPack";
+import { compileDraftMaterial } from "../domain/sessionMaterialBank";
 import { createCompletedProductionSession } from "../demo/productionMutations";
 
 function privateFixture(): typeof placeholderReconstructionPack {
@@ -50,6 +51,20 @@ describe("ReconstructionPack JSON boundary", () => {
     expect(imported).not.toBe(fixture);
     expect(imported.metadata.source).toBe("local-private");
     expect(imported.provenance.referenceAssetIds).toEqual(["owner-ref-01"]);
+  });
+
+  it("accepts only explicitly owner-authorized public cover provenance", () => {
+    const authorized = privateFixture();
+    authorized.metadata.source = "public-demo";
+    authorized.provenance.rightsBasis = "owner-authorized-public-cover";
+    expect(inspectReconstructionPack(authorized)).toEqual([]);
+
+    const unauthorized = structuredClone(authorized);
+    unauthorized.provenance.rightsBasis = "owner-provided-private-reference";
+    expect(inspectReconstructionPack(unauthorized)).toContainEqual({
+      path: "provenance.rightsBasis",
+      message: "public-demo packs require owner-authorized-public-cover",
+    });
   });
 
   it("imports a browser-style local file without uploading it", async () => {
@@ -113,6 +128,100 @@ describe("ReconstructionPack JSON boundary", () => {
       path: "scenePlacements.opening.melody",
       message: "draft pulse-sparse has incompatible kind",
     });
+  });
+
+  it("pins pack-owned secondary voices into scene layer stacks", () => {
+    const fixture = privateFixture();
+    fixture.sceneLayerStacks = {
+      opening: { harmony: ["story-opening"], melody: ["memory-opening", "memory-response"] },
+    };
+
+    const session = createCompletedProductionSession(fixture);
+    const opening = session.scenes.find((scene) => scene.id === "opening");
+    expect(opening?.layerStacks?.harmony?.map((ref) => ref.draftId)).toEqual(["story-opening"]);
+    expect(opening?.layerStacks?.melody?.map((ref) => ref.draftId)).toEqual(["memory-opening", "memory-response"]);
+    expect(opening?.layerStacks?.melody?.every((ref) => ref.fingerprint.length > 0)).toBe(true);
+  });
+
+  it("reports incompatible secondary voice kinds with a precise path", () => {
+    const fixture = privateFixture();
+    fixture.sceneLayerStacks = { opening: { melody: ["pulse-sparse"] } };
+
+    expect(inspectReconstructionPack(fixture)).toContainEqual({
+      path: "sceneLayerStacks.opening.melody[0]",
+      message: "draft pulse-sparse has incompatible kind",
+    });
+  });
+
+  it("retains a synthesized reed voice in validation and material fingerprints", () => {
+    const fixture = privateFixture();
+    const melody = fixture.drafts.find((draft) => draft.id === "memory-opening")!;
+    melody.notes![0].instrument = "reed";
+    melody.notes![1].instrument = "guitar";
+
+    expect(inspectReconstructionPack(fixture)).toEqual([]);
+    const reedMaterial = compileDraftMaterial(melody);
+    expect(reedMaterial.content.kind).toBe("melody");
+    if (reedMaterial.content.kind !== "melody") throw new Error("expected melody material");
+    expect(reedMaterial.content.notes[0]).toMatchObject({ instrument: "reed" });
+    expect(reedMaterial.content.notes[1]).toMatchObject({ instrument: "guitar" });
+
+    melody.notes![0].instrument = "default";
+    expect(compileDraftMaterial(melody).contentFingerprint).not.toBe(reedMaterial.contentFingerprint);
+  });
+
+  it("rejects unsafe sound-design values with precise paths", () => {
+    const fixture = privateFixture();
+    fixture.soundDesign.master.delayFeedback = 1;
+    fixture.soundDesign.bass.envelope.sustain = -0.1;
+    fixture.soundDesign.texture.noise = "violet" as typeof fixture.soundDesign.texture.noise;
+
+    const issues = inspectReconstructionPack(fixture);
+    expect(issues.some((issue) => issue.path === "soundDesign.master.delayFeedback")).toBe(true);
+    expect(issues.some((issue) => issue.path === "soundDesign.bass.envelope.sustain")).toBe(true);
+    expect(issues.some((issue) => issue.path === "soundDesign.texture.noise")).toBe(true);
+  });
+
+  it("requires an ordered tempo map beginning at bar zero", () => {
+    const fixture = privateFixture();
+    fixture.tempoMap = [{ bar: 1, bpm: 90 }, { bar: 1, bpm: -1 }];
+
+    const issues = inspectReconstructionPack(fixture);
+    expect(issues.some((issue) => issue.path === "tempoMap[0].bar")).toBe(true);
+    expect(issues.some((issue) => issue.path === "tempoMap[1].bar")).toBe(true);
+    expect(issues.some((issue) => issue.path === "tempoMap[1].bpm")).toBe(true);
+  });
+
+  it("rejects invalid multi-bar event coordinates and explicit drum voices", () => {
+    const fixture = privateFixture();
+    const drums = fixture.drafts.find((draft) => draft.id === "pulse-sparse")!;
+    drums.patternBars = 0;
+    drums.drumHits = [{ bar: -1, step: 16, voice: "clap" as "snare", velocity: 1.2 }];
+
+    const issues = inspectReconstructionPack(fixture);
+    expect(issues.some((issue) => issue.path.endsWith("patternBars"))).toBe(true);
+    expect(issues.some((issue) => issue.path.endsWith("drumHits[0].bar"))).toBe(true);
+    expect(issues.some((issue) => issue.path.endsWith("drumHits[0].step"))).toBe(true);
+    expect(issues.some((issue) => issue.path.endsWith("drumHits[0].voice"))).toBe(true);
+    expect(issues.some((issue) => issue.path.endsWith("drumHits[0].velocity"))).toBe(true);
+  });
+
+  it("validates expressive string articulations and microtiming", () => {
+    const fixture = privateFixture();
+    const bass = fixture.drafts.find((draft) => draft.id === "bass-main")!;
+    bass.notes![0] = {
+      ...bass.notes![0],
+      articulation: "slide",
+      glideFrom: "Eb2",
+      timingOffset: 0.18,
+    };
+    expect(inspectReconstructionPack(fixture)).toEqual([]);
+
+    bass.notes![0]!.articulation = "bend" as "slide";
+    bass.notes![0]!.timingOffset = 0.75;
+    const issues = inspectReconstructionPack(fixture);
+    expect(issues.some((issue) => issue.path.endsWith("notes[0].articulation"))).toBe(true);
+    expect(issues.some((issue) => issue.path.endsWith("notes[0].timingOffset"))).toBe(true);
   });
 
   it("keeps a compact production sequence while exercising concrete draft edit operations", () => {

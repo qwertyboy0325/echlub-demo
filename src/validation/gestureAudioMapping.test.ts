@@ -4,7 +4,7 @@ import { faderUiToDb, filterUiToHz, delayUiToWet, knobRotationForFilter, knobRot
 describe("gesture audio mapping", () => {
   it("shares normalized fader mapping for UI and audio", () => {
     const ui = 72;
-    expect(faderUiToDb(ui)).toBeCloseTo(-9.6, 1);
+    expect(faderUiToDb(ui)).toBeCloseTo(20 * Math.log10(0.72), 5);
   });
 
   it("shares filter mapping between knob rotation and audio Hz", () => {

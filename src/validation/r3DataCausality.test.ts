@@ -145,7 +145,45 @@ describe("comparison detects same-ID content change", () => {
 
 describe("fingerprint stability", () => {
   it("drum content fingerprint is deterministic", () => {
-    const content: DrumMaterialContent = { kind: "drums", hits: [{ step: 0, voice: "kick", velocity: 0.7 }] };
+    const content: DrumMaterialContent = { kind: "drums", patternBars: 1, hits: [{ bar: 0, step: 0, voice: "kick", velocity: 0.7 }] };
     expect(fingerprintContent(content)).toBe(fingerprintContent(structuredClone(content)));
+  });
+
+  it("preserves explicit drum voices instead of inferring them from step positions", () => {
+    const draft = structuredClone(placeholderReconstructionPack.drafts.find((candidate) => candidate.id === "pulse-sparse")!);
+    draft.patternBars = 2;
+    draft.drumHits = [{ bar: 1, step: 3, voice: "snare", velocity: 0.51 }];
+    const material = compileDraftMaterial(draft);
+    expect(material.content).toEqual({
+      kind: "drums",
+      patternBars: 2,
+      hits: [{ bar: 1, step: 3, voice: "snare", velocity: 0.51 }],
+    });
+  });
+
+  it("preserves multi-bar note and syncopated chord timing in produced material", () => {
+    const melody = structuredClone(placeholderReconstructionPack.drafts.find((candidate) => candidate.id === "memory-main")!);
+    melody.patternBars = 4;
+    melody.notes = [{ id: "bar-three-note", bar: 3, step: 11, pitch: 0, note: "Db5", duration: "16n", velocity: 0.61 }];
+    const harmony = structuredClone(placeholderReconstructionPack.drafts.find((candidate) => candidate.id === "story-opening")!);
+    harmony.patternBars = 4;
+    harmony.harmonyChords = [{ bar: 2, step: 14, notes: ["Db3", "Ab3", "F4"], duration: "16n", velocity: 0.32, articulation: "muted" }];
+
+    expect(compileDraftMaterial(melody).content).toMatchObject({ patternBars: 4, notes: [{ bar: 3, step: 11 }] });
+    expect(compileDraftMaterial(harmony).content).toMatchObject({ patternBars: 4, chords: [{ bar: 2, step: 14, articulation: "muted" }] });
+  });
+
+  it("fingerprints slide, dead-note, and microtiming performance data", () => {
+    const draft = structuredClone(placeholderReconstructionPack.drafts.find((candidate) => candidate.id === "bass-main")!);
+    draft.notes = [{
+      id: "expressive-bass", step: 6, pitch: 0, note: "F2", duration: "8n", velocity: 0.5,
+      articulation: "slide", glideFrom: "Eb2", timingOffset: 0.14,
+    }];
+    const expressive = compileDraftMaterial(draft);
+    draft.notes[0]!.articulation = "muted";
+    const muted = compileDraftMaterial(draft);
+
+    expect(expressive.content).toMatchObject({ notes: [{ articulation: "slide", glideFrom: "Eb2", timingOffset: 0.14 }] });
+    expect(expressive.contentFingerprint).not.toBe(muted.contentFingerprint);
   });
 });

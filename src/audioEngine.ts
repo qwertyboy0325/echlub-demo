@@ -2,11 +2,12 @@ import * as Tone from "tone";
 import { BPM, TOTAL_BARS } from "./musicalConstants";
 import { createIdleScene, IDLE_SCENE_ID, type SceneExecutionAuthority } from "./sceneExecution";
 import { computeRampTargetTime, delayUiToWet, faderUiToDb, filterUiToHz } from "./mixMapping";
-import type { LayerId, MaterialRef, MixParams, SceneDefinition } from "./types";
+import type { LayerId, MaterialRef, MixParams, NoteEvent, SceneDefinition } from "./types";
 import type { SessionMaterialBank } from "./domain/sessionMaterialBank";
 import { resolveMaterial } from "./domain/sessionMaterialBank";
 import type { MaterialResolutionEvidence, MissingMaterialDiagnostic } from "./domain/materialTypes";
 import type { DemoAct } from "./domain/sessionTypes";
+import { DEFAULT_SOUND_DESIGN, type SoundDesignPreset } from "./domain/reconstructionPack";
 import {
   addMeasures,
   addSixteenths,
@@ -18,6 +19,16 @@ import {
 
 export function computeCueStopPosition(start: MusicalPosition, durationMeasures: number): MusicalPosition {
   return addMeasures(start, durationMeasures);
+}
+
+export function shouldAudioEngineFinishAtStep(
+  act: DemoAct,
+  bar: number,
+  totalBars: number,
+  beat: number,
+  sixteenth: number,
+): boolean {
+  return act !== "canonicalPlayback" && bar === totalBars && beat === 0 && sixteenth === 0;
 }
 
 export interface CueCompletionEvidence {
@@ -56,9 +67,12 @@ export class AudioEngine {
   private totalBars = TOTAL_BARS;
   private tempoMultiplier = 1;
   private baseBpm = BPM;
+  private tempoMap: { bar: number; bpm: number }[] = [{ bar: 0, bpm: BPM }];
+  private soundDesign: SoundDesignPreset = structuredClone(DEFAULT_SOUND_DESIGN);
   private transportSixteenthCounter = 0;
   private playbackGeneration = 0;
   private initialized = false;
+  private initializationPromise: Promise<void> | null = null;
   private scheduledId: number | null = null;
   private lastBar = -1;
   private currentMix: MixParams = { filter: 1200, delayWet: 0.2, reverbWet: 0.42, masterGain: -3, faders: { groove: 64, harmony: 48, melody: 28, texture: 58 } };
@@ -85,21 +99,51 @@ export class AudioEngine {
 
   private master!: Tone.Volume;
   private limiter!: Tone.Limiter;
+  private masterMeter!: Tone.Meter;
+  private masterCompressor!: Tone.Compressor;
   private masterFilter!: Tone.Filter;
   private delay!: Tone.FeedbackDelay;
   private reverb!: Tone.Reverb;
+  private delaySend!: Tone.Gain;
+  private reverbSend!: Tone.Gain;
   private grooveGain!: Tone.Volume;
   private harmonyGain!: Tone.Volume;
   private melodyGain!: Tone.Volume;
   private textureGain!: Tone.Volume;
+  private drumDrive!: Tone.Distortion;
+  private drumFilter!: Tone.Filter;
+  private bassDrive!: Tone.Distortion;
+  private harmonyFilter!: Tone.Filter;
+  private harmonyChorus!: Tone.Chorus;
+  private melodyFilter!: Tone.Filter;
+  private melodyChorus!: Tone.Chorus;
+  private textureFilter!: Tone.Filter;
   private kick!: Tone.MembraneSynth;
   private snare!: Tone.NoiseSynth;
   private hat!: Tone.MetalSynth;
   private bass!: Tone.MonoSynth;
+  private bassAccent!: Tone.MonoSynth;
+  private bassMute!: Tone.NoiseSynth;
   private harmony!: Tone.PolySynth;
-  private melody!: Tone.Synth;
+  private melody!: Tone.PolySynth;
+  private melodyLead!: Tone.MonoSynth;
+  private melodyMute!: Tone.NoiseSynth;
+  private reedLead!: Tone.MonoSynth;
+  private reedLeadAlt!: Tone.MonoSynth;
+  private reedBreath!: Tone.NoiseSynth;
+  private reedDrive!: Tone.Distortion;
+  private reedBody!: Tone.Filter;
+  private reedPresence!: Tone.Filter;
+  private reedVibrato!: Tone.LFO;
+  private guitarBody!: Tone.MonoSynth;
+  private guitarString!: Tone.PluckSynth;
+  private guitarFretNoise!: Tone.NoiseSynth;
+  private guitarDrive!: Tone.Distortion;
+  private guitarPresence!: Tone.Filter;
   private texture!: Tone.NoiseSynth;
   private cueMelody!: Tone.Synth;
+  private cueReed!: Tone.MonoSynth;
+  private cueGuitar!: Tone.PluckSynth;
   private cueHat!: Tone.MetalSynth;
   private cueKick!: Tone.MembraneSynth;
   private cueGain!: Tone.Volume;
@@ -121,6 +165,15 @@ export class AudioEngine {
     this.currentMix = structuredClone(mix);
   }
 
+  setSoundDesign(preset: SoundDesignPreset): void {
+    if (this.initialized) throw new Error("Sound design must be selected before AudioEngine initialization");
+    this.soundDesign = structuredClone(preset);
+  }
+
+  getSoundDesignPreset(): SoundDesignPreset {
+    return structuredClone(this.soundDesign);
+  }
+
   setCurrentAct(act: DemoAct): void {
     if (this.currentAct !== act && this.cueActive) this.stopPrivateCue();
     this.currentAct = act;
@@ -140,46 +193,137 @@ export class AudioEngine {
 
   async initialize(): Promise<void> {
     if (this.initialized) return;
+    if (!this.initializationPromise) this.initializationPromise = this.initializeOnce();
+    try {
+      await this.initializationPromise;
+    } finally {
+      if (!this.initialized) this.initializationPromise = null;
+    }
+  }
+
+  private async initializeOnce(): Promise<void> {
     await Tone.start();
 
     const initMix = this.baselineMix ?? this.currentMix;
+    const sound = this.soundDesign;
     this.master = new Tone.Volume(initMix.masterGain);
     this.limiter = new Tone.Limiter(-1);
-    this.masterFilter = new Tone.Filter({ frequency: initMix.filter, type: "lowpass", rolloff: -24 });
-    this.delay = new Tone.FeedbackDelay({ delayTime: "8n.", feedback: 0.26, wet: initMix.delayWet });
-    this.reverb = new Tone.Reverb({ decay: 3.2, preDelay: 0.03, wet: initMix.reverbWet });
+    this.masterMeter = new Tone.Meter({ normalRange: false, smoothing: 0.8 });
+    this.masterCompressor = new Tone.Compressor({ threshold: sound.master.compressorThreshold, ratio: sound.master.compressorRatio, attack: 0.03, release: 0.22 });
+    this.masterFilter = new Tone.Filter({ frequency: initMix.filter, type: "lowpass", rolloff: sound.master.filterRolloff });
+    this.delay = new Tone.FeedbackDelay({ delayTime: sound.master.delayTime, feedback: sound.master.delayFeedback, wet: 1 });
+    this.reverb = new Tone.Reverb({ decay: sound.master.reverbDecay, preDelay: sound.master.reverbPreDelay, wet: 1 });
+    this.delaySend = new Tone.Gain(delayUiToWet(initMix.delayWet));
+    this.reverbSend = new Tone.Gain(initMix.reverbWet);
     this.grooveGain = new Tone.Volume(faderUiToDb(initMix.faders.groove));
     this.harmonyGain = new Tone.Volume(faderUiToDb(initMix.faders.harmony));
     this.melodyGain = new Tone.Volume(faderUiToDb(initMix.faders.melody));
     this.textureGain = new Tone.Volume(faderUiToDb(initMix.faders.texture));
 
-    this.master.chain(this.masterFilter, this.limiter, Tone.getDestination());
-    this.delay.connect(this.master);
-    this.reverb.connect(this.master);
+    this.drumDrive = new Tone.Distortion({ distortion: sound.drums.drive, wet: sound.drums.drive > 0 ? 1 : 0 });
+    this.drumFilter = new Tone.Filter({ frequency: sound.drums.filterFrequency, type: "lowpass", rolloff: -24 });
+    this.bassDrive = new Tone.Distortion({ distortion: sound.bass.drive, wet: sound.bass.drive > 0 ? 1 : 0 });
+    this.harmonyFilter = new Tone.Filter({ frequency: sound.harmony.filterFrequency, type: "lowpass", rolloff: -24 });
+    this.harmonyChorus = new Tone.Chorus({ frequency: sound.harmony.chorusFrequency, delayTime: 3.5, depth: sound.harmony.chorusDepth, wet: sound.harmony.chorusWet }).start();
+    this.melodyFilter = new Tone.Filter({ frequency: sound.melody.filterFrequency, type: "lowpass", rolloff: -24 });
+    this.melodyChorus = new Tone.Chorus({ frequency: sound.melody.chorusFrequency, delayTime: 2.8, depth: sound.melody.chorusDepth, wet: sound.melody.chorusWet }).start();
+    this.textureFilter = new Tone.Filter({ frequency: sound.texture.filterFrequency, type: "lowpass", rolloff: -24 });
 
-    this.kick = new Tone.MembraneSynth({ pitchDecay: 0.03, octaves: 5, oscillator: { type: "sine" }, envelope: { attack: 0.001, decay: 0.32, sustain: 0, release: 0.08 } });
-    this.snare = new Tone.NoiseSynth({ noise: { type: "pink" }, envelope: { attack: 0.002, decay: 0.12, sustain: 0, release: 0.05 } });
+    this.master.chain(this.masterFilter, this.masterCompressor, this.limiter, Tone.getDestination());
+    this.limiter.connect(this.masterMeter);
+    this.delaySend.chain(this.delay, this.master);
+    this.reverbSend.chain(this.reverb, this.master);
+
+    this.kick = new Tone.MembraneSynth({ pitchDecay: sound.drums.kickPitchDecay, octaves: sound.drums.kickOctaves, oscillator: { type: "sine" }, envelope: { attack: 0.001, decay: sound.drums.kickDecay, sustain: 0, release: 0.08 } });
+    this.snare = new Tone.NoiseSynth({ noise: { type: sound.drums.snareNoise }, envelope: { attack: 0.002, decay: sound.drums.snareDecay, sustain: 0, release: 0.05 } });
     this.hat = new Tone.MetalSynth({
-      envelope: { attack: 0.001, decay: 0.045, release: 0.01 },
-      harmonicity: 5.1, modulationIndex: 24, resonance: 4200, octaves: 1.5, volume: -18,
+      envelope: { attack: 0.001, decay: sound.drums.hatDecay, release: 0.01 },
+      harmonicity: 5.1, modulationIndex: 24, resonance: sound.drums.hatResonance, octaves: 1.5, volume: -18,
     } as Tone.MetalSynthOptions);
-    this.bass = new Tone.MonoSynth({ oscillator: { type: "fatsawtooth", count: 2, spread: 10 }, filter: { Q: 2, type: "lowpass", rolloff: -24 }, envelope: { attack: 0.01, decay: 0.18, sustain: 0.32, release: 0.2 }, filterEnvelope: { attack: 0.005, decay: 0.18, sustain: 0.2, release: 0.25, baseFrequency: 100, octaves: 2.3 }, volume: -11 });
-    this.harmony = new Tone.PolySynth(Tone.Synth, { oscillator: { type: "triangle" }, envelope: { attack: 0.08, decay: 0.25, sustain: 0.45, release: 1.2 }, volume: -16 });
-    this.melody = new Tone.Synth({ oscillator: { type: "fatsine", count: 2, spread: 8 }, envelope: { attack: 0.02, decay: 0.16, sustain: 0.25, release: 0.5 }, volume: -13 });
-    this.texture = new Tone.NoiseSynth({ noise: { type: "brown" }, envelope: { attack: 0.2, decay: 0.8, sustain: 0.1, release: 1.8 }, volume: -31 });
+    this.bass = new Tone.MonoSynth({ oscillator: { type: sound.bass.oscillator }, filter: { Q: sound.bass.filterQ, type: "lowpass", rolloff: -24 }, envelope: sound.bass.envelope, filterEnvelope: { attack: 0.005, decay: 0.18, sustain: 0.2, release: 0.25, baseFrequency: sound.bass.filterBaseFrequency, octaves: sound.bass.filterOctaves }, volume: sound.bass.volume });
+    this.bassAccent = new Tone.MonoSynth({ oscillator: { type: "triangle" }, filter: { Q: 1, type: "lowpass", rolloff: -24 }, envelope: { ...sound.bass.envelope, sustain: Math.min(0.35, sound.bass.envelope.sustain), release: Math.min(0.16, sound.bass.envelope.release) }, filterEnvelope: { attack: 0.003, decay: 0.1, sustain: 0.1, release: 0.14, baseFrequency: sound.bass.filterBaseFrequency * 1.8, octaves: 1 }, volume: sound.bass.volume - 5 });
+    this.bassMute = new Tone.NoiseSynth({ noise: { type: "brown" }, envelope: { attack: 0.001, decay: 0.025, sustain: 0, release: 0.015 }, volume: -27 });
+    this.harmony = sound.harmony.generator === "fm"
+      ? new Tone.PolySynth(Tone.FMSynth, { harmonicity: 1.5, modulationIndex: 1.2, oscillator: { type: sound.harmony.oscillator }, envelope: sound.harmony.envelope, modulationEnvelope: { attack: 0.002, decay: 0.08, sustain: 0.05, release: 0.15 }, volume: sound.harmony.volume })
+      : new Tone.PolySynth(Tone.Synth, { oscillator: { type: sound.harmony.oscillator }, envelope: sound.harmony.envelope, volume: sound.harmony.volume });
+    this.melody = sound.melody.generator === "fm"
+      ? new Tone.PolySynth(Tone.FMSynth, { harmonicity: 2, modulationIndex: 1.5, oscillator: { type: sound.melody.oscillator }, envelope: sound.melody.envelope, modulationEnvelope: { attack: 0.005, decay: 0.12, sustain: 0.08, release: 0.2 }, volume: sound.melody.volume })
+      : new Tone.PolySynth(Tone.Synth, { oscillator: { type: sound.melody.oscillator }, envelope: sound.melody.envelope, volume: sound.melody.volume });
+    this.melodyLead = new Tone.MonoSynth({
+      oscillator: { type: "triangle" }, portamento: 0.055,
+      filter: { Q: 1.5, type: "lowpass", rolloff: -24 },
+      envelope: { attack: 0.004, decay: 0.12, sustain: 0.28, release: 0.16 },
+      filterEnvelope: { attack: 0.003, decay: 0.1, sustain: 0.16, release: 0.15, baseFrequency: 260, octaves: 3.4 },
+      volume: sound.melody.volume - 2,
+    });
+    this.melodyMute = new Tone.NoiseSynth({ noise: { type: "pink" }, envelope: { attack: 0.001, decay: 0.018, sustain: 0, release: 0.012 }, volume: -30 });
+    // Two browser-native reed voices are required for the score's alto/tenor
+    // trading and unison passages. A triangle-rich body avoids the buzzy,
+    // permanently-vibrating synth-sax character of the earlier fatsaw patch.
+    // It is driven by NoteEvents and contains no sampled reference audio.
+    this.reedLead = new Tone.MonoSynth({
+      oscillator: { type: "fattriangle", count: 2, spread: 2 },
+      portamento: 0.045,
+      filter: { Q: 1.2, type: "lowpass", rolloff: -24 },
+      envelope: { attack: 0.018, decay: 0.11, sustain: 0.68, release: 0.18 },
+      filterEnvelope: { attack: 0.012, decay: 0.14, sustain: 0.52, release: 0.17, baseFrequency: 360, octaves: 3.45 },
+      volume: sound.melody.volume - 0.5,
+    });
+    this.reedLeadAlt = new Tone.MonoSynth({
+      oscillator: { type: "fattriangle", count: 2, spread: 2 },
+      portamento: 0.04,
+      filter: { Q: 1.05, type: "lowpass", rolloff: -24 },
+      envelope: { attack: 0.016, decay: 0.1, sustain: 0.64, release: 0.17 },
+      filterEnvelope: { attack: 0.01, decay: 0.13, sustain: 0.5, release: 0.16, baseFrequency: 390, octaves: 3.3 },
+      volume: sound.melody.volume - 2.5,
+    });
+    this.reedBreath = new Tone.NoiseSynth({ noise: { type: "pink" }, envelope: { attack: 0.004, decay: 0.045, sustain: 0, release: 0.02 }, volume: -31 });
+    this.reedDrive = new Tone.Distortion({ distortion: 0.095, wet: 0.24 });
+    this.reedBody = new Tone.Filter({ type: "peaking", frequency: 690, Q: 0.72, gain: 3.2 });
+    this.reedPresence = new Tone.Filter({ type: "peaking", frequency: 1850, Q: 0.95, gain: 1.2 });
+    this.reedVibrato = new Tone.LFO({ frequency: 5.05, min: -3, max: 3 }).start();
+    this.reedVibrato.connect(this.reedLead.detune);
+    this.reedVibrato.connect(this.reedLeadAlt.detune);
+    this.guitarBody = new Tone.MonoSynth({
+      oscillator: { type: "fattriangle", count: 2, spread: 3 },
+      portamento: 0,
+      filter: { Q: 1.7, type: "lowpass", rolloff: -24 },
+      envelope: { attack: 0.002, decay: 0.16, sustain: 0.3, release: 0.19 },
+      filterEnvelope: { attack: 0.001, decay: 0.11, sustain: 0.18, release: 0.16, baseFrequency: 520, octaves: 3.15 },
+      volume: sound.melody.volume - 0.25,
+    });
+    this.guitarString = new Tone.PluckSynth({ attackNoise: 0.72, dampening: 4300, resonance: 0.82, release: 0.22, volume: sound.melody.volume - 8 });
+    this.guitarFretNoise = new Tone.NoiseSynth({ noise: { type: "pink" }, envelope: { attack: 0.001, decay: 0.026, sustain: 0, release: 0.012 }, volume: -25 });
+    this.guitarDrive = new Tone.Distortion({ distortion: 0.17, wet: 0.52 });
+    this.guitarPresence = new Tone.Filter({ type: "peaking", frequency: 1480, Q: 1.2, gain: 5.4 });
+    this.texture = new Tone.NoiseSynth({ noise: { type: sound.texture.noise }, envelope: sound.texture.envelope, volume: sound.texture.volume });
 
-    this.kick.connect(this.grooveGain);
-    this.snare.connect(this.grooveGain);
-    this.hat.connect(this.grooveGain);
-    this.bass.connect(this.grooveGain);
+    this.kick.connect(this.drumDrive);
+    this.snare.connect(this.drumDrive);
+    this.hat.connect(this.drumDrive);
+    this.drumDrive.chain(this.drumFilter, this.grooveGain);
+    this.bass.chain(this.bassDrive, this.grooveGain);
+    this.bassAccent.connect(this.bassDrive);
+    this.bassMute.connect(this.bassDrive);
     this.grooveGain.connect(this.master);
-    this.harmony.connect(this.harmonyGain);
-    this.harmonyGain.connect(this.reverb);
-    this.melody.connect(this.melodyGain);
-    this.melodyGain.connect(this.delay);
-    this.melodyGain.connect(this.reverb);
-    this.texture.connect(this.textureGain);
-    this.textureGain.connect(this.reverb);
+    this.harmony.chain(this.harmonyFilter, this.harmonyChorus, this.harmonyGain);
+    this.harmonyGain.connect(this.master);
+    this.harmonyGain.connect(this.reverbSend);
+    this.melody.chain(this.melodyFilter, this.melodyChorus, this.melodyGain);
+    this.melodyLead.connect(this.melodyFilter);
+    this.melodyMute.connect(this.melodyFilter);
+    this.reedLead.chain(this.reedDrive, this.reedBody, this.reedPresence, this.melodyFilter);
+    this.reedLeadAlt.connect(this.reedDrive);
+    this.reedBreath.connect(this.reedBody);
+    this.guitarBody.chain(this.guitarDrive, this.guitarPresence, this.melodyFilter);
+    this.guitarString.connect(this.guitarPresence);
+    this.guitarFretNoise.connect(this.guitarPresence);
+    this.melodyGain.connect(this.master);
+    this.melodyGain.connect(this.delaySend);
+    this.melodyGain.connect(this.reverbSend);
+    this.texture.chain(this.textureFilter, this.textureGain);
+    this.textureGain.connect(this.master);
+    this.textureGain.connect(this.reverbSend);
 
     this.cueGain = new Tone.Volume(-8);
     this.cueMelody = new Tone.Synth({
@@ -187,6 +331,14 @@ export class AudioEngine {
       envelope: { attack: 0.01, decay: 0.12, sustain: 0.2, release: 0.35 },
       volume: -10,
     });
+    this.cueReed = new Tone.MonoSynth({
+      oscillator: { type: "sawtooth" },
+      filter: { Q: 1.1, type: "lowpass", rolloff: -24 },
+      envelope: { attack: 0.025, decay: 0.12, sustain: 0.62, release: 0.22 },
+      filterEnvelope: { attack: 0.015, decay: 0.14, sustain: 0.5, release: 0.18, baseFrequency: 420, octaves: 3 },
+      volume: -11,
+    });
+    this.cueGuitar = new Tone.PluckSynth({ attackNoise: 1.1, dampening: 3400, resonance: 0.88, release: 0.42, volume: -9 });
     this.cueHat = new Tone.MetalSynth({
       envelope: { attack: 0.001, decay: 0.04, release: 0.01 },
       harmonicity: 5.1,
@@ -202,6 +354,8 @@ export class AudioEngine {
       volume: -14,
     });
     this.cueMelody.connect(this.cueGain);
+    this.cueReed.connect(this.cueGain);
+    this.cueGuitar.connect(this.cueGain);
     this.cueHat.connect(this.cueGain);
     this.cueKick.connect(this.cueGain);
     this.cueGain.connect(Tone.getDestination());
@@ -223,6 +377,11 @@ export class AudioEngine {
       const sixteenth = totalSixteenths % 4;
       const step = beat * 4 + sixteenth;
       if (beat === 0 && sixteenth === 0) {
+        const tempoChange = this.tempoMap.find((entry) => entry.bar === bar);
+        if (tempoChange) {
+          this.baseBpm = tempoChange.bpm;
+          Tone.getTransport().bpm.setValueAtTime(this.baseBpm * this.tempoMultiplier, time);
+        }
         this.callbacks.onBeforeBoundary?.(bar, time);
         const launchSceneId = this.launchAtBar.get(bar);
         if (launchSceneId) this.callbacks.onLaunchAtBar?.(bar, launchSceneId, time);
@@ -235,17 +394,13 @@ export class AudioEngine {
       this.masterStepCount += 1;
 
       Tone.getDraw().schedule(() => {
+        if (callbackGeneration !== this.playbackGeneration) return;
         if (bar !== this.lastBar && beat === 0 && sixteenth === 0) {
           this.lastBar = bar;
           this.callbacks.onBoundary?.(bar);
         }
         this.callbacks.onStep(bar, beat, sixteenth);
-        if (
-          callbackGeneration === this.playbackGeneration
-          && bar === this.totalBars
-          && beat === 0
-          && sixteenth === 0
-        ) {
+        if (shouldAudioEngineFinishAtStep(this.currentAct, bar, this.totalBars, beat, sixteenth)) {
           this.stop();
           this.callbacks.onFinished();
         }
@@ -279,13 +434,42 @@ export class AudioEngine {
   setTempoMultiplier(multiplier: number): void {
     const safeMultiplier = Math.max(0.25, Math.min(8, multiplier));
     this.tempoMultiplier = safeMultiplier;
-    Tone.getTransport().bpm.value = this.baseBpm * safeMultiplier;
+    if (this.initialized) Tone.getTransport().bpm.value = this.baseBpm * safeMultiplier;
   }
 
   setBaseBpm(bpm: number): void {
     if (!Number.isFinite(bpm) || bpm <= 0) throw new Error("bpm must be positive");
     this.baseBpm = bpm;
-    Tone.getTransport().bpm.value = this.baseBpm * this.tempoMultiplier;
+    if (this.initialized) Tone.getTransport().bpm.value = this.baseBpm * this.tempoMultiplier;
+  }
+
+  setTempoMap(tempoMap: readonly { bar: number; bpm: number }[]): void {
+    if (tempoMap.length === 0) throw new Error("tempoMap must not be empty");
+    const next = tempoMap.map((entry) => ({ ...entry })).sort((a, b) => a.bar - b.bar);
+    if (next[0]?.bar !== 0) throw new Error("tempoMap must start at bar 0");
+    if (next.some((entry, index) => !Number.isInteger(entry.bar)
+      || entry.bar < 0
+      || !Number.isFinite(entry.bpm)
+      || entry.bpm <= 0
+      || (index > 0 && entry.bar === next[index - 1]?.bar))) {
+      throw new Error("tempoMap entries require unique non-negative integer bars and positive BPM values");
+    }
+    this.tempoMap = next;
+    this.setBaseBpm(next[0].bpm);
+  }
+
+  getTempoMap(): { bar: number; bpm: number }[] {
+    return structuredClone(this.tempoMap);
+  }
+
+  getCurrentBaseBpm(): number {
+    return this.baseBpm;
+  }
+
+  getMasterLevelDb(): number {
+    if (!this.initialized || !this.masterMeter) return Number.NEGATIVE_INFINITY;
+    const value = this.masterMeter.getValue();
+    return Array.isArray(value) ? Math.max(...value) : value;
   }
 
   activateSceneAtBoundary(scene: SceneDefinition, time?: number): void {
@@ -304,11 +488,11 @@ export class AudioEngine {
     }
     if (params.delayWet !== undefined) {
       this.currentMix.delayWet = params.delayWet;
-      this.delay.wet.linearRampToValueAtTime(delayUiToWet(params.delayWet), targetTime);
+      this.delaySend.gain.linearRampToValueAtTime(delayUiToWet(params.delayWet), targetTime);
     }
     if (params.reverbWet !== undefined) {
       this.currentMix.reverbWet = params.reverbWet;
-      this.reverb.wet.linearRampToValueAtTime(params.reverbWet, targetTime);
+      this.reverbSend.gain.linearRampToValueAtTime(params.reverbWet, targetTime);
     }
     if (params.masterGain !== undefined) {
       this.currentMix.masterGain = params.masterGain;
@@ -364,7 +548,10 @@ export class AudioEngine {
     this.cueOwnsTransport = this.currentAct === "production" && !transportWasStarted;
     this.cueActAtStart = this.currentAct;
     this.cueBankVersionAtStart = this.materialBank.version;
-    this.cueGain.volume.setValueAtTime(-8, transport.seconds);
+    // Tone's transport can report a tiny negative epsilon at the zero boundary.
+    // Web Audio rejects any negative AudioParam time, even one caused only by
+    // floating-point rounding.
+    this.cueGain.volume.setValueAtTime(-8, Math.max(0, transport.seconds));
 
     this.logResolution("cue", "", "cue", materialRef);
 
@@ -460,8 +647,8 @@ export class AudioEngine {
     if (!this.initialized) return;
     const t = Tone.getTransport().seconds + 0.01;
     this.masterFilter.frequency.setValueAtTime(mix.filter, t);
-    this.delay.wet.setValueAtTime(mix.delayWet, t);
-    this.reverb.wet.setValueAtTime(mix.reverbWet, t);
+    this.delaySend.gain.setValueAtTime(delayUiToWet(mix.delayWet), t);
+    this.reverbSend.gain.setValueAtTime(mix.reverbWet, t);
     this.master.volume.setValueAtTime(mix.masterGain, t);
     this.grooveGain.volume.setValueAtTime(faderUiToDb(mix.faders.groove), t);
     this.harmonyGain.volume.setValueAtTime(faderUiToDb(mix.faders.harmony), t);
@@ -502,8 +689,8 @@ export class AudioEngine {
     const targetTime = computeRampTargetTime(startTime, rampDuration);
     this.currentMix = { ...scene.fx, faders: { ...scene.fx.faders } };
     this.masterFilter.frequency.exponentialRampToValueAtTime(filterUiToHz(scene.fx.filter), targetTime);
-    this.delay.wet.linearRampToValueAtTime(delayUiToWet(scene.fx.delayWet), targetTime);
-    this.reverb.wet.linearRampToValueAtTime(scene.fx.reverbWet, targetTime);
+    this.delaySend.gain.linearRampToValueAtTime(delayUiToWet(scene.fx.delayWet), targetTime);
+    this.reverbSend.gain.linearRampToValueAtTime(scene.fx.reverbWet, targetTime);
     this.master.volume.linearRampToValueAtTime(scene.fx.masterGain, targetTime);
     if (includeFaders) this.setMixParams({ faders: scene.fx.faders }, rampDuration, startTime);
   }
@@ -511,22 +698,23 @@ export class AudioEngine {
   private playStep(scene: SceneDefinition, bar: number, step: number, time: number): void {
     const localBar = Math.max(0, bar - scene.startBar);
     const consumer = this.currentAct === "canonicalPlayback" ? "canonical" : "live";
-    this.playLayer(scene.id, "drums", scene.layers.drums, step, localBar, step, time, consumer);
-    this.playLayer(scene.id, "bass", scene.layers.bass, step, localBar, step, time, consumer);
-    this.playLayer(scene.id, "harmony", scene.layers.harmony, step, localBar, step, time, consumer);
-    this.playLayer(scene.id, "melody", scene.layers.melody, step, localBar, step, time, consumer);
-    this.playLayer(scene.id, "texture", scene.layers.texture, step, localBar, step, time, consumer);
+    for (const layer of ["drums", "bass", "harmony", "melody", "texture"] as const) {
+      this.playLayer(scene.id, layer, scene.layers[layer], localBar, step, time, consumer, 0);
+      for (const [index, ref] of (scene.layerStacks?.[layer] ?? []).entries()) {
+        this.playLayer(scene.id, layer, ref, localBar, step, time, consumer, index + 1);
+      }
+    }
   }
 
   private playLayer(
     sceneId: string,
     layer: LayerId,
     ref: MaterialRef | null,
-    _step: number,
     localBar: number,
     globalStep: number,
     time: number,
     consumer: "canonical" | "live",
+    voiceIndex: number,
   ): void {
     if (!ref) return;
     if (!this.materialBank) {
@@ -541,28 +729,106 @@ export class AudioEngine {
     this.logResolution(consumer, sceneId, layer, ref);
 
     const content = material.content;
+    const patternStep = (patternBars: number) => (localBar % Math.max(1, patternBars)) * 16 + globalStep;
     if (content.kind === "drums") {
+      const currentStep = patternStep(content.patternBars);
       for (const hit of content.hits) {
-        if (hit.step !== globalStep) continue;
-        if (hit.voice === "kick") this.kick.triggerAttackRelease("C1", "8n", time, hit.velocity);
-        else if (hit.voice === "snare") this.snare.triggerAttackRelease("16n", time, hit.velocity * 0.35);
-        else this.hat.triggerAttackRelease("32n", time, hit.velocity * 0.5);
+        if (hit.bar * 16 + hit.step !== currentStep) continue;
+        if (hit.voice === "kick") this.kick.triggerAttackRelease("C1", hit.duration ?? "8n", time, hit.velocity);
+        else if (hit.voice === "snare") this.snare.triggerAttackRelease(hit.duration ?? "16n", time, hit.velocity * 0.35);
+        else this.hat.triggerAttackRelease(hit.duration ?? "32n", time, hit.velocity * 0.5);
       }
     } else if (content.kind === "bass") {
-      if (globalStep % 2 !== 0) return;
-      const note = content.notes.find((n) => n.step === globalStep);
-      if (note) this.bass.triggerAttackRelease(note.note, note.duration, time, note.velocity);
+      const currentStep = patternStep(content.patternBars);
+      const note = content.notes.find((n) => (n.bar ?? 0) * 16 + n.step === currentStep);
+      if (note) this.playExpressiveNote("bass", note, voiceIndex, time);
     } else if (content.kind === "harmony") {
-      if (globalStep !== 0) return;
-      const chord = content.chords[localBar % content.chords.length];
-      if (chord) this.harmony.triggerAttackRelease(chord.notes, "1m", time, 0.3);
+      const currentStep = patternStep(content.patternBars);
+      const chords = content.chords.filter((chord) => chord.bar * 16 + (chord.step ?? 0) === currentStep);
+      for (const chord of chords) this.harmony.triggerAttackRelease(chord.notes, chord.duration ?? "1m", time, chord.velocity ?? 0.3);
     } else if (content.kind === "melody") {
-      const note = content.notes.find((n) => n.step === globalStep);
-      if (note) this.melody.triggerAttackRelease(note.note, note.duration, time, note.velocity);
+      const currentStep = patternStep(content.patternBars);
+      const note = content.notes.find((n) => (n.bar ?? 0) * 16 + n.step === currentStep);
+      if (note) this.playExpressiveNote("melody", note, voiceIndex, time);
     } else if (content.kind === "texture") {
       if (globalStep !== 0) return;
       this.texture.triggerAttackRelease(content.duration, time, content.level);
     }
+  }
+
+  private playExpressiveNote(layer: "bass" | "melody", note: NoteEvent, voiceIndex: number, time: number): void {
+    const sixteenth = Tone.Time("16n").toSeconds();
+    const scheduledTime = time + (note.timingOffset ?? 0) * sixteenth;
+    const durationSeconds = Math.max(0.03, Tone.Time(note.duration).toSeconds());
+    const velocityScale = note.articulation === "ghost" ? 0.5 : note.articulation === "accent" ? 1.12 : 1;
+    const velocity = Math.max(0.02, Math.min(1, note.velocity * velocityScale));
+
+    if (layer === "melody" && note.instrument === "guitar") {
+      this.playGuitarNote(note, scheduledTime, durationSeconds, velocity);
+      return;
+    }
+
+    if (note.articulation === "muted") {
+      (layer === "bass" ? this.bassMute : this.melodyMute).triggerAttackRelease("32n", scheduledTime, velocity);
+      return;
+    }
+
+    if (layer === "melody" && note.instrument === "reed") {
+      this.playReedNote(note, voiceIndex, scheduledTime, durationSeconds, velocity);
+      return;
+    }
+
+    if (note.articulation === "slide" || note.articulation === "legato") {
+      const voice = layer === "bass" ? (voiceIndex > 0 ? this.bassAccent : this.bass) : this.melodyLead;
+      voice.triggerAttack(note.glideFrom ?? note.note, scheduledTime, velocity);
+      voice.setNote(note.note, scheduledTime + Math.min(sixteenth * 0.55, durationSeconds * 0.4));
+      voice.triggerRelease(scheduledTime + durationSeconds);
+      return;
+    }
+
+    if (layer === "bass") (voiceIndex > 0 ? this.bassAccent : this.bass).triggerAttackRelease(note.note, note.duration, scheduledTime, velocity);
+    else this.melody.triggerAttackRelease(note.note, note.duration, scheduledTime, velocity);
+  }
+
+  private playReedNote(note: NoteEvent, voiceIndex: number, scheduledTime: number, durationSeconds: number, velocity: number): void {
+    const voice = voiceIndex > 0 ? this.reedLeadAlt : this.reedLead;
+    const isConnected = note.articulation === "slide" || note.articulation === "legato";
+    if (!isConnected && durationSeconds >= Tone.Time("8n").toSeconds() * 0.9) {
+      this.reedBreath.triggerAttackRelease("32n", scheduledTime, velocity * 0.24);
+    }
+    const releaseAt = scheduledTime + durationSeconds;
+    const shouldScoop = isConnected || note.articulation === "accent";
+    if (!shouldScoop) {
+      voice.triggerAttackRelease(note.note, durationSeconds, scheduledTime, velocity);
+      return;
+    }
+
+    const startPitch = note.glideFrom ?? Tone.Frequency(note.note).transpose(-0.45).toFrequency();
+    voice.triggerAttack(startPitch, scheduledTime, velocity);
+    voice.setNote(note.note, scheduledTime + Math.min(0.055, durationSeconds * 0.22));
+    voice.triggerRelease(releaseAt);
+  }
+
+  private playGuitarNote(note: NoteEvent, scheduledTime: number, durationSeconds: number, velocity: number): void {
+    const releaseAt = scheduledTime + durationSeconds;
+    const isMuted = note.articulation === "muted";
+    const isSlide = note.articulation === "slide" || note.articulation === "legato";
+    this.guitarFretNoise.triggerAttackRelease(isSlide ? "16n" : "32n", scheduledTime, velocity * (isSlide ? 0.62 : 0.38));
+
+    const stringPitch = note.glideFrom ?? note.note;
+    this.guitarString.triggerAttack(stringPitch, scheduledTime);
+    this.guitarString.triggerRelease(scheduledTime + Math.min(durationSeconds, isMuted ? 0.055 : 0.34));
+    if (isMuted) return;
+
+    if (isSlide) {
+      this.guitarBody.triggerAttack(stringPitch, scheduledTime, velocity);
+      // A real fret slide keeps the pick transient and reaches the destination
+      // quickly; a long portamento is what made the previous triangle voice round.
+      this.guitarBody.setNote(note.note, scheduledTime + Math.min(0.052, durationSeconds * 0.22));
+      this.guitarBody.triggerRelease(releaseAt);
+      return;
+    }
+    this.guitarBody.triggerAttackRelease(note.note, durationSeconds, scheduledTime, velocity * 0.72);
   }
 
   private scheduleMaterialHits(
@@ -572,26 +838,41 @@ export class AudioEngine {
   ): void {
     const content = material.content;
     if (content.kind === "melody" || content.kind === "bass") {
+      const cueOrigin = isCue && content.notes.length
+        ? Math.min(...content.notes.map((note) => (note.bar ?? 0) * 16 + note.step))
+        : 0;
       for (const note of content.notes) {
-        schedule(note.step, (t) => {
+        schedule((note.bar ?? 0) * 16 + note.step - cueOrigin, (t) => {
           if (isCue) {
-            this.cueMelody.triggerAttackRelease(note.note, note.duration ?? "8n", t, note.velocity ?? 0.6);
+            if (note.instrument === "guitar") {
+              this.cueGuitar.triggerAttack(note.note, t);
+              this.cueGuitar.triggerRelease(t + Tone.Time(note.duration ?? "8n").toSeconds());
+            } else {
+              const voice = note.instrument === "reed" ? this.cueReed : this.cueMelody;
+              voice.triggerAttackRelease(note.note, note.duration ?? "8n", t, note.velocity ?? 0.6);
+            }
             this.cueNoteCount += 1;
           }
         });
       }
     } else if (content.kind === "drums") {
+      const cueOrigin = isCue && content.hits.length
+        ? Math.min(...content.hits.map((hit) => hit.bar * 16 + hit.step))
+        : 0;
       for (const hit of content.hits) {
-        schedule(hit.step, (t) => {
+        schedule(hit.bar * 16 + hit.step - cueOrigin, (t) => {
           if (hit.voice === "kick") this.cueKick.triggerAttackRelease("C2", "8n", t, hit.velocity);
           else this.cueHat.triggerAttackRelease("32n", t, hit.velocity * 0.5);
           this.cueNoteCount += 1;
         });
       }
     } else if (content.kind === "harmony") {
+      const cueOrigin = isCue && content.chords.length
+        ? Math.min(...content.chords.map((chord) => chord.bar * 16 + (chord.step ?? 0)))
+        : 0;
       for (const chord of content.chords) {
-        schedule(chord.bar * 16, (t) => {
-          this.cueMelody.triggerAttackRelease(chord.notes[0] ?? "C4", "4n", t, 0.5);
+        schedule(chord.bar * 16 + (chord.step ?? 0) - cueOrigin, (t) => {
+          this.cueMelody.triggerAttackRelease(chord.notes[0] ?? "C4", chord.duration ?? "4n", t, chord.velocity ?? 0.5);
           this.cueNoteCount += 1;
         });
       }
@@ -630,10 +911,15 @@ export class AudioEngine {
   dispose(): void {
     if (this.scheduledId !== null) Tone.getTransport().clear(this.scheduledId);
     this.stop();
-    [this.kick, this.snare, this.hat, this.bass, this.harmony, this.melody, this.texture,
+    [this.kick, this.snare, this.hat, this.bass, this.bassAccent, this.bassMute,
+      this.harmony, this.melody, this.melodyLead, this.melodyMute,
+      this.reedLead, this.reedLeadAlt, this.reedBreath, this.reedDrive, this.reedBody, this.reedPresence, this.reedVibrato, this.texture,
+      this.guitarBody, this.guitarString, this.guitarFretNoise, this.guitarDrive, this.guitarPresence,
       this.grooveGain, this.harmonyGain, this.melodyGain, this.textureGain,
-      this.delay, this.reverb, this.masterFilter, this.master, this.limiter,
-      this.cueMelody, this.cueHat, this.cueKick, this.cueGain]
+      this.delay, this.reverb, this.delaySend, this.reverbSend, this.masterFilter, this.masterCompressor, this.master, this.limiter, this.masterMeter,
+      this.drumDrive, this.drumFilter, this.bassDrive, this.harmonyFilter, this.harmonyChorus,
+      this.melodyFilter, this.melodyChorus, this.textureFilter,
+      this.cueMelody, this.cueReed, this.cueGuitar, this.cueHat, this.cueKick, this.cueGain]
       .filter(Boolean).forEach((n) => n.dispose());
   }
 }

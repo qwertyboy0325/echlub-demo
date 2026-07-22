@@ -1,4 +1,4 @@
-import type { LayerId, NoteEvent } from "../types";
+import type { HarmonyChordEvent, LayerId, NoteEvent } from "../types";
 
 export interface MaterialRef {
   draftId: string;
@@ -7,28 +7,28 @@ export interface MaterialRef {
 }
 
 export interface DrumHit {
+  bar: number;
   step: number;
   voice: "kick" | "snare" | "hat";
   velocity: number;
+  duration?: string;
 }
 
 export interface DrumMaterialContent {
   kind: "drums";
+  patternBars: number;
   hits: DrumHit[];
 }
 
 export interface NoteMaterialContent {
   kind: "bass" | "melody";
+  patternBars: number;
   notes: NoteEvent[];
-}
-
-export interface HarmonyChordEvent {
-  bar: number;
-  notes: string[];
 }
 
 export interface HarmonyMaterialContent {
   kind: "harmony";
+  patternBars: number;
   chords: HarmonyChordEvent[];
 }
 

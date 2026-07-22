@@ -24,7 +24,8 @@ export const MIX_CONTROL_MAPPINGS: MixControlMapping[] = [
 ];
 
 export function faderUiToDb(ui: number): number {
-  return -24 + ui * 0.2;
+  const normalized = Math.min(1, Math.max(0, ui / 100));
+  return normalized === 0 ? -60 : 20 * Math.log10(normalized);
 }
 
 export function faderUiToGain(ui: number): number {

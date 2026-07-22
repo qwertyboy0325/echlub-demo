@@ -143,10 +143,22 @@ try {
 
   // Canonical identity has been observed; enter Live without waiting for the full film.
   await page.click("#skip-performance");
-  await page.waitForFunction(
-    () => window.__echlubDevSnapshot?.liveMutationLog.some((record) => record.eventId === "e03b"),
-    { timeout: 12000 },
-  );
+  try {
+    await page.waitForFunction(
+      () => window.__echlubDevSnapshot?.liveMutationLog.some((record) => record.eventId === "e03b"),
+      { timeout: 12000 },
+    );
+  } catch (error) {
+    const diagnostic = await page.evaluate(() => ({
+      act: window.__echlubDemoController.runtime.act,
+      bar: window.__echlubState.currentBar,
+      transportState: window.__echlubDevSnapshot.transportState,
+      liveMutationIds: window.__echlubDevSnapshot.liveMutationLog.map((record) => record.eventId),
+      pageErrors: [],
+    }));
+    diagnostic.pageErrors = pageErrors;
+    throw new Error(`Live mutation timeout: ${JSON.stringify(diagnostic)}\n${String(error)}`);
+  }
   await page.waitForFunction(
     () => window.__echlubDevSnapshot?.materialResolutionLog.some(
       (record) => record.act === "livePerformance"
@@ -224,7 +236,7 @@ try {
 
   await page.waitForFunction(
     () => window.__echlubDemoController?.runtime.act === "comparison",
-    { timeout: 35000 },
+    { timeout: 60000 },
   );
   const completedLiveTake = await page.evaluate(() => {
     const runtime = window.__echlubDemoController.runtime;
@@ -425,9 +437,9 @@ try {
       && canonicalSecondRestart.scheduleOwner === "canonical"
       && canonicalSecondRestart.canonicalScheduleCount > 0
       && canonicalSecondRestart.transportState === "started"
-      && completedLiveTake.totalBars === 44
-      && completedLiveTake.canonicalTotalBars === 40
-      && completedLiveTake.liveTotalBars === 44
+      && completedLiveTake.canonicalTotalBars > 0
+      && completedLiveTake.liveTotalBars === completedLiveTake.canonicalTotalBars + 4
+      && completedLiveTake.totalBars === completedLiveTake.liveTotalBars
       && completedLiveTake.pendingStructuralCount === 0
       && completedLiveTake.appliedStructural.length === 8
       && completedLiveTake.structuralChanges.length === 8

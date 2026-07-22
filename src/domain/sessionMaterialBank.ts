@@ -36,27 +36,39 @@ function drumVoiceForStep(step: number): DrumHit["voice"] {
   return "hat";
 }
 
+function inferPatternBars(draft: PatternDraft): number {
+  if (draft.patternBars && Number.isInteger(draft.patternBars) && draft.patternBars > 0) return draft.patternBars;
+  const bars = [
+    ...(draft.notes ?? []).map((event) => event.bar ?? 0),
+    ...(draft.drumHits ?? []).map((event) => event.bar),
+    ...(draft.harmonyChords ?? []).map((event) => event.bar),
+  ];
+  return Math.max(1, ...bars.map((bar) => bar + 1));
+}
+
 export function compileDraftMaterial(draft: PatternDraft): ProducedMaterial {
   const revision = draft.revision ?? 0;
   let content: MaterialContent;
 
   switch (draft.kind) {
     case "drums": {
-      const steps = draft.steps ?? [];
-      const hits: DrumHit[] = steps.map((step) => ({
-        step,
-        voice: drumVoiceForStep(step),
-        velocity: draft.stepVelocities?.[step] ?? 0.7,
-      }));
-      content = { kind: "drums", hits };
+      const hits: DrumHit[] = draft.drumHits?.length
+        ? structuredClone(draft.drumHits)
+        : (draft.steps ?? []).map((step) => ({
+          bar: 0,
+          step,
+          voice: drumVoiceForStep(step),
+          velocity: draft.stepVelocities?.[step] ?? 0.7,
+        }));
+      content = { kind: "drums", patternBars: inferPatternBars(draft), hits };
       break;
     }
     case "bass":
     case "melody":
-      content = { kind: draft.kind, notes: structuredClone(draft.notes ?? []) };
+      content = { kind: draft.kind, patternBars: inferPatternBars(draft), notes: structuredClone(draft.notes ?? []) };
       break;
     case "harmony":
-      content = { kind: "harmony", chords: structuredClone(draft.harmonyChords ?? []) };
+      content = { kind: "harmony", patternBars: inferPatternBars(draft), chords: structuredClone(draft.harmonyChords ?? []) };
       break;
     case "texture":
       content = {

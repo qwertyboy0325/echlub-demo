@@ -28,17 +28,39 @@ export type ScriptAction =
 
 export interface NoteEvent {
   id: string;
+  /** Zero-based bar within the draft pattern. Defaults to 0 for legacy packs. */
+  bar?: number;
   step: number;
   pitch: number;
   note: string;
   duration: string;
   velocity: number;
   width?: number;
+  /** Performance articulation retained through the material-bank fingerprint. */
+  articulation?: "normal" | "legato" | "slide" | "muted" | "ghost" | "accent";
+  /** Optional synthesized performance voice; source audio is never required at runtime. */
+  instrument?: "default" | "reed" | "guitar";
+  /** Optional source pitch for a monophonic hammer-on, pull-off, or slide. */
+  glideFrom?: string;
+  /** Deterministic microtiming in sixteenth-note units, constrained to +/- 0.49. */
+  timingOffset?: number;
 }
 
 export interface HarmonyChordEvent {
   bar: number;
+  step?: number;
   notes: string[];
+  duration?: string;
+  velocity?: number;
+  articulation?: "held" | "pluck" | "muted" | "accent";
+}
+
+export interface DrumPatternHit {
+  bar: number;
+  step: number;
+  voice: "kick" | "snare" | "hat";
+  velocity: number;
+  duration?: string;
 }
 
 export interface TextureParams {
@@ -55,7 +77,10 @@ export interface PatternDraft {
   kind: LayerId;
   status: DraftStatus;
   revision: number;
+  /** Pattern length used for multi-bar looping. Defaults to inferred content length. */
+  patternBars?: number;
   notes?: NoteEvent[];
+  drumHits?: DrumPatternHit[];
   steps?: number[];
   stepVelocities?: Record<number, number>;
   harmonyChords?: HarmonyChordEvent[];
@@ -75,6 +100,8 @@ export interface SceneDefinition {
   startBar: number;
   description: string;
   layers: Record<LayerId, MaterialRef | null>;
+  /** Additional independently resolved materials routed through the same broad layer bus. */
+  layerStacks?: Partial<Record<LayerId, MaterialRef[]>>;
   fx: MixParams;
 }
 

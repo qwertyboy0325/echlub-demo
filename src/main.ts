@@ -24,7 +24,7 @@ import { buildTopologyTransformation } from "./demo/canonicalPlayback";
 import { enterAct, registerLiveSchedules } from "./demo/actScheduleRegistry";
 import type { DemoAct } from "./domain/sessionTypes";
 import { arrangementLaunchBoundaries } from "./demo/liveStructuralPlan";
-import { importReconstructionPackFile } from "./domain/packLoader";
+import { importReconstructionPackFile, parseReconstructionPackJson } from "./domain/packLoader";
 
 const brainMeta: Record<BrainId, { title: string; subtitle: string; symbol: string }> = {
   memory: { title: "Memory / Cue", subtitle: "phrases, fragments and private audition", symbol: "M" },
@@ -145,6 +145,7 @@ const demoController = new DemoController({
   scheduleCanonicalPlayback: (onDone) => { void runCanonicalPlaybackAct(onDone); },
 });
 audioEngine.setBaseBpm(demoController.runtime.pack.metadata.bpm);
+audioEngine.setTempoMap(demoController.runtime.pack.tempoMap);
 audioEngine.setTotalBars(demoController.runtime.session.arrangement.totalBars);
 
 function currentLiveScript(): readonly PerformanceScriptEvent[] {
@@ -154,6 +155,7 @@ function currentLiveScript(): readonly PerformanceScriptEvent[] {
 function render(): void {
   const idleScene = createIdleScene();
   const displayScene = sceneById(state.activeSceneId) ?? idleScene;
+  const isPublicSongDemo = demoController.runtime.pack.metadata.source === "public-demo";
   app!.innerHTML = `
   <main class="app-shell ${state.recordingMode ? "recording-mode" : ""}" data-act="${demoMode}">
     <header class="topbar glass">
@@ -161,8 +163,8 @@ function render(): void {
         <div class="brand-mark">E</div>
         <div>
           <div class="eyebrow">ROUND 3 · production → song → performance</div>
-          <h1>EchLub Concept Film Runtime</h1>
-          <p>Virtual creators build materials, assemble a canonical song, then reopen it for live recomposition.</p>
+          <h1>${isPublicSongDemo ? "EchLub · Shiki No Uta Cover Lab" : "EchLub Concept Film Runtime"}</h1>
+          <p>${isPublicSongDemo ? "A browser-synth cover demo: production, full-song playback, and live DJ recomposition." : "Virtual creators build materials, assemble a canonical song, then reopen it for live recomposition."}</p>
         </div>
       </div>
       <div class="header-status">
@@ -190,7 +192,7 @@ function render(): void {
         <button class="button mini" id="skip-performance">Skip to Live Performance</button>
         <label class="speed-control">Speed <input type="range" id="speed-control" min="1" max="8" value="1" /></label>
         <label class="pack-import">Local pack <input type="file" id="pack-file-input" accept="application/json,.json" /></label>
-        <span class="pack-import-status" id="pack-import-status">validated placeholder</span>
+        <span class="pack-import-status" id="pack-import-status">${isPublicSongDemo ? "bundled · public song demo" : "validated placeholder"}</span>
       </div>
     </section>
 
@@ -244,7 +246,7 @@ function render(): void {
         </div>
       </article>
     </section>
-    <footer class="demo-footer">Round 3 prototype — production, canonical playback, and live recomposition share one data model. Placeholder music only; not 四季ノ唄.</footer>
+    <footer class="demo-footer">${isPublicSongDemo ? "Public cover concept demo · synthesized from derived note and arrangement data · no source recording, stem, score, or lyrics are bundled." : "Round 3 prototype — production, canonical playback, and live recomposition share one data model. Placeholder music only."}</footer>
   </main>`;
   bindControls();
   presentation.initialize();
@@ -417,16 +419,31 @@ async function onImportPack(event: Event): Promise<void> {
   if (status) status.textContent = "validating locally…";
   try {
     const pack = await importReconstructionPackFile(file);
-    demoController.loadPack(pack);
-    audioEngine.setBaseBpm(pack.metadata.bpm);
-    audioEngine.setTotalBars(pack.arrangement.totalBars);
-    window.__echlubExpectedScriptScheduleCount = pack.livePerformanceChoreography.length;
+    applyLoadedPack(pack);
     render();
     const nextStatus = document.querySelector<HTMLElement>("#pack-import-status");
     if (nextStatus) nextStatus.textContent = `local only · ${pack.metadata.source}`;
   } catch (error) {
     if (status) status.textContent = error instanceof Error ? error.message : String(error);
     input.value = "";
+  }
+}
+
+function applyLoadedPack(pack: import("./domain/reconstructionPack").ReconstructionPack): void {
+  demoController.loadPack(pack);
+  audioEngine.setBaseBpm(pack.metadata.bpm);
+  audioEngine.setTempoMap(pack.tempoMap);
+  audioEngine.setTotalBars(pack.arrangement.totalBars);
+  window.__echlubExpectedScriptScheduleCount = pack.livePerformanceChoreography.length;
+}
+
+async function loadBundledSongDemo(): Promise<void> {
+  try {
+    const response = await fetch(new URL("shiki-no-uta.demo.pack.json", document.baseURI), { cache: "no-store" });
+    if (!response.ok) return;
+    applyLoadedPack(parseReconstructionPackJson(await response.text()));
+  } catch {
+    // Keep the validated placeholder as a safe offline fallback.
   }
 }
 
@@ -878,7 +895,13 @@ async function runCanonicalPlaybackAct(onDone: () => void): Promise<void> {
       if (prov) prov.textContent = demoController.getProvenanceLabel(bar);
       refreshProductionUi();
     },
-    onDone,
+    () => {
+      // Canonical playback has one completion authority: the arrangement's
+      // explicit total-bar boundary. Stop it before resolving the controller
+      // promise so a delayed Draw callback cannot stop the next Live act.
+      audioEngine.stop();
+      onDone();
+    },
   );
   demoController.registerCanonicalSchedules(canonicalPlaybackIds);
   audioEngine.start();
@@ -911,6 +934,10 @@ declare global {
       cueActive: boolean;
       playingSceneId: string;
       transportState: string;
+      soundDesign: ReturnType<typeof audioEngine.getSoundDesignPreset>;
+      tempoMap: ReturnType<typeof audioEngine.getTempoMap>;
+      currentBaseBpm: number;
+      masterLevelDb: number;
       triggerCuePreview: (draftId: string) => void;
       getComparisonPreview: () => ReturnType<typeof demoController.runtime.previewComparison>;
     };
@@ -933,6 +960,10 @@ window.__echlubDevSnapshot = {
   get cueActive() { return audioEngine.isCueActive(); },
   get playingSceneId() { return audioEngine.getPlayingSceneId(); },
   get transportState() { return audioEngine.state; },
+  get soundDesign() { return audioEngine.getSoundDesignPreset(); },
+  get tempoMap() { return audioEngine.getTempoMap(); },
+  get currentBaseBpm() { return audioEngine.getCurrentBaseBpm(); },
+  get masterLevelDb() { return audioEngine.getMasterLevelDb(); },
   triggerCuePreview(draftId: string) { demoController.handlePreviewDraft(draftId); },
   getComparisonPreview() {
     return demoController.runtime.previewComparison(
@@ -943,4 +974,5 @@ window.__echlubDevSnapshot = {
 };
 
 window.addEventListener("beforeunload", () => audioEngine.dispose());
+await loadBundledSongDemo();
 render();

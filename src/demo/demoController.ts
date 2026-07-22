@@ -41,6 +41,7 @@ export class DemoController {
       hooks.onActChange(act);
     });
     this.director = this.runtime.director;
+    this.hooks.audioEngine.setSoundDesign(pack.soundDesign);
     this.publishToAudioEngine("production");
   }
 
@@ -64,6 +65,7 @@ export class DemoController {
   loadPack(pack: ReconstructionPack): void {
     this.stop();
     this.runtime.loadPack(pack);
+    this.hooks.audioEngine.setSoundDesign(pack.soundDesign);
     this.syncSessionToState();
     this.publishToAudioEngine("production");
     this.hooks.refreshUi();
