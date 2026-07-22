@@ -1,0 +1,24 @@
+---
+description: "EchLub bounded work packages with owner gates"
+alwaysApply: true
+---
+
+# EchLub Work Packages
+
+Collaboration model: **Bounded Autonomous Work Packages with Owner Gates**.
+
+## Agent responsibility
+
+Within an authorized work package, agents may: preflight, inspect, plan, implement, test, self-review, specialist review, bounded correction, evidence packaging.
+
+Stop at the declared stop gate. Do not self-approve owner acceptance.
+
+## Git rules
+
+Unless explicitly authorized: no staging, commit, push, force push, amend, rebase, tag, or deletion of unrelated artifacts.
+
+## Evidence policy
+
+- Actual diff is authoritative over model reports.
+- Separate human decision packet from detailed machine evidence.
+- Prototype claims must distinguish implemented, visually observed, inferred, and unverified behavior.

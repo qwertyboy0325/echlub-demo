@@ -3,6 +3,10 @@ import type { PatternDraft, SceneDefinition } from "./types";
 export const BPM = 92;
 export const TOTAL_BARS = 40;
 
+function noteId(draftId: string, step: number): string {
+  return `note-${draftId}-${step}`;
+}
+
 export const initialDrafts: PatternDraft[] = [
   {
     id: "memory-opening",
@@ -11,10 +15,10 @@ export const initialDrafts: PatternDraft[] = [
     kind: "melody",
     status: "editing",
     notes: [
-      { step: 0, note: "E4", duration: "8n", velocity: 0.62 },
-      { step: 3, note: "G4", duration: "8n", velocity: 0.58 },
-      { step: 6, note: "A4", duration: "4n", velocity: 0.68 },
-      { step: 12, note: "G4", duration: "8n", velocity: 0.52 },
+      { id: noteId("memory-opening", 0), step: 0, pitch: 2, note: "E4", duration: "8n", velocity: 0.62 },
+      { id: noteId("memory-opening", 3), step: 3, pitch: 1, note: "G4", duration: "8n", velocity: 0.58 },
+      { id: noteId("memory-opening", 6), step: 6, pitch: 0, note: "A4", duration: "4n", velocity: 0.68 },
+      { id: noteId("memory-opening", 12), step: 12, pitch: 1, note: "G4", duration: "8n", velocity: 0.52 },
     ],
   },
   {
@@ -24,13 +28,13 @@ export const initialDrafts: PatternDraft[] = [
     kind: "melody",
     status: "editing",
     notes: [
-      { step: 0, note: "A4", duration: "8n", velocity: 0.72 },
-      { step: 2, note: "C5", duration: "8n", velocity: 0.68 },
-      { step: 4, note: "B4", duration: "8n", velocity: 0.64 },
-      { step: 6, note: "G4", duration: "4n", velocity: 0.66 },
-      { step: 10, note: "E4", duration: "8n", velocity: 0.55 },
-      { step: 12, note: "G4", duration: "8n", velocity: 0.62 },
-      { step: 14, note: "A4", duration: "4n", velocity: 0.74 },
+      { id: noteId("memory-main", 0), step: 0, pitch: 0, note: "A4", duration: "8n", velocity: 0.72 },
+      { id: noteId("memory-main", 2), step: 2, pitch: 3, note: "C5", duration: "8n", velocity: 0.68 },
+      { id: noteId("memory-main", 4), step: 4, pitch: 1, note: "B4", duration: "8n", velocity: 0.64 },
+      { id: noteId("memory-main", 6), step: 6, pitch: 2, note: "G4", duration: "4n", velocity: 0.66 },
+      { id: noteId("memory-main", 10), step: 10, pitch: 2, note: "E4", duration: "8n", velocity: 0.55 },
+      { id: noteId("memory-main", 12), step: 12, pitch: 1, note: "G4", duration: "8n", velocity: 0.62 },
+      { id: noteId("memory-main", 14), step: 14, pitch: 0, note: "A4", duration: "4n", velocity: 0.74 },
     ],
   },
   {
@@ -40,10 +44,10 @@ export const initialDrafts: PatternDraft[] = [
     kind: "melody",
     status: "editing",
     notes: [
-      { step: 1, note: "C5", duration: "8n", velocity: 0.58 },
-      { step: 5, note: "B4", duration: "8n", velocity: 0.54 },
-      { step: 9, note: "A4", duration: "8n", velocity: 0.56 },
-      { step: 13, note: "E5", duration: "8n", velocity: 0.62 },
+      { id: noteId("memory-response", 1), step: 1, pitch: 3, note: "C5", duration: "8n", velocity: 0.58 },
+      { id: noteId("memory-response", 5), step: 5, pitch: 1, note: "B4", duration: "8n", velocity: 0.54 },
+      { id: noteId("memory-response", 9), step: 9, pitch: 0, note: "A4", duration: "8n", velocity: 0.56 },
+      { id: noteId("memory-response", 13), step: 13, pitch: 3, note: "E5", duration: "8n", velocity: 0.62 },
     ],
   },
   {
@@ -107,6 +111,14 @@ export const initialDrafts: PatternDraft[] = [
   },
 ];
 
+export const defaultMix = {
+  filter: 1200,
+  delayWet: 0.2,
+  reverbWet: 0.42,
+  masterGain: -3,
+  faders: { groove: 64, harmony: 48, melody: 28, texture: 58 },
+};
+
 export const scenes: SceneDefinition[] = [
   {
     id: "opening",
@@ -114,14 +126,8 @@ export const scenes: SceneDefinition[] = [
     bars: 8,
     startBar: 0,
     description: "A blurred fragment appears before the groove has fully formed.",
-    layers: {
-      drums: null,
-      bass: null,
-      harmony: "harmony-soft",
-      melody: "memory-opening",
-      texture: "texture-air",
-    },
-    fx: { filter: 780, delayWet: 0.22, reverbWet: 0.58, masterGain: -4 },
+    layers: { drums: null, bass: null, harmony: "harmony-soft", melody: "memory-opening", texture: "texture-air" },
+    fx: { filter: 780, delayWet: 0.22, reverbWet: 0.58, masterGain: -4, faders: { groove: 20, harmony: 55, melody: 70, texture: 60 } },
   },
   {
     id: "groove",
@@ -129,14 +135,8 @@ export const scenes: SceneDefinition[] = [
     bars: 8,
     startBar: 8,
     description: "The pulse settles while the opening memory remains incomplete.",
-    layers: {
-      drums: "pulse-sparse",
-      bass: "bass-main",
-      harmony: "harmony-main",
-      melody: "memory-opening",
-      texture: "texture-air",
-    },
-    fx: { filter: 1450, delayWet: 0.18, reverbWet: 0.42, masterGain: -3 },
+    layers: { drums: "pulse-sparse", bass: "bass-main", harmony: "harmony-main", melody: "memory-opening", texture: "texture-air" },
+    fx: { filter: 1450, delayWet: 0.18, reverbWet: 0.42, masterGain: -3, faders: { groove: 64, harmony: 48, melody: 28, texture: 58 } },
   },
   {
     id: "tease",
@@ -144,14 +144,8 @@ export const scenes: SceneDefinition[] = [
     bars: 8,
     startBar: 16,
     description: "The main phrase is offered, but only a shortened form reaches the master.",
-    layers: {
-      drums: "pulse-full",
-      bass: "bass-main",
-      harmony: "harmony-main",
-      melody: "memory-response",
-      texture: "texture-dust",
-    },
-    fx: { filter: 1850, delayWet: 0.3, reverbWet: 0.4, masterGain: -2.5 },
+    layers: { drums: "pulse-full", bass: "bass-main", harmony: "harmony-main", melody: "memory-response", texture: "texture-dust" },
+    fx: { filter: 1850, delayWet: 0.3, reverbWet: 0.4, masterGain: -2.5, faders: { groove: 72, harmony: 52, melody: 45, texture: 50 } },
   },
   {
     id: "release",
@@ -159,14 +153,8 @@ export const scenes: SceneDefinition[] = [
     bars: 8,
     startBar: 24,
     description: "A one-beat gap makes room for the full phrase and wider mix.",
-    layers: {
-      drums: "pulse-break",
-      bass: "bass-main",
-      harmony: "harmony-open",
-      melody: "memory-main",
-      texture: "texture-dust",
-    },
-    fx: { filter: 3200, delayWet: 0.2, reverbWet: 0.34, masterGain: -1.6 },
+    layers: { drums: "pulse-break", bass: "bass-main", harmony: "harmony-open", melody: "memory-main", texture: "texture-dust" },
+    fx: { filter: 3200, delayWet: 0.2, reverbWet: 0.34, masterGain: -1.6, faders: { groove: 78, harmony: 62, melody: 72, texture: 55 } },
   },
   {
     id: "recompose",
@@ -174,14 +162,8 @@ export const scenes: SceneDefinition[] = [
     bars: 4,
     startBar: 32,
     description: "The response fragment replaces the expected repeat while the groove thins.",
-    layers: {
-      drums: "pulse-sparse",
-      bass: "bass-alt",
-      harmony: "harmony-main",
-      melody: "memory-response",
-      texture: "texture-air",
-    },
-    fx: { filter: 2100, delayWet: 0.44, reverbWet: 0.5, masterGain: -2.4 },
+    layers: { drums: "pulse-sparse", bass: "bass-alt", harmony: "harmony-main", melody: "memory-response", texture: "texture-air" },
+    fx: { filter: 2100, delayWet: 0.44, reverbWet: 0.5, masterGain: -2.4, faders: { groove: 45, harmony: 50, melody: 40, texture: 48 } },
   },
   {
     id: "return",
@@ -189,17 +171,15 @@ export const scenes: SceneDefinition[] = [
     bars: 4,
     startBar: 36,
     description: "The opening memory returns while the other layers progressively leave.",
-    layers: {
-      drums: null,
-      bass: null,
-      harmony: "harmony-soft",
-      melody: "memory-opening",
-      texture: "texture-air",
-    },
-    fx: { filter: 920, delayWet: 0.5, reverbWet: 0.66, masterGain: -4 },
+    layers: { drums: null, bass: null, harmony: "harmony-soft", melody: "memory-opening", texture: "texture-air" },
+    fx: { filter: 920, delayWet: 0.5, reverbWet: 0.66, masterGain: -4, faders: { groove: 10, harmony: 40, melody: 65, texture: 55 } },
   },
 ];
 
 export function sceneForBar(bar: number): SceneDefinition {
   return [...scenes].reverse().find((scene) => bar >= scene.startBar) ?? scenes[0];
+}
+
+export function cloneDrafts(): Record<string, PatternDraft> {
+  return Object.fromEntries(initialDrafts.map((d) => [d.id, structuredClone(d)]));
 }

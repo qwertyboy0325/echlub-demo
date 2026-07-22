@@ -1,10 +1,15 @@
-# Standalone run
+# Standalone — Deprecated for Round 2
 
-This build uses browser ESM imports from `esm.sh`; it needs internet access when first loaded.
+The `standalone/` directory contained a manually duplicated Round 1 implementation that diverged from canonical source.
+
+**Round 2 deprecates this duplicate.** Use the canonical build instead:
 
 ```bash
-cd standalone
-python3 -m http.server 4173
+npm install
+npm run build
+npm run preview
 ```
 
-Open `http://localhost:4173`.
+The build output in `docs/` is the single authoritative browser artifact.
+
+Do not manually maintain parallel source copies.

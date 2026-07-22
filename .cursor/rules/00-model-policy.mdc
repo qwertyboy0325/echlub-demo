@@ -1,0 +1,32 @@
+---
+description: "EchLub model role policy and API authorization defaults"
+alwaysApply: true
+---
+
+# EchLub Model Policy
+
+## Logical roles
+
+```text
+FAST_EXECUTOR
+  Default: Composer 2.5 Fast
+  Inspection, bounded edits, deterministic implementation, formatting, tests, evidence.
+
+SPECIALIST_REVIEWER
+  Fresh context. Read-only. No file changes. Findings with file and evidence references.
+
+STRONG_ARCHITECT
+  Deny by default. Requires explicit package authorization.
+
+STRONG_FINAL_CONFLICT_REVIEW
+  Exact model: GPT-5.6 Sol High (gpt-5.6-sol-high)
+  API-backed. Deny by default. Requires explicit owner authorization per package.
+  No fallback model.
+```
+
+## Defaults
+
+- API-backed models are forbidden unless the active work package explicitly authorizes them.
+- One writer owns implementation per work package.
+- Specialist agents remain read-only.
+- Persistent Git actions require an explicit owner gate.
