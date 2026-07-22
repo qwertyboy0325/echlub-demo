@@ -1,7 +1,6 @@
 import type { LayerId, NoteEvent, PatternDraft } from "../types";
 import type { ReconstructionPack } from "../domain/reconstructionPack";
 import { compileDraftMaterial, materialRefForDraft } from "../domain/sessionMaterialBank";
-import { scenePlacementHints } from "../musicData";
 import type { MaterialRef, ProductionAction, ProductionMutationResult, ProductionSession } from "../domain/sessionTypes";
 
 function emptyDraftShell(id: string, target: PatternDraft): PatternDraft {
@@ -52,6 +51,11 @@ export function createIncompleteSession(pack: ReconstructionPack): ProductionSes
       totalBars: pack.arrangement.totalBars,
       scenes: [],
     },
+    liveStructure: {
+      pending: [],
+      applied: [],
+      removedLayerRefs: {},
+    },
     performanceViews: structuredClone(pack.performanceViews),
     mix: structuredClone(pack.defaultMix),
     productionComplete: false,
@@ -82,7 +86,11 @@ export function applyProductionAction(
   switch (action.kind) {
     case "createDraft": {
       if (!action.target || !targetDraft) break;
-      session.drafts[action.target] = emptyDraftShell(action.target, targetDraft);
+      session.drafts[action.target] = {
+        ...structuredClone(targetDraft),
+        status: "editing",
+        revision: 1,
+      };
       contentChanged = true;
       materialRef = materialRefForDraft(session.drafts[action.target]!);
       break;
@@ -266,7 +274,7 @@ export function applyProductionAction(
       if (!sceneId) break;
       const scene = session.scenes.find((s) => s.id === sceneId);
       if (!scene) break;
-      const hints = scenePlacementHints[sceneId] ?? {};
+      const hints = pack.scenePlacements[sceneId] ?? {};
       const layersToPlace = action.layerId
         ? { [action.layerId]: String(action.value ?? "") }
         : hints;

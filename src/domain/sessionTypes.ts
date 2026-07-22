@@ -57,6 +57,30 @@ export interface Arrangement {
   scenes: ArrangementSceneRef[];
 }
 
+export type LiveStructuralOperation =
+  | { id: string; kind: "hold"; executeAtBar: number; sceneId: string; bars: number }
+  | { id: string; kind: "replaceLayer"; executeAtBar: number; sceneId: string; layer: import("../types").LayerId; draftId: string }
+  | { id: string; kind: "removeLayer"; executeAtBar: number; sceneId: string; layer: import("../types").LayerId }
+  | { id: string; kind: "restoreLayer"; executeAtBar: number; sceneId: string; layer: import("../types").LayerId }
+  | { id: string; kind: "extendScene"; executeAtBar: number; sceneId: string; bars: number }
+  | { id: string; kind: "alternateTransition"; executeAtBar: number; replacementSceneId: string }
+  | { id: string; kind: "alternateEnding"; executeAtBar: number; replacementSceneId: string };
+
+export interface AppliedLiveStructuralOperation {
+  operationId: string;
+  kind: LiveStructuralOperation["kind"];
+  requestedBar: number;
+  appliedAtBar: number;
+  description: string;
+}
+
+export interface LiveStructureState {
+  pending: LiveStructuralOperation[];
+  applied: AppliedLiveStructuralOperation[];
+  /** Exact refs retained when a layer is removed, keyed by `sceneId/layer`. */
+  removedLayerRefs: Record<string, MaterialRef>;
+}
+
 export interface PerformanceViewPreset {
   id: string;
   label: string;
@@ -72,6 +96,7 @@ export interface ProductionSession {
   drafts: Record<string, PatternDraft>;
   scenes: SceneDefinition[];
   arrangement: Arrangement;
+  liveStructure: LiveStructureState;
   performanceViews: PerformanceViewPreset[];
   mix: MixParams;
   productionComplete: boolean;
@@ -134,6 +159,9 @@ export interface CanonicalVsLiveComparison {
   changedDrafts: string[];
   sameIdContentChanges: LayerContentChange[];
   changedFx: string[];
+  structuralChanges: string[];
+  canonicalTotalBars: number;
+  liveTotalBars: number;
   jamMemoryCount: number;
 }
 

@@ -204,13 +204,3 @@ export function sceneForBar(bar: number): SceneDefinition {
 export function cloneDrafts(): Record<string, PatternDraft> {
   return Object.fromEntries(initialDrafts.map((d) => [d.id, structuredClone(d)]));
 }
-
-/** Scene slot placement hints for production choreography — NOT runtime authority. */
-export const scenePlacementHints: Record<string, Partial<Record<import("./types").LayerId, string>>> = {
-  opening: { harmony: "story-opening", melody: "memory-opening", texture: "blend-warm" },
-  groove: { drums: "pulse-sparse", bass: "bass-main", harmony: "story-opening", melody: "memory-opening", texture: "blend-warm" },
-  tease: { drums: "pulse-full", bass: "bass-main", harmony: "story-opening", melody: "memory-response", texture: "blend-filtered" },
-  release: { drums: "pulse-break", bass: "bass-main", harmony: "story-release", melody: "memory-main", texture: "blend-release" },
-  recompose: { drums: "pulse-sparse", bass: "bass-alt", harmony: "story-opening", melody: "memory-response", texture: "blend-warm" },
-  return: { harmony: "story-opening", melody: "memory-opening", texture: "blend-warm" },
-};
