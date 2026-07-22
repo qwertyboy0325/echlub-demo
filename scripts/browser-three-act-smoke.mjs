@@ -9,7 +9,7 @@ import { setTimeout as delay } from "node:timers/promises";
 const CHROME = process.env.CHROME_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const PORT = Number(process.env.BROWSER_LOAD_PORT ?? 4185);
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const artifactDir = join(root, "artifacts/production-to-performance-r3/live-authority-final");
+const artifactDir = join(root, "artifacts/codex-campaign/runtime");
 
 async function waitForServer(url, timeoutMs = 15000) {
   const start = Date.now();
@@ -56,6 +56,11 @@ try {
     productionSlot: Boolean(document.querySelector("#production-slot")),
     demoController: Boolean(window.__echlubDemoController),
   }));
+
+  await page.$eval("#speed-control", (input) => {
+    input.value = "8";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  });
 
   // Run the real Production Act. No skip control is used before the Production Cue.
   await page.click("#start-button");
@@ -150,16 +155,32 @@ try {
     ),
     { timeout: 12000 },
   );
-  await page.waitForFunction(
-    () => window.__echlubDevSnapshot?.materialResolutionLog.some(
-      (record) => record.act === "livePerformance"
-        && record.consumer === "live"
-        && record.sceneId === "opening"
-        && record.layer === "melody"
-        && record.draftId === "memory-opening",
-    ),
-    { timeout: 25000 },
-  );
+  try {
+    await page.waitForFunction(
+      () => window.__echlubDevSnapshot?.materialResolutionLog.some(
+        (record) => record.act === "livePerformance"
+          && record.consumer === "live"
+          && record.sceneId === "opening"
+          && record.layer === "melody"
+          && record.draftId === "memory-opening",
+      ),
+      { timeout: 25000 },
+    );
+  } catch (error) {
+    const diagnostic = await page.evaluate(() => ({
+      act: window.__echlubDemoController?.runtime.act,
+      bar: window.__echlubState?.currentBar,
+      transportState: window.__echlubDevSnapshot?.transportState,
+      playingSceneId: window.__echlubDevSnapshot?.playingSceneId,
+      totalBars: window.__echlubDemoController?.runtime.session.arrangement.totalBars,
+      arrangement: window.__echlubDemoController?.runtime.session.arrangement.scenes,
+      pending: window.__echlubDemoController?.runtime.session.liveStructure.pending,
+      resolutions: window.__echlubDevSnapshot?.materialResolutionLog.slice(-12),
+      missing: window.__echlubDevSnapshot?.missingMaterialLog,
+    }));
+    console.error("LIVE_OPENING_TIMEOUT", JSON.stringify({ diagnostic, pageErrors }, null, 2));
+    throw error;
+  }
 
   const runtimeEvidence = await page.evaluate(() => {
     const runtime = window.__echlubDemoController.runtime;
@@ -201,8 +222,38 @@ try {
     };
   });
 
+  await page.waitForFunction(
+    () => window.__echlubDemoController?.runtime.act === "comparison",
+    { timeout: 35000 },
+  );
+  const completedLiveTake = await page.evaluate(() => {
+    const runtime = window.__echlubDemoController.runtime;
+    const comparison = window.__echlubDevSnapshot.getComparisonPreview();
+    return {
+      totalBars: runtime.session.arrangement.totalBars,
+      sceneOrder: runtime.session.arrangement.scenes.map((ref) => `${ref.sceneId}@${ref.startBar}`),
+      pendingStructuralCount: runtime.session.liveStructure.pending.length,
+      appliedStructural: runtime.session.liveStructure.applied.map((entry) => ({ ...entry })),
+      structuralChanges: comparison.structuralChanges,
+      canonicalTotalBars: comparison.canonicalTotalBars,
+      liveTotalBars: comparison.liveTotalBars,
+      jamMemoryCount: window.__echlubState.history.length,
+      missingMaterialCount: window.__echlubDevSnapshot.missingMaterialLog.length,
+      comparisonVisible: Boolean(document.querySelector("#comparison-stage")),
+      topologyVisible: Boolean(document.querySelector("#topology-stage")),
+      scheduleOwner: runtime.scheduleRegistry.owner,
+      liveScheduleCount: runtime.scheduleRegistry.liveScriptIds.length,
+    };
+  });
+
   // Separate transition guard: an owned Production Cue cannot survive Canonical entry.
   await page.click("#skip-production");
+  await page.waitForFunction(
+    () => window.__echlubDemoController.runtime.act === "production"
+      && window.__echlubDemoController.runtime.session.productionComplete === false
+      && window.__echlubDevSnapshot.transportState === "stopped",
+    { timeout: 5000 },
+  );
   const productionSkipReset = await page.evaluate(() => ({
     act: window.__echlubDemoController.runtime.act,
     productionComplete: window.__echlubDemoController.runtime.session.productionComplete,
@@ -215,10 +266,30 @@ try {
   await page.evaluate(() => window.__echlubDevSnapshot.triggerCuePreview("memory-opening"));
   await page.waitForFunction(() => window.__echlubDevSnapshot?.cueActive === true, { timeout: 3000 });
   await page.click("#skip-playback");
-  await page.waitForFunction(
-    () => window.__echlubDemoController?.runtime.act === "canonicalPlayback",
-    { timeout: 5000 },
-  );
+  try {
+    await page.waitForFunction(
+      () => window.__echlubDemoController?.runtime.act === "canonicalPlayback"
+        && window.__echlubDemoController.runtime.scheduleRegistry.canonicalPlaybackIds.length > 0
+        && window.__echlubDevSnapshot.transportState === "started",
+      { timeout: 5000 },
+    );
+  } catch (error) {
+    console.error("CANONICAL_SKIP_TIMEOUT", JSON.stringify(await page.evaluate(() => ({
+      act: window.__echlubDemoController.runtime.act,
+      transportState: window.__echlubDevSnapshot.transportState,
+      owner: window.__echlubDemoController.runtime.scheduleRegistry.owner,
+      schedules: window.__echlubDemoController.runtime.scheduleRegistry.canonicalPlaybackIds.length,
+      cueActive: window.__echlubDevSnapshot.cueActive,
+      masterStepCount: window.__echlubDevSnapshot.masterStepCount,
+      currentBar: window.__echlubState.currentBar,
+      totalBars: window.__echlubDemoController.runtime.session.arrangement.totalBars,
+      resolutions: window.__echlubDevSnapshot.materialResolutionLog.filter(
+        (record) => record.act === "canonicalPlayback" && record.consumer === "canonical",
+      ).length,
+    })), null, 2));
+    console.error("PAGE_ERRORS", JSON.stringify(pageErrors));
+    throw error;
+  }
   const actTransitionCueCleanup = await page.evaluate(() => ({
     cueActive: window.__echlubDevSnapshot.cueActive,
     cueScheduleCount: window.__echlubDevSnapshot.cueScheduleCount,
@@ -230,14 +301,47 @@ try {
     ).length,
   );
   await page.click("#restart-button");
+  try {
+    await page.waitForFunction(
+      (before) => window.__echlubDevSnapshot.materialResolutionLog.filter(
+        (record) => record.act === "canonicalPlayback" && record.consumer === "canonical",
+      ).length > before && window.__echlubDevSnapshot.transportState === "started",
+      { timeout: 8000 },
+      canonicalResolutionCountBeforeRestart,
+    );
+  } catch (error) {
+    console.error("CANONICAL_RESTART_TIMEOUT", JSON.stringify(await page.evaluate(() => ({
+      act: window.__echlubDemoController.runtime.act,
+      transportState: window.__echlubDevSnapshot.transportState,
+      owner: window.__echlubDemoController.runtime.scheduleRegistry.owner,
+      schedules: window.__echlubDemoController.runtime.scheduleRegistry.canonicalPlaybackIds.length,
+      resolutions: window.__echlubDevSnapshot.materialResolutionLog.filter(
+        (record) => record.act === "canonicalPlayback" && record.consumer === "canonical",
+      ).length,
+      pageText: document.querySelector("#start-button")?.textContent,
+    })), null, 2));
+    throw error;
+  }
+  const canonicalRestart = await page.evaluate(() => ({
+    act: window.__echlubDemoController.runtime.act,
+    scheduleOwner: window.__echlubDemoController.runtime.scheduleRegistry.owner,
+    canonicalScheduleCount: window.__echlubDemoController.runtime.scheduleRegistry.canonicalPlaybackIds.length,
+    transportState: window.__echlubDevSnapshot.transportState,
+  }));
+  const canonicalResolutionCountBeforeSecondRestart = await page.evaluate(() =>
+    window.__echlubDevSnapshot.materialResolutionLog.filter(
+      (record) => record.act === "canonicalPlayback" && record.consumer === "canonical",
+    ).length,
+  );
+  await page.click("#restart-button");
   await page.waitForFunction(
     (before) => window.__echlubDevSnapshot.materialResolutionLog.filter(
       (record) => record.act === "canonicalPlayback" && record.consumer === "canonical",
-    ).length > before,
+    ).length > before && window.__echlubDevSnapshot.transportState === "started",
     { timeout: 8000 },
-    canonicalResolutionCountBeforeRestart,
+    canonicalResolutionCountBeforeSecondRestart,
   );
-  const canonicalRestart = await page.evaluate(() => ({
+  const canonicalSecondRestart = await page.evaluate(() => ({
     act: window.__echlubDemoController.runtime.act,
     scheduleOwner: window.__echlubDemoController.runtime.scheduleRegistry.owner,
     canonicalScheduleCount: window.__echlubDemoController.runtime.scheduleRegistry.canonicalPlaybackIds.length,
@@ -273,6 +377,8 @@ try {
     productionSkipReset,
     actTransitionCueCleanup,
     canonicalRestart,
+    canonicalSecondRestart,
+    completedLiveTake,
   };
 
   result.ok = Boolean(
@@ -315,6 +421,23 @@ try {
       && canonicalRestart.scheduleOwner === "canonical"
       && canonicalRestart.canonicalScheduleCount > 0
       && canonicalRestart.transportState === "started"
+      && canonicalSecondRestart.act === "canonicalPlayback"
+      && canonicalSecondRestart.scheduleOwner === "canonical"
+      && canonicalSecondRestart.canonicalScheduleCount > 0
+      && canonicalSecondRestart.transportState === "started"
+      && completedLiveTake.totalBars === 44
+      && completedLiveTake.canonicalTotalBars === 40
+      && completedLiveTake.liveTotalBars === 44
+      && completedLiveTake.pendingStructuralCount === 0
+      && completedLiveTake.appliedStructural.length === 8
+      && completedLiveTake.structuralChanges.length === 8
+      && completedLiveTake.sceneOrder.join(",") === "opening@6,groove@16,tease@24,opening@32,recompose@38,opening@42"
+      && completedLiveTake.jamMemoryCount === 6
+      && completedLiveTake.missingMaterialCount === 0
+      && completedLiveTake.comparisonVisible
+      && completedLiveTake.topologyVisible
+      && completedLiveTake.scheduleOwner === "none"
+      && completedLiveTake.liveScheduleCount === 0
       && pageErrors.length === 0
   );
 

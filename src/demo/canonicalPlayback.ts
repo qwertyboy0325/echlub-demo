@@ -91,6 +91,9 @@ export function buildCanonicalVsLiveComparison(
     changedDrafts,
     sameIdContentChanges,
     changedFx,
+    structuralChanges: liveSession.liveStructure.applied.map((entry) => entry.description),
+    canonicalTotalBars: canonicalSession.arrangement.totalBars,
+    liveTotalBars: liveSession.arrangement.totalBars,
     jamMemoryCount,
   };
 }

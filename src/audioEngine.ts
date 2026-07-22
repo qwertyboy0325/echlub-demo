@@ -38,6 +38,7 @@ export interface CueCompletionEvidence {
 
 interface AudioCallbacks {
   onStep: (bar: number, beat: number, sixteenth: number) => void;
+  onBeforeBoundary?: (bar: number, time: number) => void;
   onFinished: () => void;
   onBoundary?: (bar: number) => void;
   onLaunchAtBar?: (bar: number, sceneId: string, time: number) => void;
@@ -52,6 +53,11 @@ export class AudioEngine {
   private materialBank: SessionMaterialBank | null = null;
   private baselineMix: MixParams | null = null;
   private currentAct: DemoAct = "production";
+  private totalBars = TOTAL_BARS;
+  private tempoMultiplier = 1;
+  private baseBpm = BPM;
+  private transportSixteenthCounter = 0;
+  private playbackGeneration = 0;
   private initialized = false;
   private scheduledId: number | null = null;
   private lastBar = -1;
@@ -201,17 +207,23 @@ export class AudioEngine {
     this.cueGain.connect(Tone.getDestination());
 
     const transport = Tone.getTransport();
-    transport.bpm.value = BPM;
+    transport.bpm.value = this.baseBpm * this.tempoMultiplier;
     transport.timeSignature = 4;
     transport.loop = false;
 
     this.scheduledId = transport.scheduleRepeat((time: number) => {
-      const position = transport.position.toString().split(":").map(Number);
-      const bar = Number.isFinite(position[0]) ? position[0] : 0;
-      const beat = Number.isFinite(position[1]) ? position[1] : 0;
-      const sixteenth = Number.isFinite(position[2]) ? Math.floor(position[2]) : 0;
+      const callbackGeneration = this.playbackGeneration;
+      // Tone's repeat callback is the musical clock. Count those callbacks
+      // directly so a stop/position reset cannot inherit absolute audio-time
+      // ticks from an earlier run in the same browser runtime.
+      const totalSixteenths = this.transportSixteenthCounter;
+      this.transportSixteenthCounter += 1;
+      const bar = Math.floor(totalSixteenths / 16);
+      const beat = Math.floor((totalSixteenths % 16) / 4);
+      const sixteenth = totalSixteenths % 4;
       const step = beat * 4 + sixteenth;
       if (beat === 0 && sixteenth === 0) {
+        this.callbacks.onBeforeBoundary?.(bar, time);
         const launchSceneId = this.launchAtBar.get(bar);
         if (launchSceneId) this.callbacks.onLaunchAtBar?.(bar, launchSceneId, time);
       }
@@ -228,7 +240,12 @@ export class AudioEngine {
           this.callbacks.onBoundary?.(bar);
         }
         this.callbacks.onStep(bar, beat, sixteenth);
-        if (bar >= TOTAL_BARS) {
+        if (
+          callbackGeneration === this.playbackGeneration
+          && bar === this.totalBars
+          && beat === 0
+          && sixteenth === 0
+        ) {
           this.stop();
           this.callbacks.onFinished();
         }
@@ -246,6 +263,29 @@ export class AudioEngine {
     return this.currentAct === "livePerformance"
       ? (this.sceneAuthority?.playingSceneId ?? this.playingScene.id)
       : this.playingScene.id;
+  }
+
+  setTotalBars(totalBars: number): void {
+    if (!Number.isInteger(totalBars) || totalBars <= 0) {
+      throw new Error("totalBars must be a positive integer");
+    }
+    this.totalBars = totalBars;
+  }
+
+  getTotalBars(): number {
+    return this.totalBars;
+  }
+
+  setTempoMultiplier(multiplier: number): void {
+    const safeMultiplier = Math.max(0.25, Math.min(8, multiplier));
+    this.tempoMultiplier = safeMultiplier;
+    Tone.getTransport().bpm.value = this.baseBpm * safeMultiplier;
+  }
+
+  setBaseBpm(bpm: number): void {
+    if (!Number.isFinite(bpm) || bpm <= 0) throw new Error("bpm must be positive");
+    this.baseBpm = bpm;
+    Tone.getTransport().bpm.value = this.baseBpm * this.tempoMultiplier;
   }
 
   activateSceneAtBoundary(scene: SceneDefinition, time?: number): void {
@@ -344,7 +384,10 @@ export class AudioEngine {
       this.cueStopScheduleId = null;
     }, formatPosition(stopPos));
 
-    if (this.cueOwnsTransport) transport.start("+0.02");
+    if (this.cueOwnsTransport) {
+      this.transportSixteenthCounter = startPos.bar * 16 + startPos.beat * 4 + startPos.sixteenth;
+      transport.start("+0.02");
+    }
   }
 
   stopPrivateCue(at?: number, atTransportPosition?: MusicalPosition): void {
@@ -430,6 +473,8 @@ export class AudioEngine {
     const transport = Tone.getTransport();
     transport.stop();
     transport.position = "0:0:0";
+    this.transportSixteenthCounter = 0;
+    this.playbackGeneration += 1;
     this.lastBar = -1;
     this.masterStepCount = 0;
     this.resetPrivateCue();

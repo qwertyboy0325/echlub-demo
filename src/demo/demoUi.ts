@@ -5,7 +5,8 @@ import type { LayerId } from "../types";
 
 export function renderProductionRail(session: ProductionSession, director: DemoDirector): string {
   const focus = director.getFocusState();
-  const focused = new Set(focus.focusedWorkspaceIds);
+  const defaultFocusId = session.workspaces[0]?.id;
+  const focused = new Set(focus.focusedWorkspaceIds.length ? focus.focusedWorkspaceIds : defaultFocusId ? [defaultFocusId] : []);
   const rail = new Set(focus.collaboratorRailIds);
 
   const cards = session.workspaces
@@ -14,10 +15,9 @@ export function renderProductionRail(session: ProductionSession, director: DemoD
       const participant = session.participants.find((p) => p.id === ws.participantId);
       const isFocused = focused.has(ws.id);
       const isRail = rail.has(ws.id);
-      const visible = isFocused || isRail || session.participants.length <= 3;
-      const draftPreview = renderWorkspaceDraftPreview(session, ws.trackIds);
+      const draftPreview = isFocused ? renderWorkspaceDraftPreview(session, ws.trackIds) : "";
       return `
-        <article class="production-workspace ${isFocused ? "workspace-focused" : ""} ${isRail ? "workspace-rail" : ""} ${visible ? "" : "workspace-hidden"}"
+        <article class="production-workspace ${isFocused ? "workspace-focused" : ""} ${isRail ? "workspace-rail" : ""}"
           data-workspace-id="${ws.id}">
           <header>
             <span class="participant-name">${participant?.displayName ?? ws.participantId}</span>
@@ -121,12 +121,30 @@ export function renderComparisonPanel(summary: string): string {
     </section>`;
 }
 
-export function renderTopologyPanel(text: string): string {
+export function renderTopologyPanel(session: ProductionSession): string {
+  const view = session.performanceViews[0];
+  const brains = view?.brainOrder ?? [];
+  const grouped = brains.map((brain) => {
+    const participants = session.participants.filter((participant) => participant.performanceBrain === brain);
+    return `<article class="topology-brain" data-topology-brain="${brain}">
+      <span class="topology-brain-mark">${brain.charAt(0).toUpperCase()}</span>
+      <div><strong>${brain.charAt(0).toUpperCase() + brain.slice(1)}</strong>
+      <small>${participants.map((participant) => participant.displayName).join(" + ") || "capability view"}</small></div>
+    </article>`;
+  }).join("");
   return `
     <section class="topology-stage glass" id="topology-stage">
       <div class="section-heading">
         <div><span class="eyebrow">TOPOLOGY TRANSFORMATION</span><h3>Production roles → Performance capabilities</h3></div>
+        <span class="pill">8 responsibilities · 4 live brains</span>
       </div>
-      <pre class="topology-summary">${text}</pre>
+      <div class="topology-flow">
+        <div class="topology-role-list">
+          ${session.participants.map((participant) => `<span>${participant.displayName}</span>`).join("")}
+        </div>
+        <div class="topology-arrow" aria-hidden="true">regroup<br>→</div>
+        <div class="topology-brain-grid">${grouped}</div>
+      </div>
+      <p class="topology-note">The people and authored materials remain intact; the live view regroups responsibilities into four performance capabilities.</p>
     </section>`;
 }

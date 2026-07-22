@@ -25,11 +25,12 @@ export function captureJamMemoryForTransaction(
   state: RuntimeState,
   tx: SceneExecutionTransaction,
 ): CapturedJamMemory | null {
-  const binding = BINDINGS.find((b) => b.boundaryId === tx.boundaryId);
-  if (!binding) return null;
-  if (state.history.some((h) => h.id === binding.memoryId)) return null;
-  const template = jamMemories.find((m) => m.id === binding.memoryId);
+  const exactBinding = BINDINGS.find((b) => b.boundaryId === tx.boundaryId);
+  const template = exactBinding
+    ? jamMemories.find((m) => m.id === exactBinding.memoryId)
+    : jamMemories.find((memory) => !state.history.some((captured) => captured.id === memory.id));
   if (!template) return null;
+  if (state.history.some((h) => h.id === template.id)) return null;
   const captured: CapturedJamMemory = {
     ...template,
     at: tx.transportObservedAt,

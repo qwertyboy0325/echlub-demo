@@ -50,7 +50,11 @@ export function transitionDraft(state: RuntimeState, draftId: string, to: DraftS
   return true;
 }
 
-export function applyCollaborationEvent(state: RuntimeState, event: PerformanceScriptEvent): void {
+export function applyCollaborationEvent(
+  state: RuntimeState,
+  event: PerformanceScriptEvent,
+  script: readonly PerformanceScriptEvent[] = performanceScript,
+): void {
   state.lastAction = event;
   state.activeBrains.add(event.brain);
   state.thoughts[event.brain] = event.detail;
@@ -95,7 +99,7 @@ export function applyCollaborationEvent(state: RuntimeState, event: PerformanceS
       break;
     case "queue": {
       const scene = scenes.find((s) => s.id === event.target);
-      const launchEvent = performanceScript.find((e) => e.action === "launch" && e.target === event.target);
+      const launchEvent = script.find((e) => e.action === "launch" && e.target === event.target);
       const queuedAt = parsePosition(event.at);
       const executeAt = launchEvent
         ? parsePosition(launchEvent.at)

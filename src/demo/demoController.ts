@@ -2,7 +2,7 @@ import * as Tone from "tone";
 import type { AudioEngine } from "../audioEngine";
 import { materialRefForDraft } from "../domain/sessionMaterialBank";
 import { loadReconstructionPack } from "../domain/packLoader";
-import type { DemoAct } from "../domain/sessionTypes";
+import type { DemoAct, LiveStructuralOperation } from "../domain/sessionTypes";
 import type { RuntimeState } from "../types";
 import { resolveSceneAtBar, provenanceForScene } from "./canonicalPlayback";
 import { DemoRuntime } from "./demoRuntime";
@@ -10,6 +10,7 @@ import { DemoDirector } from "./demoDirector";
 import { enterAct, registerCanonicalSchedules, registerLiveSchedules } from "./actScheduleRegistry";
 import { projectSessionMusicalState } from "../runtimeState";
 import type { PerformanceScriptEvent } from "../types";
+import type { ReconstructionPack } from "../domain/reconstructionPack";
 
 export interface DemoControllerHooks {
   getState: () => RuntimeState;
@@ -60,6 +61,15 @@ export class DemoController {
     this.runtime.setSpeed(multiplier);
   }
 
+  loadPack(pack: ReconstructionPack): void {
+    this.stop();
+    this.runtime.loadPack(pack);
+    this.syncSessionToState();
+    this.publishToAudioEngine("production");
+    this.hooks.refreshUi();
+    this.hooks.refreshProductionUi();
+  }
+
   skipToAct(act: DemoAct): void {
     this.stopProductionTimer();
     this.runtime.skipToAct(act, this.hooks.clearTransportSchedules);
@@ -97,6 +107,28 @@ export class DemoController {
   applyLiveSceneMix(sceneId: string, eventId: string): void {
     this.runtime.applyLiveSceneMix(sceneId, eventId);
     this.projectSessionMusicalState();
+  }
+
+  queueLiveStructuralOperation(operation: LiveStructuralOperation): void {
+    this.runtime.queueLiveStructuralOperation(operation);
+  }
+
+  applyLiveStructuralBoundary(
+    bar: number,
+    transportTime: number,
+  ): import("./liveStructuralMutations").LiveStructuralBoundaryResult {
+    const result = this.runtime.applyLiveStructuralBoundary(bar);
+    if (result.applied.length) {
+      const scene = this.runtime.getSceneAtBar(bar);
+      if (scene) {
+        this.runtime.applyLiveSceneMix(scene.id, `structure-boundary-${bar}`);
+      }
+      this.hooks.audioEngine.setMaterialBank(this.runtime.materialBank);
+      if (scene) this.hooks.audioEngine.activateSceneAtBoundary(scene, transportTime);
+      this.projectSessionMusicalState();
+      this.hooks.refreshUi();
+    }
+    return result;
   }
 
   async startFullDemo(): Promise<void> {
@@ -183,7 +215,7 @@ export class DemoController {
           resolve();
           return;
         }
-        const delay = this.hooks.getState().recordingMode ? 350 : 350 / this.runtime.speedMultiplier;
+        const delay = this.hooks.getState().recordingMode ? 700 : 550 / this.runtime.speedMultiplier;
         this.productionTimer = setTimeout(tick, delay);
       };
       tick();
@@ -207,12 +239,15 @@ export class DemoController {
   }
 
   onLivePerformanceFinished(liveSceneIds: string[], jamMemoryCount: number): void {
+    enterAct(this.runtime.scheduleRegistry, "comparison", this.hooks.clearTransportSchedules);
     const comparison = this.runtime.beginComparison(liveSceneIds, jamMemoryCount);
     const summary = [
       `Canonical scenes: ${comparison.canonicalSceneIds.join(" → ")}`,
       `Live scenes: ${comparison.liveSceneIds.join(" → ")}`,
       `Same-ID content changes: ${comparison.sameIdContentChanges.length ? comparison.sameIdContentChanges.map((c) => `${c.sceneId}/${c.layer} ${c.draftId}`).join(", ") : "none"}`,
       `Changed drafts: ${comparison.changedDrafts.length ? comparison.changedDrafts.join(", ") : "none"}`,
+      `Structural changes: ${comparison.structuralChanges.length ? comparison.structuralChanges.join("; ") : "none"}`,
+      `Duration: ${comparison.canonicalTotalBars} → ${comparison.liveTotalBars} bars`,
       `Jam Memory captures: ${comparison.jamMemoryCount}`,
     ].join("\n");
     this.hooks.showComparison(summary);

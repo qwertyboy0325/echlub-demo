@@ -23,11 +23,18 @@ import {
   type LiveMusicalMutationResult,
   type LiveMutationEvidence,
 } from "./liveMutations";
+import { prepareLiveStructuralPlan } from "./liveStructuralPlan";
+import {
+  applyLiveStructuralBoundary,
+  queueLiveStructuralOperation,
+  type LiveStructuralBoundaryResult,
+} from "./liveStructuralMutations";
+import type { LiveStructuralOperation } from "../domain/sessionTypes";
 
 export type ActChangeCallback = (act: DemoAct, session: ProductionSession) => void;
 
 export class DemoRuntime {
-  readonly pack: ReconstructionPack;
+  pack: ReconstructionPack;
   session: ProductionSession;
   readonly director = new DemoDirector();
   readonly scheduleRegistry: ActScheduleRegistry = createActScheduleRegistry();
@@ -46,6 +53,20 @@ export class DemoRuntime {
     this.materialBank = compileSessionMaterialBank(this.session);
     this.onActChange = onActChange;
     this.bindSceneResolver();
+  }
+
+  loadPack(pack: ReconstructionPack): void {
+    this.pack = structuredClone(pack);
+    this.act = "production";
+    this.productionActionIndex = 0;
+    this.liveMutationLog.length = 0;
+    this.director.reset();
+    this.session = createIncompleteSession(this.pack);
+    this.canonicalSnapshot = null;
+    this.canonicalBank = null;
+    this.materialBank = compileSessionMaterialBank(this.session);
+    this.bindSceneResolver();
+    this.onActChange?.(this.act, this.session);
   }
 
   private bindSceneResolver(): void {
@@ -93,6 +114,7 @@ export class DemoRuntime {
       } else {
         this.session = structuredClone(this.canonicalSnapshot);
       }
+      prepareLiveStructuralPlan(this.session, this.pack.livePerformanceChoreography, this.pack.liveStructuralOperations);
       this.publishBank();
       this.liveMutationLog.length = 0;
       this.director.transitionToLivePerformance();
@@ -152,6 +174,7 @@ export class DemoRuntime {
     if (!this.session.productionComplete) this.completeProductionInstantly();
     if (!this.canonicalSnapshot) this.freezeCanonicalSnapshot();
     this.session = structuredClone(this.canonicalSnapshot!);
+    prepareLiveStructuralPlan(this.session, this.pack.livePerformanceChoreography, this.pack.liveStructuralOperations);
     this.publishBank();
     this.liveMutationLog.length = 0;
     this.act = "livePerformance";
@@ -209,6 +232,16 @@ export class DemoRuntime {
       result.evidence.bankVersion = this.materialBank.version;
       this.liveMutationLog.push(structuredClone(result.evidence));
     }
+    return result;
+  }
+
+  queueLiveStructuralOperation(operation: LiveStructuralOperation): void {
+    queueLiveStructuralOperation(this.session, operation);
+  }
+
+  applyLiveStructuralBoundary(bar: number): LiveStructuralBoundaryResult {
+    const result = applyLiveStructuralBoundary(this.session, bar);
+    if (result.applied.length) this.publishBank();
     return result;
   }
 

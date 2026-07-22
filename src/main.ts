@@ -2,9 +2,8 @@ import "./style.css";
 import * as Tone from "tone";
 import { AudioEngine } from "./audioEngine";
 import { stepsForEvent } from "./choreographyScript";
-import { scenes, TOTAL_BARS } from "./musicData";
 import { knobRotationForDelay, knobRotationForFilter } from "./mixMapping";
-import { jamMemories, performanceScript, EXPECTED_SCRIPT_SCHEDULE_COUNT } from "./performanceScript";
+import { jamMemories } from "./performanceScript";
 import { PresentationEngine } from "./presentation";
 import { executeSceneTransaction } from "./sceneTransaction";
 import { executionLog } from "./executionLog";
@@ -13,7 +12,6 @@ import { parsePosition } from "./musicalPosition";
 import { applyCollaborationEvent, createInitialState, resetState, updateBoundaryCountdown } from "./runtimeState";
 import { RuntimeInstrumentation } from "./runtimeInstrumentation";
 import {
-  buildLaunchBoundaryMap,
   createIdleScene,
   IDLE_SCENE_ID,
   SceneExecutionAuthority,
@@ -21,10 +19,12 @@ import {
 } from "./sceneExecution";
 import type { BrainId, PerformanceScriptEvent, RuntimeState, SceneDefinition } from "./types";
 import { DemoController, scheduleArrangementPlayback } from "./demo/demoController";
-import { renderComparisonPanel, renderProductionRail, renderCanonicalStage } from "./demo/demoUi";
+import { renderComparisonPanel, renderProductionRail, renderCanonicalStage, renderTopologyPanel } from "./demo/demoUi";
 import { buildTopologyTransformation } from "./demo/canonicalPlayback";
 import { enterAct, registerLiveSchedules } from "./demo/actScheduleRegistry";
 import type { DemoAct } from "./domain/sessionTypes";
+import { arrangementLaunchBoundaries } from "./demo/liveStructuralPlan";
+import { importReconstructionPackFile } from "./domain/packLoader";
 
 const brainMeta: Record<BrainId, { title: string; subtitle: string; symbol: string }> = {
   memory: { title: "Memory / Cue", subtitle: "phrases, fragments and private audition", symbol: "M" },
@@ -50,6 +50,24 @@ let demoMode: DemoAct | "idle" = "idle";
 let comparisonHtml = "";
 
 const audioEngine = new AudioEngine({
+  onBeforeBoundary: (bar, time) => {
+    if (demoMode !== "livePerformance") return;
+    const result = demoController.applyLiveStructuralBoundary(bar, time);
+    if (!result.applied.length) return;
+    audioEngine.setTotalBars(demoController.runtime.session.arrangement.totalBars);
+    audioEngine.setLaunchBoundaries(arrangementLaunchBoundaries(demoController.runtime.session));
+    Tone.getDraw().schedule(() => {
+      const description = result.applied.map((entry) => entry.description).join(" · ");
+      const label = document.querySelector<HTMLElement>("#action-label");
+      const detail = document.querySelector<HTMLElement>("#action-detail");
+      const actor = document.querySelector<HTMLElement>("#action-actor");
+      if (label) label.textContent = result.applied.map((entry) => entry.kind).join(" + ");
+      if (detail) detail.textContent = description;
+      if (actor) actor.textContent = "Story / Structure";
+      updateTotalBarsUi();
+      refreshProductionUi();
+    }, time);
+  },
   onStep: (bar, beat, sixteenth) => {
     state.currentBar = bar;
     state.currentBeat = beat;
@@ -60,9 +78,7 @@ const audioEngine = new AudioEngine({
   },
   onFinished: () => finishPerformance(),
   onLaunchAtBar: (bar, sceneId, time) => {
-    const event = performanceScript.find(
-      (e) => e.action === "launch" && e.target === sceneId && parsePosition(e.at).bar === bar,
-    );
+    const event = currentLiveScript().find((e) => e.action === "launch" && e.target === sceneId);
     if (!event) return;
     demoController.applyLiveSceneMix(sceneId, event.id);
     const ok = executeSceneTransaction({
@@ -128,6 +144,12 @@ const demoController = new DemoController({
   },
   scheduleCanonicalPlayback: (onDone) => { void runCanonicalPlaybackAct(onDone); },
 });
+audioEngine.setBaseBpm(demoController.runtime.pack.metadata.bpm);
+audioEngine.setTotalBars(demoController.runtime.session.arrangement.totalBars);
+
+function currentLiveScript(): readonly PerformanceScriptEvent[] {
+  return demoController.runtime.pack.livePerformanceChoreography;
+}
 
 function render(): void {
   const idleScene = createIdleScene();
@@ -144,8 +166,9 @@ function render(): void {
         </div>
       </div>
       <div class="header-status">
-        <span class="pill">92 BPM</span>
-        <span class="pill">40 bars</span>
+        <span class="pill" id="bpm-label">${demoController.runtime.pack.metadata.bpm} BPM</span>
+        <span class="pill" id="total-bars-label">${demoController.runtime.session.arrangement.totalBars} bars</span>
+        <span class="pill" id="pack-label">${demoController.runtime.pack.metadata.title}</span>
         <span class="pill">prototype only</span>
         <span class="pill status-ready" id="audio-status">audio locked</span>
       </div>
@@ -166,6 +189,8 @@ function render(): void {
         <button class="button mini" id="skip-playback">Skip to Canonical Playback</button>
         <button class="button mini" id="skip-performance">Skip to Live Performance</button>
         <label class="speed-control">Speed <input type="range" id="speed-control" min="1" max="8" value="1" /></label>
+        <label class="pack-import">Local pack <input type="file" id="pack-file-input" accept="application/json,.json" /></label>
+        <span class="pack-import-status" id="pack-import-status">validated placeholder</span>
       </div>
     </section>
 
@@ -192,7 +217,7 @@ function render(): void {
         ${Array.from({ length: 16 }, (_, i) => `<i data-master-step="${i}"></i>`).join("")}
       </div>
       <div class="scene-timeline">
-        ${scenes.map((s) => `<article class="scene-card ${s.id === state.activeSceneId ? "active" : ""} ${state.queue.some((q) => q.sceneId === s.id && q.status === "queued") ? "queued" : ""}" data-scene="${s.id}"><span>${String(s.startBar + 1).padStart(2, "0")}</span><strong>${s.title}</strong><small>${s.bars} bars</small></article>`).join("")}
+        ${demoController.runtime.session.scenes.map((s) => `<article class="scene-card ${s.id === state.activeSceneId ? "active" : ""} ${state.queue.some((q) => q.sceneId === s.id && q.status === "queued") ? "queued" : ""}" data-scene="${s.id}"><span>${String(s.startBar + 1).padStart(2, "0")}</span><strong>${s.title}</strong><small>${s.bars} bars</small></article>`).join("")}
       </div>
     </section>
 
@@ -236,9 +261,9 @@ function refreshProductionUi(): void {
   if (showProduction) {
     slot.innerHTML = renderProductionRail(demoController.runtime.session, demoController.director);
   } else if (showCanonical) {
-    slot.innerHTML = renderCanonicalStage(demoController.runtime.session, state.currentBar);
+    slot.innerHTML = `${renderTopologyPanel(demoController.runtime.session)}${renderCanonicalStage(demoController.runtime.session, state.currentBar)}`;
   } else {
-    slot.innerHTML = "";
+    slot.innerHTML = renderTopologyPanel(demoController.runtime.session);
   }
   demoController.director.applyDomFocus(app!);
 }
@@ -346,7 +371,7 @@ function renderStoryWorkspace(): string {
     const d = state.drafts[id];
     return `<div class="offered-draft status-offered" data-target="${id}"><span>${d?.title ?? id}</span><small>offered</small></div>`;
   }).join("");
-  const sceneButtons = scenes.map((s) => {
+  const sceneButtons = demoController.runtime.session.scenes.map((s) => {
     const queued = state.queue.some((q) => q.sceneId === s.id && q.status === "queued");
     const playing = state.queue.some((q) => q.sceneId === s.id && q.status === "playing") || s.id === state.activeSceneId;
     return `<button class="${playing ? "playing" : ""} ${queued ? "queued" : ""}" data-target="${s.id}" data-story-scene="${s.id}"><span>${String(s.startBar + 1).padStart(2, "0")}</span><strong>${s.title}</strong><small>${queued ? "queued" : playing ? "playing" : `${s.bars} bars`}</small></button>`;
@@ -372,7 +397,37 @@ function bindControls(): void {
   document.querySelector<HTMLInputElement>("#speed-control")?.addEventListener("input", (e) => {
     const val = Number((e.target as HTMLInputElement).value);
     demoController.setSpeed(val);
+    audioEngine.setTempoMultiplier(val);
   });
+  document.querySelector<HTMLInputElement>("#pack-file-input")?.addEventListener("change", (event) => {
+    void onImportPack(event);
+  });
+}
+
+async function onImportPack(event: Event): Promise<void> {
+  const input = event.target as HTMLInputElement;
+  const status = document.querySelector<HTMLElement>("#pack-import-status");
+  const file = input.files?.[0];
+  if (!file) return;
+  if (initialized) {
+    if (status) status.textContent = "Restart page before changing packs";
+    input.value = "";
+    return;
+  }
+  if (status) status.textContent = "validating locally…";
+  try {
+    const pack = await importReconstructionPackFile(file);
+    demoController.loadPack(pack);
+    audioEngine.setBaseBpm(pack.metadata.bpm);
+    audioEngine.setTotalBars(pack.arrangement.totalBars);
+    window.__echlubExpectedScriptScheduleCount = pack.livePerformanceChoreography.length;
+    render();
+    const nextStatus = document.querySelector<HTMLElement>("#pack-import-status");
+    if (nextStatus) nextStatus.textContent = `local only · ${pack.metadata.source}`;
+  } catch (error) {
+    if (status) status.textContent = error instanceof Error ? error.message : String(error);
+    input.value = "";
+  }
 }
 
 async function onSkipAct(act: DemoAct): Promise<void> {
@@ -422,6 +477,8 @@ async function onStart(): Promise<void> {
     const status = document.querySelector<HTMLElement>("#audio-status");
     if (status) { status.textContent = "audio ready"; status.classList.add("live"); }
   }
+  const packInput = document.querySelector<HTMLInputElement>("#pack-file-input");
+  if (packInput) packInput.disabled = true;
   resetRuntime();
   isPaused = false;
   getButton("#start-button").textContent = "Running full demo…";
@@ -488,8 +545,8 @@ function scheduleScript(): void {
   const transport = Tone.getTransport();
   scriptIds.forEach((id) => transport.clear(id));
   scriptIds = [];
-  audioEngine.setLaunchBoundaries(buildLaunchBoundaryMap());
-  for (const event of performanceScript) {
+  audioEngine.setLaunchBoundaries(arrangementLaunchBoundaries(demoController.runtime.session));
+  for (const event of currentLiveScript()) {
     const id = transport.schedule((time: number) => {
       demoController.applyLiveMusicalEvent(event, time);
       if (event.action === "preview" && event.target) {
@@ -497,7 +554,7 @@ function scheduleScript(): void {
         if (ref) audioEngine.startPrivateCue(ref, parsePosition(event.at));
       }
       if (event.action !== "launch") {
-        applyCollaborationEvent(state, event);
+        applyCollaborationEvent(state, event, currentLiveScript());
       }
       Tone.getDraw().schedule(() => projectScriptEventUi(event), time);
     }, event.at);
@@ -552,9 +609,10 @@ function updateMasterSceneUi(scene: SceneDefinition): void {
   const desc = document.querySelector<HTMLElement>("#scene-description");
   if (title) title.textContent = scene.title;
   if (desc) desc.textContent = scene.description;
-  const idx = scenes.findIndex((s) => s.id === scene.id);
+  const sessionScenes = demoController.runtime.session.scenes;
+  const idx = sessionScenes.findIndex((s) => s.id === scene.id);
   const next = document.querySelector<HTMLElement>("#next-scene");
-  if (next) next.textContent = scenes[idx + 1]?.title ?? "Ending silence";
+  if (next) next.textContent = sessionScenes[idx + 1]?.title ?? "Ending silence";
 }
 
 function updateCountdownUi(): void {
@@ -587,8 +645,13 @@ function updateTransportUi(): void {
   document.querySelectorAll("[data-master-step]").forEach((el, i) => el.classList.toggle("active", i === step));
   const pos = document.querySelector<HTMLElement>("#position");
   if (pos) pos.textContent = `${String(state.currentBar + 1).padStart(2, "0")} · ${state.currentBeat + 1} · ${state.currentSixteenth + 1}`;
-  const progress = Math.min(100, ((state.currentBar * 16 + step) / (TOTAL_BARS * 16)) * 100);
+  const progress = Math.min(100, ((state.currentBar * 16 + step) / (audioEngine.getTotalBars() * 16)) * 100);
   document.documentElement.style.setProperty("--song-progress", `${progress}%`);
+}
+
+function updateTotalBarsUi(): void {
+  const label = document.querySelector<HTMLElement>("#total-bars-label");
+  if (label) label.textContent = `${audioEngine.getTotalBars()} bars`;
 }
 
 function updateActionUi(event: PerformanceScriptEvent): void {
@@ -646,7 +709,7 @@ function buildRestartPhaseRecord(
   return {
     phase,
     runId,
-    semanticEventCount: performanceScript.length,
+    semanticEventCount: currentLiveScript().length,
     transportScriptSchedules: overrides.transportScriptSchedules ?? scriptIds.length,
     cueSchedules: overrides.cueSchedules ?? audioEngine.getCueScheduleCount(),
     registeredNativeTimers: overrides.registeredNativeTimers ?? activeTimeoutCount(),
@@ -736,7 +799,9 @@ async function runLivePerformanceAct(): Promise<void> {
   audioEngine.setMaterialBank(demoController.runtime.materialBank);
   audioEngine.setBaselineMix(demoController.runtime.syncRuntimeMix());
   audioEngine.setCurrentAct("livePerformance");
-  audioEngine.setLaunchBoundaries(buildLaunchBoundaryMap());
+  audioEngine.setTotalBars(demoController.runtime.session.arrangement.totalBars);
+  audioEngine.setLaunchBoundaries(arrangementLaunchBoundaries(demoController.runtime.session));
+  updateTotalBarsUi();
   refreshProductionUi();
   resetRuntimeForLive();
   audioEngine.start();
@@ -787,6 +852,8 @@ async function runCanonicalPlaybackAct(onDone: () => void): Promise<void> {
   audioEngine.setMaterialBank(demoController.runtime.materialBank);
   audioEngine.setBaselineMix(demoController.runtime.syncRuntimeMix());
   audioEngine.setCurrentAct("canonicalPlayback");
+  audioEngine.setTotalBars(session.arrangement.totalBars);
+  updateTotalBarsUi();
   audioEngine.clearLaunchBoundaries();
 
   const sceneRefs = session.arrangement.scenes.map((ref) => ({
@@ -852,7 +919,7 @@ declare global {
 window.__echlubExecutionLog = executionLog;
 window.__echlubState = state;
 window.__echlubInstrumentation = instrumentation;
-window.__echlubExpectedScriptScheduleCount = EXPECTED_SCRIPT_SCHEDULE_COUNT;
+window.__echlubExpectedScriptScheduleCount = currentLiveScript().length;
 window.__echlubDemoController = demoController;
 window.__echlubDevSnapshot = {
   get materialBankVersion() { return demoController.runtime.materialBank.version; },
