@@ -145,6 +145,20 @@ describe("public Shiki No Uta song form", () => {
       { bar: 0, step: 14, note: "Eb4" },
       { bar: 0, step: 15, note: "F4" },
     ]);
+    const scoreDrumsA = pack.drafts.find((draft) => draft.id === "pulse-score-a");
+    expect(scoreDrumsA?.drumHits?.some(({ bar }) => bar === 0)).toBe(false);
+    expect(scoreDrumsA?.drumHits?.filter(({ bar }) => bar === 8)).toEqual(expect.arrayContaining([
+      expect.objectContaining({ step: 9, voice: "snare" }),
+      expect.objectContaining({ step: 11, voice: "kick" }),
+      expect.objectContaining({ step: 15, voice: "kick" }),
+    ]));
+    for (const suffix of ["b", "c", "d"]) {
+      const scoreDrums = pack.drafts.find((draft) => draft.id === `pulse-score-${suffix}`);
+      const barSignatures = Array.from({ length: scoreDrums?.patternBars ?? 0 }, (_, bar) =>
+        scoreDrums?.drumHits?.filter((hit) => hit.bar === bar)
+          .map(({ step, voice }) => `${step}:${voice}`).join("|"));
+      expect(new Set(barSignatures).size).toBeGreaterThanOrEqual(6);
+    }
     expect(Object.keys(pack.sceneLayerStacks ?? {})).toEqual(["coda"]);
 
     const drumSolo = arranged.find((scene) => scene?.id === "drum-solo");
