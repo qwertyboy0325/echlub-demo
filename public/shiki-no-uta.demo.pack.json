@@ -3,7 +3,7 @@
   "metadata": {
     "id": "shiki-no-uta-cover-public-demo-v1",
     "title": "Shiki No Uta · EchLub browser cover demo",
-    "bpm": 92.285,
+    "bpm": 92,
     "prototypeOnly": true,
     "source": "public-demo"
   },
@@ -31,7 +31,7 @@
   "tempoMap": [
     {
       "bar": 0,
-      "bpm": 92.285
+      "bpm": 92
     }
   ],
   "timeSignatures": [
@@ -44,99 +44,99 @@
   "sections": [
     {
       "id": "opening",
-      "label": "Intro · piano and bass foundation",
+      "label": "Preroll + Intro · score mm. 1–3",
       "startBar": 0,
       "bars": 4
     },
     {
-      "id": "opening-theme",
-      "label": "Intro theme · lead pickup",
+      "id": "section-a",
+      "label": "A · score mm. 4–12",
       "startBar": 4,
+      "bars": 9
+    },
+    {
+      "id": "section-b",
+      "label": "B · score mm. 13–20",
+      "startBar": 13,
       "bars": 8
     },
     {
-      "id": "groove",
-      "label": "A1 · first vocal pocket",
-      "startBar": 12,
+      "id": "sax-trading",
+      "label": "Sax trading · score mm. 21–28",
+      "startBar": 21,
       "bars": 8
     },
     {
-      "id": "verse-b",
-      "label": "A2 · fuller rhythm answer",
-      "startBar": 20,
-      "bars": 10
-    },
-    {
-      "id": "chorus",
-      "label": "B · layered refrain",
-      "startBar": 30,
+      "id": "section-c",
+      "label": "C · score mm. 29–36",
+      "startBar": 29,
       "bars": 8
     },
     {
-      "id": "turnaround",
-      "label": "Turnaround · guitar and bass handoff",
-      "startBar": 38,
+      "id": "section-d",
+      "label": "D · score mm. 37–44",
+      "startBar": 37,
       "bars": 8
     },
     {
-      "id": "tease",
-      "label": "Sax trading · tenor lead",
-      "startBar": 46,
+      "id": "interlude",
+      "label": "Interlude · score mm. 45–52",
+      "startBar": 45,
       "bars": 8
     },
     {
-      "id": "sax-break",
-      "label": "Sax answer · alto pickup",
-      "startBar": 54,
-      "bars": 2
-    },
-    {
-      "id": "release",
-      "label": "A return · full ensemble",
-      "startBar": 56,
+      "id": "solo-alto-1",
+      "label": "Solo · alto pass 1 · score mm. 53–60",
+      "startBar": 53,
       "bars": 8
     },
     {
-      "id": "refrain",
-      "label": "Refrain · counterline lift",
-      "startBar": 64,
-      "bars": 16
-    },
-    {
-      "id": "recompose",
-      "label": "Interlude · instrumental reset",
-      "startBar": 80,
+      "id": "solo-alto-2",
+      "label": "Solo · alto pass 2 · score mm. 53–60",
+      "startBar": 61,
       "bars": 8
     },
     {
-      "id": "solo-one",
-      "label": "Solo pass 1 · tenor",
-      "startBar": 88,
+      "id": "solo-tenor-1",
+      "label": "Solo · tenor pass 1 · score mm. 53–60",
+      "startBar": 69,
       "bars": 8
     },
     {
-      "id": "solo-two",
-      "label": "Solo pass 2 · alto",
-      "startBar": 96,
-      "bars": 4
+      "id": "solo-tenor-2",
+      "label": "Solo · tenor pass 2 · score mm. 53–60",
+      "startBar": 77,
+      "bars": 8
+    },
+    {
+      "id": "post-solo",
+      "label": "Second ending + D.S. · score mm. 61–65",
+      "startBar": 85,
+      "bars": 5
+    },
+    {
+      "id": "ds-section-c",
+      "label": "D.S. return · C · score mm. 29–36",
+      "startBar": 90,
+      "bars": 8
+    },
+    {
+      "id": "ds-section-d",
+      "label": "D.S. return · D · score mm. 37–44",
+      "startBar": 98,
+      "bars": 8
     },
     {
       "id": "drum-solo",
-      "label": "Drum solo · four-bar break",
-      "startBar": 100,
-      "bars": 4
+      "label": "Coda entry · drum solo · score m. 66",
+      "startBar": 106,
+      "bars": 1
     },
     {
-      "id": "return",
-      "label": "Coda · bass-led return",
-      "startBar": 104,
-      "bars": 6
-    },
-    {
-      "id": "diminuendo",
-      "label": "Coda · diminuendo",
-      "startBar": 110,
-      "bars": 4
+      "id": "coda",
+      "label": "Coda · score mm. 67–73",
+      "startBar": 107,
+      "bars": 7
     }
   ],
   "participants": [
@@ -7966,10 +7966,10 @@
   "scenes": [
     {
       "id": "opening",
-      "title": "Intro · piano and bass foundation",
+      "title": "Preroll + Intro · score mm. 1–3",
       "bars": 4,
       "startBar": 0,
-      "description": "Four-bar intro: harmonic shell and bass establish B-flat minor before the lead phrase opens.",
+      "description": "One production preroll bar, then the score's three-measure Intro with piano, guitar and bass foundation.",
       "layers": {
         "drums": null,
         "bass": null,
@@ -7978,50 +7978,24 @@
         "texture": null
       },
       "fx": {
-        "filter": 3600,
-        "delayWet": 0.05,
-        "reverbWet": 0.17,
-        "masterGain": 7.2,
-        "faders": {
-          "groove": 44,
-          "harmony": 58,
-          "melody": 52,
-          "texture": 18
-        }
-      }
-    },
-    {
-      "id": "opening-theme",
-      "title": "Intro theme · lead pickup",
-      "bars": 8,
-      "startBar": 4,
-      "description": "The recurring lead enters over the same foundation while drums remain withheld.",
-      "layers": {
-        "drums": null,
-        "bass": null,
-        "harmony": null,
-        "melody": null,
-        "texture": null
-      },
-      "fx": {
-        "filter": 4300,
-        "delayWet": 0.08,
-        "reverbWet": 0.19,
+        "filter": 3900,
+        "delayWet": 0.06,
+        "reverbWet": 0.18,
         "masterGain": 8,
         "faders": {
-          "groove": 54,
+          "groove": 52,
           "harmony": 62,
-          "melody": 64,
+          "melody": 62,
           "texture": 20
         }
       }
     },
     {
-      "id": "groove",
-      "title": "A1 · first vocal pocket",
-      "bars": 8,
-      "startBar": 12,
-      "description": "Sparse drums join the primary phrase without changing the two-bar harmonic anchor.",
+      "id": "section-a",
+      "title": "A · score mm. 4–12",
+      "bars": 9,
+      "startBar": 4,
+      "description": "The first written theme enters; the scene length follows the score instead of an audio-derived loop.",
       "layers": {
         "drums": null,
         "bass": null,
@@ -8043,141 +8017,11 @@
       }
     },
     {
-      "id": "verse-b",
-      "title": "A2 · fuller rhythm answer",
-      "bars": 10,
-      "startBar": 20,
-      "description": "A denser drum clip and a brighter lead variation answer A1 instead of merely repeating it.",
-      "layers": {
-        "drums": null,
-        "bass": null,
-        "harmony": null,
-        "melody": null,
-        "texture": null
-      },
-      "fx": {
-        "filter": 5700,
-        "delayWet": 0.1,
-        "reverbWet": 0.18,
-        "masterGain": 8.6,
-        "faders": {
-          "groove": 72,
-          "harmony": 62,
-          "melody": 68,
-          "texture": 17
-        }
-      }
-    },
-    {
-      "id": "chorus",
-      "title": "B · layered refrain",
+      "id": "section-b",
+      "title": "B · score mm. 13–20",
       "bars": 8,
-      "startBar": 30,
-      "description": "Full groove, extended harmony, lead phrase and guitar response combine for the first broad release.",
-      "layers": {
-        "drums": null,
-        "bass": null,
-        "harmony": null,
-        "melody": null,
-        "texture": null
-      },
-      "fx": {
-        "filter": 7200,
-        "delayWet": 0.14,
-        "reverbWet": 0.23,
-        "masterGain": 9,
-        "faders": {
-          "groove": 76,
-          "harmony": 70,
-          "melody": 74,
-          "texture": 23
-        }
-      }
-    },
-    {
-      "id": "turnaround",
-      "title": "Turnaround · guitar and bass handoff",
-      "bars": 8,
-      "startBar": 38,
-      "description": "The vocal lead steps aside so muted guitar gestures and passing bass can prepare the reed feature.",
-      "layers": {
-        "drums": null,
-        "bass": null,
-        "harmony": null,
-        "melody": null,
-        "texture": null
-      },
-      "fx": {
-        "filter": 5000,
-        "delayWet": 0.14,
-        "reverbWet": 0.21,
-        "masterGain": 9.2,
-        "faders": {
-          "groove": 72,
-          "harmony": 63,
-          "melody": 68,
-          "texture": 22
-        }
-      }
-    },
-    {
-      "id": "tease",
-      "title": "Sax trading · tenor lead",
-      "bars": 8,
-      "startBar": 46,
-      "description": "Score-guided tenor phrases trade against the reduced rhythm section.",
-      "layers": {
-        "drums": null,
-        "bass": null,
-        "harmony": null,
-        "melody": null,
-        "texture": null
-      },
-      "fx": {
-        "filter": 6200,
-        "delayWet": 0.12,
-        "reverbWet": 0.2,
-        "masterGain": 9.2,
-        "faders": {
-          "groove": 70,
-          "harmony": 62,
-          "melody": 74,
-          "texture": 18
-        }
-      }
-    },
-    {
-      "id": "sax-break",
-      "title": "Sax answer · alto pickup",
-      "bars": 2,
-      "startBar": 54,
-      "description": "A two-bar alto answer and drum subtraction create a real transition, not another loop restart.",
-      "layers": {
-        "drums": null,
-        "bass": null,
-        "harmony": null,
-        "melody": null,
-        "texture": null
-      },
-      "fx": {
-        "filter": 4300,
-        "delayWet": 0.12,
-        "reverbWet": 0.2,
-        "masterGain": 6.8,
-        "faders": {
-          "groove": 42,
-          "harmony": 50,
-          "melody": 74,
-          "texture": 22
-        }
-      }
-    },
-    {
-      "id": "release",
-      "title": "A return · full ensemble",
-      "bars": 8,
-      "startBar": 56,
-      "description": "The main phrase returns with full drums, comping and restrained counter melody.",
+      "startBar": 13,
+      "description": "The B section adds the denser ensemble response shown in the score.",
       "layers": {
         "drums": null,
         "bass": null,
@@ -8199,11 +8043,11 @@
       }
     },
     {
-      "id": "refrain",
-      "title": "Refrain · counterline lift",
-      "bars": 16,
-      "startBar": 64,
-      "description": "The harmonic backbone is recombined with upper bass and counterline at the source-analysis return boundary.",
+      "id": "sax-trading",
+      "title": "Sax trading · score mm. 21–28",
+      "bars": 8,
+      "startBar": 21,
+      "description": "Written tenor and alto phrases trade over the continuing rhythm section.",
       "layers": {
         "drums": null,
         "bass": null,
@@ -8212,24 +8056,24 @@
         "texture": null
       },
       "fx": {
-        "filter": 7400,
-        "delayWet": 0.14,
-        "reverbWet": 0.23,
-        "masterGain": 9.2,
+        "filter": 5800,
+        "delayWet": 0.12,
+        "reverbWet": 0.2,
+        "masterGain": 4.5,
         "faders": {
-          "groove": 78,
-          "harmony": 70,
-          "melody": 76,
-          "texture": 24
+          "groove": 62,
+          "harmony": 56,
+          "melody": 52,
+          "texture": 20
         }
       }
     },
     {
-      "id": "recompose",
-      "title": "Interlude · instrumental reset",
+      "id": "section-c",
+      "title": "C · score mm. 29–36",
       "bars": 8,
-      "startBar": 80,
-      "description": "Lead vocal drops out; guitar, bass and filtered harmony carry the interlude.",
+      "startBar": 29,
+      "description": "The Segno section begins at written measure 29.",
       "layers": {
         "drums": null,
         "bass": null,
@@ -8238,24 +8082,76 @@
         "texture": null
       },
       "fx": {
-        "filter": 5000,
+        "filter": 6800,
         "delayWet": 0.14,
-        "reverbWet": 0.21,
-        "masterGain": 9.2,
+        "reverbWet": 0.23,
+        "masterGain": 8.5,
         "faders": {
-          "groove": 70,
-          "harmony": 64,
-          "melody": 68,
+          "groove": 72,
+          "harmony": 66,
+          "melody": 70,
           "texture": 22
         }
       }
     },
     {
-      "id": "solo-one",
-      "title": "Solo pass 1 · tenor",
+      "id": "section-d",
+      "title": "D · score mm. 37–44",
       "bars": 8,
-      "startBar": 88,
-      "description": "First eight-bar solo pass with tenor lead over the established rhythm section.",
+      "startBar": 37,
+      "description": "The written D section reaches the To Coda marker at measure 44.",
+      "layers": {
+        "drums": null,
+        "bass": null,
+        "harmony": null,
+        "melody": null,
+        "texture": null
+      },
+      "fx": {
+        "filter": 6800,
+        "delayWet": 0.14,
+        "reverbWet": 0.23,
+        "masterGain": 8.5,
+        "faders": {
+          "groove": 72,
+          "harmony": 66,
+          "melody": 70,
+          "texture": 22
+        }
+      }
+    },
+    {
+      "id": "interlude",
+      "title": "Interlude · score mm. 45–52",
+      "bars": 8,
+      "startBar": 45,
+      "description": "Sax rests while piano, guitar, bass and drums carry the eight-measure interlude.",
+      "layers": {
+        "drums": null,
+        "bass": null,
+        "harmony": null,
+        "melody": null,
+        "texture": null
+      },
+      "fx": {
+        "filter": 5600,
+        "delayWet": 0.14,
+        "reverbWet": 0.21,
+        "masterGain": 8.5,
+        "faders": {
+          "groove": 68,
+          "harmony": 64,
+          "melody": 70,
+          "texture": 24
+        }
+      }
+    },
+    {
+      "id": "solo-alto-1",
+      "title": "Solo · alto pass 1 · score mm. 53–60",
+      "bars": 8,
+      "startBar": 53,
+      "description": "First improvised solo chorus over the score's notated harmonic framework.",
       "layers": {
         "drums": null,
         "bass": null,
@@ -8267,7 +8163,7 @@
         "filter": 6800,
         "delayWet": 0.12,
         "reverbWet": 0.2,
-        "masterGain": 9.6,
+        "masterGain": 9.4,
         "faders": {
           "groove": 74,
           "harmony": 66,
@@ -8277,11 +8173,11 @@
       }
     },
     {
-      "id": "solo-two",
-      "title": "Solo pass 2 · alto",
-      "bars": 4,
-      "startBar": 96,
-      "description": "Second solo pass changes reed voice and counterline rather than duplicating pass one.",
+      "id": "solo-alto-2",
+      "title": "Solo · alto pass 2 · score mm. 53–60",
+      "bars": 8,
+      "startBar": 61,
+      "description": "Second alto chorus; variation is performance-authored, harmony remains score-bound.",
       "layers": {
         "drums": null,
         "bass": null,
@@ -8290,24 +8186,154 @@
         "texture": null
       },
       "fx": {
-        "filter": 7000,
+        "filter": 6800,
+        "delayWet": 0.12,
+        "reverbWet": 0.2,
+        "masterGain": 9.4,
+        "faders": {
+          "groove": 74,
+          "harmony": 66,
+          "melody": 78,
+          "texture": 18
+        }
+      }
+    },
+    {
+      "id": "solo-tenor-1",
+      "title": "Solo · tenor pass 1 · score mm. 53–60",
+      "bars": 8,
+      "startBar": 69,
+      "description": "First tenor chorus over the same written eight-measure solo framework.",
+      "layers": {
+        "drums": null,
+        "bass": null,
+        "harmony": null,
+        "melody": null,
+        "texture": null
+      },
+      "fx": {
+        "filter": 6800,
+        "delayWet": 0.12,
+        "reverbWet": 0.2,
+        "masterGain": 9.4,
+        "faders": {
+          "groove": 74,
+          "harmony": 66,
+          "melody": 78,
+          "texture": 18
+        }
+      }
+    },
+    {
+      "id": "solo-tenor-2",
+      "title": "Solo · tenor pass 2 · score mm. 53–60",
+      "bars": 8,
+      "startBar": 77,
+      "description": "Second tenor chorus completes the score's 'Solos 2x each' instruction.",
+      "layers": {
+        "drums": null,
+        "bass": null,
+        "harmony": null,
+        "melody": null,
+        "texture": null
+      },
+      "fx": {
+        "filter": 6800,
+        "delayWet": 0.12,
+        "reverbWet": 0.2,
+        "masterGain": 9.4,
+        "faders": {
+          "groove": 74,
+          "harmony": 66,
+          "melody": 78,
+          "texture": 18
+        }
+      }
+    },
+    {
+      "id": "post-solo",
+      "title": "Second ending + D.S. · score mm. 61–65",
+      "bars": 5,
+      "startBar": 85,
+      "description": "The second ending leads to D.S. al Coda at written measure 65.",
+      "layers": {
+        "drums": null,
+        "bass": null,
+        "harmony": null,
+        "melody": null,
+        "texture": null
+      },
+      "fx": {
+        "filter": 5600,
+        "delayWet": 0.14,
+        "reverbWet": 0.21,
+        "masterGain": 8.5,
+        "faders": {
+          "groove": 68,
+          "harmony": 64,
+          "melody": 70,
+          "texture": 24
+        }
+      }
+    },
+    {
+      "id": "ds-section-c",
+      "title": "D.S. return · C · score mm. 29–36",
+      "bars": 8,
+      "startBar": 90,
+      "description": "Playback obeys the Segno and returns to section C using the same materials.",
+      "layers": {
+        "drums": null,
+        "bass": null,
+        "harmony": null,
+        "melody": null,
+        "texture": null
+      },
+      "fx": {
+        "filter": 6800,
         "delayWet": 0.14,
         "reverbWet": 0.23,
-        "masterGain": 9,
+        "masterGain": 8.5,
         "faders": {
           "groove": 72,
-          "harmony": 62,
-          "melody": 80,
-          "texture": 20
+          "harmony": 66,
+          "melody": 70,
+          "texture": 22
+        }
+      }
+    },
+    {
+      "id": "ds-section-d",
+      "title": "D.S. return · D · score mm. 37–44",
+      "bars": 8,
+      "startBar": 98,
+      "description": "The repeated D section reaches To Coda and jumps out at written measure 44.",
+      "layers": {
+        "drums": null,
+        "bass": null,
+        "harmony": null,
+        "melody": null,
+        "texture": null
+      },
+      "fx": {
+        "filter": 6800,
+        "delayWet": 0.14,
+        "reverbWet": 0.23,
+        "masterGain": 8.5,
+        "faders": {
+          "groove": 72,
+          "harmony": 66,
+          "melody": 70,
+          "texture": 22
         }
       }
     },
     {
       "id": "drum-solo",
-      "title": "Drum solo · four-bar break",
-      "bars": 4,
-      "startBar": 100,
-      "description": "All pitched clips drop away for the score-marked drum feature and fill.",
+      "title": "Coda entry · drum solo · score m. 66",
+      "bars": 1,
+      "startBar": 106,
+      "description": "The score-marked one-measure drum feature clears all pitched layers.",
       "layers": {
         "drums": null,
         "bass": null,
@@ -8329,11 +8355,11 @@
       }
     },
     {
-      "id": "return",
-      "title": "Coda · bass-led return",
-      "bars": 6,
-      "startBar": 104,
-      "description": "Bass and the harmonic tail return after the drum break while the arrangement begins subtracting.",
+      "id": "coda",
+      "title": "Coda · score mm. 67–73",
+      "bars": 7,
+      "startBar": 107,
+      "description": "The written ensemble hits close the score; no unrelated outro loop is substituted.",
       "layers": {
         "drums": null,
         "bass": null,
@@ -8353,32 +8379,6 @@
           "texture": 16
         }
       }
-    },
-    {
-      "id": "diminuendo",
-      "title": "Coda · diminuendo",
-      "bars": 4,
-      "startBar": 110,
-      "description": "Final four-bar subtraction: sparse counterline, filtered harmony and a fading bass cadence.",
-      "layers": {
-        "drums": null,
-        "bass": null,
-        "harmony": null,
-        "melody": null,
-        "texture": null
-      },
-      "fx": {
-        "filter": 3000,
-        "delayWet": 0.22,
-        "reverbWet": 0.32,
-        "masterGain": 5.6,
-        "faders": {
-          "groove": 34,
-          "harmony": 46,
-          "melody": 42,
-          "texture": 14
-        }
-      }
     }
   ],
   "scenePlacements": {
@@ -8388,102 +8388,105 @@
       "melody": "memory-opening",
       "texture": "blend-warm"
     },
-    "opening-theme": {
-      "bass": "bass-main",
-      "harmony": "story-opening",
-      "melody": "memory-main",
-      "texture": "blend-warm"
-    },
-    "groove": {
+    "section-a": {
       "drums": "pulse-sparse",
       "bass": "bass-verse",
       "harmony": "story-verse",
       "melody": "memory-verse-a",
       "texture": "blend-warm"
     },
-    "verse-b": {
-      "drums": "pulse-full",
-      "bass": "bass-verse",
-      "harmony": "story-comp",
-      "melody": "memory-main",
-      "texture": "blend-warm"
-    },
-    "chorus": {
+    "section-b": {
       "drums": "pulse-full",
       "bass": "bass-alt",
       "harmony": "story-release",
       "melody": "memory-release",
       "texture": "blend-release"
     },
-    "turnaround": {
-      "drums": "pulse-break",
-      "bass": "bass-response",
-      "harmony": "story-sax",
-      "melody": "memory-guitar-late",
-      "texture": "blend-filtered"
-    },
-    "tease": {
+    "sax-trading": {
       "drums": "pulse-break",
       "bass": "bass-sax",
       "harmony": "story-sax",
       "melody": "memory-sax-solo",
       "texture": "blend-filtered"
     },
-    "sax-break": {
-      "bass": "bass-sax",
-      "harmony": "story-sax",
-      "melody": "memory-sax-alto",
-      "texture": "blend-filtered"
-    },
-    "release": {
+    "section-c": {
       "drums": "pulse-full",
       "bass": "bass-verse",
       "harmony": "story-release",
       "melody": "memory-release",
       "texture": "blend-release"
     },
-    "refrain": {
+    "section-d": {
       "drums": "pulse-full",
-      "bass": "bass-alt",
-      "harmony": "story-verse",
-      "melody": "memory-verse-a",
+      "bass": "bass-verse",
+      "harmony": "story-release",
+      "melody": "memory-release",
       "texture": "blend-release"
     },
-    "recompose": {
+    "interlude": {
       "drums": "pulse-break",
       "bass": "bass-main",
       "harmony": "story-sax",
       "melody": "memory-guitar-late",
       "texture": "blend-filtered"
     },
-    "solo-one": {
-      "drums": "pulse-full",
+    "solo-alto-1": {
+      "drums": "pulse-break",
+      "bass": "bass-sax",
+      "harmony": "story-sax",
+      "melody": "memory-sax-alto",
+      "texture": "blend-filtered"
+    },
+    "solo-alto-2": {
+      "drums": "pulse-break",
+      "bass": "bass-alt",
+      "harmony": "story-sax",
+      "melody": "memory-sax-alto",
+      "texture": "blend-filtered"
+    },
+    "solo-tenor-1": {
+      "drums": "pulse-break",
       "bass": "bass-sax",
       "harmony": "story-sax",
       "melody": "memory-sax-solo",
-      "texture": "blend-warm"
+      "texture": "blend-filtered"
     },
-    "solo-two": {
-      "drums": "pulse-full",
+    "solo-tenor-2": {
+      "drums": "pulse-break",
       "bass": "bass-alt",
+      "harmony": "story-sax",
+      "melody": "memory-sax-solo",
+      "texture": "blend-filtered"
+    },
+    "post-solo": {
+      "drums": "pulse-break",
+      "bass": "bass-main",
+      "harmony": "story-sax",
+      "melody": "memory-guitar-late",
+      "texture": "blend-filtered"
+    },
+    "ds-section-c": {
+      "drums": "pulse-full",
+      "bass": "bass-verse",
       "harmony": "story-release",
-      "melody": "memory-sax-alto",
+      "melody": "memory-release",
+      "texture": "blend-release"
+    },
+    "ds-section-d": {
+      "drums": "pulse-full",
+      "bass": "bass-verse",
+      "harmony": "story-release",
+      "melody": "memory-release",
       "texture": "blend-release"
     },
     "drum-solo": {
       "drums": "pulse-full",
       "texture": "blend-filtered"
     },
-    "return": {
+    "coda": {
       "bass": "bass-outro",
       "harmony": "story-outro",
       "melody": "memory-outro",
-      "texture": "blend-filtered"
-    },
-    "diminuendo": {
-      "bass": "bass-outro",
-      "harmony": "story-outro",
-      "melody": "memory-counter",
       "texture": "blend-filtered"
     }
   },
@@ -8578,7 +8581,7 @@
   },
   "arrangement": {
     "id": "canonical-arrangement",
-    "title": "MP3-aligned Ableton-style clip traversal",
+    "title": "Score-authoritative Ableton-style clip traversal",
     "totalBars": 114,
     "scenes": [
       {
@@ -8586,64 +8589,64 @@
         "startBar": 0
       },
       {
-        "sceneId": "opening-theme",
+        "sceneId": "section-a",
         "startBar": 4
       },
       {
-        "sceneId": "groove",
-        "startBar": 12
+        "sceneId": "section-b",
+        "startBar": 13
       },
       {
-        "sceneId": "verse-b",
-        "startBar": 20
+        "sceneId": "sax-trading",
+        "startBar": 21
       },
       {
-        "sceneId": "chorus",
-        "startBar": 30
+        "sceneId": "section-c",
+        "startBar": 29
       },
       {
-        "sceneId": "turnaround",
-        "startBar": 38
+        "sceneId": "section-d",
+        "startBar": 37
       },
       {
-        "sceneId": "tease",
-        "startBar": 46
+        "sceneId": "interlude",
+        "startBar": 45
       },
       {
-        "sceneId": "sax-break",
-        "startBar": 54
+        "sceneId": "solo-alto-1",
+        "startBar": 53
       },
       {
-        "sceneId": "release",
-        "startBar": 56
+        "sceneId": "solo-alto-2",
+        "startBar": 61
       },
       {
-        "sceneId": "refrain",
-        "startBar": 64
+        "sceneId": "solo-tenor-1",
+        "startBar": 69
       },
       {
-        "sceneId": "recompose",
-        "startBar": 80
+        "sceneId": "solo-tenor-2",
+        "startBar": 77
       },
       {
-        "sceneId": "solo-one",
-        "startBar": 88
+        "sceneId": "post-solo",
+        "startBar": 85
       },
       {
-        "sceneId": "solo-two",
-        "startBar": 96
+        "sceneId": "ds-section-c",
+        "startBar": 90
+      },
+      {
+        "sceneId": "ds-section-d",
+        "startBar": 98
       },
       {
         "sceneId": "drum-solo",
-        "startBar": 100
+        "startBar": 106
       },
       {
-        "sceneId": "return",
-        "startBar": 104
-      },
-      {
-        "sceneId": "diminuendo",
-        "startBar": 110
+        "sceneId": "coda",
+        "startBar": 107
       }
     ]
   },
@@ -9021,7 +9024,7 @@
       "participantId": "p-arrange",
       "workspaceId": "ws-arrange",
       "kind": "placeInScene",
-      "target": "groove",
+      "target": "section-a",
       "label": "Assemble Groove scene"
     },
     {
@@ -9049,7 +9052,7 @@
       "participantId": "p-arrange",
       "workspaceId": "ws-arrange",
       "kind": "placeInScene",
-      "target": "tease",
+      "target": "sax-trading",
       "label": "Wire Tease scene"
     },
     {
@@ -9077,7 +9080,7 @@
       "participantId": "p-arrange",
       "workspaceId": "ws-arrange",
       "kind": "placeInScene",
-      "target": "release",
+      "target": "section-c",
       "label": "Assemble Main Release"
     },
     {
@@ -9095,7 +9098,7 @@
       "participantId": "p-arrange",
       "workspaceId": "ws-arrange",
       "kind": "placeInScene",
-      "target": "recompose",
+      "target": "interlude",
       "label": "Add recomposition scene"
     },
     {
@@ -9104,7 +9107,7 @@
       "participantId": "p-arrange",
       "workspaceId": "ws-arrange",
       "kind": "placeInScene",
-      "target": "return",
+      "target": "coda",
       "label": "Close with return scene"
     },
     {
@@ -9114,8 +9117,8 @@
       "participantId": "p-arrange",
       "workspaceId": "ws-arrange",
       "kind": "placeInScene",
-      "target": "opening-theme",
-      "label": "Launch-ready scene: Intro theme · lead pickup"
+      "target": "section-a",
+      "label": "Launch-ready scene: A · score mm. 4–12"
     },
     {
       "id": "prod-form-02",
@@ -9124,8 +9127,8 @@
       "participantId": "p-arrange",
       "workspaceId": "ws-arrange",
       "kind": "placeInScene",
-      "target": "verse-b",
-      "label": "Launch-ready scene: A2 · fuller rhythm answer"
+      "target": "section-b",
+      "label": "Launch-ready scene: B · score mm. 13–20"
     },
     {
       "id": "prod-form-03",
@@ -9134,8 +9137,8 @@
       "participantId": "p-arrange",
       "workspaceId": "ws-arrange",
       "kind": "placeInScene",
-      "target": "chorus",
-      "label": "Launch-ready scene: B · layered refrain"
+      "target": "sax-trading",
+      "label": "Launch-ready scene: Sax trading · score mm. 21–28"
     },
     {
       "id": "prod-form-04",
@@ -9144,8 +9147,8 @@
       "participantId": "p-arrange",
       "workspaceId": "ws-arrange",
       "kind": "placeInScene",
-      "target": "turnaround",
-      "label": "Launch-ready scene: Turnaround · guitar and bass handoff"
+      "target": "section-c",
+      "label": "Launch-ready scene: C · score mm. 29–36"
     },
     {
       "id": "prod-form-05",
@@ -9154,8 +9157,8 @@
       "participantId": "p-arrange",
       "workspaceId": "ws-arrange",
       "kind": "placeInScene",
-      "target": "sax-break",
-      "label": "Launch-ready scene: Sax answer · alto pickup"
+      "target": "section-d",
+      "label": "Launch-ready scene: D · score mm. 37–44"
     },
     {
       "id": "prod-form-06",
@@ -9164,8 +9167,8 @@
       "participantId": "p-arrange",
       "workspaceId": "ws-arrange",
       "kind": "placeInScene",
-      "target": "refrain",
-      "label": "Launch-ready scene: Refrain · counterline lift"
+      "target": "interlude",
+      "label": "Launch-ready scene: Interlude · score mm. 45–52"
     },
     {
       "id": "prod-form-07",
@@ -9174,8 +9177,8 @@
       "participantId": "p-arrange",
       "workspaceId": "ws-arrange",
       "kind": "placeInScene",
-      "target": "solo-one",
-      "label": "Launch-ready scene: Solo pass 1 · tenor"
+      "target": "solo-alto-1",
+      "label": "Launch-ready scene: Solo · alto pass 1 · score mm. 53–60"
     },
     {
       "id": "prod-form-08",
@@ -9184,8 +9187,8 @@
       "participantId": "p-arrange",
       "workspaceId": "ws-arrange",
       "kind": "placeInScene",
-      "target": "solo-two",
-      "label": "Launch-ready scene: Solo pass 2 · alto"
+      "target": "solo-alto-2",
+      "label": "Launch-ready scene: Solo · alto pass 2 · score mm. 53–60"
     },
     {
       "id": "prod-form-09",
@@ -9194,8 +9197,8 @@
       "participantId": "p-arrange",
       "workspaceId": "ws-arrange",
       "kind": "placeInScene",
-      "target": "drum-solo",
-      "label": "Launch-ready scene: Drum solo · four-bar break"
+      "target": "solo-tenor-1",
+      "label": "Launch-ready scene: Solo · tenor pass 1 · score mm. 53–60"
     },
     {
       "id": "prod-form-10",
@@ -9204,8 +9207,58 @@
       "participantId": "p-arrange",
       "workspaceId": "ws-arrange",
       "kind": "placeInScene",
-      "target": "diminuendo",
-      "label": "Launch-ready scene: Coda · diminuendo"
+      "target": "solo-tenor-2",
+      "label": "Launch-ready scene: Solo · tenor pass 2 · score mm. 53–60"
+    },
+    {
+      "id": "prod-form-11",
+      "atBeat": 115.25,
+      "roleId": "arrangement",
+      "participantId": "p-arrange",
+      "workspaceId": "ws-arrange",
+      "kind": "placeInScene",
+      "target": "post-solo",
+      "label": "Launch-ready scene: Second ending + D.S. · score mm. 61–65"
+    },
+    {
+      "id": "prod-form-12",
+      "atBeat": 115.55,
+      "roleId": "arrangement",
+      "participantId": "p-arrange",
+      "workspaceId": "ws-arrange",
+      "kind": "placeInScene",
+      "target": "ds-section-c",
+      "label": "Launch-ready scene: D.S. return · C · score mm. 29–36"
+    },
+    {
+      "id": "prod-form-13",
+      "atBeat": 115.85,
+      "roleId": "arrangement",
+      "participantId": "p-arrange",
+      "workspaceId": "ws-arrange",
+      "kind": "placeInScene",
+      "target": "ds-section-d",
+      "label": "Launch-ready scene: D.S. return · D · score mm. 37–44"
+    },
+    {
+      "id": "prod-form-14",
+      "atBeat": 116.15,
+      "roleId": "arrangement",
+      "participantId": "p-arrange",
+      "workspaceId": "ws-arrange",
+      "kind": "placeInScene",
+      "target": "drum-solo",
+      "label": "Launch-ready scene: Coda entry · drum solo · score m. 66"
+    },
+    {
+      "id": "prod-form-15",
+      "atBeat": 116.45,
+      "roleId": "arrangement",
+      "participantId": "p-arrange",
+      "workspaceId": "ws-arrange",
+      "kind": "placeInScene",
+      "target": "coda",
+      "label": "Launch-ready scene: Coda · score mm. 67–73"
     },
     {
       "id": "prod-30",
@@ -9385,7 +9438,7 @@
       "at": "12:0:0",
       "brain": "story",
       "action": "queue",
-      "target": "groove",
+      "target": "section-a",
       "label": "Queue Groove Established",
       "detail": "Accept Pulse's draft and add the bass layer.",
       "boundary": {
@@ -9398,7 +9451,7 @@
       "at": "14:0:0",
       "brain": "story",
       "action": "launch",
-      "target": "groove",
+      "target": "section-a",
       "label": "Launch Scene B",
       "detail": "The piece now has a stable forward motion."
     },
@@ -9453,7 +9506,7 @@
       "at": "21:0:0",
       "brain": "story",
       "action": "queue",
-      "target": "tease",
+      "target": "sax-trading",
       "label": "Queue Melody Tease",
       "detail": "Hold the full phrase and commit the shorter response instead.",
       "boundary": {
@@ -9466,7 +9519,7 @@
       "at": "22:0:0",
       "brain": "story",
       "action": "launch",
-      "target": "tease",
+      "target": "sax-trading",
       "label": "Launch Scene C",
       "detail": "The listener receives enough information to expect a later release."
     },
@@ -9522,7 +9575,7 @@
       "at": "27:0:0",
       "brain": "story",
       "action": "queue",
-      "target": "release",
+      "target": "section-c",
       "label": "Queue Main Release",
       "detail": "Combine the full phrase, timing gap and wide mix at Bar 28.",
       "boundary": {
@@ -9535,7 +9588,7 @@
       "at": "28:0:0",
       "brain": "story",
       "action": "launch",
-      "target": "release",
+      "target": "section-c",
       "label": "Launch Scene D",
       "detail": "All four brain decisions resolve into one phrase boundary."
     },
@@ -9588,7 +9641,7 @@
       "at": "34:0:0",
       "brain": "story",
       "action": "launch",
-      "target": "recompose",
+      "target": "interlude",
       "label": "Launch Recomposition",
       "detail": "The expected repeat becomes an alternate take."
     },
@@ -9643,7 +9696,7 @@
       "at": "38:0:0",
       "brain": "story",
       "action": "launch",
-      "target": "return",
+      "target": "coda",
       "label": "Commit ending",
       "detail": "Resolve the piece by restoring its earliest memory."
     },
@@ -9669,7 +9722,7 @@
       "id": "structure-02-replace-groove-melody",
       "kind": "replaceLayer",
       "executeAtBar": 16,
-      "sceneId": "groove",
+      "sceneId": "section-a",
       "layer": "melody",
       "draftId": "memory-response"
     },
@@ -9677,21 +9730,21 @@
       "id": "structure-03-remove-groove-drums",
       "kind": "removeLayer",
       "executeAtBar": 18,
-      "sceneId": "groove",
+      "sceneId": "section-a",
       "layer": "drums"
     },
     {
       "id": "structure-04-restore-groove-drums",
       "kind": "restoreLayer",
       "executeAtBar": 20,
-      "sceneId": "groove",
+      "sceneId": "section-a",
       "layer": "drums"
     },
     {
       "id": "structure-05-extend-tease",
       "kind": "extendScene",
       "executeAtBar": 24,
-      "sceneId": "tease",
+      "sceneId": "sax-trading",
       "bars": 2
     },
     {
@@ -9704,7 +9757,7 @@
       "id": "structure-07-replace-recompose-melody",
       "kind": "replaceLayer",
       "executeAtBar": 38,
-      "sceneId": "recompose",
+      "sceneId": "interlude",
       "layer": "melody",
       "draftId": "memory-main"
     },
@@ -9734,7 +9787,7 @@
     }
   ],
   "sceneLayerStacks": {
-    "chorus": {
+    "section-b": {
       "harmony": [
         "story-comp"
       ],
@@ -9742,7 +9795,7 @@
         "memory-counter"
       ]
     },
-    "release": {
+    "section-c": {
       "harmony": [
         "story-comp"
       ],
@@ -9750,7 +9803,7 @@
         "memory-counter"
       ]
     },
-    "refrain": {
+    "section-d": {
       "harmony": [
         "story-comp"
       ],
@@ -9758,7 +9811,7 @@
         "memory-counter"
       ]
     },
-    "recompose": {
+    "ds-section-c": {
       "harmony": [
         "story-comp"
       ],
@@ -9766,7 +9819,15 @@
         "memory-counter"
       ]
     },
-    "return": {
+    "ds-section-d": {
+      "harmony": [
+        "story-comp"
+      ],
+      "melody": [
+        "memory-counter"
+      ]
+    },
+    "coda": {
       "melody": [
         "memory-counter"
       ]

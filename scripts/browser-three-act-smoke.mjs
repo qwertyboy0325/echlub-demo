@@ -443,7 +443,7 @@ try {
       && completedLiveTake.pendingStructuralCount === 0
       && completedLiveTake.appliedStructural.length === 8
       && completedLiveTake.structuralChanges.length === 8
-      && completedLiveTake.sceneOrder.join(",") === "opening@6,groove@16,tease@24,opening@32,recompose@38,opening@42"
+      && completedLiveTake.sceneOrder.join(",") === "opening@6,section-a@16,sax-trading@24,opening@32,interlude@38,opening@42"
       && completedLiveTake.jamMemoryCount === 6
       && completedLiveTake.missingMaterialCount === 0
       && completedLiveTake.comparisonVisible
