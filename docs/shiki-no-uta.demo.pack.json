@@ -44,39 +44,99 @@
   "sections": [
     {
       "id": "opening",
-      "label": "Sample-led opening vamp",
+      "label": "Intro · piano and bass foundation",
       "startBar": 0,
-      "bars": 12
+      "bars": 4
+    },
+    {
+      "id": "opening-theme",
+      "label": "Intro theme · lead pickup",
+      "startBar": 4,
+      "bars": 8
     },
     {
       "id": "groove",
-      "label": "Primary vocal groove",
+      "label": "A1 · first vocal pocket",
       "startBar": 12,
-      "bars": 34
+      "bars": 8
+    },
+    {
+      "id": "verse-b",
+      "label": "A2 · fuller rhythm answer",
+      "startBar": 20,
+      "bars": 10
+    },
+    {
+      "id": "chorus",
+      "label": "B · layered refrain",
+      "startBar": 30,
+      "bars": 8
+    },
+    {
+      "id": "turnaround",
+      "label": "Turnaround · guitar and bass handoff",
+      "startBar": 38,
+      "bars": 8
     },
     {
       "id": "tease",
-      "label": "Sax trading and drum-drop transition",
+      "label": "Sax trading · tenor lead",
       "startBar": 46,
-      "bars": 10
+      "bars": 8
+    },
+    {
+      "id": "sax-break",
+      "label": "Sax answer · alto pickup",
+      "startBar": 54,
+      "bars": 2
     },
     {
       "id": "release",
-      "label": "Return with extended turnaround",
+      "label": "A return · full ensemble",
       "startBar": 56,
-      "bars": 24
+      "bars": 12
+    },
+    {
+      "id": "refrain",
+      "label": "Refrain · counterline lift",
+      "startBar": 68,
+      "bars": 12
     },
     {
       "id": "recompose",
-      "label": "Late verse and DJ variations",
+      "label": "Interlude · instrumental reset",
       "startBar": 80,
-      "bars": 24
+      "bars": 8
+    },
+    {
+      "id": "solo-one",
+      "label": "Solo pass 1 · tenor",
+      "startBar": 88,
+      "bars": 8
+    },
+    {
+      "id": "solo-two",
+      "label": "Solo pass 2 · alto",
+      "startBar": 96,
+      "bars": 4
+    },
+    {
+      "id": "drum-solo",
+      "label": "Drum solo · four-bar break",
+      "startBar": 100,
+      "bars": 4
     },
     {
       "id": "return",
-      "label": "Bass-led outro and diminuendo",
+      "label": "Coda · bass-led return",
       "startBar": 104,
-      "bars": 10
+      "bars": 6
+    },
+    {
+      "id": "diminuendo",
+      "label": "Coda · diminuendo",
+      "startBar": 110,
+      "bars": 4
     }
   ],
   "participants": [
@@ -5996,10 +6056,10 @@
   "scenes": [
     {
       "id": "opening",
-      "title": "Sample-led opening vamp",
-      "bars": 12,
+      "title": "Intro · piano and bass foundation",
+      "bars": 4,
       "startBar": 0,
-      "description": "Twelve-bar Bbm-centered opening with the bass ostinato audible before the drums enter.",
+      "description": "Four-bar intro: harmonic shell and bass establish B-flat minor before the lead phrase opens.",
       "layers": {
         "drums": null,
         "bass": null,
@@ -6008,24 +6068,50 @@
         "texture": null
       },
       "fx": {
-        "filter": 3900,
-        "delayWet": 0.06,
-        "reverbWet": 0.18,
+        "filter": 3600,
+        "delayWet": 0.05,
+        "reverbWet": 0.17,
+        "masterGain": 7.2,
+        "faders": {
+          "groove": 44,
+          "harmony": 58,
+          "melody": 52,
+          "texture": 18
+        }
+      }
+    },
+    {
+      "id": "opening-theme",
+      "title": "Intro theme · lead pickup",
+      "bars": 8,
+      "startBar": 4,
+      "description": "The recurring lead enters over the same foundation while drums remain withheld.",
+      "layers": {
+        "drums": null,
+        "bass": null,
+        "harmony": null,
+        "melody": null,
+        "texture": null
+      },
+      "fx": {
+        "filter": 4300,
+        "delayWet": 0.08,
+        "reverbWet": 0.19,
         "masterGain": 8,
         "faders": {
-          "groove": 52,
+          "groove": 54,
           "harmony": 62,
-          "melody": 62,
+          "melody": 64,
           "texture": 20
         }
       }
     },
     {
       "id": "groove",
-      "title": "Primary vocal groove",
-      "bars": 34,
+      "title": "A1 · first vocal pocket",
+      "bars": 8,
       "startBar": 12,
-      "description": "Stable two-bar Bbm / Ebm-Fm turnaround under the main scale-corrected vocal contour.",
+      "description": "Sparse drums join the primary phrase without changing the two-bar harmonic anchor.",
       "layers": {
         "drums": null,
         "bass": null,
@@ -6047,11 +6133,89 @@
       }
     },
     {
-      "id": "tease",
-      "title": "Sax trading and drum-drop transition",
+      "id": "verse-b",
+      "title": "A2 · fuller rhythm answer",
       "bars": 10,
+      "startBar": 20,
+      "description": "A denser drum clip and a brighter lead variation answer A1 instead of merely repeating it.",
+      "layers": {
+        "drums": null,
+        "bass": null,
+        "harmony": null,
+        "melody": null,
+        "texture": null
+      },
+      "fx": {
+        "filter": 5700,
+        "delayWet": 0.1,
+        "reverbWet": 0.18,
+        "masterGain": 8.6,
+        "faders": {
+          "groove": 72,
+          "harmony": 62,
+          "melody": 68,
+          "texture": 17
+        }
+      }
+    },
+    {
+      "id": "chorus",
+      "title": "B · layered refrain",
+      "bars": 8,
+      "startBar": 30,
+      "description": "Full groove, extended harmony, lead phrase and guitar response combine for the first broad release.",
+      "layers": {
+        "drums": null,
+        "bass": null,
+        "harmony": null,
+        "melody": null,
+        "texture": null
+      },
+      "fx": {
+        "filter": 7200,
+        "delayWet": 0.14,
+        "reverbWet": 0.23,
+        "masterGain": 9,
+        "faders": {
+          "groove": 76,
+          "harmony": 70,
+          "melody": 74,
+          "texture": 23
+        }
+      }
+    },
+    {
+      "id": "turnaround",
+      "title": "Turnaround · guitar and bass handoff",
+      "bars": 8,
+      "startBar": 38,
+      "description": "The vocal lead steps aside so muted guitar gestures and passing bass can prepare the reed feature.",
+      "layers": {
+        "drums": null,
+        "bass": null,
+        "harmony": null,
+        "melody": null,
+        "texture": null
+      },
+      "fx": {
+        "filter": 4700,
+        "delayWet": 0.14,
+        "reverbWet": 0.21,
+        "masterGain": 7.4,
+        "faders": {
+          "groove": 62,
+          "harmony": 54,
+          "melody": 64,
+          "texture": 24
+        }
+      }
+    },
+    {
+      "id": "tease",
+      "title": "Sax trading · tenor lead",
+      "bars": 8,
       "startBar": 46,
-      "description": "Ten-bar stem-aligned drum drop containing the score's measures 21-28 alto/tenor sax trading passage.",
+      "description": "Score-guided tenor phrases trade against the reduced rhythm section.",
       "layers": {
         "drums": null,
         "bass": null,
@@ -6063,21 +6227,47 @@
         "filter": 5800,
         "delayWet": 0.12,
         "reverbWet": 0.2,
-        "masterGain": 4.5,
+        "masterGain": 7.5,
         "faders": {
-          "groove": 62,
-          "harmony": 56,
-          "melody": 52,
+          "groove": 58,
+          "harmony": 54,
+          "melody": 72,
           "texture": 20
         }
       }
     },
     {
+      "id": "sax-break",
+      "title": "Sax answer · alto pickup",
+      "bars": 2,
+      "startBar": 54,
+      "description": "A two-bar alto answer and drum subtraction create a real transition, not another loop restart.",
+      "layers": {
+        "drums": null,
+        "bass": null,
+        "harmony": null,
+        "melody": null,
+        "texture": null
+      },
+      "fx": {
+        "filter": 4300,
+        "delayWet": 0.12,
+        "reverbWet": 0.2,
+        "masterGain": 6.8,
+        "faders": {
+          "groove": 42,
+          "harmony": 50,
+          "melody": 74,
+          "texture": 22
+        }
+      }
+    },
+    {
       "id": "release",
-      "title": "Return with extended turnaround",
-      "bars": 24,
+      "title": "A return · full ensemble",
+      "bars": 12,
       "startBar": 56,
-      "description": "Groove return with F7b9 used only as a turnaround accent and restrained guitar-style answers.",
+      "description": "The main phrase returns with full drums, comping and restrained counter melody.",
       "layers": {
         "drums": null,
         "bass": null,
@@ -6099,11 +6289,11 @@
       }
     },
     {
-      "id": "recompose",
-      "title": "Late verse and DJ variations",
-      "bars": 24,
-      "startBar": 80,
-      "description": "Late performance area where dead notes, slides, passing bass and chord extensions can enter as DJ variations.",
+      "id": "refrain",
+      "title": "Refrain · counterline lift",
+      "bars": 12,
+      "startBar": 68,
+      "description": "The same harmonic backbone is recombined with upper bass, counterline and guitar answers.",
       "layers": {
         "drums": null,
         "bass": null,
@@ -6112,24 +6302,128 @@
         "texture": null
       },
       "fx": {
-        "filter": 5600,
+        "filter": 7400,
         "delayWet": 0.14,
-        "reverbWet": 0.21,
-        "masterGain": 8.5,
+        "reverbWet": 0.23,
+        "masterGain": 9.2,
         "faders": {
-          "groove": 68,
-          "harmony": 64,
-          "melody": 70,
+          "groove": 78,
+          "harmony": 70,
+          "melody": 76,
           "texture": 24
         }
       }
     },
     {
+      "id": "recompose",
+      "title": "Interlude · instrumental reset",
+      "bars": 8,
+      "startBar": 80,
+      "description": "Lead vocal drops out; guitar, bass and filtered harmony carry the interlude.",
+      "layers": {
+        "drums": null,
+        "bass": null,
+        "harmony": null,
+        "melody": null,
+        "texture": null
+      },
+      "fx": {
+        "filter": 4600,
+        "delayWet": 0.14,
+        "reverbWet": 0.21,
+        "masterGain": 7.8,
+        "faders": {
+          "groove": 60,
+          "harmony": 58,
+          "melody": 66,
+          "texture": 25
+        }
+      }
+    },
+    {
+      "id": "solo-one",
+      "title": "Solo pass 1 · tenor",
+      "bars": 8,
+      "startBar": 88,
+      "description": "First eight-bar solo pass with tenor lead over the established rhythm section.",
+      "layers": {
+        "drums": null,
+        "bass": null,
+        "harmony": null,
+        "melody": null,
+        "texture": null
+      },
+      "fx": {
+        "filter": 6800,
+        "delayWet": 0.12,
+        "reverbWet": 0.2,
+        "masterGain": 8.8,
+        "faders": {
+          "groove": 70,
+          "harmony": 60,
+          "melody": 78,
+          "texture": 18
+        }
+      }
+    },
+    {
+      "id": "solo-two",
+      "title": "Solo pass 2 · alto",
+      "bars": 4,
+      "startBar": 96,
+      "description": "Second solo pass changes reed voice and counterline rather than duplicating pass one.",
+      "layers": {
+        "drums": null,
+        "bass": null,
+        "harmony": null,
+        "melody": null,
+        "texture": null
+      },
+      "fx": {
+        "filter": 7000,
+        "delayWet": 0.14,
+        "reverbWet": 0.23,
+        "masterGain": 9,
+        "faders": {
+          "groove": 72,
+          "harmony": 62,
+          "melody": 80,
+          "texture": 20
+        }
+      }
+    },
+    {
+      "id": "drum-solo",
+      "title": "Drum solo · four-bar break",
+      "bars": 4,
+      "startBar": 100,
+      "description": "All pitched clips drop away for the score-marked drum feature and fill.",
+      "layers": {
+        "drums": null,
+        "bass": null,
+        "harmony": null,
+        "melody": null,
+        "texture": null
+      },
+      "fx": {
+        "filter": 7600,
+        "delayWet": 0.08,
+        "reverbWet": 0.21,
+        "masterGain": 9.2,
+        "faders": {
+          "groove": 82,
+          "harmony": 0,
+          "melody": 0,
+          "texture": 14
+        }
+      }
+    },
+    {
       "id": "return",
-      "title": "Bass-led outro and diminuendo",
-      "bars": 10,
+      "title": "Coda · bass-led return",
+      "bars": 6,
       "startBar": 104,
-      "description": "Drums subtract after bar 103 while bass and harmonic tail continue into the diminuendo.",
+      "description": "Bass and the harmonic tail return after the drum break while the arrangement begins subtracting.",
       "layers": {
         "drums": null,
         "bass": null,
@@ -6141,22 +6435,54 @@
         "filter": 4200,
         "delayWet": 0.18,
         "reverbWet": 0.28,
-        "masterGain": 8,
+        "masterGain": 7.4,
         "faders": {
-          "groove": 48,
-          "harmony": 60,
-          "melody": 64,
+          "groove": 52,
+          "harmony": 58,
+          "melody": 58,
           "texture": 18
+        }
+      }
+    },
+    {
+      "id": "diminuendo",
+      "title": "Coda · diminuendo",
+      "bars": 4,
+      "startBar": 110,
+      "description": "Final four-bar subtraction: sparse counterline, filtered harmony and a fading bass cadence.",
+      "layers": {
+        "drums": null,
+        "bass": null,
+        "harmony": null,
+        "melody": null,
+        "texture": null
+      },
+      "fx": {
+        "filter": 3000,
+        "delayWet": 0.22,
+        "reverbWet": 0.32,
+        "masterGain": 5.6,
+        "faders": {
+          "groove": 34,
+          "harmony": 46,
+          "melody": 42,
+          "texture": 14
         }
       }
     }
   ],
   "scenePlacements": {
     "opening": {
+      "bass": "bass-main",
       "harmony": "story-opening",
       "melody": "memory-opening",
-      "texture": "blend-warm",
-      "bass": "bass-main"
+      "texture": "blend-warm"
+    },
+    "opening-theme": {
+      "bass": "bass-main",
+      "harmony": "story-opening",
+      "melody": "memory-main",
+      "texture": "blend-warm"
     },
     "groove": {
       "drums": "pulse-sparse",
@@ -6165,11 +6491,38 @@
       "melody": "memory-verse-a",
       "texture": "blend-warm"
     },
+    "verse-b": {
+      "drums": "pulse-full",
+      "bass": "bass-verse",
+      "harmony": "story-comp",
+      "melody": "memory-main",
+      "texture": "blend-warm"
+    },
+    "chorus": {
+      "drums": "pulse-full",
+      "bass": "bass-alt",
+      "harmony": "story-release",
+      "melody": "memory-release",
+      "texture": "blend-release"
+    },
+    "turnaround": {
+      "drums": "pulse-break",
+      "bass": "bass-response",
+      "harmony": "story-sax",
+      "melody": "memory-guitar-late",
+      "texture": "blend-filtered"
+    },
     "tease": {
       "drums": "pulse-break",
       "bass": "bass-sax",
       "harmony": "story-sax",
       "melody": "memory-sax-solo",
+      "texture": "blend-filtered"
+    },
+    "sax-break": {
+      "bass": "bass-sax",
+      "harmony": "story-sax",
+      "melody": "memory-sax-alto",
       "texture": "blend-filtered"
     },
     "release": {
@@ -6179,18 +6532,49 @@
       "melody": "memory-release",
       "texture": "blend-release"
     },
-    "recompose": {
-      "drums": "pulse-sparse",
+    "refrain": {
+      "drums": "pulse-full",
       "bass": "bass-alt",
       "harmony": "story-verse",
+      "melody": "memory-verse-a",
+      "texture": "blend-release"
+    },
+    "recompose": {
+      "drums": "pulse-break",
+      "bass": "bass-main",
+      "harmony": "story-sax",
       "melody": "memory-guitar-late",
+      "texture": "blend-filtered"
+    },
+    "solo-one": {
+      "drums": "pulse-full",
+      "bass": "bass-sax",
+      "harmony": "story-sax",
+      "melody": "memory-sax-solo",
       "texture": "blend-warm"
     },
+    "solo-two": {
+      "drums": "pulse-full",
+      "bass": "bass-alt",
+      "harmony": "story-release",
+      "melody": "memory-sax-alto",
+      "texture": "blend-release"
+    },
+    "drum-solo": {
+      "drums": "pulse-full",
+      "texture": "blend-filtered"
+    },
     "return": {
+      "bass": "bass-outro",
       "harmony": "story-outro",
       "melody": "memory-outro",
-      "texture": "blend-filtered",
-      "bass": "bass-outro"
+      "texture": "blend-filtered"
+    },
+    "diminuendo": {
+      "bass": "bass-outro",
+      "harmony": "story-outro",
+      "melody": "memory-counter",
+      "texture": "blend-filtered"
     }
   },
   "defaultMix": {
@@ -6284,7 +6668,7 @@
   },
   "arrangement": {
     "id": "canonical-arrangement",
-    "title": "MP3-aligned private cover form",
+    "title": "MP3-aligned Ableton-style clip traversal",
     "totalBars": 114,
     "scenes": [
       {
@@ -6292,24 +6676,64 @@
         "startBar": 0
       },
       {
+        "sceneId": "opening-theme",
+        "startBar": 4
+      },
+      {
         "sceneId": "groove",
         "startBar": 12
+      },
+      {
+        "sceneId": "verse-b",
+        "startBar": 20
+      },
+      {
+        "sceneId": "chorus",
+        "startBar": 30
+      },
+      {
+        "sceneId": "turnaround",
+        "startBar": 38
       },
       {
         "sceneId": "tease",
         "startBar": 46
       },
       {
+        "sceneId": "sax-break",
+        "startBar": 54
+      },
+      {
         "sceneId": "release",
         "startBar": 56
+      },
+      {
+        "sceneId": "refrain",
+        "startBar": 68
       },
       {
         "sceneId": "recompose",
         "startBar": 80
       },
       {
+        "sceneId": "solo-one",
+        "startBar": 88
+      },
+      {
+        "sceneId": "solo-two",
+        "startBar": 96
+      },
+      {
+        "sceneId": "drum-solo",
+        "startBar": 100
+      },
+      {
         "sceneId": "return",
         "startBar": 104
+      },
+      {
+        "sceneId": "diminuendo",
+        "startBar": 110
       }
     ]
   },
@@ -6632,6 +7056,106 @@
       "kind": "placeInScene",
       "target": "return",
       "label": "Close with return scene"
+    },
+    {
+      "id": "prod-form-01",
+      "atBeat": 112.25,
+      "roleId": "arrangement",
+      "participantId": "p-arrange",
+      "workspaceId": "ws-arrange",
+      "kind": "placeInScene",
+      "target": "opening-theme",
+      "label": "Launch-ready scene: Intro theme · lead pickup"
+    },
+    {
+      "id": "prod-form-02",
+      "atBeat": 112.55,
+      "roleId": "arrangement",
+      "participantId": "p-arrange",
+      "workspaceId": "ws-arrange",
+      "kind": "placeInScene",
+      "target": "verse-b",
+      "label": "Launch-ready scene: A2 · fuller rhythm answer"
+    },
+    {
+      "id": "prod-form-03",
+      "atBeat": 112.85,
+      "roleId": "arrangement",
+      "participantId": "p-arrange",
+      "workspaceId": "ws-arrange",
+      "kind": "placeInScene",
+      "target": "chorus",
+      "label": "Launch-ready scene: B · layered refrain"
+    },
+    {
+      "id": "prod-form-04",
+      "atBeat": 113.15,
+      "roleId": "arrangement",
+      "participantId": "p-arrange",
+      "workspaceId": "ws-arrange",
+      "kind": "placeInScene",
+      "target": "turnaround",
+      "label": "Launch-ready scene: Turnaround · guitar and bass handoff"
+    },
+    {
+      "id": "prod-form-05",
+      "atBeat": 113.45,
+      "roleId": "arrangement",
+      "participantId": "p-arrange",
+      "workspaceId": "ws-arrange",
+      "kind": "placeInScene",
+      "target": "sax-break",
+      "label": "Launch-ready scene: Sax answer · alto pickup"
+    },
+    {
+      "id": "prod-form-06",
+      "atBeat": 113.75,
+      "roleId": "arrangement",
+      "participantId": "p-arrange",
+      "workspaceId": "ws-arrange",
+      "kind": "placeInScene",
+      "target": "refrain",
+      "label": "Launch-ready scene: Refrain · counterline lift"
+    },
+    {
+      "id": "prod-form-07",
+      "atBeat": 114.05,
+      "roleId": "arrangement",
+      "participantId": "p-arrange",
+      "workspaceId": "ws-arrange",
+      "kind": "placeInScene",
+      "target": "solo-one",
+      "label": "Launch-ready scene: Solo pass 1 · tenor"
+    },
+    {
+      "id": "prod-form-08",
+      "atBeat": 114.35,
+      "roleId": "arrangement",
+      "participantId": "p-arrange",
+      "workspaceId": "ws-arrange",
+      "kind": "placeInScene",
+      "target": "solo-two",
+      "label": "Launch-ready scene: Solo pass 2 · alto"
+    },
+    {
+      "id": "prod-form-09",
+      "atBeat": 114.65,
+      "roleId": "arrangement",
+      "participantId": "p-arrange",
+      "workspaceId": "ws-arrange",
+      "kind": "placeInScene",
+      "target": "drum-solo",
+      "label": "Launch-ready scene: Drum solo · four-bar break"
+    },
+    {
+      "id": "prod-form-10",
+      "atBeat": 114.95,
+      "roleId": "arrangement",
+      "participantId": "p-arrange",
+      "workspaceId": "ws-arrange",
+      "kind": "placeInScene",
+      "target": "diminuendo",
+      "label": "Launch-ready scene: Coda · diminuendo"
     },
     {
       "id": "prod-30",
@@ -7161,8 +7685,30 @@
   ],
   "sceneLayerStacks": {
     "groove": {
+      "melody": [
+        "memory-counter"
+      ]
+    },
+    "verse-b": {
+      "harmony": [
+        "story-verse"
+      ],
+      "melody": [
+        "memory-response"
+      ]
+    },
+    "chorus": {
       "harmony": [
         "story-comp"
+      ],
+      "melody": [
+        "memory-response",
+        "memory-counter"
+      ]
+    },
+    "turnaround": {
+      "bass": [
+        "bass-response"
       ],
       "melody": [
         "memory-counter"
@@ -7181,15 +7727,31 @@
         "memory-counter"
       ]
     },
-    "recompose": {
+    "refrain": {
       "harmony": [
         "story-comp"
       ],
       "melody": [
+        "memory-guitar-late",
         "memory-counter"
       ],
       "bass": [
         "bass-response"
+      ]
+    },
+    "recompose": {
+      "bass": [
+        "bass-response"
+      ]
+    },
+    "solo-one": {
+      "melody": [
+        "memory-guitar-late"
+      ]
+    },
+    "solo-two": {
+      "melody": [
+        "memory-counter"
       ]
     },
     "return": {

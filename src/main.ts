@@ -27,10 +27,10 @@ import { arrangementLaunchBoundaries } from "./demo/liveStructuralPlan";
 import { importReconstructionPackFile, parseReconstructionPackJson } from "./domain/packLoader";
 
 const brainMeta: Record<BrainId, { title: string; subtitle: string; symbol: string }> = {
-  memory: { title: "Memory / Cue", subtitle: "phrases, fragments and private audition", symbol: "M" },
-  pulse: { title: "Pulse / Timing", subtitle: "groove, quantization and musical gaps", symbol: "P" },
-  blend: { title: "Blend / Space", subtitle: "filter, echo and attention", symbol: "B" },
-  story: { title: "Story / Structure", subtitle: "scenes, extension, release and return", symbol: "S" },
+  memory: { title: "Material Deck", subtitle: "cue, audition and replace musical phrases", symbol: "M" },
+  pulse: { title: "Rhythm Deck", subtitle: "reshape groove, timing and musical gaps", symbol: "P" },
+  blend: { title: "Mixer / FX", subtitle: "control balance, filter, echo and space", symbol: "B" },
+  story: { title: "Scene Launcher", subtitle: "queue, hold and redirect song structure", symbol: "S" },
 };
 
 const app = document.querySelector<HTMLDivElement>("#app");
@@ -47,6 +47,7 @@ let lastCountdownLabel = "";
 let runCycle = 1;
 let canonicalPlaybackIds: number[] = [];
 let demoMode: DemoAct | "idle" = "idle";
+let experienceStarted = false;
 let comparisonHtml = "";
 
 const audioEngine = new AudioEngine({
@@ -157,7 +158,7 @@ function render(): void {
   const displayScene = sceneById(state.activeSceneId) ?? idleScene;
   const isPublicSongDemo = demoController.runtime.pack.metadata.source === "public-demo";
   app!.innerHTML = `
-  <main class="app-shell ${state.recordingMode ? "recording-mode" : ""}" data-act="${demoMode}">
+  <main class="app-shell ${state.recordingMode ? "recording-mode" : ""}" data-act="${demoMode}" data-experience-started="${experienceStarted}">
     <header class="topbar glass">
       <div class="brand-block">
         <div class="brand-mark">E</div>
@@ -176,20 +177,22 @@ function render(): void {
       </div>
     </header>
 
-    <div id="production-slot"></div>
-    <div id="comparison-slot">${comparisonHtml}</div>
-
-    <section class="demo-controls glass">
-      <div class="transport-controls">
-        <button class="button primary" id="start-button">Start full demo</button>
+    <section class="demo-controls experience-launcher glass">
+      <div class="experience-copy">
+        <span class="eyebrow">CHOOSE YOUR EXPERIENCE</span>
+        <h2>先聽歌，或觀看它如何被製作與重組</h2>
+        <p>第一次點擊會解鎖瀏覽器音訊。直接播放全曲會跳過製作動畫，從 114-bar canonical arrangement 開始。</p>
+      </div>
+      <div class="experience-actions">
+        <button class="button primary listen-now" id="skip-playback"><strong>▶ 立即播放全曲</strong><span>完整 canonical song · 約 5 分鐘</span></button>
+        <button class="button journey" id="start-button"><strong>觀看完整旅程</strong><span>製作 → 全曲 → Live Remix</span></button>
+        <button class="button journey" id="skip-performance"><strong>進入 Live Remix</strong><span>直接把歌曲當成 DJ 樂器</span></button>
+      </div>
+      <div class="transport-controls utility-controls">
         <button class="button" id="pause-button" disabled>Pause</button>
         <button class="button" id="restart-button" disabled>Restart</button>
         <button class="button" id="record-mode-button">Recording mode</button>
-      </div>
-      <div class="skip-controls">
-        <button class="button mini" id="skip-production">Skip to Production</button>
-        <button class="button mini" id="skip-playback">Skip to Canonical Playback</button>
-        <button class="button mini" id="skip-performance">Skip to Live Performance</button>
+        <button class="button mini" id="skip-production">回到製作階段</button>
         <label class="speed-control">Speed <input type="range" id="speed-control" min="1" max="8" value="1" /></label>
         <label class="pack-import">Local pack <input type="file" id="pack-file-input" accept="application/json,.json" /></label>
         <span class="pack-import-status" id="pack-import-status">${isPublicSongDemo ? "bundled · public song demo" : "validated placeholder"}</span>
@@ -206,9 +209,6 @@ function render(): void {
           <span class="boundary-ticks" id="boundary-ticks"></span>
         </div>
       </div>
-      <div class="transport-controls performance-only">
-        <button class="button primary" id="live-only-button">Live performance only</button>
-      </div>
       <div class="transport-readout">
         <div><span>Position</span><strong id="position">01 · 1 · 1</strong></div>
         <div><span>Next phrase</span><strong id="next-scene">Groove Established</strong></div>
@@ -223,14 +223,39 @@ function render(): void {
       </div>
     </section>
 
-    <section class="brain-grid">
+    <section class="act-explainer production-context glass">
+      <span class="eyebrow">HOW PRODUCTION WORKS</span>
+      <div class="causal-chain">
+        <div><b>1</b><strong>角色修改素材</strong><small>鼓、Bass、和聲、旋律與音色</small></div><i>→</i>
+        <div><b>2</b><strong>Private Cue</strong><small>只 audition 目前 Draft</small></div><i>→</i>
+        <div><b>3</b><strong>放入 Scene</strong><small>固定 revision 與 fingerprint</small></div><i>→</i>
+        <div><b>4</b><strong>組成全曲</strong><small>同一份素材進入 canonical playback</small></div>
+      </div>
+    </section>
+
+    <section class="act-explainer canonical-context glass">
+      <span class="eyebrow">LISTENING MODE</span>
+      <h3>現在播放的是完整固定版本</h3>
+      <p>這一幕不會執行四個 Live capabilities；只沿著上方 16 個編曲段落播放 canonical arrangement。可用 Pause、Restart 或 Scene timeline 確認進度。</p>
+    </section>
+
+    <div id="production-slot"></div>
+    <div id="comparison-slot">${comparisonHtml}</div>
+
+    <section class="live-capability-intro glass">
+      <span class="eyebrow">ACT 3 · LIVE REMIX</span>
+      <h3>這不是四個人在亂按：它們是同一位 DJ 的四組能力</h3>
+      <p>Material 選素材、Rhythm 改節奏、Mixer 控空間、Scene Launcher 改曲式；每次操作都會在下方顯示原因與結果。</p>
+    </section>
+
+    <section class="brain-grid live-capability-grid">
       ${(["memory", "pulse", "blend", "story"] as BrainId[]).map(renderBrainWindow).join("")}
     </section>
 
     <section class="bottom-grid">
       <article class="glass action-monitor">
         <div class="section-heading"><div><span class="eyebrow">SEMANTIC ACTION</span><h3 id="action-label">No action yet</h3></div><span class="action-actor" id="action-actor">—</span></div>
-        <p id="action-detail">Press Start to let the four scripted brains build and perform the arrangement.</p>
+        <p id="action-detail">選擇上方入口。每個動作都會顯示它修改了哪個 Draft、Scene 或 FX，以及為何影響聽到的結果。</p>
         <div class="pipeline">
           <span data-state="editing">Editing</span><b>→</b>
           <span data-state="preview">Private preview</span><b>→</b>
@@ -276,7 +301,7 @@ function renderBrainWindow(brain: BrainId): string {
     <article class="brain-window glass" data-brain="${brain}">
       <div class="brain-header">
         <div class="brain-id">${meta.symbol}</div>
-        <div><span class="eyebrow">BRAIN ${meta.symbol}</span><h3>${meta.title}</h3><p>${meta.subtitle}</p></div>
+        <div><span class="eyebrow">LIVE CAPABILITY ${meta.symbol}</span><h3>${meta.title}</h3><p>${meta.subtitle}</p></div>
         <span class="brain-state" id="${brain}-state">idle</span>
       </div>
       <div class="brain-workspace">${renderWorkspace(brain)}</div>
@@ -448,6 +473,8 @@ async function loadBundledSongDemo(): Promise<void> {
 }
 
 async function onSkipAct(act: DemoAct): Promise<void> {
+  experienceStarted = true;
+  app!.querySelector(".app-shell")?.setAttribute("data-experience-started", "true");
   if (!initialized) {
     getButton("#start-button").disabled = true;
     getButton("#start-button").textContent = "Preparing audio…";
@@ -468,17 +495,19 @@ async function onSkipAct(act: DemoAct): Promise<void> {
       getButton("#start-button").textContent = "Canonical playback complete";
       getButton("#start-button").disabled = false;
     });
+    getButton("#start-button").textContent = "正在播放全曲…";
   } else if (act === "livePerformance") {
     resetRuntime();
     demoController.syncSessionToState();
     await runLivePerformanceAct();
+    getButton("#start-button").textContent = "Live Remix 進行中…";
   } else {
     resetRuntime();
     demoController.syncSessionToState();
     refreshProductionUi();
     refreshWorkspaces();
     updateAllUi();
-    getButton("#start-button").textContent = "Start full demo";
+    getButton("#start-button").textContent = "觀看完整旅程";
     getButton("#start-button").disabled = false;
   }
   getButton("#pause-button").disabled = false;
@@ -486,6 +515,8 @@ async function onSkipAct(act: DemoAct): Promise<void> {
 }
 
 async function onStart(): Promise<void> {
+  experienceStarted = true;
+  app!.querySelector(".app-shell")?.setAttribute("data-experience-started", "true");
   if (!initialized) {
     getButton("#start-button").disabled = true;
     getButton("#start-button").textContent = "Preparing audio…";
@@ -791,7 +822,7 @@ function resetRuntime(): void {
   const label = document.querySelector<HTMLElement>("#action-label");
   const detail = document.querySelector<HTMLElement>("#action-detail");
   if (label) label.textContent = "Performance started";
-  if (detail) detail.textContent = "The four scripted brains are preparing their private drafts.";
+  if (detail) detail.textContent = "The four DJ capability groups are preparing their material, rhythm, mix, and scene controls.";
 }
 
 function finishPerformance(): void {

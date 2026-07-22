@@ -124,11 +124,17 @@ export function renderComparisonPanel(summary: string): string {
 export function renderTopologyPanel(session: ProductionSession): string {
   const view = session.performanceViews[0];
   const brains = view?.brainOrder ?? [];
+  const capabilityTitles: Record<string, string> = {
+    memory: "Material Deck",
+    pulse: "Rhythm Deck",
+    blend: "Mixer / FX",
+    story: "Scene Launcher",
+  };
   const grouped = brains.map((brain) => {
     const participants = session.participants.filter((participant) => participant.performanceBrain === brain);
     return `<article class="topology-brain" data-topology-brain="${brain}">
       <span class="topology-brain-mark">${brain.charAt(0).toUpperCase()}</span>
-      <div><strong>${brain.charAt(0).toUpperCase() + brain.slice(1)}</strong>
+      <div><strong>${capabilityTitles[brain] ?? brain}</strong>
       <small>${participants.map((participant) => participant.displayName).join(" + ") || "capability view"}</small></div>
     </article>`;
   }).join("");
@@ -136,7 +142,7 @@ export function renderTopologyPanel(session: ProductionSession): string {
     <section class="topology-stage glass" id="topology-stage">
       <div class="section-heading">
         <div><span class="eyebrow">TOPOLOGY TRANSFORMATION</span><h3>Production roles → Performance capabilities</h3></div>
-        <span class="pill">8 responsibilities · 4 live brains</span>
+        <span class="pill">8 production roles · 4 DJ capabilities</span>
       </div>
       <div class="topology-flow">
         <div class="topology-role-list">
