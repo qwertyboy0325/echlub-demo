@@ -1,0 +1,30 @@
+# dependencies
+node_modules/
+
+# build artifacts (docs/ is committed for GitHub Pages)
+dist/
+
+# env
+.env
+.env.*
+!.env.example
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# editor
+.idea/
+*.swp
+*.swo
+*~
+
+# vite / typescript
+*.tsbuildinfo
+.vite/
