@@ -10,7 +10,7 @@ import { executeSceneTransaction } from "./sceneTransaction";
 import { executionLog } from "./executionLog";
 import { clearAllTimeouts, activeTimeoutCount } from "./timerRegistry";
 import { parsePosition } from "./musicalPosition";
-import { applyScriptEvent, createInitialState, resetState, updateBoundaryCountdown } from "./runtimeState";
+import { applyCollaborationEvent, createInitialState, resetState, updateBoundaryCountdown } from "./runtimeState";
 import { RuntimeInstrumentation } from "./runtimeInstrumentation";
 import {
   buildLaunchBoundaryMap,
@@ -20,6 +20,11 @@ import {
   sceneById,
 } from "./sceneExecution";
 import type { BrainId, PerformanceScriptEvent, RuntimeState, SceneDefinition } from "./types";
+import { DemoController, scheduleArrangementPlayback } from "./demo/demoController";
+import { renderComparisonPanel, renderProductionRail, renderCanonicalStage } from "./demo/demoUi";
+import { buildTopologyTransformation } from "./demo/canonicalPlayback";
+import { enterAct, registerLiveSchedules } from "./demo/actScheduleRegistry";
+import type { DemoAct } from "./domain/sessionTypes";
 
 const brainMeta: Record<BrainId, { title: string; subtitle: string; symbol: string }> = {
   memory: { title: "Memory / Cue", subtitle: "phrases, fragments and private audition", symbol: "M" },
@@ -40,6 +45,9 @@ let initialized = false;
 let isPaused = false;
 let lastCountdownLabel = "";
 let runCycle = 1;
+let canonicalPlaybackIds: number[] = [];
+let demoMode: DemoAct | "idle" = "idle";
+let comparisonHtml = "";
 
 const audioEngine = new AudioEngine({
   onStep: (bar, beat, sixteenth) => {
@@ -56,6 +64,7 @@ const audioEngine = new AudioEngine({
       (e) => e.action === "launch" && e.target === sceneId && parsePosition(e.at).bar === bar,
     );
     if (!event) return;
+    demoController.applyLiveSceneMix(sceneId, event.id);
     const ok = executeSceneTransaction({
       state,
       sceneAuthority,
@@ -63,9 +72,11 @@ const audioEngine = new AudioEngine({
       event,
       bar,
       transportTime: time,
+      resolveScene: (id) => demoController.runtime.session.scenes.find((s) => s.id === id),
+      authoritativeMix: demoController.runtime.session.mix,
     });
     if (!ok) return;
-    const scene = scenes.find((s) => s.id === sceneId);
+    const scene = demoController.runtime.session.scenes.find((s) => s.id === sceneId);
     instrumentation.logSceneExecution(
       sceneAuthority.executionRecords[sceneAuthority.executionRecords.length - 1],
     );
@@ -80,29 +91,83 @@ const audioEngine = new AudioEngine({
 });
 
 audioEngine.bindSceneAuthority(sceneAuthority);
-audioEngine.setLaunchBoundaries(buildLaunchBoundaryMap());
+
+const demoController = new DemoController({
+  getState: () => state,
+  refreshUi: () => { refreshWorkspaces(); updateAllUi(); updateTransportUi(); },
+  refreshProductionUi,
+  audioEngine,
+  clearTransportSchedules: (ids) => {
+    if (initialized) audioEngine.clearScript(ids);
+    const transport = Tone.getTransport();
+    canonicalPlaybackIds.forEach((id) => transport.clear(id));
+    canonicalPlaybackIds = [];
+    scriptIds.forEach((id) => transport.clear(id));
+    scriptIds = [];
+  },
+  onProductionAction: (label, participantId) => {
+    const participant = demoController.runtime.session.participants.find((p) => p.id === participantId);
+    const labelEl = document.querySelector<HTMLElement>("#action-label");
+    const detail = document.querySelector<HTMLElement>("#action-detail");
+    if (labelEl) labelEl.textContent = label;
+    if (detail) detail.textContent = `${participant?.displayName ?? "Creator"}: ${label}`;
+    demoController.director.applyDomFocus(app!);
+  },
+  onActChange: (act) => {
+    demoMode = act;
+    app!.querySelector(".app-shell")?.setAttribute("data-act", act);
+    refreshProductionUi();
+  },
+  runLivePerformance: () => { void runLivePerformanceAct(); },
+  showComparison: (summary) => {
+    comparisonHtml = renderComparisonPanel(summary);
+    const slot = document.querySelector("#comparison-slot");
+    if (slot) slot.innerHTML = comparisonHtml;
+    demoMode = "comparison";
+    refreshProductionUi();
+  },
+  scheduleCanonicalPlayback: (onDone) => { void runCanonicalPlaybackAct(onDone); },
+});
 
 function render(): void {
   const idleScene = createIdleScene();
   const displayScene = sceneById(state.activeSceneId) ?? idleScene;
   app!.innerHTML = `
-  <main class="app-shell ${state.recordingMode ? "recording-mode" : ""}">
+  <main class="app-shell ${state.recordingMode ? "recording-mode" : ""}" data-act="${demoMode}">
     <header class="topbar glass">
       <div class="brand-block">
         <div class="brand-mark">E</div>
         <div>
-          <div class="eyebrow">ROUND 2 · human choreography demo</div>
-          <h1>EchLub Four-Brain DJ Lab</h1>
-          <p>Four visible collaborators inside one shared musical body.</p>
+          <div class="eyebrow">ROUND 3 · production → song → performance</div>
+          <h1>EchLub Concept Film Runtime</h1>
+          <p>Virtual creators build materials, assemble a canonical song, then reopen it for live recomposition.</p>
         </div>
       </div>
       <div class="header-status">
         <span class="pill">92 BPM</span>
         <span class="pill">40 bars</span>
-        <span class="pill">16:9 recordable</span>
+        <span class="pill">prototype only</span>
         <span class="pill status-ready" id="audio-status">audio locked</span>
       </div>
     </header>
+
+    <div id="production-slot"></div>
+    <div id="comparison-slot">${comparisonHtml}</div>
+
+    <section class="demo-controls glass">
+      <div class="transport-controls">
+        <button class="button primary" id="start-button">Start full demo</button>
+        <button class="button" id="pause-button" disabled>Pause</button>
+        <button class="button" id="restart-button" disabled>Restart</button>
+        <button class="button" id="record-mode-button">Recording mode</button>
+      </div>
+      <div class="skip-controls">
+        <button class="button mini" id="skip-production">Skip to Production</button>
+        <button class="button mini" id="skip-playback">Skip to Canonical Playback</button>
+        <button class="button mini" id="skip-performance">Skip to Live Performance</button>
+        <label class="speed-control">Speed <input type="range" id="speed-control" min="1" max="8" value="1" /></label>
+      </div>
+    </section>
 
     <section class="master-stage glass">
       <div class="master-copy">
@@ -114,16 +179,14 @@ function render(): void {
           <span class="boundary-ticks" id="boundary-ticks"></span>
         </div>
       </div>
-      <div class="transport-controls">
-        <button class="button primary" id="start-button">Start auto performance</button>
-        <button class="button" id="pause-button" disabled>Pause</button>
-        <button class="button" id="restart-button" disabled>Restart</button>
-        <button class="button" id="record-mode-button">Recording mode</button>
+      <div class="transport-controls performance-only">
+        <button class="button primary" id="live-only-button">Live performance only</button>
       </div>
       <div class="transport-readout">
         <div><span>Position</span><strong id="position">01 · 1 · 1</strong></div>
         <div><span>Next phrase</span><strong id="next-scene">Groove Established</strong></div>
         <div><span>Queued</span><strong id="queue-count">0 decisions</strong></div>
+        <div><span>Provenance</span><strong id="provenance-label">—</strong></div>
       </div>
       <div class="step-grid" id="master-grid">
         ${Array.from({ length: 16 }, (_, i) => `<i data-master-step="${i}"></i>`).join("")}
@@ -156,12 +219,28 @@ function render(): void {
         </div>
       </article>
     </section>
-    <footer class="demo-footer">Round 2 prototype — scripted collaboration film with real Tone.js runtime. Placeholder music only.</footer>
+    <footer class="demo-footer">Round 3 prototype — production, canonical playback, and live recomposition share one data model. Placeholder music only; not 四季ノ唄.</footer>
   </main>`;
   bindControls();
   presentation.initialize();
   presentation.reset();
+  refreshProductionUi();
   updateAllUi();
+}
+
+function refreshProductionUi(): void {
+  const slot = document.querySelector("#production-slot");
+  if (!slot) return;
+  const showProduction = demoMode === "production" || demoMode === "idle";
+  const showCanonical = demoMode === "canonicalPlayback";
+  if (showProduction) {
+    slot.innerHTML = renderProductionRail(demoController.runtime.session, demoController.director);
+  } else if (showCanonical) {
+    slot.innerHTML = renderCanonicalStage(demoController.runtime.session, state.currentBar);
+  } else {
+    slot.innerHTML = "";
+  }
+  demoController.director.applyDomFocus(app!);
 }
 
 function renderBrainWindow(brain: BrainId): string {
@@ -286,6 +365,52 @@ function bindControls(): void {
   getButton("#pause-button").addEventListener("click", onPause);
   getButton("#restart-button").addEventListener("click", onRestart);
   getButton("#record-mode-button").addEventListener("click", onToggleRecording);
+  document.querySelector("#skip-production")?.addEventListener("click", () => onSkipAct("production"));
+  document.querySelector("#skip-playback")?.addEventListener("click", () => onSkipAct("canonicalPlayback"));
+  document.querySelector("#skip-performance")?.addEventListener("click", () => onSkipAct("livePerformance"));
+  document.querySelector("#live-only-button")?.addEventListener("click", () => onSkipAct("livePerformance"));
+  document.querySelector<HTMLInputElement>("#speed-control")?.addEventListener("input", (e) => {
+    const val = Number((e.target as HTMLInputElement).value);
+    demoController.setSpeed(val);
+  });
+}
+
+async function onSkipAct(act: DemoAct): Promise<void> {
+  if (!initialized) {
+    getButton("#start-button").disabled = true;
+    getButton("#start-button").textContent = "Preparing audio…";
+    await audioEngine.initialize();
+    initialized = true;
+    const status = document.querySelector<HTMLElement>("#audio-status");
+    if (status) { status.textContent = "audio ready"; status.classList.add("live"); }
+  }
+  demoController.stop();
+  if (act === "canonicalPlayback" || act === "livePerformance") {
+    demoController.runtime.completeProductionInstantly();
+  }
+  demoController.skipToAct(act);
+  if (act === "canonicalPlayback") {
+    resetRuntime();
+    demoController.syncSessionToState();
+    await runCanonicalPlaybackAct(() => {
+      getButton("#start-button").textContent = "Canonical playback complete";
+      getButton("#start-button").disabled = false;
+    });
+  } else if (act === "livePerformance") {
+    resetRuntime();
+    demoController.syncSessionToState();
+    await runLivePerformanceAct();
+  } else {
+    resetRuntime();
+    demoController.syncSessionToState();
+    refreshProductionUi();
+    refreshWorkspaces();
+    updateAllUi();
+    getButton("#start-button").textContent = "Start full demo";
+    getButton("#start-button").disabled = false;
+  }
+  getButton("#pause-button").disabled = false;
+  getButton("#restart-button").disabled = false;
 }
 
 async function onStart(): Promise<void> {
@@ -293,41 +418,62 @@ async function onStart(): Promise<void> {
     getButton("#start-button").disabled = true;
     getButton("#start-button").textContent = "Preparing audio…";
     await audioEngine.initialize();
-    scheduleScript();
     initialized = true;
     const status = document.querySelector<HTMLElement>("#audio-status");
     if (status) { status.textContent = "audio ready"; status.classList.add("live"); }
   }
   resetRuntime();
-  audioEngine.start();
   isPaused = false;
-  getButton("#start-button").textContent = "Running auto performance";
+  getButton("#start-button").textContent = "Running full demo…";
   getButton("#start-button").disabled = true;
   getButton("#pause-button").disabled = false;
   getButton("#restart-button").disabled = false;
+  await demoController.startFullDemo();
 }
 
 function onPause(): void {
   if (!initialized) return;
+  if (demoController.isRunning() && demoController.runtime.act === "production") {
+    demoController.pause();
+    getButton("#pause-button").textContent = demoController.isPaused() ? "Resume" : "Pause";
+    return;
+  }
   if (isPaused) {
     audioEngine.resume();
     getButton("#pause-button").textContent = "Pause";
-    getButton("#start-button").textContent = "Running auto performance";
+    getButton("#start-button").textContent = demoMode === "livePerformance" ? "Running live performance" : "Running full demo…";
   } else {
     audioEngine.pause();
     getButton("#pause-button").textContent = "Resume";
-    getButton("#start-button").textContent = "Performance paused";
+    getButton("#start-button").textContent = "Demo paused";
   }
   isPaused = !isPaused;
 }
 
-function onRestart(): void {
+async function onRestart(): Promise<void> {
   if (!initialized) return;
+  const restartingAct = demoMode;
+  demoController.stop();
   resetRuntime();
-  audioEngine.start();
+  if (restartingAct === "canonicalPlayback") {
+    demoController.restart();
+    demoController.syncSessionToState();
+    await runCanonicalPlaybackAct(() => {
+      getButton("#start-button").textContent = "Canonical playback complete";
+      getButton("#start-button").disabled = false;
+    });
+  } else if (restartingAct === "livePerformance") {
+    await runLivePerformanceAct();
+  } else {
+    await demoController.startFullDemo();
+  }
   isPaused = false;
   getButton("#pause-button").textContent = "Pause";
-  getButton("#start-button").textContent = "Running auto performance";
+  getButton("#start-button").textContent = demoMode === "livePerformance"
+    ? "Running live performance"
+    : demoMode === "canonicalPlayback"
+      ? "Running canonical playback"
+      : "Running full demo…";
   getButton("#start-button").disabled = true;
 }
 
@@ -338,25 +484,26 @@ function onToggleRecording(): void {
 }
 
 function scheduleScript(): void {
+  if (demoMode !== "livePerformance") return;
   const transport = Tone.getTransport();
   scriptIds.forEach((id) => transport.clear(id));
   scriptIds = [];
   audioEngine.setLaunchBoundaries(buildLaunchBoundaryMap());
   for (const event of performanceScript) {
     const id = transport.schedule((time: number) => {
+      demoController.applyLiveMusicalEvent(event, time);
       if (event.action === "preview" && event.target) {
-        audioEngine.startPrivateCue(event.target, parsePosition(event.at));
-      }
-      if (event.action === "filter" || event.action === "delay" || event.action === "fader") {
-        applyPreTransitionMix(event, time);
+        const ref = demoController.runtime.getMaterialRefForDraft(event.target);
+        if (ref) audioEngine.startPrivateCue(ref, parsePosition(event.at));
       }
       if (event.action !== "launch") {
-        applyScriptEvent(state, event);
+        applyCollaborationEvent(state, event);
       }
       Tone.getDraw().schedule(() => projectScriptEventUi(event), time);
     }, event.at);
     scriptIds.push(id);
   }
+  registerLiveSchedules(demoController.runtime.scheduleRegistry, scriptIds);
   instrumentation.setScheduleCount(scriptIds.length);
 }
 
@@ -392,19 +539,6 @@ function projectSceneLaunchUi(event: PerformanceScriptEvent, scene?: SceneDefini
   updateJamMemoryUi();
   updateAllUi();
   instrumentation.setGsapTweenCount(presentation.getActiveTimelineCount());
-}
-
-function applyPreTransitionMix(event: PerformanceScriptEvent, transportTime?: number): void {
-  const atTime = transportTime ?? Tone.getTransport().seconds + 0.05;
-  if (event.action === "filter" && typeof event.value === "number") {
-    audioEngine.setMixParams({ filter: event.value }, 0.18, atTime);
-  }
-  if (event.action === "delay" && typeof event.value === "number") {
-    audioEngine.setMixParams({ delayWet: event.value }, 0.18, atTime);
-  }
-  if (event.action === "fader" && event.target && typeof event.value === "number") {
-    audioEngine.setMixParams({ faders: { [event.target]: event.value } }, 0.18, atTime);
-  }
 }
 
 function updateMasterSceneUi(scene: SceneDefinition): void {
@@ -541,6 +675,9 @@ function resetRuntime(): void {
     audioEngine.resetPrivateCue();
     audioEngine.clearScript(scriptIds);
     scriptIds = [];
+    const transport = Tone.getTransport();
+    canonicalPlaybackIds.forEach((id) => transport.clear(id));
+    canonicalPlaybackIds = [];
   }
 
   executionLog.logRestartPhase(buildRestartPhaseRecord("afterClear", runId, {
@@ -554,7 +691,7 @@ function resetRuntime(): void {
     sceneAuthorityEmpty: sceneAuthority.executionRecords.length === 0,
   }));
 
-  if (initialized) {
+  if (initialized && demoMode === "livePerformance") {
     scheduleScript();
   }
 
@@ -578,10 +715,106 @@ function resetRuntime(): void {
 }
 
 function finishPerformance(): void {
+  if (demoMode === "canonicalPlayback") return;
   updateJamMemoryUi();
-  getButton("#start-button").textContent = "Performance complete";
+  if (demoMode === "livePerformance") {
+    const liveScenes = sceneAuthority.executionRecords.map((r) => r.sceneId);
+    demoController.onLivePerformanceFinished(liveScenes, state.history.length);
+    getButton("#start-button").textContent = "Live take complete";
+  } else {
+    getButton("#start-button").textContent = "Performance complete";
+  }
   getButton("#start-button").disabled = false;
   getButton("#pause-button").disabled = true;
+}
+
+async function runLivePerformanceAct(): Promise<void> {
+  demoMode = "livePerformance";
+  enterAct(demoController.runtime.scheduleRegistry, "livePerformance", (ids) => audioEngine.clearScript(ids));
+  demoController.runtime.beginLivePerformance();
+  demoController.syncSessionToState();
+  audioEngine.setMaterialBank(demoController.runtime.materialBank);
+  audioEngine.setBaselineMix(demoController.runtime.syncRuntimeMix());
+  audioEngine.setCurrentAct("livePerformance");
+  audioEngine.setLaunchBoundaries(buildLaunchBoundaryMap());
+  refreshProductionUi();
+  resetRuntimeForLive();
+  audioEngine.start();
+  isPaused = false;
+  getButton("#start-button").textContent = "Running live performance";
+  getButton("#start-button").disabled = true;
+  getButton("#pause-button").disabled = false;
+  getButton("#restart-button").disabled = false;
+}
+
+function resetRuntimeForLive(): void {
+  presentation.reset();
+  clearAllTimeouts();
+  sceneAuthority.reset();
+  instrumentation.reset();
+  resetState(state);
+  state.activeSceneId = IDLE_SCENE_ID;
+  lastCountdownLabel = "";
+  if (initialized) {
+    audioEngine.stop();
+    audioEngine.resetAudioState();
+    audioEngine.resetPrivateCue();
+    audioEngine.clearScript(scriptIds);
+    scriptIds = [];
+    const transport = Tone.getTransport();
+    canonicalPlaybackIds.forEach((id) => transport.clear(id));
+    canonicalPlaybackIds = [];
+    scheduleScript();
+  }
+  demoController.syncSessionToState();
+  updateMasterSceneUi(createIdleScene());
+  refreshWorkspaces();
+  updateAllUi();
+  updateTransportUi();
+}
+
+async function runCanonicalPlaybackAct(onDone: () => void): Promise<void> {
+  demoMode = "canonicalPlayback";
+  enterAct(demoController.runtime.scheduleRegistry, "canonicalPlayback", (ids) => audioEngine.clearScript(ids));
+  const session = demoController.runtime.session;
+  const transport = Tone.getTransport();
+  canonicalPlaybackIds.forEach((id) => transport.clear(id));
+  canonicalPlaybackIds = [];
+  audioEngine.stop();
+  audioEngine.resetAudioState();
+  audioEngine.clearScript(scriptIds);
+  scriptIds = [];
+  audioEngine.setMaterialBank(demoController.runtime.materialBank);
+  audioEngine.setBaselineMix(demoController.runtime.syncRuntimeMix());
+  audioEngine.setCurrentAct("canonicalPlayback");
+  audioEngine.clearLaunchBoundaries();
+
+  const sceneRefs = session.arrangement.scenes.map((ref) => ({
+    scene: session.scenes.find((s) => s.id === ref.sceneId)!,
+    startBar: ref.startBar,
+  })).filter((s) => s.scene);
+
+  const firstScene = sceneRefs[0]?.scene;
+  if (firstScene) {
+    audioEngine.activateSceneAtBoundary(firstScene);
+    updateMasterSceneUi(firstScene);
+  }
+
+  canonicalPlaybackIds = scheduleArrangementPlayback(
+    audioEngine,
+    sceneRefs,
+    session.arrangement.totalBars,
+    (bar) => {
+      const scene = demoController.runtime.getSceneAtBar(bar);
+      if (scene) updateMasterSceneUi(scene);
+      const prov = document.querySelector<HTMLElement>("#provenance-label");
+      if (prov) prov.textContent = demoController.getProvenanceLabel(bar);
+      refreshProductionUi();
+    },
+    onDone,
+  );
+  demoController.registerCanonicalSchedules(canonicalPlaybackIds);
+  audioEngine.start();
 }
 
 function getButton(sel: string): HTMLButtonElement {
@@ -590,7 +823,7 @@ function getButton(sel: string): HTMLButtonElement {
   return el;
 }
 
-export { sceneAuthority, instrumentation, state, audioEngine, executionLog };
+export { sceneAuthority, instrumentation, state, audioEngine, executionLog, demoController };
 
 declare global {
   interface Window {
@@ -598,12 +831,49 @@ declare global {
     __echlubState?: RuntimeState;
     __echlubInstrumentation?: RuntimeInstrumentation;
     __echlubExpectedScriptScheduleCount?: number;
+    __echlubDemoController?: DemoController;
+    __echlubDevSnapshot?: {
+      materialBankVersion: number;
+      materialResolutionLog: typeof audioEngine.materialResolutionLog;
+      missingMaterialLog: typeof audioEngine.missingMaterialLog;
+      cueCompletionLog: typeof audioEngine.cueCompletionLog;
+      liveMutationLog: typeof demoController.runtime.liveMutationLog;
+      topologyTransformation: string;
+      masterStepCount: number;
+      cueScheduleCount: number;
+      cueActive: boolean;
+      playingSceneId: string;
+      transportState: string;
+      triggerCuePreview: (draftId: string) => void;
+      getComparisonPreview: () => ReturnType<typeof demoController.runtime.previewComparison>;
+    };
   }
 }
 window.__echlubExecutionLog = executionLog;
 window.__echlubState = state;
 window.__echlubInstrumentation = instrumentation;
 window.__echlubExpectedScriptScheduleCount = EXPECTED_SCRIPT_SCHEDULE_COUNT;
+window.__echlubDemoController = demoController;
+window.__echlubDevSnapshot = {
+  get materialBankVersion() { return demoController.runtime.materialBank.version; },
+  get materialResolutionLog() { return audioEngine.materialResolutionLog; },
+  get missingMaterialLog() { return audioEngine.missingMaterialLog; },
+  get cueCompletionLog() { return audioEngine.cueCompletionLog; },
+  get liveMutationLog() { return demoController.runtime.liveMutationLog; },
+  get topologyTransformation() { return buildTopologyTransformation(demoController.runtime.session); },
+  get masterStepCount() { return audioEngine.getMasterStepCount(); },
+  get cueScheduleCount() { return audioEngine.getCueScheduleCount(); },
+  get cueActive() { return audioEngine.isCueActive(); },
+  get playingSceneId() { return audioEngine.getPlayingSceneId(); },
+  get transportState() { return audioEngine.state; },
+  triggerCuePreview(draftId: string) { demoController.handlePreviewDraft(draftId); },
+  getComparisonPreview() {
+    return demoController.runtime.previewComparison(
+      sceneAuthority.executionRecords.map((record) => record.sceneId),
+      state.history.length,
+    );
+  },
+};
 
 window.addEventListener("beforeunload", () => audioEngine.dispose());
 render();

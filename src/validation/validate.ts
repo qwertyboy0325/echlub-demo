@@ -125,7 +125,7 @@ export function validateAll(): ValidationIssue[] {
       issues.push({ severity: "error", code: "CHOREO_TARGET", message: `Unresolved choreography target: ${t}`, ref: t });
     }
   }
-  const alignment = new SceneExecutionAuthority().validateLaunchAlignment();
+  const alignment = new SceneExecutionAuthority().validateLaunchAlignment(scenes);
   for (const msg of alignment) {
     issues.push({ severity: "error", code: "SCENE_ALIGN", message: msg });
   }

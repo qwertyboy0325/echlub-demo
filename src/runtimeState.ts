@@ -8,6 +8,7 @@ import type {
   QueuedOperation,
   RuntimeState,
 } from "./types";
+import type { ProductionSession } from "./domain/sessionTypes";
 import { DRAFT_TRANSITIONS } from "./types";
 
 export function createInitialState(): RuntimeState {
@@ -49,7 +50,7 @@ export function transitionDraft(state: RuntimeState, draftId: string, to: DraftS
   return true;
 }
 
-export function applyScriptEvent(state: RuntimeState, event: PerformanceScriptEvent): void {
+export function applyCollaborationEvent(state: RuntimeState, event: PerformanceScriptEvent): void {
   state.lastAction = event;
   state.activeBrains.add(event.brain);
   state.thoughts[event.brain] = event.detail;
@@ -84,49 +85,13 @@ export function applyScriptEvent(state: RuntimeState, event: PerformanceScriptEv
       }
       break;
     case "toggleStep":
-      if (event.target && state.drafts[event.target]?.steps) {
-        const steps = state.drafts[event.target].steps!;
-        const step = Number(event.value);
-        const idx = steps.indexOf(step);
-        if (idx >= 0) steps.splice(idx, 1);
-        else steps.push(step);
-        steps.sort((a, b) => a - b);
-      }
-      break;
     case "quantize":
       break;
     case "filter":
-      if (typeof event.value === "number") state.mix.filter = event.value;
-      break;
     case "delay":
-      if (typeof event.value === "number") state.mix.delayWet = event.value;
-      break;
     case "fader":
-      if (event.target && typeof event.value === "number") {
-        state.mix.faders[event.target] = event.value;
-      }
-      break;
     case "addNote":
-      if (event.target && event.value && typeof event.value === "string") {
-        const draft = state.drafts[event.target];
-        if (draft?.notes) {
-          const parsed = JSON.parse(event.value) as { step: number; pitch: number; note: string };
-          const id = `note-${event.target}-${parsed.step}`;
-          if (!draft.notes.find((n) => n.id === id)) {
-            draft.notes.push({ id, step: parsed.step, pitch: parsed.pitch, note: parsed.note, duration: "8n", velocity: 0.6 });
-            draft.notes.sort((a, b) => a.step - b.step);
-          }
-        }
-      }
-      break;
     case "moveNote":
-      if (event.target && typeof event.value === "string") {
-        const [noteId, newStep] = event.value.split(":");
-        for (const draft of Object.values(state.drafts)) {
-          const note = draft.notes?.find((n) => n.id === noteId);
-          if (note) { note.step = Number(newStep); break; }
-        }
-      }
       break;
     case "queue": {
       const scene = scenes.find((s) => s.id === event.target);
@@ -181,6 +146,19 @@ export function applyScriptEvent(state: RuntimeState, event: PerformanceScriptEv
       }
       break;
   }
+}
+
+/** Backward-compatible collaboration entry point. It never originates musical content or mix. */
+export const applyScriptEvent = applyCollaborationEvent;
+
+export function projectSessionMusicalState(state: RuntimeState, session: ProductionSession): void {
+  for (const [id, sessionDraft] of Object.entries(session.drafts)) {
+    const projected = structuredClone(sessionDraft);
+    const collaborationStatus = state.drafts[id]?.status;
+    if (collaborationStatus) projected.status = collaborationStatus;
+    state.drafts[id] = projected;
+  }
+  state.mix = structuredClone(session.mix);
 }
 
 export function updateBoundaryCountdown(state: RuntimeState): void {

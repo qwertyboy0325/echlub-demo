@@ -1,4 +1,4 @@
-import { scenes, defaultMix } from "./musicData";
+import { DEFAULT_MIX } from "./musicalConstants";
 import { performanceScript } from "./performanceScript";
 import { boundaryIdForScene } from "./boundaryIds";
 import type { PerformanceScriptEvent, SceneDefinition } from "./types";
@@ -32,6 +32,12 @@ export interface SceneExecutionRecord {
 
 export const IDLE_SCENE_ID = "idle";
 
+let sessionSceneResolver: ((id: string) => SceneDefinition | undefined) | null = null;
+
+export function setSceneResolver(resolver: (id: string) => SceneDefinition | undefined): void {
+  sessionSceneResolver = resolver;
+}
+
 export function createIdleScene(): SceneDefinition {
   return {
     id: IDLE_SCENE_ID,
@@ -40,13 +46,13 @@ export function createIdleScene(): SceneDefinition {
     startBar: 0,
     description: "Master silent until the first scene executes at a musical boundary.",
     layers: { drums: null, bass: null, harmony: null, melody: null, texture: null },
-    fx: { ...defaultMix, faders: { ...defaultMix.faders } },
+    fx: { ...DEFAULT_MIX, faders: { ...DEFAULT_MIX.faders } },
   };
 }
 
 export function sceneById(id: string): SceneDefinition | undefined {
   if (id === IDLE_SCENE_ID) return createIdleScene();
-  return scenes.find((s) => s.id === id);
+  return sessionSceneResolver?.(id);
 }
 
 export class SceneExecutionAuthority {
@@ -145,11 +151,11 @@ export class SceneExecutionAuthority {
     return record;
   }
 
-  validateLaunchAlignment(): string[] {
+  validateLaunchAlignment(allScenes: SceneDefinition[]): string[] {
     const errors: string[] = [];
     for (const event of performanceScript) {
       if (event.action !== "queue" || !event.target) continue;
-      const isScene = scenes.some((s) => s.id === event.target);
+      const isScene = allScenes.some((s) => s.id === event.target);
       if (!isScene) continue;
       const launch = performanceScript.find((e) => e.action === "launch" && e.target === event.target);
       if (!launch) {

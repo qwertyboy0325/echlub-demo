@@ -36,14 +36,36 @@ export interface NoteEvent {
   width?: number;
 }
 
+export interface HarmonyChordEvent {
+  bar: number;
+  notes: string[];
+}
+
+export interface TextureParams {
+  noise: "brown" | "pink" | "white";
+  level: number;
+  duration: string;
+  patchId: string;
+}
+
 export interface PatternDraft {
   id: string;
   owner: BrainId;
   title: string;
   kind: LayerId;
   status: DraftStatus;
+  revision: number;
   notes?: NoteEvent[];
   steps?: number[];
+  stepVelocities?: Record<number, number>;
+  harmonyChords?: HarmonyChordEvent[];
+  textureParams?: TextureParams;
+}
+
+export interface MaterialRef {
+  draftId: string;
+  revision: number;
+  fingerprint: string;
 }
 
 export interface SceneDefinition {
@@ -52,7 +74,7 @@ export interface SceneDefinition {
   bars: number;
   startBar: number;
   description: string;
-  layers: Record<LayerId, string | null>;
+  layers: Record<LayerId, MaterialRef | null>;
   fx: MixParams;
 }
 

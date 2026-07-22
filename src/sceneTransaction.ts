@@ -1,11 +1,10 @@
-import type { RuntimeState } from "./types";
+import type { MixParams, RuntimeState, SceneDefinition } from "./types";
 import { formatPosition, type MusicalPosition } from "./musicalPosition";
 import type { AudioEngine } from "./audioEngine";
-import { scenes } from "./musicData";
 import { applyLaunchRuntimeState, finalizeQueueForTransaction } from "./queueLifecycle";
 import { captureJamMemoryForTransaction } from "./jamMemory";
 import { executionLog } from "./executionLog";
-import type { SceneExecutionAuthority } from "./sceneExecution";
+import { sceneById, type SceneExecutionAuthority } from "./sceneExecution";
 import type { PerformanceScriptEvent } from "./types";
 
 export interface SceneTransactionContext {
@@ -15,13 +14,15 @@ export interface SceneTransactionContext {
   event: PerformanceScriptEvent;
   bar: number;
   transportTime: number;
+  resolveScene?: (sceneId: string) => SceneDefinition | undefined;
+  authoritativeMix?: MixParams;
 }
 
 export function executeSceneTransaction(ctx: SceneTransactionContext): boolean {
   const { state, sceneAuthority, audioEngine, event, bar, transportTime } = ctx;
   const sceneId = event.target;
   if (!sceneId) return false;
-  const scene = scenes.find((s) => s.id === sceneId);
+  const scene = ctx.resolveScene?.(sceneId) ?? sceneById(sceneId);
   if (!scene) return false;
 
   const position: MusicalPosition = { bar, beat: 0, sixteenth: 0 };
@@ -38,7 +39,8 @@ export function executeSceneTransaction(ctx: SceneTransactionContext): boolean {
     },
     onRuntime: (tx) => {
       applyLaunchRuntimeState(state, sceneId, event.detail);
-      state.mix = { ...scene.fx, faders: { ...scene.fx.faders } };
+      const mix = ctx.authoritativeMix ?? scene.fx;
+      state.mix = { ...mix, faders: { ...mix.faders } };
       tx.runtimeActivatedAt = formatPosition(position);
       executionLog.markField(tx.boundaryId, "runtimeActivatedAt", position);
     },

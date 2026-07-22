@@ -6,6 +6,7 @@ import {
   buildQueuePlan,
   positionsEqual,
 } from "../sceneExecution";
+import { scenes } from "../musicData";
 import { performanceScript } from "../performanceScript";
 import { parsePosition } from "../musicalPosition";
 
@@ -30,7 +31,7 @@ describe("scene execution boundary", () => {
   });
 
   it("passes launch alignment validation", () => {
-    const errors = new SceneExecutionAuthority().validateLaunchAlignment();
+    const errors = new SceneExecutionAuthority().validateLaunchAlignment(scenes);
     expect(errors).toEqual([]);
   });
 

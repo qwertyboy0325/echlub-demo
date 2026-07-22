@@ -1,8 +1,12 @@
 import * as Tone from "tone";
-import { BPM, defaultMix, initialDrafts, TOTAL_BARS } from "./musicData";
+import { BPM, TOTAL_BARS } from "./musicalConstants";
 import { createIdleScene, IDLE_SCENE_ID, type SceneExecutionAuthority } from "./sceneExecution";
 import { computeRampTargetTime, delayUiToWet, faderUiToDb, filterUiToHz } from "./mixMapping";
-import type { MixParams, NoteEvent, SceneDefinition } from "./types";
+import type { LayerId, MaterialRef, MixParams, SceneDefinition } from "./types";
+import type { SessionMaterialBank } from "./domain/sessionMaterialBank";
+import { resolveMaterial } from "./domain/sessionMaterialBank";
+import type { MaterialResolutionEvidence, MissingMaterialDiagnostic } from "./domain/materialTypes";
+import type { DemoAct } from "./domain/sessionTypes";
 import {
   addMeasures,
   addSixteenths,
@@ -17,7 +21,11 @@ export function computeCueStopPosition(start: MusicalPosition, durationMeasures:
 }
 
 export interface CueCompletionEvidence {
+  act: DemoAct;
   draftId: string;
+  revision: number;
+  fingerprint: string;
+  bankVersion: number;
   cueStartedAt: string;
   cueStoppedAt: string;
   masterSceneBefore: string;
@@ -25,6 +33,7 @@ export interface CueCompletionEvidence {
   masterStepCountAtStart: number;
   masterStepCountAtStop: number;
   cueNoteCount: number;
+  transportStartedByCue: boolean;
 }
 
 interface AudioCallbacks {
@@ -33,69 +42,40 @@ interface AudioCallbacks {
   onBoundary?: (bar: number) => void;
   onLaunchAtBar?: (bar: number, sceneId: string, time: number) => void;
   onCueComplete?: (evidence: CueCompletionEvidence) => void;
+  onMaterialResolved?: (evidence: MaterialResolutionEvidence) => void;
+  onMissingMaterial?: (diagnostic: MissingMaterialDiagnostic) => void;
 }
-
-const harmonyVoicings: Record<string, string[][]> = {
-  "harmony-soft": [["A3", "E4", "B4"], ["F3", "C4", "G4"], ["C4", "G4", "D5"], ["G3", "D4", "A4"]],
-  "harmony-main": [["A3", "C4", "E4", "B4"], ["F3", "A3", "C4", "G4"], ["C4", "E4", "G4", "D5"], ["G3", "B3", "D4", "A4"]],
-  "harmony-open": [["A2", "E3", "C4", "B4"], ["F2", "C3", "A3", "G4"], ["C3", "G3", "E4", "D5"], ["G2", "D3", "B3", "A4"]],
-};
-
-const bassPatterns: Record<string, string[]> = {
-  "bass-main": ["A2", "A2", "F2", "F2", "C3", "C3", "G2", "G2"],
-  "bass-alt": ["A2", "C3", "F2", "A2", "C3", "E3", "G2", "B2"],
-};
-
-const melodyPatterns: Record<string, NoteEvent[]> = {
-  "memory-opening": [
-    { id: "n1", step: 0, pitch: 0, note: "E4", duration: "8n", velocity: 0.62 },
-    { id: "n2", step: 3, pitch: 0, note: "G4", duration: "8n", velocity: 0.58 },
-    { id: "n3", step: 6, pitch: 0, note: "A4", duration: "4n", velocity: 0.68 },
-    { id: "n4", step: 12, pitch: 0, note: "G4", duration: "8n", velocity: 0.52 },
-  ],
-  "memory-main": [
-    { id: "n5", step: 0, pitch: 0, note: "A4", duration: "8n", velocity: 0.72 },
-    { id: "n6", step: 2, pitch: 0, note: "C5", duration: "8n", velocity: 0.68 },
-    { id: "n7", step: 4, pitch: 0, note: "B4", duration: "8n", velocity: 0.64 },
-    { id: "n8", step: 6, pitch: 0, note: "G4", duration: "4n", velocity: 0.66 },
-    { id: "n9", step: 10, pitch: 0, note: "E4", duration: "8n", velocity: 0.55 },
-    { id: "n10", step: 12, pitch: 0, note: "G4", duration: "8n", velocity: 0.62 },
-    { id: "n11", step: 14, pitch: 0, note: "A4", duration: "4n", velocity: 0.74 },
-  ],
-  "memory-response": [
-    { id: "n12", step: 1, pitch: 0, note: "C5", duration: "8n", velocity: 0.58 },
-    { id: "n13", step: 5, pitch: 0, note: "B4", duration: "8n", velocity: 0.54 },
-    { id: "n14", step: 9, pitch: 0, note: "A4", duration: "8n", velocity: 0.56 },
-    { id: "n15", step: 13, pitch: 0, note: "E5", duration: "8n", velocity: 0.62 },
-  ],
-};
-
-const drumPatterns: Record<string, number[]> = {
-  "pulse-sparse": [0, 6, 8, 14],
-  "pulse-full": [0, 3, 6, 8, 11, 14],
-  "pulse-break": [4, 8, 11, 14],
-};
 
 export class AudioEngine {
   private readonly callbacks: AudioCallbacks;
   private sceneAuthority: SceneExecutionAuthority | null = null;
+  private materialBank: SessionMaterialBank | null = null;
+  private baselineMix: MixParams | null = null;
+  private currentAct: DemoAct = "production";
   private initialized = false;
   private scheduledId: number | null = null;
   private lastBar = -1;
-  private currentMix: MixParams = structuredClone(defaultMix);
+  private currentMix: MixParams = { filter: 1200, delayWet: 0.2, reverbWet: 0.42, masterGain: -3, faders: { groove: 64, harmony: 48, melody: 28, texture: 58 } };
   private playingScene: SceneDefinition = createIdleScene();
   private launchAtBar = new Map<number, string>();
   private masterStepCount = 0;
   private cueNoteCount = 0;
   private cueActive = false;
   private cueDraftId: string | null = null;
+  private cueMaterialRef: MaterialRef | null = null;
   private cueScheduleIds: number[] = [];
   private cueStopScheduleId: number | null = null;
   private masterSceneAtCueStart = IDLE_SCENE_ID;
   private masterStepCountAtCueStart = 0;
   private cueStartedAtTransportPosition = "0:0:0";
   private cueStopsAtTransportPosition = "0:0:0";
+  private cueOwnsTransport = false;
+  private cueActAtStart: DemoAct = "production";
+  private cueBankVersionAtStart = 0;
   private readonly cueDurationMeasures = 2;
+  readonly materialResolutionLog: MaterialResolutionEvidence[] = [];
+  readonly missingMaterialLog: MissingMaterialDiagnostic[] = [];
+  readonly cueCompletionLog: CueCompletionEvidence[] = [];
 
   private master!: Tone.Volume;
   private limiter!: Tone.Limiter;
@@ -126,23 +106,46 @@ export class AudioEngine {
     this.sceneAuthority = authority;
   }
 
+  setMaterialBank(bank: SessionMaterialBank): void {
+    this.materialBank = bank;
+  }
+
+  setBaselineMix(mix: MixParams): void {
+    this.baselineMix = structuredClone(mix);
+    this.currentMix = structuredClone(mix);
+  }
+
+  setCurrentAct(act: DemoAct): void {
+    if (this.currentAct !== act && this.cueActive) this.stopPrivateCue();
+    this.currentAct = act;
+  }
+
+  getMaterialBank(): SessionMaterialBank | null {
+    return this.materialBank;
+  }
+
   setLaunchBoundaries(boundaries: Map<number, string>): void {
     this.launchAtBar = boundaries;
+  }
+
+  clearLaunchBoundaries(): void {
+    this.launchAtBar.clear();
   }
 
   async initialize(): Promise<void> {
     if (this.initialized) return;
     await Tone.start();
 
-    this.master = new Tone.Volume(defaultMix.masterGain);
+    const initMix = this.baselineMix ?? this.currentMix;
+    this.master = new Tone.Volume(initMix.masterGain);
     this.limiter = new Tone.Limiter(-1);
-    this.masterFilter = new Tone.Filter({ frequency: defaultMix.filter, type: "lowpass", rolloff: -24 });
-    this.delay = new Tone.FeedbackDelay({ delayTime: "8n.", feedback: 0.26, wet: defaultMix.delayWet });
-    this.reverb = new Tone.Reverb({ decay: 3.2, preDelay: 0.03, wet: defaultMix.reverbWet });
-    this.grooveGain = new Tone.Volume(faderUiToDb(defaultMix.faders.groove));
-    this.harmonyGain = new Tone.Volume(faderUiToDb(defaultMix.faders.harmony));
-    this.melodyGain = new Tone.Volume(faderUiToDb(defaultMix.faders.melody));
-    this.textureGain = new Tone.Volume(faderUiToDb(defaultMix.faders.texture));
+    this.masterFilter = new Tone.Filter({ frequency: initMix.filter, type: "lowpass", rolloff: -24 });
+    this.delay = new Tone.FeedbackDelay({ delayTime: "8n.", feedback: 0.26, wet: initMix.delayWet });
+    this.reverb = new Tone.Reverb({ decay: 3.2, preDelay: 0.03, wet: initMix.reverbWet });
+    this.grooveGain = new Tone.Volume(faderUiToDb(initMix.faders.groove));
+    this.harmonyGain = new Tone.Volume(faderUiToDb(initMix.faders.harmony));
+    this.melodyGain = new Tone.Volume(faderUiToDb(initMix.faders.melody));
+    this.textureGain = new Tone.Volume(faderUiToDb(initMix.faders.texture));
 
     this.master.chain(this.masterFilter, this.limiter, Tone.getDestination());
     this.delay.connect(this.master);
@@ -212,7 +215,9 @@ export class AudioEngine {
         const launchSceneId = this.launchAtBar.get(bar);
         if (launchSceneId) this.callbacks.onLaunchAtBar?.(bar, launchSceneId, time);
       }
-      const scene = this.sceneAuthority?.playingScene ?? this.playingScene;
+      const scene = this.currentAct === "livePerformance"
+        ? (this.sceneAuthority?.playingScene ?? this.playingScene)
+        : this.playingScene;
 
       this.playStep(scene, bar, step, time);
       this.masterStepCount += 1;
@@ -238,7 +243,9 @@ export class AudioEngine {
   }
 
   getPlayingSceneId(): string {
-    return this.sceneAuthority?.playingSceneId ?? this.playingScene.id;
+    return this.currentAct === "livePerformance"
+      ? (this.sceneAuthority?.playingSceneId ?? this.playingScene.id)
+      : this.playingScene.id;
   }
 
   activateSceneAtBoundary(scene: SceneDefinition, time?: number): void {
@@ -282,51 +289,44 @@ export class AudioEngine {
     }
   }
 
-  getMasterStepCount(): number {
-    return this.masterStepCount;
-  }
+  getMasterStepCount(): number { return this.masterStepCount; }
+  getCueNoteCount(): number { return this.cueNoteCount; }
+  isCueActive(): boolean { return this.cueActive; }
+  getCueDraftId(): string | null { return this.cueDraftId; }
+  getCueScheduleCount(): number { return this.cueScheduleIds.length + (this.cueStopScheduleId !== null ? 1 : 0); }
+  getCueStartedAtTransportPosition(): string { return this.cueStartedAtTransportPosition; }
+  getCueStopsAtTransportPosition(): string { return this.cueStopsAtTransportPosition; }
+  cueStartedTransport(): boolean { return this.cueOwnsTransport; }
 
-  getCueNoteCount(): number {
-    return this.cueNoteCount;
-  }
-
-  isCueActive(): boolean {
-    return this.cueActive;
-  }
-
-  getCueDraftId(): string | null {
-    return this.cueDraftId;
-  }
-
-  getCueScheduleCount(): number {
-    return this.cueScheduleIds.length + (this.cueStopScheduleId !== null ? 1 : 0);
-  }
-
-  getCueStartedAtTransportPosition(): string {
-    return this.cueStartedAtTransportPosition;
-  }
-
-  getCueStopsAtTransportPosition(): string {
-    return this.cueStopsAtTransportPosition;
-  }
-
-  startPrivateCue(draftId: string, atTransportPosition?: MusicalPosition): void {
+  startPrivateCue(materialRef: MaterialRef, atTransportPosition?: MusicalPosition): void {
+    if (!this.materialBank) return;
+    const material = resolveMaterial(this.materialBank, materialRef);
+    if (!material) {
+      this.emitMissing("cue", "", "cue", materialRef);
+      return;
+    }
     if (!this.initialized) return;
     this.stopPrivateCue();
-    const draft = initialDrafts.find((d) => d.id === draftId);
-    if (!draft) return;
 
     const transport = Tone.getTransport();
+    const transportWasStarted = transport.state === "started";
     const startPos = atTransportPosition ?? parseTransportPosition(transport.position.toString());
     const stopPos = computeCueStopPosition(startPos, this.cueDurationMeasures);
 
     this.cueActive = true;
-    this.cueDraftId = draftId;
+    this.cueDraftId = materialRef.draftId;
+    this.cueMaterialRef = materialRef;
     this.cueNoteCount = 0;
     this.masterSceneAtCueStart = this.getPlayingSceneId();
     this.masterStepCountAtCueStart = this.masterStepCount;
     this.cueStartedAtTransportPosition = formatPosition(startPos);
     this.cueStopsAtTransportPosition = formatPosition(stopPos);
+    this.cueOwnsTransport = this.currentAct === "production" && !transportWasStarted;
+    this.cueActAtStart = this.currentAct;
+    this.cueBankVersionAtStart = this.materialBank.version;
+    this.cueGain.volume.setValueAtTime(-8, transport.seconds);
+
+    this.logResolution("cue", "", "cue", materialRef);
 
     const scheduleCueHit = (offsetSixteenths: number, play: (t: number) => void): void => {
       const notePos = addSixteenths(startPos, offsetSixteenths);
@@ -337,39 +337,25 @@ export class AudioEngine {
       this.cueScheduleIds.push(id);
     };
 
-    if (draft.kind === "melody" && draft.notes) {
-      for (const note of draft.notes) {
-        scheduleCueHit(note.step, (t) => {
-          this.cueMelody.triggerAttackRelease(note.note, note.duration ?? "8n", t, note.velocity ?? 0.6);
-          this.cueNoteCount += 1;
-        });
-      }
-    } else if (draft.steps) {
-      for (const step of draft.steps) {
-        scheduleCueHit(step, (t) => {
-          const isKick = step === 0 || step === 8 || step === 4;
-          if (isKick) this.cueKick.triggerAttackRelease("C2", "8n", t, 0.7);
-          else this.cueHat.triggerAttackRelease("32n", t, 0.35);
-          this.cueNoteCount += 1;
-        });
-      }
-    }
+    this.scheduleMaterialHits(material, scheduleCueHit, true);
 
-    const cueStartAudioTime = transport.seconds;
-    this.cueGain.volume.setValueAtTime(-8, cueStartAudioTime);
     this.cueStopScheduleId = transport.schedule((t) => {
       this.stopPrivateCue(t, parseTransportPosition(formatPosition(stopPos)));
       this.cueStopScheduleId = null;
     }, formatPosition(stopPos));
+
+    if (this.cueOwnsTransport) transport.start("+0.02");
   }
 
   stopPrivateCue(at?: number, atTransportPosition?: MusicalPosition): void {
     if (!this.initialized) return;
     const wasActive = this.cueActive;
     const draftId = this.cueDraftId;
+    const ref = this.cueMaterialRef;
     const transport = Tone.getTransport();
     const time = at ?? transport.seconds;
     const stoppedAt = atTransportPosition ?? parseTransportPosition(transport.position.toString());
+    const transportStartedByCue = this.cueOwnsTransport;
 
     this.cueScheduleIds.forEach((id) => transport.clear(id));
     this.cueScheduleIds = [];
@@ -380,9 +366,13 @@ export class AudioEngine {
     this.cueMelody.triggerRelease(time);
     this.cueGain.volume.linearRampToValueAtTime(-60, computeRampTargetTime(time, 0.08));
 
-    if (wasActive && draftId) {
-      this.callbacks.onCueComplete?.({
+    if (wasActive && draftId && ref) {
+      const evidence: CueCompletionEvidence = {
+        act: this.cueActAtStart,
         draftId,
+        revision: ref.revision,
+        fingerprint: ref.fingerprint,
+        bankVersion: this.cueBankVersionAtStart,
         cueStartedAt: this.cueStartedAtTransportPosition,
         cueStoppedAt: formatPosition(stoppedAt),
         masterSceneBefore: this.masterSceneAtCueStart,
@@ -390,11 +380,21 @@ export class AudioEngine {
         masterStepCountAtStart: this.masterStepCountAtCueStart,
         masterStepCountAtStop: this.masterStepCount,
         cueNoteCount: this.cueNoteCount,
-      });
+        transportStartedByCue,
+      };
+      this.cueCompletionLog.push(evidence);
+      this.callbacks.onCueComplete?.(evidence);
     }
 
     this.cueActive = false;
     this.cueDraftId = null;
+    this.cueMaterialRef = null;
+    this.cueOwnsTransport = false;
+    this.cueBankVersionAtStart = 0;
+    if (transportStartedByCue) {
+      transport.stop();
+      transport.position = "0:0:0";
+    }
   }
 
   resetPrivateCue(): void {
@@ -404,24 +404,26 @@ export class AudioEngine {
     this.masterStepCountAtCueStart = 0;
     this.cueStartedAtTransportPosition = "0:0:0";
     this.cueStopsAtTransportPosition = "0:0:0";
+    this.cueOwnsTransport = false;
   }
 
   resetAudioState(): void {
     this.playingScene = createIdleScene();
-    this.currentMix = structuredClone(defaultMix);
+    const mix = this.baselineMix ?? this.currentMix;
+    this.currentMix = structuredClone(mix);
     this.lastBar = -1;
     this.masterStepCount = 0;
     this.resetPrivateCue();
     if (!this.initialized) return;
     const t = Tone.getTransport().seconds + 0.01;
-    this.masterFilter.frequency.setValueAtTime(defaultMix.filter, t);
-    this.delay.wet.setValueAtTime(defaultMix.delayWet, t);
-    this.reverb.wet.setValueAtTime(defaultMix.reverbWet, t);
-    this.master.volume.setValueAtTime(defaultMix.masterGain, t);
-    this.grooveGain.volume.setValueAtTime(faderUiToDb(defaultMix.faders.groove), t);
-    this.harmonyGain.volume.setValueAtTime(faderUiToDb(defaultMix.faders.harmony), t);
-    this.melodyGain.volume.setValueAtTime(faderUiToDb(defaultMix.faders.melody), t);
-    this.textureGain.volume.setValueAtTime(faderUiToDb(defaultMix.faders.texture), t);
+    this.masterFilter.frequency.setValueAtTime(mix.filter, t);
+    this.delay.wet.setValueAtTime(mix.delayWet, t);
+    this.reverb.wet.setValueAtTime(mix.reverbWet, t);
+    this.master.volume.setValueAtTime(mix.masterGain, t);
+    this.grooveGain.volume.setValueAtTime(faderUiToDb(mix.faders.groove), t);
+    this.harmonyGain.volume.setValueAtTime(faderUiToDb(mix.faders.harmony), t);
+    this.melodyGain.volume.setValueAtTime(faderUiToDb(mix.faders.melody), t);
+    this.textureGain.volume.setValueAtTime(faderUiToDb(mix.faders.texture), t);
   }
 
   start(): void {
@@ -463,47 +465,121 @@ export class AudioEngine {
 
   private playStep(scene: SceneDefinition, bar: number, step: number, time: number): void {
     const localBar = Math.max(0, bar - scene.startBar);
-    this.playDrums(scene.layers.drums, step, time);
-    this.playBass(scene.layers.bass, localBar, step, time);
-    this.playHarmony(scene.layers.harmony, localBar, step, time);
-    this.playMelody(scene.layers.melody, step, time);
-    this.playTexture(scene.layers.texture, step, time);
+    const consumer = this.currentAct === "canonicalPlayback" ? "canonical" : "live";
+    this.playLayer(scene.id, "drums", scene.layers.drums, step, localBar, step, time, consumer);
+    this.playLayer(scene.id, "bass", scene.layers.bass, step, localBar, step, time, consumer);
+    this.playLayer(scene.id, "harmony", scene.layers.harmony, step, localBar, step, time, consumer);
+    this.playLayer(scene.id, "melody", scene.layers.melody, step, localBar, step, time, consumer);
+    this.playLayer(scene.id, "texture", scene.layers.texture, step, localBar, step, time, consumer);
   }
 
-  private playDrums(patternId: string | null, step: number, time: number): void {
-    if (!patternId) return;
-    const pattern = drumPatterns[patternId] ?? [];
-    if (pattern.includes(step)) {
-      const isKick = step === 0 || step === 8 || step === 4;
-      if (isKick) this.kick.triggerAttackRelease("C1", "8n", time, 0.8);
-      else this.hat.triggerAttackRelease("32n", time, 0.36);
+  private playLayer(
+    sceneId: string,
+    layer: LayerId,
+    ref: MaterialRef | null,
+    _step: number,
+    localBar: number,
+    globalStep: number,
+    time: number,
+    consumer: "canonical" | "live",
+  ): void {
+    if (!ref) return;
+    if (!this.materialBank) {
+      this.emitMissing(consumer, sceneId, layer, ref);
+      return;
     }
-    if (step === 4 || step === 12) this.snare.triggerAttackRelease("16n", time, 0.28);
-    if (step % 2 === 0 && patternId === "pulse-full") this.hat.triggerAttackRelease("32n", time, 0.18);
+    const material = resolveMaterial(this.materialBank, ref);
+    if (!material) {
+      this.emitMissing(consumer, sceneId, layer, ref);
+      return;
+    }
+    this.logResolution(consumer, sceneId, layer, ref);
+
+    const content = material.content;
+    if (content.kind === "drums") {
+      for (const hit of content.hits) {
+        if (hit.step !== globalStep) continue;
+        if (hit.voice === "kick") this.kick.triggerAttackRelease("C1", "8n", time, hit.velocity);
+        else if (hit.voice === "snare") this.snare.triggerAttackRelease("16n", time, hit.velocity * 0.35);
+        else this.hat.triggerAttackRelease("32n", time, hit.velocity * 0.5);
+      }
+    } else if (content.kind === "bass") {
+      if (globalStep % 2 !== 0) return;
+      const note = content.notes.find((n) => n.step === globalStep);
+      if (note) this.bass.triggerAttackRelease(note.note, note.duration, time, note.velocity);
+    } else if (content.kind === "harmony") {
+      if (globalStep !== 0) return;
+      const chord = content.chords[localBar % content.chords.length];
+      if (chord) this.harmony.triggerAttackRelease(chord.notes, "1m", time, 0.3);
+    } else if (content.kind === "melody") {
+      const note = content.notes.find((n) => n.step === globalStep);
+      if (note) this.melody.triggerAttackRelease(note.note, note.duration, time, note.velocity);
+    } else if (content.kind === "texture") {
+      if (globalStep !== 0) return;
+      this.texture.triggerAttackRelease(content.duration, time, content.level);
+    }
   }
 
-  private playBass(patternId: string | null, localBar: number, step: number, time: number): void {
-    if (!patternId || step % 2 !== 0) return;
-    const pattern = bassPatterns[patternId] ?? bassPatterns["bass-main"];
-    const index = (localBar * 8 + step / 2) % pattern.length;
-    this.bass.triggerAttackRelease(pattern[index], "8n", time, 0.48);
+  private scheduleMaterialHits(
+    material: import("./domain/materialTypes").ProducedMaterial,
+    schedule: (offset: number, play: (t: number) => void) => void,
+    isCue: boolean,
+  ): void {
+    const content = material.content;
+    if (content.kind === "melody" || content.kind === "bass") {
+      for (const note of content.notes) {
+        schedule(note.step, (t) => {
+          if (isCue) {
+            this.cueMelody.triggerAttackRelease(note.note, note.duration ?? "8n", t, note.velocity ?? 0.6);
+            this.cueNoteCount += 1;
+          }
+        });
+      }
+    } else if (content.kind === "drums") {
+      for (const hit of content.hits) {
+        schedule(hit.step, (t) => {
+          if (hit.voice === "kick") this.cueKick.triggerAttackRelease("C2", "8n", t, hit.velocity);
+          else this.cueHat.triggerAttackRelease("32n", t, hit.velocity * 0.5);
+          this.cueNoteCount += 1;
+        });
+      }
+    } else if (content.kind === "harmony") {
+      for (const chord of content.chords) {
+        schedule(chord.bar * 16, (t) => {
+          this.cueMelody.triggerAttackRelease(chord.notes[0] ?? "C4", "4n", t, 0.5);
+          this.cueNoteCount += 1;
+        });
+      }
+    }
   }
 
-  private playHarmony(patternId: string | null, localBar: number, step: number, time: number): void {
-    if (!patternId || step !== 0) return;
-    const voicings = harmonyVoicings[patternId] ?? harmonyVoicings["harmony-main"];
-    this.harmony.triggerAttackRelease(voicings[localBar % voicings.length], "1m", time, 0.3);
+  private logResolution(consumer: "cue" | "canonical" | "live", sceneId: string, layer: string, ref: MaterialRef): void {
+    const evidence: MaterialResolutionEvidence = {
+      act: this.currentAct === "comparison" ? "livePerformance" : this.currentAct,
+      consumer,
+      sceneId,
+      layer,
+      draftId: ref.draftId,
+      revision: ref.revision,
+      fingerprint: ref.fingerprint,
+      bankVersion: this.materialBank?.version ?? 0,
+    };
+    this.materialResolutionLog.push(evidence);
+    this.callbacks.onMaterialResolved?.(evidence);
   }
 
-  private playMelody(patternId: string | null, step: number, time: number): void {
-    if (!patternId) return;
-    const note = (melodyPatterns[patternId] ?? []).find((e) => e.step === step);
-    if (note) this.melody.triggerAttackRelease(note.note, note.duration, time, note.velocity);
-  }
-
-  private playTexture(patternId: string | null, step: number, time: number): void {
-    if (!patternId || step !== 0) return;
-    this.texture.triggerAttackRelease("2n", time, patternId === "texture-dust" ? 0.16 : 0.1);
+  private emitMissing(consumer: string, sceneId: string, layer: string, ref: MaterialRef): void {
+    const diagnostic: MissingMaterialDiagnostic = {
+      act: this.currentAct,
+      sceneId,
+      layer,
+      draftId: ref.draftId,
+      revision: ref.revision,
+      fingerprint: ref.fingerprint,
+      message: `Missing material ${ref.draftId}@${ref.revision} for ${consumer}`,
+    };
+    this.missingMaterialLog.push(diagnostic);
+    this.callbacks.onMissingMaterial?.(diagnostic);
   }
 
   dispose(): void {
