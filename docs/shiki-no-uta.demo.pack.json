@@ -94,13 +94,13 @@
       "id": "release",
       "label": "A return · full ensemble",
       "startBar": 56,
-      "bars": 12
+      "bars": 8
     },
     {
       "id": "refrain",
       "label": "Refrain · counterline lift",
-      "startBar": 68,
-      "bars": 12
+      "startBar": 64,
+      "bars": 16
     },
     {
       "id": "recompose",
@@ -1316,15 +1316,21 @@
         },
         {
           "bar": 0,
-          "step": 4,
-          "voice": "snare",
-          "velocity": 0.58
+          "step": 7,
+          "voice": "kick",
+          "velocity": 0.5
         },
         {
           "bar": 0,
-          "step": 8,
+          "step": 10,
           "voice": "kick",
-          "velocity": 0.68
+          "velocity": 0.62
+        },
+        {
+          "bar": 0,
+          "step": 4,
+          "voice": "snare",
+          "velocity": 0.58
         },
         {
           "bar": 0,
@@ -1334,15 +1340,51 @@
         },
         {
           "bar": 0,
-          "step": 3,
+          "step": 0,
           "voice": "hat",
-          "velocity": 0.2
+          "velocity": 0.16
         },
         {
           "bar": 0,
-          "step": 11,
+          "step": 2,
           "voice": "hat",
-          "velocity": 0.22
+          "velocity": 0.21000000000000002
+        },
+        {
+          "bar": 0,
+          "step": 4,
+          "voice": "hat",
+          "velocity": 0.16
+        },
+        {
+          "bar": 0,
+          "step": 6,
+          "voice": "hat",
+          "velocity": 0.21000000000000002
+        },
+        {
+          "bar": 0,
+          "step": 8,
+          "voice": "hat",
+          "velocity": 0.16
+        },
+        {
+          "bar": 0,
+          "step": 10,
+          "voice": "hat",
+          "velocity": 0.21000000000000002
+        },
+        {
+          "bar": 0,
+          "step": 12,
+          "voice": "hat",
+          "velocity": 0.16
+        },
+        {
+          "bar": 0,
+          "step": 14,
+          "voice": "hat",
+          "velocity": 0.21000000000000002
         },
         {
           "bar": 1,
@@ -1352,27 +1394,75 @@
         },
         {
           "bar": 1,
-          "step": 6,
-          "voice": "snare",
-          "velocity": 0.5
-        },
-        {
-          "bar": 1,
-          "step": 10,
+          "step": 9,
           "voice": "kick",
           "velocity": 0.58
         },
         {
           "bar": 1,
+          "step": 15,
+          "voice": "kick",
+          "velocity": 0.42
+        },
+        {
+          "bar": 1,
+          "step": 4,
+          "voice": "snare",
+          "velocity": 0.54
+        },
+        {
+          "bar": 1,
           "step": 12,
           "voice": "snare",
-          "velocity": 0.56
+          "velocity": 0.58
+        },
+        {
+          "bar": 1,
+          "step": 0,
+          "voice": "hat",
+          "velocity": 0.2
+        },
+        {
+          "bar": 1,
+          "step": 2,
+          "voice": "hat",
+          "velocity": 0.15
+        },
+        {
+          "bar": 1,
+          "step": 4,
+          "voice": "hat",
+          "velocity": 0.2
+        },
+        {
+          "bar": 1,
+          "step": 6,
+          "voice": "hat",
+          "velocity": 0.15
+        },
+        {
+          "bar": 1,
+          "step": 8,
+          "voice": "hat",
+          "velocity": 0.2
+        },
+        {
+          "bar": 1,
+          "step": 10,
+          "voice": "hat",
+          "velocity": 0.15
+        },
+        {
+          "bar": 1,
+          "step": 12,
+          "voice": "hat",
+          "velocity": 0.2
         },
         {
           "bar": 1,
           "step": 14,
           "voice": "hat",
-          "velocity": 0.2
+          "velocity": 0.15
         }
       ]
     },
@@ -1393,15 +1483,27 @@
         },
         {
           "bar": 0,
-          "step": 4,
-          "voice": "snare",
-          "velocity": 0.62
+          "step": 7,
+          "voice": "kick",
+          "velocity": 0.52
         },
         {
           "bar": 0,
-          "step": 8,
+          "step": 10,
           "voice": "kick",
           "velocity": 0.7
+        },
+        {
+          "bar": 0,
+          "step": 15,
+          "voice": "kick",
+          "velocity": 0.44
+        },
+        {
+          "bar": 0,
+          "step": 4,
+          "voice": "snare",
+          "velocity": 0.62
         },
         {
           "bar": 0,
@@ -1411,27 +1513,57 @@
         },
         {
           "bar": 0,
+          "step": 0,
+          "voice": "hat",
+          "velocity": 0.19
+        },
+        {
+          "bar": 0,
           "step": 2,
           "voice": "hat",
-          "velocity": 0.22
+          "velocity": 0.26
+        },
+        {
+          "bar": 0,
+          "step": 4,
+          "voice": "hat",
+          "velocity": 0.19
         },
         {
           "bar": 0,
           "step": 6,
           "voice": "hat",
-          "velocity": 0.24
+          "velocity": 0.26
+        },
+        {
+          "bar": 0,
+          "step": 8,
+          "voice": "hat",
+          "velocity": 0.19
         },
         {
           "bar": 0,
           "step": 10,
           "voice": "hat",
-          "velocity": 0.22
+          "velocity": 0.26
+        },
+        {
+          "bar": 0,
+          "step": 12,
+          "voice": "hat",
+          "velocity": 0.19
         },
         {
           "bar": 0,
           "step": 14,
           "voice": "hat",
           "velocity": 0.26
+        },
+        {
+          "bar": 0,
+          "step": 13,
+          "voice": "hat",
+          "velocity": 0.14
         },
         {
           "bar": 1,
@@ -1441,33 +1573,93 @@
         },
         {
           "bar": 1,
-          "step": 3,
-          "voice": "hat",
-          "velocity": 0.2
-        },
-        {
-          "bar": 1,
           "step": 6,
-          "voice": "snare",
-          "velocity": 0.58
+          "voice": "kick",
+          "velocity": 0.48
         },
         {
           "bar": 1,
           "step": 9,
           "voice": "kick",
-          "velocity": 0.62
+          "velocity": 0.64
+        },
+        {
+          "bar": 1,
+          "step": 15,
+          "voice": "kick",
+          "velocity": 0.46
+        },
+        {
+          "bar": 1,
+          "step": 4,
+          "voice": "snare",
+          "velocity": 0.6
         },
         {
           "bar": 1,
           "step": 12,
           "voice": "snare",
-          "velocity": 0.61
+          "velocity": 0.63
+        },
+        {
+          "bar": 1,
+          "step": 0,
+          "voice": "hat",
+          "velocity": 0.25
+        },
+        {
+          "bar": 1,
+          "step": 2,
+          "voice": "hat",
+          "velocity": 0.18
+        },
+        {
+          "bar": 1,
+          "step": 4,
+          "voice": "hat",
+          "velocity": 0.25
+        },
+        {
+          "bar": 1,
+          "step": 6,
+          "voice": "hat",
+          "velocity": 0.18
+        },
+        {
+          "bar": 1,
+          "step": 8,
+          "voice": "hat",
+          "velocity": 0.25
+        },
+        {
+          "bar": 1,
+          "step": 10,
+          "voice": "hat",
+          "velocity": 0.18
+        },
+        {
+          "bar": 1,
+          "step": 12,
+          "voice": "hat",
+          "velocity": 0.25
+        },
+        {
+          "bar": 1,
+          "step": 14,
+          "voice": "hat",
+          "velocity": 0.18
+        },
+        {
+          "bar": 1,
+          "step": 11,
+          "voice": "hat",
+          "velocity": 0.14
         },
         {
           "bar": 1,
           "step": 15,
           "voice": "hat",
-          "velocity": 0.24
+          "velocity": 0.2
         }
       ]
     },
@@ -1488,15 +1680,45 @@
         },
         {
           "bar": 0,
+          "step": 9,
+          "voice": "kick",
+          "velocity": 0.5
+        },
+        {
+          "bar": 0,
           "step": 4,
           "voice": "snare",
           "velocity": 0.54
         },
         {
           "bar": 0,
+          "step": 12,
+          "voice": "snare",
+          "velocity": 0.5
+        },
+        {
+          "bar": 0,
+          "step": 2,
+          "voice": "hat",
+          "velocity": 0.16
+        },
+        {
+          "bar": 0,
+          "step": 6,
+          "voice": "hat",
+          "velocity": 0.18
+        },
+        {
+          "bar": 0,
           "step": 10,
           "voice": "hat",
           "velocity": 0.2
+        },
+        {
+          "bar": 0,
+          "step": 14,
+          "voice": "hat",
+          "velocity": 0.17
         },
         {
           "bar": 1,
@@ -1506,15 +1728,45 @@
         },
         {
           "bar": 1,
+          "step": 10,
+          "voice": "kick",
+          "velocity": 0.48
+        },
+        {
+          "bar": 1,
+          "step": 4,
+          "voice": "snare",
+          "velocity": 0.5
+        },
+        {
+          "bar": 1,
+          "step": 12,
+          "voice": "snare",
+          "velocity": 0.53
+        },
+        {
+          "bar": 1,
+          "step": 3,
+          "voice": "hat",
+          "velocity": 0.16
+        },
+        {
+          "bar": 1,
           "step": 7,
           "voice": "hat",
           "velocity": 0.18
         },
         {
           "bar": 1,
-          "step": 12,
-          "voice": "snare",
-          "velocity": 0.5
+          "step": 11,
+          "voice": "hat",
+          "velocity": 0.16
+        },
+        {
+          "bar": 1,
+          "step": 15,
+          "voice": "hat",
+          "velocity": 0.19
         }
       ]
     },
@@ -3047,71 +3299,358 @@
       "patternBars": 4,
       "notes": [
         {
+          "id": "bass-response-foundation-0-0",
+          "bar": 0,
+          "step": 0,
+          "pitch": 0,
+          "note": "Gb1",
+          "duration": "8n",
+          "velocity": 0.52,
+          "articulation": "accent",
+          "timingOffset": -0.04
+        },
+        {
+          "id": "bass-response-foundation-0-1",
+          "bar": 0,
+          "step": 2,
+          "pitch": 0,
+          "note": "Db2",
+          "duration": "8n",
+          "velocity": 0.39
+        },
+        {
+          "id": "bass-response-foundation-0-2",
+          "bar": 0,
+          "step": 4,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "8n",
+          "velocity": 0.43
+        },
+        {
+          "id": "bass-response-foundation-0-3",
+          "bar": 0,
+          "step": 6,
+          "pitch": 0,
+          "note": "Db2",
+          "duration": "8n",
+          "velocity": 0.36000000000000004
+        },
+        {
+          "id": "bass-response-foundation-0-4",
+          "bar": 0,
+          "step": 8,
+          "pitch": 0,
+          "note": "F1",
+          "duration": "8n",
+          "velocity": 0.5,
+          "articulation": "accent"
+        },
+        {
+          "id": "bass-response-foundation-0-5",
+          "bar": 0,
+          "step": 10,
+          "pitch": 0,
+          "note": "C2",
+          "duration": "8n",
+          "velocity": 0.38
+        },
+        {
+          "id": "bass-response-foundation-0-6",
+          "bar": 0,
+          "step": 12,
+          "pitch": 0,
+          "note": "Eb2",
+          "duration": "8n",
+          "velocity": 0.42000000000000004
+        },
+        {
+          "id": "bass-response-foundation-0-7",
+          "bar": 0,
+          "step": 14,
+          "pitch": 0,
+          "note": "C2",
+          "duration": "8n",
+          "velocity": 0.35000000000000003
+        },
+        {
+          "id": "bass-response-foundation-0-8",
+          "bar": 1,
+          "step": 0,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "8n",
+          "velocity": 0.5399999999999999,
+          "articulation": "accent"
+        },
+        {
+          "id": "bass-response-foundation-0-9",
+          "bar": 1,
+          "step": 2,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "8n",
+          "velocity": 0.41000000000000003
+        },
+        {
+          "id": "bass-response-foundation-0-10",
+          "bar": 1,
+          "step": 4,
+          "pitch": 1,
+          "note": "Ab2",
+          "duration": "8n",
+          "velocity": 0.44
+        },
+        {
+          "id": "bass-response-foundation-0-11",
+          "bar": 1,
+          "step": 6,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "8n",
+          "velocity": 0.38
+        },
+        {
+          "id": "bass-response-foundation-0-12",
+          "bar": 1,
+          "step": 8,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "8n",
+          "velocity": 0.48000000000000004
+        },
+        {
+          "id": "bass-response-foundation-0-13",
+          "bar": 1,
+          "step": 10,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "8n",
+          "velocity": 0.4
+        },
+        {
+          "id": "bass-response-foundation-0-14",
+          "bar": 1,
+          "step": 12,
+          "pitch": 0,
+          "note": "Eb2",
+          "duration": "8n",
+          "velocity": 0.38
+        },
+        {
+          "id": "bass-response-foundation-0-15",
+          "bar": 1,
+          "step": 14,
+          "pitch": 0,
+          "note": "Db2",
+          "duration": "8n",
+          "velocity": 0.36000000000000004
+        },
+        {
+          "id": "bass-response-foundation-1-0",
+          "bar": 2,
+          "step": 0,
+          "pitch": 0,
+          "note": "Gb1",
+          "duration": "8n",
+          "velocity": 0.52,
+          "articulation": "accent",
+          "timingOffset": -0.04
+        },
+        {
+          "id": "bass-response-foundation-1-1",
+          "bar": 2,
+          "step": 2,
+          "pitch": 0,
+          "note": "Db2",
+          "duration": "8n",
+          "velocity": 0.39
+        },
+        {
+          "id": "bass-response-foundation-1-2",
+          "bar": 2,
+          "step": 4,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "8n",
+          "velocity": 0.43
+        },
+        {
+          "id": "bass-response-foundation-1-3",
+          "bar": 2,
+          "step": 6,
+          "pitch": 0,
+          "note": "Db2",
+          "duration": "8n",
+          "velocity": 0.36000000000000004
+        },
+        {
+          "id": "bass-response-foundation-1-4",
+          "bar": 2,
+          "step": 8,
+          "pitch": 0,
+          "note": "F1",
+          "duration": "8n",
+          "velocity": 0.5,
+          "articulation": "accent"
+        },
+        {
+          "id": "bass-response-foundation-1-5",
+          "bar": 2,
+          "step": 10,
+          "pitch": 0,
+          "note": "C2",
+          "duration": "8n",
+          "velocity": 0.38
+        },
+        {
+          "id": "bass-response-foundation-1-6",
+          "bar": 2,
+          "step": 12,
+          "pitch": 0,
+          "note": "Eb2",
+          "duration": "8n",
+          "velocity": 0.42000000000000004
+        },
+        {
+          "id": "bass-response-foundation-1-7",
+          "bar": 2,
+          "step": 14,
+          "pitch": 0,
+          "note": "C2",
+          "duration": "8n",
+          "velocity": 0.35000000000000003
+        },
+        {
+          "id": "bass-response-foundation-1-8",
+          "bar": 3,
+          "step": 0,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "8n",
+          "velocity": 0.5399999999999999,
+          "articulation": "accent"
+        },
+        {
+          "id": "bass-response-foundation-1-9",
+          "bar": 3,
+          "step": 2,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "8n",
+          "velocity": 0.41000000000000003
+        },
+        {
+          "id": "bass-response-foundation-1-10",
+          "bar": 3,
+          "step": 4,
+          "pitch": 1,
+          "note": "Ab2",
+          "duration": "8n",
+          "velocity": 0.44
+        },
+        {
+          "id": "bass-response-foundation-1-11",
+          "bar": 3,
+          "step": 6,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "8n",
+          "velocity": 0.38
+        },
+        {
+          "id": "bass-response-foundation-1-12",
+          "bar": 3,
+          "step": 8,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "8n",
+          "velocity": 0.48000000000000004
+        },
+        {
+          "id": "bass-response-foundation-1-13",
+          "bar": 3,
+          "step": 10,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "8n",
+          "velocity": 0.4
+        },
+        {
+          "id": "bass-response-foundation-1-14",
+          "bar": 3,
+          "step": 12,
+          "pitch": 0,
+          "note": "Eb2",
+          "duration": "8n",
+          "velocity": 0.38
+        },
+        {
+          "id": "bass-response-foundation-1-15",
+          "bar": 3,
+          "step": 14,
+          "pitch": 0,
+          "note": "Db2",
+          "duration": "8n",
+          "velocity": 0.36000000000000004
+        },
+        {
           "id": "bass-response-mute",
           "bar": 0,
           "step": 11,
           "pitch": 0,
           "note": "Bb2",
           "duration": "32n",
-          "velocity": 0.34,
+          "velocity": 0.38,
           "articulation": "muted"
         },
         {
           "id": "bass-response-00",
           "bar": 0,
-          "step": 12,
-          "pitch": 0,
-          "note": "Db3",
-          "duration": "16n",
-          "velocity": 0.36
-        },
-        {
-          "id": "bass-response-01",
-          "bar": 0,
-          "step": 14,
-          "pitch": 0,
-          "note": "Eb3",
-          "duration": "16n",
-          "velocity": 0.38
-        },
-        {
-          "id": "bass-response-10",
-          "bar": 1,
-          "step": 8,
-          "pitch": 0,
-          "note": "F3",
-          "duration": "8n",
-          "velocity": 0.4,
-          "articulation": "slide",
-          "glideFrom": "Eb3"
-        },
-        {
-          "id": "bass-response-11",
-          "bar": 1,
           "step": 13,
           "pitch": 0,
           "note": "Db3",
           "duration": "16n",
-          "velocity": 0.34
+          "velocity": 0.4
+        },
+        {
+          "id": "bass-response-01",
+          "bar": 0,
+          "step": 15,
+          "pitch": 0,
+          "note": "Eb3",
+          "duration": "16n",
+          "velocity": 0.42
+        },
+        {
+          "id": "bass-response-10",
+          "bar": 1,
+          "step": 9,
+          "pitch": 0,
+          "note": "F3",
+          "duration": "8n",
+          "velocity": 0.44,
+          "articulation": "slide",
+          "glideFrom": "Eb3"
         },
         {
           "id": "bass-response-30",
           "bar": 3,
-          "step": 10,
+          "step": 9,
           "pitch": 0,
           "note": "Gb3",
           "duration": "16n",
-          "velocity": 0.32,
+          "velocity": 0.36,
           "articulation": "ghost"
         },
         {
           "id": "bass-response-31",
           "bar": 3,
-          "step": 12,
+          "step": 11,
           "pitch": 0,
           "note": "F3",
           "duration": "16n",
-          "velocity": 0.35
+          "velocity": 0.39
         }
       ]
     },
@@ -6092,68 +6631,189 @@
       "patternBars": 2,
       "notes": [
         {
-          "id": "sax-bass-00",
+          "id": "sax-bass-foundation-0",
           "bar": 0,
           "step": 0,
           "pitch": 0,
           "note": "Gb1",
-          "duration": "4n.",
-          "velocity": 0.54
+          "duration": "8n",
+          "velocity": 0.53,
+          "articulation": "accent",
+          "timingOffset": -0.04
         },
         {
-          "id": "sax-bass-01",
+          "id": "sax-bass-foundation-1",
+          "bar": 0,
+          "step": 2,
+          "pitch": 0,
+          "note": "Db2",
+          "duration": "8n",
+          "velocity": 0.4
+        },
+        {
+          "id": "sax-bass-foundation-2",
+          "bar": 0,
+          "step": 4,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "8n",
+          "velocity": 0.43999999999999995
+        },
+        {
+          "id": "sax-bass-foundation-3",
+          "bar": 0,
+          "step": 6,
+          "pitch": 0,
+          "note": "Db2",
+          "duration": "8n",
+          "velocity": 0.37
+        },
+        {
+          "id": "sax-bass-foundation-4",
           "bar": 0,
           "step": 8,
           "pitch": 0,
           "note": "F1",
-          "duration": "4n",
-          "velocity": 0.52
+          "duration": "8n",
+          "velocity": 0.51,
+          "articulation": "accent"
         },
         {
-          "id": "sax-bass-02",
+          "id": "sax-bass-foundation-5",
+          "bar": 0,
+          "step": 10,
+          "pitch": 0,
+          "note": "C2",
+          "duration": "8n",
+          "velocity": 0.39
+        },
+        {
+          "id": "sax-bass-foundation-6",
+          "bar": 0,
+          "step": 12,
+          "pitch": 0,
+          "note": "Eb2",
+          "duration": "8n",
+          "velocity": 0.43000000000000005
+        },
+        {
+          "id": "sax-bass-foundation-7",
           "bar": 0,
           "step": 14,
           "pitch": 0,
-          "note": "Ab1",
+          "note": "C2",
           "duration": "8n",
-          "velocity": 0.44
+          "velocity": 0.36
         },
         {
-          "id": "sax-bass-10",
+          "id": "sax-bass-foundation-8",
           "bar": 1,
           "step": 0,
           "pitch": 0,
           "note": "Bb1",
-          "duration": "2n",
-          "velocity": 0.58,
+          "duration": "8n",
+          "velocity": 0.5499999999999999,
           "articulation": "accent"
         },
         {
-          "id": "sax-bass-11",
+          "id": "sax-bass-foundation-9",
+          "bar": 1,
+          "step": 2,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "8n",
+          "velocity": 0.42000000000000004
+        },
+        {
+          "id": "sax-bass-foundation-10",
+          "bar": 1,
+          "step": 4,
+          "pitch": 1,
+          "note": "Ab2",
+          "duration": "8n",
+          "velocity": 0.44999999999999996
+        },
+        {
+          "id": "sax-bass-foundation-11",
+          "bar": 1,
+          "step": 6,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "8n",
+          "velocity": 0.39
+        },
+        {
+          "id": "sax-bass-foundation-12",
+          "bar": 1,
+          "step": 8,
+          "pitch": 0,
+          "note": "Bb1",
+          "duration": "8n",
+          "velocity": 0.49
+        },
+        {
+          "id": "sax-bass-foundation-13",
           "bar": 1,
           "step": 10,
           "pitch": 0,
           "note": "F2",
-          "duration": "16n",
-          "velocity": 0.46
+          "duration": "8n",
+          "velocity": 0.41000000000000003
         },
         {
-          "id": "sax-bass-12",
+          "id": "sax-bass-foundation-14",
           "bar": 1,
           "step": 12,
           "pitch": 0,
           "note": "Eb2",
-          "duration": "16n",
-          "velocity": 0.44
+          "duration": "8n",
+          "velocity": 0.39
         },
         {
-          "id": "sax-bass-13",
+          "id": "sax-bass-foundation-15",
           "bar": 1,
           "step": 14,
           "pitch": 0,
           "note": "Db2",
+          "duration": "8n",
+          "velocity": 0.37
+        },
+        {
+          "id": "sax-bass-02",
+          "bar": 0,
+          "step": 15,
+          "pitch": 0,
+          "note": "Ab1",
           "duration": "16n",
-          "velocity": 0.42
+          "velocity": 0.46,
+          "articulation": "ghost"
+        },
+        {
+          "id": "sax-bass-11",
+          "bar": 1,
+          "step": 9,
+          "pitch": 0,
+          "note": "F2",
+          "duration": "16n",
+          "velocity": 0.48
+        },
+        {
+          "id": "sax-bass-12",
+          "bar": 1,
+          "step": 11,
+          "pitch": 0,
+          "note": "Eb2",
+          "duration": "16n",
+          "velocity": 0.46
+        },
+        {
+          "id": "sax-bass-13",
+          "bar": 1,
+          "step": 13,
+          "pitch": 0,
+          "note": "Db2",
+          "duration": "16n",
+          "velocity": 0.44
         }
       ]
     },
@@ -7032,6 +7692,61 @@
           "duration": "1m",
           "velocity": 0.43,
           "articulation": "held"
+        },
+        {
+          "bar": 0,
+          "step": 4,
+          "notes": [
+            "Db3",
+            "Ab3"
+          ],
+          "duration": "8n",
+          "velocity": 0.23,
+          "articulation": "pluck"
+        },
+        {
+          "bar": 0,
+          "step": 12,
+          "notes": [
+            "C3",
+            "Ab3"
+          ],
+          "duration": "8n",
+          "velocity": 0.21000000000000002,
+          "articulation": "pluck"
+        },
+        {
+          "bar": 1,
+          "step": 4,
+          "notes": [
+            "F3",
+            "Db4"
+          ],
+          "duration": "8n",
+          "velocity": 0.23,
+          "articulation": "pluck"
+        },
+        {
+          "bar": 1,
+          "step": 8,
+          "notes": [
+            "Ab3",
+            "Db4"
+          ],
+          "duration": "8n",
+          "velocity": 0.22,
+          "articulation": "pluck"
+        },
+        {
+          "bar": 1,
+          "step": 12,
+          "notes": [
+            "F3",
+            "Bb3"
+          ],
+          "duration": "8n",
+          "velocity": 0.21000000000000002,
+          "articulation": "pluck"
         }
       ]
     },
@@ -7134,6 +7849,116 @@
           "duration": "1m",
           "velocity": 0.24,
           "articulation": "held"
+        },
+        {
+          "bar": 0,
+          "step": 4,
+          "notes": [
+            "Db3",
+            "Ab3"
+          ],
+          "duration": "8n",
+          "velocity": 0.2,
+          "articulation": "pluck"
+        },
+        {
+          "bar": 0,
+          "step": 12,
+          "notes": [
+            "C3",
+            "Ab3"
+          ],
+          "duration": "8n",
+          "velocity": 0.18000000000000002,
+          "articulation": "pluck"
+        },
+        {
+          "bar": 1,
+          "step": 4,
+          "notes": [
+            "F3",
+            "Db4"
+          ],
+          "duration": "8n",
+          "velocity": 0.2,
+          "articulation": "pluck"
+        },
+        {
+          "bar": 1,
+          "step": 8,
+          "notes": [
+            "Ab3",
+            "Db4"
+          ],
+          "duration": "8n",
+          "velocity": 0.19,
+          "articulation": "pluck"
+        },
+        {
+          "bar": 1,
+          "step": 12,
+          "notes": [
+            "F3",
+            "Bb3"
+          ],
+          "duration": "8n",
+          "velocity": 0.18000000000000002,
+          "articulation": "pluck"
+        },
+        {
+          "bar": 4,
+          "step": 4,
+          "notes": [
+            "Db3",
+            "Ab3"
+          ],
+          "duration": "8n",
+          "velocity": 0.17,
+          "articulation": "pluck"
+        },
+        {
+          "bar": 4,
+          "step": 12,
+          "notes": [
+            "C3",
+            "Ab3"
+          ],
+          "duration": "8n",
+          "velocity": 0.15000000000000002,
+          "articulation": "pluck"
+        },
+        {
+          "bar": 5,
+          "step": 4,
+          "notes": [
+            "F3",
+            "Db4"
+          ],
+          "duration": "8n",
+          "velocity": 0.17,
+          "articulation": "pluck"
+        },
+        {
+          "bar": 5,
+          "step": 8,
+          "notes": [
+            "Ab3",
+            "Db4"
+          ],
+          "duration": "8n",
+          "velocity": 0.16,
+          "articulation": "pluck"
+        },
+        {
+          "bar": 5,
+          "step": 12,
+          "notes": [
+            "F3",
+            "Bb3"
+          ],
+          "duration": "8n",
+          "velocity": 0.15000000000000002,
+          "articulation": "pluck"
         }
       ]
     }
@@ -7283,15 +8108,15 @@
         "texture": null
       },
       "fx": {
-        "filter": 4700,
+        "filter": 5000,
         "delayWet": 0.14,
         "reverbWet": 0.21,
-        "masterGain": 7.4,
+        "masterGain": 9.2,
         "faders": {
-          "groove": 62,
-          "harmony": 54,
-          "melody": 64,
-          "texture": 24
+          "groove": 72,
+          "harmony": 63,
+          "melody": 68,
+          "texture": 22
         }
       }
     },
@@ -7309,15 +8134,15 @@
         "texture": null
       },
       "fx": {
-        "filter": 5800,
+        "filter": 6200,
         "delayWet": 0.12,
         "reverbWet": 0.2,
-        "masterGain": 7.5,
+        "masterGain": 9.2,
         "faders": {
-          "groove": 58,
-          "harmony": 54,
-          "melody": 72,
-          "texture": 20
+          "groove": 70,
+          "harmony": 62,
+          "melody": 74,
+          "texture": 18
         }
       }
     },
@@ -7350,7 +8175,7 @@
     {
       "id": "release",
       "title": "A return · full ensemble",
-      "bars": 12,
+      "bars": 8,
       "startBar": 56,
       "description": "The main phrase returns with full drums, comping and restrained counter melody.",
       "layers": {
@@ -7376,9 +8201,9 @@
     {
       "id": "refrain",
       "title": "Refrain · counterline lift",
-      "bars": 12,
-      "startBar": 68,
-      "description": "The same harmonic backbone is recombined with upper bass, counterline and guitar answers.",
+      "bars": 16,
+      "startBar": 64,
+      "description": "The harmonic backbone is recombined with upper bass and counterline at the source-analysis return boundary.",
       "layers": {
         "drums": null,
         "bass": null,
@@ -7413,15 +8238,15 @@
         "texture": null
       },
       "fx": {
-        "filter": 4600,
+        "filter": 5000,
         "delayWet": 0.14,
         "reverbWet": 0.21,
-        "masterGain": 7.8,
+        "masterGain": 9.2,
         "faders": {
-          "groove": 60,
-          "harmony": 58,
-          "melody": 66,
-          "texture": 25
+          "groove": 70,
+          "harmony": 64,
+          "melody": 68,
+          "texture": 22
         }
       }
     },
@@ -7442,10 +8267,10 @@
         "filter": 6800,
         "delayWet": 0.12,
         "reverbWet": 0.2,
-        "masterGain": 8.8,
+        "masterGain": 9.6,
         "faders": {
-          "groove": 70,
-          "harmony": 60,
+          "groove": 74,
+          "harmony": 66,
           "melody": 78,
           "texture": 18
         }
@@ -7517,15 +8342,15 @@
         "texture": null
       },
       "fx": {
-        "filter": 4200,
+        "filter": 4600,
         "delayWet": 0.18,
         "reverbWet": 0.28,
-        "masterGain": 7.4,
+        "masterGain": 9.4,
         "faders": {
-          "groove": 52,
-          "harmony": 58,
-          "melody": 58,
-          "texture": 18
+          "groove": 66,
+          "harmony": 64,
+          "melody": 62,
+          "texture": 16
         }
       }
     },
@@ -7794,7 +8619,7 @@
       },
       {
         "sceneId": "refrain",
-        "startBar": 68
+        "startBar": 64
       },
       {
         "sceneId": "recompose",
@@ -8908,5 +9733,43 @@
       ]
     }
   ],
-  "sceneLayerStacks": {}
+  "sceneLayerStacks": {
+    "chorus": {
+      "harmony": [
+        "story-comp"
+      ],
+      "melody": [
+        "memory-counter"
+      ]
+    },
+    "release": {
+      "harmony": [
+        "story-comp"
+      ],
+      "melody": [
+        "memory-counter"
+      ]
+    },
+    "refrain": {
+      "harmony": [
+        "story-comp"
+      ],
+      "melody": [
+        "memory-counter"
+      ]
+    },
+    "recompose": {
+      "harmony": [
+        "story-comp"
+      ],
+      "melody": [
+        "memory-counter"
+      ]
+    },
+    "return": {
+      "melody": [
+        "memory-counter"
+      ]
+    }
+  }
 }

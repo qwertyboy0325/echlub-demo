@@ -10,6 +10,10 @@ const outputPath = resolve(process.env.OUTPUT_PATH ?? "local-reconstruction/audi
 const captureStartBar = Number(process.env.CAPTURE_START_BAR ?? 47);
 const captureEndBar = Number(process.env.CAPTURE_END_BAR ?? 56);
 const captureSpeed = Number(process.env.CAPTURE_SPEED ?? 1);
+const captureTimeoutMs = Math.max(
+  90000,
+  Math.ceil((captureEndBar - captureStartBar + 2) * 4 * 60 / 89.5 / captureSpeed * 1500),
+);
 await access(packPath);
 
 const chrome = process.env.CHROME_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
@@ -34,7 +38,13 @@ const browser = await puppeteer.launch({
 });
 const page = await browser.newPage();
 const pageErrors = [];
-page.on("pageerror", (error) => pageErrors.push(String(error)));
+page.on("pageerror", async (error) => {
+  const position = await page.evaluate(() => {
+    const state = window.__echlubState;
+    return state ? `${state.currentBar}:${state.currentBeat}:${state.currentSixteenth}` : "-1:-1:-1";
+  }).catch(() => "-1:-1:-1");
+  pageErrors.push(`position ${position}: ${error.stack ?? String(error)}`);
+});
 
 try {
   await page.goto(baseUrl, { waitUntil: "networkidle0", timeout: 30000 });
@@ -74,7 +84,17 @@ try {
     recorder.start(250);
   });
 
-  await page.waitForFunction((bar) => (window.__echlubState?.currentBar ?? -1) >= bar, { timeout: 60000 }, captureEndBar);
+  try {
+    await page.waitForFunction(
+      (bar) => (window.__echlubState?.currentBar ?? -1) >= bar,
+      { timeout: captureTimeoutMs },
+      captureEndBar,
+    );
+  } catch (error) {
+    const stalledAtBar = await page.evaluate(() => window.__echlubState?.currentBar ?? -1).catch(() => -1);
+    console.error(JSON.stringify({ stalledAtBar, pageErrors, captureTimeoutMs }, null, 2));
+    throw error;
+  }
   const result = await page.evaluate(async () => {
     const capture = window.__saxCapture;
     const stopped = new Promise((resolveStopped) => capture.recorder.addEventListener("stop", resolveStopped, { once: true }));

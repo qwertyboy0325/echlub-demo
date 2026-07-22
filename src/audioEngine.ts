@@ -125,8 +125,11 @@ export class AudioEngine {
   private bassAccent!: Tone.MonoSynth;
   private bassMute!: Tone.NoiseSynth;
   private harmony!: Tone.PolySynth;
+  private harmonyComp!: Tone.PolySynth;
   private melody!: Tone.PolySynth;
+  private melodyCounter!: Tone.PolySynth;
   private melodyLead!: Tone.MonoSynth;
+  private melodyLeadAlt!: Tone.MonoSynth;
   private melodyMute!: Tone.NoiseSynth;
   private reedLead!: Tone.MonoSynth;
   private reedLeadAlt!: Tone.MonoSynth;
@@ -246,15 +249,32 @@ export class AudioEngine {
     this.harmony = sound.harmony.generator === "fm"
       ? new Tone.PolySynth(Tone.FMSynth, { harmonicity: 1.5, modulationIndex: 1.2, oscillator: { type: sound.harmony.oscillator }, envelope: sound.harmony.envelope, modulationEnvelope: { attack: 0.002, decay: 0.08, sustain: 0.05, release: 0.15 }, volume: sound.harmony.volume })
       : new Tone.PolySynth(Tone.Synth, { oscillator: { type: sound.harmony.oscillator }, envelope: sound.harmony.envelope, volume: sound.harmony.volume });
+    this.harmonyComp = new Tone.PolySynth(Tone.Synth, {
+      oscillator: { type: "triangle" },
+      envelope: { attack: 0.004, decay: 0.11, sustain: 0.16, release: 0.2 },
+      volume: sound.harmony.volume - 4,
+    });
     this.melody = sound.melody.generator === "fm"
       ? new Tone.PolySynth(Tone.FMSynth, { harmonicity: 2, modulationIndex: 1.5, oscillator: { type: sound.melody.oscillator }, envelope: sound.melody.envelope, modulationEnvelope: { attack: 0.005, decay: 0.12, sustain: 0.08, release: 0.2 }, volume: sound.melody.volume })
       : new Tone.PolySynth(Tone.Synth, { oscillator: { type: sound.melody.oscillator }, envelope: sound.melody.envelope, volume: sound.melody.volume });
+    this.melodyCounter = new Tone.PolySynth(Tone.Synth, {
+      oscillator: { type: "triangle" },
+      envelope: { attack: 0.012, decay: 0.16, sustain: 0.18, release: 0.26 },
+      volume: sound.melody.volume - 5,
+    });
     this.melodyLead = new Tone.MonoSynth({
       oscillator: { type: "triangle" }, portamento: 0.055,
       filter: { Q: 1.5, type: "lowpass", rolloff: -24 },
       envelope: { attack: 0.004, decay: 0.12, sustain: 0.28, release: 0.16 },
       filterEnvelope: { attack: 0.003, decay: 0.1, sustain: 0.16, release: 0.15, baseFrequency: 260, octaves: 3.4 },
       volume: sound.melody.volume - 2,
+    });
+    this.melodyLeadAlt = new Tone.MonoSynth({
+      oscillator: { type: "triangle" }, portamento: 0.045,
+      filter: { Q: 1.2, type: "lowpass", rolloff: -24 },
+      envelope: { attack: 0.006, decay: 0.11, sustain: 0.22, release: 0.15 },
+      filterEnvelope: { attack: 0.004, decay: 0.1, sustain: 0.14, release: 0.14, baseFrequency: 320, octaves: 3 },
+      volume: sound.melody.volume - 6,
     });
     this.melodyMute = new Tone.NoiseSynth({ noise: { type: "pink" }, envelope: { attack: 0.001, decay: 0.018, sustain: 0, release: 0.012 }, volume: -30 });
     // Two browser-native reed voices are required for the score's alto/tenor
@@ -307,10 +327,13 @@ export class AudioEngine {
     this.bassMute.connect(this.bassDrive);
     this.grooveGain.connect(this.master);
     this.harmony.chain(this.harmonyFilter, this.harmonyChorus, this.harmonyGain);
+    this.harmonyComp.connect(this.harmonyFilter);
     this.harmonyGain.connect(this.master);
     this.harmonyGain.connect(this.reverbSend);
     this.melody.chain(this.melodyFilter, this.melodyChorus, this.melodyGain);
+    this.melodyCounter.connect(this.melodyFilter);
     this.melodyLead.connect(this.melodyFilter);
+    this.melodyLeadAlt.connect(this.melodyFilter);
     this.melodyMute.connect(this.melodyFilter);
     this.reedLead.chain(this.reedDrive, this.reedBody, this.reedPresence, this.melodyFilter);
     this.reedLeadAlt.connect(this.reedDrive);
@@ -747,7 +770,8 @@ export class AudioEngine {
       const chords = content.chords.filter((chord) => chord.bar * 16 + (chord.step ?? 0) === currentStep);
       for (const chord of chords) {
         const durationSeconds = Math.max(0.03, Tone.Time(chord.duration ?? "1m").toSeconds() - 0.012);
-        this.harmony.triggerAttackRelease(chord.notes, durationSeconds, time, chord.velocity ?? 0.3);
+        (voiceIndex > 0 ? this.harmonyComp : this.harmony)
+          .triggerAttackRelease(chord.notes, durationSeconds, time, chord.velocity ?? 0.3);
       }
     } else if (content.kind === "melody") {
       const currentStep = patternStep(content.patternBars);
@@ -782,7 +806,9 @@ export class AudioEngine {
     }
 
     if (note.articulation === "slide" || note.articulation === "legato") {
-      const voice = layer === "bass" ? (voiceIndex > 0 ? this.bassAccent : this.bass) : this.melodyLead;
+      const voice = layer === "bass"
+        ? (voiceIndex > 0 ? this.bassAccent : this.bass)
+        : (voiceIndex > 0 ? this.melodyLeadAlt : this.melodyLead);
       voice.triggerAttack(note.glideFrom ?? note.note, scheduledTime, velocity);
       voice.setNote(note.note, scheduledTime + Math.min(sixteenth * 0.55, durationSeconds * 0.4));
       voice.triggerRelease(scheduledTime + durationSeconds);
@@ -797,7 +823,14 @@ export class AudioEngine {
       const collisionSafeDuration = Math.max(0.03, durationSeconds - 0.012);
       (voiceIndex > 0 ? this.bassAccent : this.bass).triggerAttackRelease(note.note, collisionSafeDuration, scheduledTime, velocity);
     }
-    else this.melody.triggerAttackRelease(note.note, note.duration, scheduledTime, velocity);
+    else {
+      // The score contains adjacent sixteenth-note melody attacks. Scheduling
+      // the previous release at the exact next attack can make Tone reject the
+      // second start, just as it does for connected bass notes.
+      const collisionSafeDuration = Math.max(0.03, durationSeconds - 0.012);
+      (voiceIndex > 0 ? this.melodyCounter : this.melody)
+        .triggerAttackRelease(note.note, collisionSafeDuration, scheduledTime, velocity);
+    }
   }
 
   private playReedNote(note: NoteEvent, voiceIndex: number, scheduledTime: number, durationSeconds: number, velocity: number): void {

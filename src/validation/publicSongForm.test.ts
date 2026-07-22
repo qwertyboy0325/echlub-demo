@@ -18,7 +18,7 @@ describe("public Shiki No Uta song form", () => {
     expect(runtime.session.arrangement.totalBars).toBe(114);
     expect(runtime.session.arrangement.scenes).toHaveLength(16);
     expect(runtime.session.arrangement.scenes.map((scene) => scene.startBar)).toEqual([
-      0, 4, 12, 20, 30, 38, 46, 54, 56, 68, 80, 88, 96, 100, 104, 110,
+      0, 4, 12, 20, 30, 38, 46, 54, 56, 64, 80, 88, 96, 100, 104, 110,
     ]);
 
     const arranged = runtime.session.arrangement.scenes.map(({ sceneId }) =>
@@ -36,7 +36,11 @@ describe("public Shiki No Uta song form", () => {
     expect(new Set(materialSignatures).size).toBeGreaterThanOrEqual(13);
 
     for (const scene of arranged) {
-      for (const ref of Object.values(scene?.layers ?? {}).filter((value) => value !== null)) {
+      const refs = [
+        ...Object.values(scene?.layers ?? {}).filter((value) => value !== null),
+        ...Object.values(scene?.layerStacks ?? {}).flatMap((values) => values ?? []),
+      ];
+      for (const ref of refs) {
         const material = resolveMaterial(runtime.materialBank, ref!);
         expect(material, `${scene?.id}/${ref!.draftId} should resolve`).toBeDefined();
         if (!material) continue;
@@ -78,6 +82,20 @@ describe("public Shiki No Uta song form", () => {
     expect(openingBass?.notes?.find((note) => note.bar === 1 && note.step === 0)?.note).toBe("Bb1");
     expect(pack.soundDesign.harmony.envelope.sustain).toBeGreaterThanOrEqual(0.4);
 
+    const responseBass = pack.drafts.find((draft) => draft.id === "bass-response");
+    const saxBass = pack.drafts.find((draft) => draft.id === "bass-sax");
+    const saxHarmony = pack.drafts.find((draft) => draft.id === "story-sax");
+    expect(responseBass?.notes?.length).toBeGreaterThanOrEqual(36);
+    expect(saxBass?.notes?.length).toBeGreaterThanOrEqual(20);
+    expect(saxHarmony?.harmonyChords?.length).toBeGreaterThanOrEqual(8);
+
+    const sparseDrums = pack.drafts.find((draft) => draft.id === "pulse-sparse");
+    const fullDrums = pack.drafts.find((draft) => draft.id === "pulse-full");
+    const breakDrums = pack.drafts.find((draft) => draft.id === "pulse-break");
+    expect(sparseDrums?.drumHits?.length).toBeGreaterThanOrEqual(24);
+    expect(fullDrums?.drumHits?.length).toBeGreaterThanOrEqual(30);
+    expect(breakDrums?.drumHits?.length).toBeGreaterThanOrEqual(16);
+
     const mainMelody = pack.drafts.find((draft) => draft.id === "memory-main");
     expect(Math.min(...(mainMelody?.notes?.map((note) => note.bar ?? 0) ?? []))).toBe(0);
 
@@ -97,7 +115,11 @@ describe("public Shiki No Uta song form", () => {
       { bar: 1, step: 10, note: "C5" },
       { bar: 1, step: 14, note: "Bb4" },
     ]);
-    expect(pack.sceneLayerStacks).toEqual({});
+    expect(Object.keys(pack.sceneLayerStacks ?? {})).toEqual([
+      "chorus", "release", "refrain", "recompose", "return",
+    ]);
+    expect(pack.sceneLayerStacks?.chorus?.melody).toEqual(["memory-counter"]);
+    expect(pack.sceneLayerStacks?.release?.harmony).toEqual(["story-comp"]);
 
     const drumSolo = arranged.find((scene) => scene?.id === "drum-solo");
     expect(drumSolo?.layers.drums?.draftId).toBe("pulse-full");
