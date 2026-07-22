@@ -118,11 +118,34 @@ describe("public Shiki No Uta song form", () => {
       { bar: 1, step: 10, note: "C5" },
       { bar: 1, step: 14, note: "Bb4" },
     ]);
-    expect(Object.keys(pack.sceneLayerStacks ?? {})).toEqual([
-      "section-b", "section-c", "section-d", "ds-section-c", "ds-section-d", "coda",
+    const scoreSections = [
+      { id: "section-a", suffix: "a", bars: 9 },
+      { id: "section-b", suffix: "b", bars: 8 },
+      { id: "section-c", suffix: "c", bars: 8 },
+      { id: "section-d", suffix: "d", bars: 8 },
+    ];
+    for (const { id, suffix, bars } of scoreSections) {
+      expect(pack.scenePlacements[id]).toEqual(expect.objectContaining({
+        drums: `pulse-score-${suffix}`,
+        bass: `bass-score-${suffix}`,
+        harmony: `story-score-${suffix}`,
+        melody: `memory-score-${suffix}`,
+      }));
+      for (const prefix of ["pulse", "bass", "story", "memory"]) {
+        expect(pack.drafts.find((draft) => draft.id === `${prefix}-score-${suffix}`)?.patternBars).toBe(bars);
+      }
+      expect(pack.sceneLayerStacks?.[id]?.melody).toBeUndefined();
+    }
+    expect(pack.scenePlacements["ds-section-c"]).toEqual(pack.scenePlacements["section-c"]);
+    expect(pack.scenePlacements["ds-section-d"]).toEqual(pack.scenePlacements["section-d"]);
+
+    const scoreLeadA = pack.drafts.find((draft) => draft.id === "memory-score-a");
+    expect(scoreLeadA?.notes?.slice(0, 3).map(({ bar, step, note }) => ({ bar, step, note }))).toEqual([
+      { bar: 0, step: 13, note: "Eb4" },
+      { bar: 0, step: 14, note: "Eb4" },
+      { bar: 0, step: 15, note: "F4" },
     ]);
-    expect(pack.sceneLayerStacks?.["section-b"]?.melody).toEqual(["memory-counter"]);
-    expect(pack.sceneLayerStacks?.["section-c"]?.harmony).toEqual(["story-comp"]);
+    expect(Object.keys(pack.sceneLayerStacks ?? {})).toEqual(["coda"]);
 
     const drumSolo = arranged.find((scene) => scene?.id === "drum-solo");
     expect(drumSolo?.layers.drums?.draftId).toBe("pulse-full");
