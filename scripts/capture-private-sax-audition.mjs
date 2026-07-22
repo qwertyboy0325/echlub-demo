@@ -9,6 +9,7 @@ const packPath = resolve(process.env.PACK_PATH ?? "local-reconstruction/shiki-no
 const outputPath = resolve(process.env.OUTPUT_PATH ?? "local-reconstruction/audio-analysis/browser-sax-reconstruction.webm");
 const captureStartBar = Number(process.env.CAPTURE_START_BAR ?? 47);
 const captureEndBar = Number(process.env.CAPTURE_END_BAR ?? 56);
+const captureSpeed = Number(process.env.CAPTURE_SPEED ?? 1);
 await access(packPath);
 
 const chrome = process.env.CHROME_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
@@ -46,12 +47,19 @@ try {
     element.value = "8";
     element.dispatchEvent(new Event("input", { bubbles: true }));
   });
+  if (captureStartBar === 0) {
+    await page.$eval("#speed-control", (element, speed) => {
+      element.value = String(speed);
+      element.dispatchEvent(new Event("input", { bubbles: true }));
+    }, captureSpeed);
+  }
   await page.click("#skip-playback");
+  await page.waitForFunction(() => window.__echlubDemoController?.runtime.act === "canonicalPlayback");
   await page.waitForFunction((bar) => (window.__echlubState?.currentBar ?? -1) >= bar, { timeout: 45000 }, captureStartBar);
-  await page.$eval("#speed-control", (element) => {
-    element.value = "1";
+  await page.$eval("#speed-control", (element, speed) => {
+    element.value = String(speed);
     element.dispatchEvent(new Event("input", { bubbles: true }));
-  });
+  }, captureSpeed);
 
   await page.evaluate(async () => {
     const { audioEngine } = await import("/src/main.ts");

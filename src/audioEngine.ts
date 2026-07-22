@@ -745,7 +745,10 @@ export class AudioEngine {
     } else if (content.kind === "harmony") {
       const currentStep = patternStep(content.patternBars);
       const chords = content.chords.filter((chord) => chord.bar * 16 + (chord.step ?? 0) === currentStep);
-      for (const chord of chords) this.harmony.triggerAttackRelease(chord.notes, chord.duration ?? "1m", time, chord.velocity ?? 0.3);
+      for (const chord of chords) {
+        const durationSeconds = Math.max(0.03, Tone.Time(chord.duration ?? "1m").toSeconds() - 0.012);
+        this.harmony.triggerAttackRelease(chord.notes, durationSeconds, time, chord.velocity ?? 0.3);
+      }
     } else if (content.kind === "melody") {
       const currentStep = patternStep(content.patternBars);
       const note = content.notes.find((n) => (n.bar ?? 0) * 16 + n.step === currentStep);
@@ -786,7 +789,14 @@ export class AudioEngine {
       return;
     }
 
-    if (layer === "bass") (voiceIndex > 0 ? this.bassAccent : this.bass).triggerAttackRelease(note.note, note.duration, scheduledTime, velocity);
+    if (layer === "bass") {
+      // Adjacent notes otherwise schedule the previous release at exactly the
+      // next attack. Web Audio may process that release last and immediately
+      // silence the new note, which made connected eighth-note lines collapse
+      // into isolated downbeats.
+      const collisionSafeDuration = Math.max(0.03, durationSeconds - 0.012);
+      (voiceIndex > 0 ? this.bassAccent : this.bass).triggerAttackRelease(note.note, collisionSafeDuration, scheduledTime, velocity);
+    }
     else this.melody.triggerAttackRelease(note.note, note.duration, scheduledTime, velocity);
   }
 
