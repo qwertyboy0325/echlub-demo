@@ -159,6 +159,10 @@ describe("public Shiki No Uta song form", () => {
           .map(({ step, voice }) => `${step}:${voice}`).join("|"));
       expect(new Set(barSignatures).size).toBeGreaterThanOrEqual(6);
     }
+    expect(pack.scenePlacements["sax-trading"]?.drums).toBe("pulse-score-sax");
+    expect(pack.drafts.find((draft) => draft.id === "pulse-score-sax")?.patternBars).toBe(8);
+    expect(pack.scenes.every(({ fx }) => fx.masterGain <= 1.5)).toBe(true);
+    expect(pack.defaultMix.masterGain).toBeLessThanOrEqual(1);
     expect(Object.keys(pack.sceneLayerStacks ?? {})).toEqual(["coda"]);
 
     const drumSolo = arranged.find((scene) => scene?.id === "drum-solo");

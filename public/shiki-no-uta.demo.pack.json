@@ -306,7 +306,8 @@
         "pulse-score-a",
         "pulse-score-b",
         "pulse-score-c",
-        "pulse-score-d"
+        "pulse-score-d",
+        "pulse-score-sax"
       ],
       "gain": 0.78
     },
@@ -10183,7 +10184,7 @@
           "bar": 1,
           "step": 4,
           "pitch": 0,
-          "note": "B3",
+          "note": "Bb3",
           "duration": "2n",
           "velocity": 0.62,
           "articulation": "legato"
@@ -10593,7 +10594,7 @@
           "bar": 6,
           "step": 0,
           "pitch": 0,
-          "note": "B4",
+          "note": "Bb4",
           "duration": "8n.",
           "velocity": 0.62,
           "articulation": "accent"
@@ -10653,7 +10654,7 @@
           "bar": 6,
           "step": 12,
           "pitch": 0,
-          "note": "B3",
+          "note": "Bb3",
           "duration": "8n",
           "velocity": 0.62,
           "articulation": "legato"
@@ -10673,7 +10674,7 @@
           "bar": 7,
           "step": 0,
           "pitch": 0,
-          "note": "B3",
+          "note": "Bb3",
           "duration": "8n",
           "velocity": 0.62,
           "articulation": "accent"
@@ -10693,7 +10694,7 @@
           "bar": 7,
           "step": 3,
           "pitch": 0,
-          "note": "B3",
+          "note": "Bb3",
           "duration": "8n",
           "velocity": 0.62,
           "articulation": "legato"
@@ -10713,7 +10714,7 @@
           "bar": 7,
           "step": 6,
           "pitch": 0,
-          "note": "B3",
+          "note": "Bb3",
           "duration": "8n",
           "velocity": 0.62,
           "articulation": "legato"
@@ -10723,7 +10724,7 @@
           "bar": 7,
           "step": 8,
           "pitch": 0,
-          "note": "B3",
+          "note": "Bb3",
           "duration": "2n",
           "velocity": 0.62,
           "articulation": "legato"
@@ -12601,7 +12602,7 @@
           "bar": 1,
           "step": 10,
           "pitch": 0,
-          "note": "B4",
+          "note": "Bb4",
           "duration": "8n",
           "velocity": 0.62,
           "articulation": "legato"
@@ -12911,7 +12912,7 @@
           "bar": 5,
           "step": 10,
           "pitch": 0,
-          "note": "B4",
+          "note": "Bb4",
           "duration": "8n",
           "velocity": 0.62,
           "articulation": "legato"
@@ -14919,7 +14920,7 @@
           "bar": 1,
           "step": 4,
           "pitch": 0,
-          "note": "B3",
+          "note": "Bb3",
           "duration": "2n",
           "velocity": 0.62,
           "articulation": "legato"
@@ -15329,7 +15330,7 @@
           "bar": 6,
           "step": 0,
           "pitch": 0,
-          "note": "B4",
+          "note": "Bb4",
           "duration": "8n.",
           "velocity": 0.62,
           "articulation": "accent"
@@ -15389,7 +15390,7 @@
           "bar": 6,
           "step": 12,
           "pitch": 0,
-          "note": "B3",
+          "note": "Bb3",
           "duration": "8n",
           "velocity": 0.62,
           "articulation": "legato"
@@ -15409,7 +15410,7 @@
           "bar": 7,
           "step": 0,
           "pitch": 0,
-          "note": "B3",
+          "note": "Bb3",
           "duration": "8n",
           "velocity": 0.62,
           "articulation": "accent"
@@ -15429,7 +15430,7 @@
           "bar": 7,
           "step": 3,
           "pitch": 0,
-          "note": "B3",
+          "note": "Bb3",
           "duration": "8n",
           "velocity": 0.62,
           "articulation": "legato"
@@ -15449,7 +15450,7 @@
           "bar": 7,
           "step": 6,
           "pitch": 0,
-          "note": "B3",
+          "note": "Bb3",
           "duration": "8n",
           "velocity": 0.62,
           "articulation": "legato"
@@ -15459,7 +15460,7 @@
           "bar": 7,
           "step": 8,
           "pitch": 0,
-          "note": "B3",
+          "note": "Bb3",
           "duration": "2n",
           "velocity": 0.62,
           "articulation": "legato"
@@ -17264,6 +17265,689 @@
           "velocity": 0.58
         }
       ]
+    },
+    {
+      "id": "pulse-score-sax",
+      "owner": "pulse",
+      "title": "Score-mapped drums - sax trading",
+      "kind": "drums",
+      "status": "editing",
+      "revision": 0,
+      "patternBars": 8,
+      "drumHits": [
+        {
+          "bar": 0,
+          "step": 0,
+          "voice": "hat",
+          "velocity": 0.38
+        },
+        {
+          "bar": 0,
+          "step": 0,
+          "voice": "kick",
+          "velocity": 0.78
+        },
+        {
+          "bar": 0,
+          "step": 2,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 0,
+          "step": 4,
+          "voice": "hat",
+          "velocity": 0.28
+        },
+        {
+          "bar": 0,
+          "step": 4,
+          "voice": "snare",
+          "velocity": 0.64
+        },
+        {
+          "bar": 0,
+          "step": 6,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 0,
+          "step": 8,
+          "voice": "hat",
+          "velocity": 0.28
+        },
+        {
+          "bar": 0,
+          "step": 8,
+          "voice": "kick",
+          "velocity": 0.78
+        },
+        {
+          "bar": 0,
+          "step": 10,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 0,
+          "step": 10,
+          "voice": "kick",
+          "velocity": 0.58
+        },
+        {
+          "bar": 0,
+          "step": 12,
+          "voice": "hat",
+          "velocity": 0.28
+        },
+        {
+          "bar": 0,
+          "step": 12,
+          "voice": "snare",
+          "velocity": 0.64
+        },
+        {
+          "bar": 0,
+          "step": 15,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 1,
+          "step": 0,
+          "voice": "hat",
+          "velocity": 0.38
+        },
+        {
+          "bar": 1,
+          "step": 0,
+          "voice": "kick",
+          "velocity": 0.78
+        },
+        {
+          "bar": 1,
+          "step": 2,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 1,
+          "step": 4,
+          "voice": "hat",
+          "velocity": 0.28
+        },
+        {
+          "bar": 1,
+          "step": 4,
+          "voice": "snare",
+          "velocity": 0.64
+        },
+        {
+          "bar": 1,
+          "step": 6,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 1,
+          "step": 8,
+          "voice": "kick",
+          "velocity": 0.78
+        },
+        {
+          "bar": 1,
+          "step": 9,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 1,
+          "step": 9,
+          "voice": "kick",
+          "velocity": 0.58
+        },
+        {
+          "bar": 1,
+          "step": 10,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 1,
+          "step": 11,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 1,
+          "step": 11,
+          "voice": "kick",
+          "velocity": 0.58
+        },
+        {
+          "bar": 1,
+          "step": 12,
+          "voice": "hat",
+          "velocity": 0.28
+        },
+        {
+          "bar": 1,
+          "step": 14,
+          "voice": "snare",
+          "velocity": 0.48
+        },
+        {
+          "bar": 1,
+          "step": 15,
+          "voice": "snare",
+          "velocity": 0.48
+        },
+        {
+          "bar": 2,
+          "step": 0,
+          "voice": "hat",
+          "velocity": 0.38
+        },
+        {
+          "bar": 2,
+          "step": 0,
+          "voice": "kick",
+          "velocity": 0.78
+        },
+        {
+          "bar": 2,
+          "step": 2,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 2,
+          "step": 4,
+          "voice": "hat",
+          "velocity": 0.28
+        },
+        {
+          "bar": 2,
+          "step": 4,
+          "voice": "snare",
+          "velocity": 0.64
+        },
+        {
+          "bar": 2,
+          "step": 6,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 2,
+          "step": 8,
+          "voice": "hat",
+          "velocity": 0.28
+        },
+        {
+          "bar": 2,
+          "step": 8,
+          "voice": "kick",
+          "velocity": 0.78
+        },
+        {
+          "bar": 2,
+          "step": 10,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 2,
+          "step": 10,
+          "voice": "kick",
+          "velocity": 0.58
+        },
+        {
+          "bar": 2,
+          "step": 12,
+          "voice": "hat",
+          "velocity": 0.28
+        },
+        {
+          "bar": 2,
+          "step": 12,
+          "voice": "snare",
+          "velocity": 0.64
+        },
+        {
+          "bar": 2,
+          "step": 15,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 3,
+          "step": 0,
+          "voice": "hat",
+          "velocity": 0.38
+        },
+        {
+          "bar": 3,
+          "step": 0,
+          "voice": "kick",
+          "velocity": 0.78
+        },
+        {
+          "bar": 3,
+          "step": 2,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 3,
+          "step": 4,
+          "voice": "hat",
+          "velocity": 0.28
+        },
+        {
+          "bar": 3,
+          "step": 4,
+          "voice": "snare",
+          "velocity": 0.64
+        },
+        {
+          "bar": 3,
+          "step": 6,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 3,
+          "step": 8,
+          "voice": "kick",
+          "velocity": 0.78
+        },
+        {
+          "bar": 3,
+          "step": 9,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 3,
+          "step": 9,
+          "voice": "kick",
+          "velocity": 0.58
+        },
+        {
+          "bar": 3,
+          "step": 10,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 3,
+          "step": 11,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 3,
+          "step": 11,
+          "voice": "kick",
+          "velocity": 0.58
+        },
+        {
+          "bar": 3,
+          "step": 12,
+          "voice": "hat",
+          "velocity": 0.28
+        },
+        {
+          "bar": 3,
+          "step": 14,
+          "voice": "snare",
+          "velocity": 0.48
+        },
+        {
+          "bar": 3,
+          "step": 15,
+          "voice": "snare",
+          "velocity": 0.48
+        },
+        {
+          "bar": 4,
+          "step": 0,
+          "voice": "hat",
+          "velocity": 0.38
+        },
+        {
+          "bar": 4,
+          "step": 0,
+          "voice": "kick",
+          "velocity": 0.78
+        },
+        {
+          "bar": 4,
+          "step": 2,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 4,
+          "step": 4,
+          "voice": "hat",
+          "velocity": 0.28
+        },
+        {
+          "bar": 4,
+          "step": 4,
+          "voice": "snare",
+          "velocity": 0.64
+        },
+        {
+          "bar": 4,
+          "step": 6,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 4,
+          "step": 8,
+          "voice": "hat",
+          "velocity": 0.28
+        },
+        {
+          "bar": 4,
+          "step": 8,
+          "voice": "kick",
+          "velocity": 0.78
+        },
+        {
+          "bar": 4,
+          "step": 10,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 4,
+          "step": 10,
+          "voice": "kick",
+          "velocity": 0.58
+        },
+        {
+          "bar": 4,
+          "step": 12,
+          "voice": "hat",
+          "velocity": 0.28
+        },
+        {
+          "bar": 4,
+          "step": 12,
+          "voice": "snare",
+          "velocity": 0.64
+        },
+        {
+          "bar": 4,
+          "step": 15,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 5,
+          "step": 0,
+          "voice": "hat",
+          "velocity": 0.38
+        },
+        {
+          "bar": 5,
+          "step": 0,
+          "voice": "kick",
+          "velocity": 0.78
+        },
+        {
+          "bar": 5,
+          "step": 2,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 5,
+          "step": 4,
+          "voice": "hat",
+          "velocity": 0.28
+        },
+        {
+          "bar": 5,
+          "step": 4,
+          "voice": "snare",
+          "velocity": 0.64
+        },
+        {
+          "bar": 5,
+          "step": 6,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 5,
+          "step": 8,
+          "voice": "kick",
+          "velocity": 0.78
+        },
+        {
+          "bar": 5,
+          "step": 9,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 5,
+          "step": 9,
+          "voice": "kick",
+          "velocity": 0.58
+        },
+        {
+          "bar": 5,
+          "step": 10,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 5,
+          "step": 11,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 5,
+          "step": 11,
+          "voice": "kick",
+          "velocity": 0.58
+        },
+        {
+          "bar": 5,
+          "step": 13,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 5,
+          "step": 14,
+          "voice": "snare",
+          "velocity": 0.48
+        },
+        {
+          "bar": 5,
+          "step": 15,
+          "voice": "snare",
+          "velocity": 0.48
+        },
+        {
+          "bar": 6,
+          "step": 0,
+          "voice": "hat",
+          "velocity": 0.38
+        },
+        {
+          "bar": 6,
+          "step": 0,
+          "voice": "kick",
+          "velocity": 0.78
+        },
+        {
+          "bar": 6,
+          "step": 2,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 6,
+          "step": 4,
+          "voice": "hat",
+          "velocity": 0.28
+        },
+        {
+          "bar": 6,
+          "step": 4,
+          "voice": "snare",
+          "velocity": 0.64
+        },
+        {
+          "bar": 6,
+          "step": 6,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 6,
+          "step": 8,
+          "voice": "hat",
+          "velocity": 0.28
+        },
+        {
+          "bar": 6,
+          "step": 8,
+          "voice": "kick",
+          "velocity": 0.78
+        },
+        {
+          "bar": 6,
+          "step": 10,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 6,
+          "step": 10,
+          "voice": "kick",
+          "velocity": 0.58
+        },
+        {
+          "bar": 6,
+          "step": 12,
+          "voice": "hat",
+          "velocity": 0.28
+        },
+        {
+          "bar": 6,
+          "step": 12,
+          "voice": "snare",
+          "velocity": 0.64
+        },
+        {
+          "bar": 6,
+          "step": 14,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 7,
+          "step": 0,
+          "voice": "hat",
+          "velocity": 0.38
+        },
+        {
+          "bar": 7,
+          "step": 0,
+          "voice": "kick",
+          "velocity": 0.78
+        },
+        {
+          "bar": 7,
+          "step": 2,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 7,
+          "step": 4,
+          "voice": "hat",
+          "velocity": 0.28
+        },
+        {
+          "bar": 7,
+          "step": 4,
+          "voice": "snare",
+          "velocity": 0.64
+        },
+        {
+          "bar": 7,
+          "step": 6,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 7,
+          "step": 8,
+          "voice": "kick",
+          "velocity": 0.78
+        },
+        {
+          "bar": 7,
+          "step": 9,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 7,
+          "step": 9,
+          "voice": "kick",
+          "velocity": 0.58
+        },
+        {
+          "bar": 7,
+          "step": 10,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 7,
+          "step": 11,
+          "voice": "hat",
+          "velocity": 0.21
+        },
+        {
+          "bar": 7,
+          "step": 11,
+          "voice": "kick",
+          "velocity": 0.58
+        },
+        {
+          "bar": 7,
+          "step": 12,
+          "voice": "hat",
+          "velocity": 0.28
+        },
+        {
+          "bar": 7,
+          "step": 13,
+          "voice": "snare",
+          "velocity": 0.48
+        },
+        {
+          "bar": 7,
+          "step": 15,
+          "voice": "snare",
+          "velocity": 0.48
+        }
+      ]
     }
   ],
   "scenes": [
@@ -17284,7 +17968,7 @@
         "filter": 3900,
         "delayWet": 0.06,
         "reverbWet": 0.18,
-        "masterGain": 8,
+        "masterGain": 0,
         "faders": {
           "groove": 52,
           "harmony": 62,
@@ -17310,7 +17994,7 @@
         "filter": 5200,
         "delayWet": 0.1,
         "reverbWet": 0.18,
-        "masterGain": 8.5,
+        "masterGain": 1.5,
         "faders": {
           "groove": 68,
           "harmony": 64,
@@ -17336,7 +18020,7 @@
         "filter": 6800,
         "delayWet": 0.14,
         "reverbWet": 0.23,
-        "masterGain": 8.5,
+        "masterGain": 1.5,
         "faders": {
           "groove": 72,
           "harmony": 66,
@@ -17362,7 +18046,7 @@
         "filter": 5800,
         "delayWet": 0.12,
         "reverbWet": 0.2,
-        "masterGain": 4.5,
+        "masterGain": 1,
         "faders": {
           "groove": 62,
           "harmony": 56,
@@ -17388,7 +18072,7 @@
         "filter": 6800,
         "delayWet": 0.14,
         "reverbWet": 0.23,
-        "masterGain": 8.5,
+        "masterGain": 1.5,
         "faders": {
           "groove": 72,
           "harmony": 66,
@@ -17414,7 +18098,7 @@
         "filter": 6800,
         "delayWet": 0.14,
         "reverbWet": 0.23,
-        "masterGain": 8.5,
+        "masterGain": 1.5,
         "faders": {
           "groove": 72,
           "harmony": 66,
@@ -17440,7 +18124,7 @@
         "filter": 5600,
         "delayWet": 0.14,
         "reverbWet": 0.21,
-        "masterGain": 8.5,
+        "masterGain": 1.5,
         "faders": {
           "groove": 68,
           "harmony": 64,
@@ -17466,7 +18150,7 @@
         "filter": 6800,
         "delayWet": 0.12,
         "reverbWet": 0.2,
-        "masterGain": 9.4,
+        "masterGain": 1.5,
         "faders": {
           "groove": 74,
           "harmony": 66,
@@ -17492,7 +18176,7 @@
         "filter": 6800,
         "delayWet": 0.12,
         "reverbWet": 0.2,
-        "masterGain": 9.4,
+        "masterGain": 1.5,
         "faders": {
           "groove": 74,
           "harmony": 66,
@@ -17518,7 +18202,7 @@
         "filter": 6800,
         "delayWet": 0.12,
         "reverbWet": 0.2,
-        "masterGain": 9.4,
+        "masterGain": 1.5,
         "faders": {
           "groove": 74,
           "harmony": 66,
@@ -17544,7 +18228,7 @@
         "filter": 6800,
         "delayWet": 0.12,
         "reverbWet": 0.2,
-        "masterGain": 9.4,
+        "masterGain": 1.5,
         "faders": {
           "groove": 74,
           "harmony": 66,
@@ -17570,7 +18254,7 @@
         "filter": 5600,
         "delayWet": 0.14,
         "reverbWet": 0.21,
-        "masterGain": 8.5,
+        "masterGain": 1.5,
         "faders": {
           "groove": 68,
           "harmony": 64,
@@ -17596,7 +18280,7 @@
         "filter": 6800,
         "delayWet": 0.14,
         "reverbWet": 0.23,
-        "masterGain": 8.5,
+        "masterGain": 1.5,
         "faders": {
           "groove": 72,
           "harmony": 66,
@@ -17622,7 +18306,7 @@
         "filter": 6800,
         "delayWet": 0.14,
         "reverbWet": 0.23,
-        "masterGain": 8.5,
+        "masterGain": 1.5,
         "faders": {
           "groove": 72,
           "harmony": 66,
@@ -17648,7 +18332,7 @@
         "filter": 7600,
         "delayWet": 0.08,
         "reverbWet": 0.21,
-        "masterGain": 9.2,
+        "masterGain": 1,
         "faders": {
           "groove": 82,
           "harmony": 0,
@@ -17674,7 +18358,7 @@
         "filter": 4600,
         "delayWet": 0.18,
         "reverbWet": 0.28,
-        "masterGain": 9.4,
+        "masterGain": 0.5,
         "faders": {
           "groove": 66,
           "harmony": 64,
@@ -17706,7 +18390,7 @@
       "texture": "blend-warm"
     },
     "sax-trading": {
-      "drums": "pulse-break",
+      "drums": "pulse-score-sax",
       "bass": "bass-sax",
       "harmony": "story-sax",
       "melody": "memory-sax-solo",
@@ -17797,7 +18481,7 @@
     "filter": 4200,
     "delayWet": 0.14,
     "reverbWet": 0.28,
-    "masterGain": 8,
+    "masterGain": 1,
     "faders": {
       "groove": 68,
       "harmony": 64,
@@ -18295,6 +18979,16 @@
     {
       "id": "prod-material-17",
       "atBeat": 71.4,
+      "roleId": "rhythm",
+      "participantId": "p-rhythm",
+      "workspaceId": "ws-rhythm",
+      "kind": "createDraft",
+      "target": "pulse-score-sax",
+      "label": "Map sax-trading drums to score measures"
+    },
+    {
+      "id": "prod-material-18",
+      "atBeat": 71.60000000000001,
       "roleId": "bass",
       "participantId": "p-bass",
       "workspaceId": "ws-bass",
@@ -18303,8 +18997,8 @@
       "label": "Build the evolving A-section bass clip"
     },
     {
-      "id": "prod-material-18",
-      "atBeat": 71.60000000000001,
+      "id": "prod-material-19",
+      "atBeat": 71.8,
       "roleId": "harmony",
       "participantId": "p-harmony",
       "workspaceId": "ws-harmony",
@@ -18313,8 +19007,8 @@
       "label": "Build the connected A-section harmony clip"
     },
     {
-      "id": "prod-material-19",
-      "atBeat": 71.8,
+      "id": "prod-material-20",
+      "atBeat": 72,
       "roleId": "melody",
       "participantId": "p-melody",
       "workspaceId": "ws-melody",
@@ -18323,8 +19017,8 @@
       "label": "Build the twelve-bar vocal-form clip"
     },
     {
-      "id": "prod-material-20",
-      "atBeat": 72,
+      "id": "prod-material-21",
+      "atBeat": 72.2,
       "roleId": "rhythm",
       "participantId": "p-rhythm",
       "workspaceId": "ws-rhythm",
@@ -18333,8 +19027,8 @@
       "label": "Build the sax-transition drum clip"
     },
     {
-      "id": "prod-material-21",
-      "atBeat": 72.2,
+      "id": "prod-material-22",
+      "atBeat": 72.4,
       "roleId": "bass",
       "participantId": "p-bass",
       "workspaceId": "ws-bass",
@@ -18343,8 +19037,8 @@
       "label": "Build the sax-section bass foundation"
     },
     {
-      "id": "prod-material-22",
-      "atBeat": 72.4,
+      "id": "prod-material-23",
+      "atBeat": 72.60000000000001,
       "roleId": "harmony",
       "participantId": "p-harmony",
       "workspaceId": "ws-harmony",
@@ -18353,8 +19047,8 @@
       "label": "Build the sax-section harmony clip"
     },
     {
-      "id": "prod-material-23",
-      "atBeat": 72.60000000000001,
+      "id": "prod-material-24",
+      "atBeat": 72.8,
       "roleId": "melody",
       "participantId": "p-melody",
       "workspaceId": "ws-melody",
@@ -18363,8 +19057,8 @@
       "label": "Build the alto sax answer clip"
     },
     {
-      "id": "prod-material-24",
-      "atBeat": 72.8,
+      "id": "prod-material-25",
+      "atBeat": 73,
       "roleId": "melody",
       "participantId": "p-melody",
       "workspaceId": "ws-melody",
@@ -18373,8 +19067,8 @@
       "label": "Build the return vocal and guitar clip"
     },
     {
-      "id": "prod-material-25",
-      "atBeat": 73,
+      "id": "prod-material-26",
+      "atBeat": 73.2,
       "roleId": "melody",
       "participantId": "p-melody",
       "workspaceId": "ws-melody",
@@ -18383,8 +19077,8 @@
       "label": "Build the late electric-guitar variation"
     },
     {
-      "id": "prod-material-26",
-      "atBeat": 73.2,
+      "id": "prod-material-27",
+      "atBeat": 73.4,
       "roleId": "bass",
       "participantId": "p-bass",
       "workspaceId": "ws-bass",
@@ -18393,8 +19087,8 @@
       "label": "Build the coda bass clip"
     },
     {
-      "id": "prod-material-27",
-      "atBeat": 73.4,
+      "id": "prod-material-28",
+      "atBeat": 73.60000000000001,
       "roleId": "harmony",
       "participantId": "p-harmony",
       "workspaceId": "ws-harmony",
@@ -18403,8 +19097,8 @@
       "label": "Build the coda harmony clip"
     },
     {
-      "id": "prod-material-28",
-      "atBeat": 73.60000000000001,
+      "id": "prod-material-29",
+      "atBeat": 73.8,
       "roleId": "melody",
       "participantId": "p-melody",
       "workspaceId": "ws-melody",
@@ -18413,8 +19107,8 @@
       "label": "Build the coda reply clip"
     },
     {
-      "id": "prod-material-29",
-      "atBeat": 73.8,
+      "id": "prod-material-30",
+      "atBeat": 74,
       "roleId": "texture",
       "participantId": "p-texture",
       "workspaceId": "ws-texture",
@@ -18423,8 +19117,8 @@
       "label": "Build the filtered transition texture"
     },
     {
-      "id": "prod-material-30",
-      "atBeat": 74,
+      "id": "prod-material-31",
+      "atBeat": 74.2,
       "roleId": "texture",
       "participantId": "p-texture",
       "workspaceId": "ws-texture",

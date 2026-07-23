@@ -36,4 +36,12 @@ describe("Shiki No Uta full-score lead authority", () => {
       ] }),
     ]);
   });
+
+  it("applies the written key signature when converting the alto staff to concert pitch", () => {
+    const notes = leadMeasures(13, 44).flatMap(({ events }) => events.map(({ note }) => note));
+    expect(notes).not.toContain("B3");
+    expect(notes).not.toContain("B4");
+    expect(leadMeasures(14, 14)[0]?.events[2]?.note).toBe("Bb3");
+    expect(leadMeasures(30, 30)[0]?.events[5]?.note).toBe("Bb4");
+  });
 });
