@@ -21,6 +21,7 @@ import type { BrainId, PerformanceScriptEvent, RuntimeState, SceneDefinition } f
 import { participantsForCapability } from "./domain/performanceModel";
 import type { CapabilityOperationEvidence } from "./demo/capabilityLiveOperations";
 import { DemoController, scheduleArrangementPlayback } from "./demo/demoController";
+import { schedulePackMixAutomation } from "./demo/mixAutomationSchedule";
 import { capabilityTargetForElement } from "./capabilityUiTargets";
 import { capabilityIdsNeedingRefresh, renderCapabilityWorkspace } from "./ui/liveCapabilityWorkspaces";
 import { buildTopologyTransformation } from "./demo/canonicalPlayback";
@@ -664,6 +665,12 @@ function scheduleScript(): void {
     }, event.at);
     scriptIds.push(id);
   }
+  const automationIds = schedulePackMixAutomation(
+    audioEngine,
+    demoController.runtime.pack.mixAutomation,
+    "livePerformance",
+  );
+  scriptIds.push(...automationIds);
   registerLiveSchedules(demoController.runtime.scheduleRegistry, scriptIds);
   instrumentation.setScheduleCount(scriptIds.length);
 }
@@ -1020,6 +1027,7 @@ async function runCanonicalPlaybackAct(onDone: () => void): Promise<void> {
   audioEngine.setTotalBars(session.arrangement.totalBars);
   updateTotalBarsUi();
   audioEngine.clearLaunchBoundaries();
+  audioEngine.clearMixAutomationLog();
 
   const sceneRefs = session.arrangement.scenes.map((ref) => ({
     scene: session.scenes.find((s) => s.id === ref.sceneId)!,
@@ -1051,6 +1059,12 @@ async function runCanonicalPlaybackAct(onDone: () => void): Promise<void> {
       onDone();
     },
   );
+  const automationIds = schedulePackMixAutomation(
+    audioEngine,
+    demoController.runtime.pack.mixAutomation,
+    "canonicalPlayback",
+  );
+  canonicalPlaybackIds.push(...automationIds);
   demoController.registerCanonicalSchedules(canonicalPlaybackIds);
   audioEngine.start();
 }
