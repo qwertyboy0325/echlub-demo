@@ -19,12 +19,19 @@ import {
 } from "./sceneExecution";
 import type { BrainId, PerformanceScriptEvent, RuntimeState, SceneDefinition } from "./types";
 import { DemoController, scheduleArrangementPlayback } from "./demo/demoController";
-import { renderComparisonPanel, renderProductionRail, renderCanonicalStage, renderTopologyPanel } from "./demo/demoUi";
 import { buildTopologyTransformation } from "./demo/canonicalPlayback";
 import { enterAct, registerLiveSchedules } from "./demo/actScheduleRegistry";
 import type { DemoAct } from "./domain/sessionTypes";
 import { arrangementLaunchBoundaries } from "./demo/liveStructuralPlan";
 import { importReconstructionPackFile, parseReconstructionPackJson } from "./domain/packLoader";
+import { renderAppShell, renderTrackList, renderTransportStrip } from "./ui/appShell";
+import { renderParticipantRail } from "./ui/participantRail";
+import { renderSessionView } from "./ui/sessionView";
+import { renderArrangementView } from "./ui/arrangementView";
+import { renderClipDetailView } from "./ui/clipDetailView";
+import { renderCollaborationInspector } from "./ui/collaborationInspector";
+import { legacyBrainPanelsFromState, renderPerformanceOverlay } from "./ui/performanceOverlay";
+import { renderComparisonPanelFromSummary } from "./ui/comparisonView";
 
 const brainMeta: Record<BrainId, { title: string; subtitle: string; symbol: string }> = {
   memory: { title: "Material Deck", subtitle: "cue, audition and replace musical phrases", symbol: "M" },
@@ -66,7 +73,7 @@ const audioEngine = new AudioEngine({
       if (detail) detail.textContent = description;
       if (actor) actor.textContent = "Story / Structure";
       updateTotalBarsUi();
-      refreshProductionUi();
+      refreshDawUi();
     }, time);
   },
   onStep: (bar, beat, sixteenth) => {
@@ -112,7 +119,7 @@ audioEngine.bindSceneAuthority(sceneAuthority);
 const demoController = new DemoController({
   getState: () => state,
   refreshUi: () => { refreshWorkspaces(); updateAllUi(); updateTransportUi(); },
-  refreshProductionUi,
+  refreshProductionUi: refreshDawUi,
   audioEngine,
   clearTransportSchedules: (ids) => {
     if (initialized) audioEngine.clearScript(ids);
@@ -133,15 +140,15 @@ const demoController = new DemoController({
   onActChange: (act) => {
     demoMode = act;
     app!.querySelector(".app-shell")?.setAttribute("data-act", act);
-    refreshProductionUi();
+    refreshDawUi();
   },
   runLivePerformance: () => { void runLivePerformanceAct(); },
   showComparison: (summary) => {
-    comparisonHtml = renderComparisonPanel(summary);
-    const slot = document.querySelector("#comparison-slot");
-    if (slot) slot.innerHTML = comparisonHtml;
+    const topology = buildTopologyTransformation(demoController.runtime.session);
+    comparisonHtml = renderComparisonPanelFromSummary(summary, topology);
     demoMode = "comparison";
-    refreshProductionUi();
+    app!.querySelector(".app-shell")?.setAttribute("data-act", "comparison");
+    refreshDawUi();
   },
   scheduleCanonicalPlayback: (onDone) => { void runCanonicalPlaybackAct(onDone); },
 });
@@ -157,31 +164,23 @@ function render(): void {
   const idleScene = createIdleScene();
   const displayScene = sceneById(state.activeSceneId) ?? idleScene;
   const isPublicSongDemo = demoController.runtime.pack.metadata.source === "public-demo";
-  app!.innerHTML = `
-  <main class="app-shell ${state.recordingMode ? "recording-mode" : ""}" data-act="${demoMode}" data-experience-started="${experienceStarted}">
-    <header class="topbar glass">
-      <div class="brand-block">
-        <div class="brand-mark">E</div>
-        <div>
-          <div class="eyebrow">ROUND 3 · production → song → performance</div>
-          <h1>${isPublicSongDemo ? "EchLub · Shiki No Uta Cover Lab" : "EchLub Concept Film Runtime"}</h1>
-          <p>${isPublicSongDemo ? "A browser-synth cover demo: production, full-song playback, and live DJ recomposition." : "Virtual creators build materials, assemble a canonical song, then reopen it for live recomposition."}</p>
-        </div>
-      </div>
-      <div class="header-status">
-        <span class="pill" id="bpm-label">${demoController.runtime.pack.metadata.bpm} BPM</span>
-        <span class="pill" id="total-bars-label">${demoController.runtime.session.arrangement.totalBars} bars</span>
-        <span class="pill" id="pack-label">${demoController.runtime.pack.metadata.title}</span>
-        <span class="pill">prototype only</span>
-        <span class="pill status-ready" id="audio-status">audio locked</span>
-      </div>
-    </header>
+  const session = demoController.runtime.session;
+  const sceneCards = session.scenes.map((s) =>
+    `<article class="scene-card ${s.id === state.activeSceneId ? "active" : ""} ${state.queue.some((q) => q.sceneId === s.id && q.status === "queued") ? "queued" : ""}" data-scene="${s.id}"><span>${String(s.startBar + 1).padStart(2, "0")}</span><strong>${s.title}</strong><small>${s.bars} bars</small></article>`,
+  ).join("");
+  const masterGrid = Array.from({ length: 16 }, (_, i) => `<i data-master-step="${i}"></i>`).join("");
+  const boundaryHtml = `
+    <div class="boundary-countdown" id="boundary-countdown" data-phase="idle">
+      <span class="boundary-label" id="boundary-label">—</span>
+      <span class="boundary-ticks" id="boundary-ticks"></span>
+    </div>`;
 
+  const launcherHtml = `
     <section class="demo-controls experience-launcher glass">
       <div class="experience-copy">
         <span class="eyebrow">CHOOSE YOUR EXPERIENCE</span>
         <h2>先聽歌，或觀看它如何被製作與重組</h2>
-        <p>第一次點擊會解鎖瀏覽器音訊。直接播放全曲會跳過製作動畫，從 114-bar canonical arrangement 開始。</p>
+        <p>第一次點擊會解鎖瀏覽器音訊。直接播放全曲會跳過製作動畫，從 ${session.arrangement.totalBars}-bar canonical arrangement 開始。</p>
       </div>
       <div class="experience-actions">
         <button class="button primary listen-now" id="skip-playback"><strong>▶ 立即播放全曲</strong><span>完整 canonical song · 約 5 分鐘</span></button>
@@ -197,117 +196,129 @@ function render(): void {
         <label class="pack-import">Local pack <input type="file" id="pack-file-input" accept="application/json,.json" /></label>
         <span class="pack-import-status" id="pack-import-status">${isPublicSongDemo ? "bundled · public song demo" : "validated placeholder"}</span>
       </div>
-    </section>
+    </section>`;
 
-    <section class="master-stage glass">
-      <div class="master-copy">
-        <div class="eyebrow">MASTER OUTPUT</div>
-        <h2 id="scene-title">${displayScene.title}</h2>
-        <p id="scene-description">${displayScene.description}</p>
-        <div class="boundary-countdown" id="boundary-countdown" data-phase="idle">
-          <span class="boundary-label" id="boundary-label">—</span>
-          <span class="boundary-ticks" id="boundary-ticks"></span>
-        </div>
-      </div>
-      <div class="transport-readout">
-        <div><span>Position</span><strong id="position">01 · 1 · 1</strong></div>
-        <div><span>Next phrase</span><strong id="next-scene">Groove Established</strong></div>
-        <div><span>Queued</span><strong id="queue-count">0 decisions</strong></div>
-        <div><span>Provenance</span><strong id="provenance-label">—</strong></div>
-      </div>
-      <div class="step-grid" id="master-grid">
-        ${Array.from({ length: 16 }, (_, i) => `<i data-master-step="${i}"></i>`).join("")}
-      </div>
-      <div class="scene-timeline">
-        ${demoController.runtime.session.scenes.map((s) => `<article class="scene-card ${s.id === state.activeSceneId ? "active" : ""} ${state.queue.some((q) => q.sceneId === s.id && q.status === "queued") ? "queued" : ""}" data-scene="${s.id}"><span>${String(s.startBar + 1).padStart(2, "0")}</span><strong>${s.title}</strong><small>${s.bars} bars</small></article>`).join("")}
-      </div>
-    </section>
+  const dawCtx = buildDawShellContext({
+    isPublicSongDemo,
+    displayScene,
+    sceneCards,
+    masterGrid,
+    boundaryHtml,
+    launcherHtml,
+  });
 
-    <section class="act-explainer production-context glass">
-      <span class="eyebrow">HOW PRODUCTION WORKS</span>
-      <div class="causal-chain">
-        <div><b>1</b><strong>角色修改素材</strong><small>鼓、Bass、和聲、旋律與音色</small></div><i>→</i>
-        <div><b>2</b><strong>Private Cue</strong><small>只 audition 目前 Draft</small></div><i>→</i>
-        <div><b>3</b><strong>放入 Scene</strong><small>固定 revision 與 fingerprint</small></div><i>→</i>
-        <div><b>4</b><strong>組成全曲</strong><small>同一份素材進入 canonical playback</small></div>
-      </div>
-    </section>
-
-    <section class="act-explainer canonical-context glass">
-      <span class="eyebrow">LISTENING MODE</span>
-      <h3>現在播放的是完整固定版本</h3>
-      <p>這一幕不會執行四個 Live capabilities；只沿著上方 16 個編曲段落播放 canonical arrangement。可用 Pause、Restart 或 Scene timeline 確認進度。</p>
-    </section>
-
-    <div id="production-slot"></div>
-    <div id="comparison-slot">${comparisonHtml}</div>
-
-    <section class="live-capability-intro glass">
-      <span class="eyebrow">ACT 3 · LIVE REMIX</span>
-      <h3>這不是四個人在亂按：它們是同一位 DJ 的四組能力</h3>
-      <p>Material 選素材、Rhythm 改節奏、Mixer 控空間、Scene Launcher 改曲式；每次操作都會在下方顯示原因與結果。</p>
-    </section>
-
-    <section class="brain-grid live-capability-grid">
-      ${(["memory", "pulse", "blend", "story"] as BrainId[]).map(renderBrainWindow).join("")}
-    </section>
-
-    <section class="bottom-grid">
-      <article class="glass action-monitor">
-        <div class="section-heading"><div><span class="eyebrow">SEMANTIC ACTION</span><h3 id="action-label">No action yet</h3></div><span class="action-actor" id="action-actor">—</span></div>
-        <p id="action-detail">選擇上方入口。每個動作都會顯示它修改了哪個 Draft、Scene 或 FX，以及為何影響聽到的結果。</p>
-        <div class="pipeline">
-          <span data-state="editing">Editing</span><b>→</b>
-          <span data-state="preview">Private preview</span><b>→</b>
-          <span data-state="offered">Offered</span><b>→</b>
-          <span data-state="queued">Queued</span><b>→</b>
-          <span data-state="playing">Playing</span>
-        </div>
-      </article>
-      <article class="glass jam-memory">
-        <div class="section-heading"><div><span class="eyebrow">JAM MEMORY</span><h3>Captured structural moments</h3></div><span id="memory-count">0 / ${jamMemories.length}</span></div>
-        <div class="memory-list" id="memory-list">
-          ${jamMemories.map((m) => `<button data-memory="${m.id}" disabled><span>${m.at.split(":")[0]}</span><strong>${m.title}</strong><small>${m.description}</small></button>`).join("")}
-        </div>
-      </article>
-    </section>
-    <footer class="demo-footer">${isPublicSongDemo ? "Public cover concept demo · synthesized from derived note and arrangement data · no source recording, stem, score, or lyrics are bundled." : "Round 3 prototype — production, canonical playback, and live recomposition share one data model. Placeholder music only."}</footer>
-  </main>`;
+  app!.innerHTML = renderAppShell(dawCtx);
   bindControls();
   presentation.initialize();
   presentation.reset();
-  refreshProductionUi();
+  seedJamMemoryButtons();
+  refreshDawUi();
   updateAllUi();
 }
 
-function refreshProductionUi(): void {
-  const slot = document.querySelector("#production-slot");
-  if (!slot) return;
-  const showProduction = demoMode === "production" || demoMode === "idle";
-  const showCanonical = demoMode === "canonicalPlayback";
-  if (showProduction) {
-    slot.innerHTML = renderProductionRail(demoController.runtime.session, demoController.director);
-  } else if (showCanonical) {
-    slot.innerHTML = `${renderTopologyPanel(demoController.runtime.session)}${renderCanonicalStage(demoController.runtime.session, state.currentBar)}`;
-  } else {
-    slot.innerHTML = renderTopologyPanel(demoController.runtime.session);
-  }
-  demoController.director.applyDomFocus(app!);
+interface DawShellParts {
+  isPublicSongDemo: boolean;
+  displayScene: SceneDefinition;
+  sceneCards: string;
+  masterGrid: string;
+  boundaryHtml: string;
+  launcherHtml: string;
 }
 
-function renderBrainWindow(brain: BrainId): string {
-  const meta = brainMeta[brain];
-  return `
-    <article class="brain-window glass" data-brain="${brain}">
-      <div class="brain-header">
-        <div class="brain-id">${meta.symbol}</div>
-        <div><span class="eyebrow">LIVE CAPABILITY ${meta.symbol}</span><h3>${meta.title}</h3><p>${meta.subtitle}</p></div>
-        <span class="brain-state" id="${brain}-state">idle</span>
-      </div>
-      <div class="brain-workspace">${renderWorkspace(brain)}</div>
-      <div class="thought-strip"><span>thinking</span><p id="${brain}-thought">${state.thoughts[brain]}</p></div>
-      <div class="virtual-cursor" data-cursor="${brain}"><i></i><b>${meta.symbol}</b></div>
-    </article>`;
+function buildDawShellContext(parts: DawShellParts) {
+  const session = demoController.runtime.session;
+  const isPublicSongDemo = parts.isPublicSongDemo;
+  const mainWorkspace = demoMode === "canonicalPlayback"
+    ? renderArrangementView(session, state.currentBar)
+    : renderSessionView({ session, director: demoController.director, state, selectedDraftId: state.activeDraftId });
+
+  const performanceOverlay = (demoMode === "livePerformance" || demoMode === "comparison")
+    ? renderPerformanceOverlay({
+        session,
+        state,
+        panels: legacyBrainPanelsFromState(session, renderWorkspace),
+        viewLabel: demoController.director.getFocusState().actLabel,
+      })
+    : undefined;
+
+  return {
+    act: demoMode,
+    experienceStarted,
+    recordingMode: state.recordingMode,
+    isPublicSongDemo,
+    metadata: {
+      title: demoController.runtime.pack.metadata.title,
+      bpm: demoController.runtime.pack.metadata.bpm,
+      totalBars: session.arrangement.totalBars,
+      packLabel: demoController.runtime.pack.metadata.title,
+    },
+    launcherHtml: parts.launcherHtml,
+    transportHtml: renderTransportStrip({
+      sceneTitle: parts.displayScene.title,
+      sceneDescription: parts.displayScene.description,
+      position: "01 · 1 · 1",
+      nextScene: session.scenes[1]?.title ?? "Ending",
+      queueCount: "0 decisions",
+      provenance: "—",
+      sceneCardsHtml: parts.sceneCards,
+      masterGridHtml: parts.masterGrid,
+      boundaryHtml: parts.boundaryHtml,
+    }),
+    participantRailHtml: renderParticipantRail(session, demoController.director),
+    trackListHtml: renderTrackList(session.tracks),
+    mainWorkspaceHtml: mainWorkspace,
+    inspectorHtml: renderCollaborationInspector({ session, state, selectedDraftId: state.activeDraftId }),
+    clipDetailHtml: renderClipDetailView({ session, draftId: state.activeDraftId, previewBrain: state.previewBrain }),
+    footerHtml: isPublicSongDemo
+      ? "Public cover concept demo · synthesized from derived note and arrangement data · no source recording, stem, score, or lyrics are bundled."
+      : "Collaborative DAW prototype — production, canonical playback, and live recomposition share one material lineage.",
+    performanceOverlayHtml: performanceOverlay,
+    comparisonHtml: comparisonHtml || undefined,
+  };
+}
+
+function refreshDawUi(): void {
+  const session = demoController.runtime.session;
+  const main = document.querySelector(".daw-main");
+  if (main) {
+    main.classList.toggle("daw-main-arrangement", demoMode === "canonicalPlayback");
+    main.classList.toggle("daw-main-session", demoMode !== "canonicalPlayback");
+    main.innerHTML = demoMode === "canonicalPlayback"
+      ? renderArrangementView(session, state.currentBar)
+      : renderSessionView({ session, director: demoController.director, state, selectedDraftId: state.activeDraftId });
+  }
+  const rail = document.querySelector("#participant-rail");
+  if (rail) rail.outerHTML = renderParticipantRail(session, demoController.director);
+  const inspector = document.querySelector("#collaboration-inspector");
+  if (inspector) {
+    inspector.outerHTML = renderCollaborationInspector({ session, state, selectedDraftId: state.activeDraftId });
+  }
+  const clipDetail = document.querySelector("#clip-detail-view");
+  if (clipDetail) {
+    clipDetail.outerHTML = renderClipDetailView({ session, draftId: state.activeDraftId, previewBrain: state.previewBrain });
+  }
+  const overlaySlot = document.querySelector("#performance-overlay");
+  if (demoMode === "livePerformance" || demoMode === "comparison") {
+    const overlayHtml = renderPerformanceOverlay({
+      session,
+      state,
+      panels: legacyBrainPanelsFromState(session, renderWorkspace),
+      viewLabel: demoController.director.getFocusState().actLabel,
+    });
+    if (overlaySlot) overlaySlot.outerHTML = overlayHtml;
+    else {
+      const ws = document.querySelector("#daw-workspace");
+      ws?.insertAdjacentHTML("afterend", overlayHtml);
+    }
+  } else if (overlaySlot) {
+    overlaySlot.remove();
+  }
+  const comparisonSlot = document.querySelector("#comparison-slot");
+  if (demoMode === "comparison" && comparisonHtml) {
+    if (comparisonSlot) comparisonSlot.innerHTML = comparisonHtml;
+    else document.querySelector(".daw-shell")?.insertAdjacentHTML("beforeend", `<div id="comparison-slot">${comparisonHtml}</div>`);
+  }
+  demoController.director.applyDomFocus(app!);
 }
 
 function renderWorkspace(brain: BrainId): string {
@@ -412,6 +423,16 @@ function renderStoryWorkspace(): string {
     <div class="workspace-actions"><button data-target="hold-scene">Hold 4 bars</button><button data-target="commit-scene">Commit scene</button></div>`;
 }
 
+function seedJamMemoryButtons(): void {
+  const list = document.querySelector("#memory-list");
+  const count = document.querySelector("#memory-count");
+  if (!list) return;
+  list.innerHTML = jamMemories.map((m) =>
+    `<button data-memory="${m.id}" disabled><span>${m.at.split(":")[0]}</span><strong>${m.title}</strong><small>${m.description}</small></button>`,
+  ).join("");
+  if (count) count.textContent = `0 / ${jamMemories.length}`;
+}
+
 function bindControls(): void {
   getButton("#start-button").addEventListener("click", onStart);
   getButton("#pause-button").addEventListener("click", onPause);
@@ -504,7 +525,7 @@ async function onSkipAct(act: DemoAct): Promise<void> {
   } else {
     resetRuntime();
     demoController.syncSessionToState();
-    refreshProductionUi();
+    refreshDawUi();
     refreshWorkspaces();
     updateAllUi();
     getButton("#start-button").textContent = "觀看完整旅程";
@@ -850,7 +871,7 @@ async function runLivePerformanceAct(): Promise<void> {
   audioEngine.setTotalBars(demoController.runtime.session.arrangement.totalBars);
   audioEngine.setLaunchBoundaries(arrangementLaunchBoundaries(demoController.runtime.session));
   updateTotalBarsUi();
-  refreshProductionUi();
+  refreshDawUi();
   resetRuntimeForLive();
   audioEngine.start();
   isPaused = false;
@@ -924,7 +945,7 @@ async function runCanonicalPlaybackAct(onDone: () => void): Promise<void> {
       if (scene) updateMasterSceneUi(scene);
       const prov = document.querySelector<HTMLElement>("#provenance-label");
       if (prov) prov.textContent = demoController.getProvenanceLabel(bar);
-      refreshProductionUi();
+      refreshDawUi();
     },
     () => {
       // Canonical playback has one completion authority: the arrangement's
