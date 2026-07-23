@@ -39,10 +39,10 @@ export interface NoteEvent {
   /** Performance articulation retained through the material-bank fingerprint. */
   articulation?: "normal" | "legato" | "slide" | "muted" | "ghost" | "accent";
   /** Optional synthesized performance voice; source audio is never required at runtime. */
-  instrument?: "default" | "reed" | "guitar";
+  instrument?: "default" | "reed" | "reed-alto" | "reed-tenor" | "guitar";
   /** Optional source pitch for a monophonic hammer-on, pull-off, or slide. */
   glideFrom?: string;
-  /** Deterministic microtiming in sixteenth-note units, constrained to +/- 0.49. */
+  /** Deterministic microtiming in sixteenth-note units, constrained to -0.49..0.99. */
   timingOffset?: number;
 }
 
@@ -53,14 +53,18 @@ export interface HarmonyChordEvent {
   duration?: string;
   velocity?: number;
   articulation?: "held" | "pluck" | "muted" | "accent";
+  /** Deterministic microtiming in sixteenth-note units, constrained to -0.49..0.99. */
+  timingOffset?: number;
 }
 
 export interface DrumPatternHit {
   bar: number;
   step: number;
-  voice: "kick" | "snare" | "hat";
+  voice: "kick" | "snare" | "hat" | "rim" | "tomLow" | "tomMid" | "tomHigh" | "crash" | "ride";
   velocity: number;
   duration?: string;
+  /** Deterministic microtiming in sixteenth-note units, constrained to -0.49..0.99. */
+  timingOffset?: number;
 }
 
 export interface TextureParams {

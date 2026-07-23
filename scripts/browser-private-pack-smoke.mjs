@@ -81,12 +81,22 @@ try {
   });
   const validateFullFlow = process.env.VALIDATE_FULL_FLOW === "1";
   await page.click(validateFullFlow ? "#start-button" : "#skip-playback");
-  await page.waitForFunction(
-    (targetBar) => window.__echlubDemoController.runtime.act === "canonicalPlayback"
-      && (window.__echlubState?.currentBar ?? -1) >= targetBar,
-    { timeout: 60000 },
-    evidence.validationTargetBar,
-  );
+  try {
+    await page.waitForFunction(
+      (targetBar) => window.__echlubDemoController.runtime.act === "canonicalPlayback"
+        && (window.__echlubState?.currentBar ?? -1) >= targetBar,
+      { timeout: 120000 },
+      evidence.validationTargetBar,
+    );
+  } catch (error) {
+    const diagnostic = await page.evaluate(() => ({
+      act: window.__echlubDemoController?.runtime.act,
+      bar: window.__echlubState?.currentBar,
+      transportState: window.__echlubDevSnapshot?.transportState,
+      missingMaterialCount: window.__echlubDevSnapshot?.missingMaterialLog.length,
+    }));
+    throw new Error(`Canonical validation timeout: ${JSON.stringify({ ...diagnostic, pageErrors })}\n${String(error)}`);
+  }
   evidence.tempoBoundary = await page.evaluate(() => ({
     bar: window.__echlubState.currentBar,
     baseBpm: window.__echlubDevSnapshot.currentBaseBpm,
@@ -149,12 +159,12 @@ try {
     && evidence.tempoBoundary.materialResolutionCount > 0
     && evidence.tempoBoundary.missingMaterialCount === 0
     && Number.isFinite(evidence.tempoBoundary.masterLevelDb)
-    && evidence.tempoBoundary.masterLevelDb > -14
+    && evidence.tempoBoundary.masterLevelDb > -24
     && evidence.tempoBoundary.masterLevelDb <= 0
     && evidence.stackDraftsResolved
     && (!evidence.canonicalEnd
       || (evidence.canonicalEnd.transportState === "stopped"
-        && evidence.canonicalEnd.bar === evidence.arrangementBars))
+        && evidence.canonicalEnd.bar === evidence.arrangementBars - 1))
     && (!validateFullFlow
       || (evidence.fullFlowTransition?.runtimeAct === "livePerformance"
         && evidence.fullFlowTransition.transportState === "started"

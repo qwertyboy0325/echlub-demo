@@ -430,8 +430,11 @@ export function inspectReconstructionPack(input: unknown): PackValidationIssue[]
         if (!isRecord(hit)) return issues.push({ path: `drafts[${i}].drumHits[${hitIndex}]`, message: "must be an object" });
         if (!Number.isInteger(hit.bar) || (hit.bar as number) < 0) issues.push({ path: `drafts[${i}].drumHits[${hitIndex}].bar`, message: "must be a non-negative integer" });
         if (!Number.isInteger(hit.step) || (hit.step as number) < 0 || (hit.step as number) > 15) issues.push({ path: `drafts[${i}].drumHits[${hitIndex}].step`, message: "must be an integer from 0 to 15" });
-        checkEnum(issues, hit.voice, `drafts[${i}].drumHits[${hitIndex}].voice`, ["kick", "snare", "hat"]);
+        checkEnum(issues, hit.voice, `drafts[${i}].drumHits[${hitIndex}].voice`, [
+          "kick", "snare", "hat", "rim", "tomLow", "tomMid", "tomHigh", "crash", "ride",
+        ]);
         checkFiniteNumber(issues, hit.velocity, `drafts[${i}].drumHits[${hitIndex}].velocity`, { min: 0, max: 1 });
+        if (hit.timingOffset !== undefined) checkFiniteNumber(issues, hit.timingOffset, `drafts[${i}].drumHits[${hitIndex}].timingOffset`, { min: -0.49, max: 0.99 });
       });
     }
     if ((raw.kind === "bass" || raw.kind === "melody") && Array.isArray(raw.notes)) raw.notes.forEach((note, noteIndex) => {
@@ -439,9 +442,9 @@ export function inspectReconstructionPack(input: unknown): PackValidationIssue[]
       if (note.bar !== undefined && (!Number.isInteger(note.bar) || (note.bar as number) < 0)) issues.push({ path: `drafts[${i}].notes[${noteIndex}].bar`, message: "must be a non-negative integer" });
       if (!Number.isInteger(note.step) || (note.step as number) < 0 || (note.step as number) > 15) issues.push({ path: `drafts[${i}].notes[${noteIndex}].step`, message: "must be an integer from 0 to 15" });
       if (note.articulation !== undefined) checkEnum(issues, note.articulation, `drafts[${i}].notes[${noteIndex}].articulation`, ["normal", "legato", "slide", "muted", "ghost", "accent"]);
-      if (note.instrument !== undefined) checkEnum(issues, note.instrument, `drafts[${i}].notes[${noteIndex}].instrument`, ["default", "reed", "guitar"]);
+      if (note.instrument !== undefined) checkEnum(issues, note.instrument, `drafts[${i}].notes[${noteIndex}].instrument`, ["default", "reed", "reed-alto", "reed-tenor", "guitar"]);
       if (note.glideFrom !== undefined && (typeof note.glideFrom !== "string" || !note.glideFrom.trim())) issues.push({ path: `drafts[${i}].notes[${noteIndex}].glideFrom`, message: "must be a non-empty string" });
-      if (note.timingOffset !== undefined) checkFiniteNumber(issues, note.timingOffset, `drafts[${i}].notes[${noteIndex}].timingOffset`, { min: -0.49, max: 0.49 });
+      if (note.timingOffset !== undefined) checkFiniteNumber(issues, note.timingOffset, `drafts[${i}].notes[${noteIndex}].timingOffset`, { min: -0.49, max: 0.99 });
     });
     if (raw.kind === "harmony" && Array.isArray(raw.harmonyChords)) raw.harmonyChords.forEach((chord, chordIndex) => {
       if (!isRecord(chord)) return;
@@ -449,6 +452,7 @@ export function inspectReconstructionPack(input: unknown): PackValidationIssue[]
       if (chord.step !== undefined && (!Number.isInteger(chord.step) || (chord.step as number) < 0 || (chord.step as number) > 15)) issues.push({ path: `drafts[${i}].harmonyChords[${chordIndex}].step`, message: "must be an integer from 0 to 15" });
       if (chord.velocity !== undefined) checkFiniteNumber(issues, chord.velocity, `drafts[${i}].harmonyChords[${chordIndex}].velocity`, { min: 0, max: 1 });
       if (chord.articulation !== undefined) checkEnum(issues, chord.articulation, `drafts[${i}].harmonyChords[${chordIndex}].articulation`, ["held", "pluck", "muted", "accent"]);
+      if (chord.timingOffset !== undefined) checkFiniteNumber(issues, chord.timingOffset, `drafts[${i}].harmonyChords[${chordIndex}].timingOffset`, { min: -0.49, max: 0.99 });
     });
   });
 

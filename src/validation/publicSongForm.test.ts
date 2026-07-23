@@ -5,170 +5,113 @@ import { DemoRuntime } from "../demo/demoRuntime";
 import { parseReconstructionPackJson } from "../domain/packLoader";
 import { resolveMaterial } from "../domain/sessionMaterialBank";
 
-describe("public Shiki No Uta song form", () => {
-  it("unfolds the full cover into materially distinct Ableton-style scenes", () => {
+describe("public MIDI-authority song form", () => {
+  it("rebuilds all musical content and the full arrangement from the single MIDI authority", () => {
     const pack = parseReconstructionPackJson(readFileSync(
       resolve(process.cwd(), "public/shiki-no-uta.demo.pack.json"),
       "utf8",
     ));
     const runtime = new DemoRuntime(pack);
-
     runtime.completeProductionInstantly();
 
-    expect(runtime.session.arrangement.totalBars).toBe(114);
-    expect(runtime.session.arrangement.scenes).toHaveLength(16);
-    expect(runtime.session.arrangement.scenes.map((scene) => scene.startBar)).toEqual([
-      0, 4, 13, 21, 29, 37, 45, 53, 61, 69, 77, 85, 90, 98, 106, 107,
+    expect(pack.provenance.sourceDescription).toContain("only from one owner-provided Standard MIDI file");
+    expect(pack.provenance.sourceDescription).toContain("no PDF, MP3, screenshot, prior transcription");
+    expect(pack.metadata.bpm).toBeCloseTo(92, 4);
+    expect(pack.timeSignatures).toEqual([{ bar: 0, numerator: 4, denominator: 4 }]);
+
+    expect(runtime.session.arrangement.totalBars).toBe(104);
+    expect(runtime.session.arrangement.scenes).toHaveLength(13);
+    expect(runtime.session.arrangement.scenes.map(({ startBar }) => startBar)).toEqual([
+      0, 4, 12, 20, 28, 36, 44, 52, 60, 68, 72, 80, 88,
+    ]);
+    expect(pack.sections.map(({ bars }) => bars)).toEqual([
+      4, 8, 8, 8, 8, 8, 8, 8, 8, 4, 8, 8, 16,
     ]);
 
-    const arranged = runtime.session.arrangement.scenes.map(({ sceneId }) =>
-      runtime.session.scenes.find((scene) => scene.id === sceneId),
-    );
-    expect(arranged.every(Boolean)).toBe(true);
-    expect(arranged.every((scene) => scene
-      && (Object.values(scene.layers).some(Boolean)
-        || Object.values(scene.layerStacks ?? {}).some((refs) => refs?.length)))).toBe(true);
+    const sourceTrackEventCounts = Object.fromEntries(pack.tracks.map((track) => [
+      track.id,
+      track.draftIds.reduce((sum, draftId) => {
+        const draft = pack.drafts.find(({ id }) => id === draftId);
+        return sum
+          + (draft?.notes?.length
+            ?? draft?.harmonyChords?.reduce((count, chord) => count + chord.notes.length, 0)
+            ?? draft?.drumHits?.length
+            ?? 0);
+      }, 0),
+    ]));
+    expect(sourceTrackEventCounts).toEqual({
+      "track-alto": 396,
+      "track-tenor": 410,
+      "track-piano-rh": 576,
+      "track-piano-lh": 484,
+      "track-guitar": 363,
+      "track-bass": 514,
+      "track-drums": 972,
+    });
+    expect(Object.values(sourceTrackEventCounts).reduce((sum, count) => sum + count, 0)).toBe(3715);
 
-    const materialSignatures = arranged.map((scene) => JSON.stringify({
-      layers: scene?.layers,
-      stacks: scene?.layerStacks,
-    }));
-    // D.S. sections intentionally reuse the exact same materials; solo passes
-    // also share one written harmonic framework. Distinctness must not force
-    // the score's repeats to become unrelated clips.
-    expect(new Set(materialSignatures).size).toBeGreaterThanOrEqual(10);
+    const drumVoices = new Set(pack.drafts.flatMap((draft) =>
+      draft.drumHits?.map(({ voice }) => voice) ?? []));
+    expect(drumVoices).toEqual(new Set([
+      "kick", "snare", "hat", "rim", "tomLow", "tomMid", "tomHigh", "crash", "ride",
+    ]));
 
-    for (const scene of arranged) {
+    const microtimed = pack.drafts.flatMap((draft) => [
+      ...(draft.notes ?? []),
+      ...(draft.harmonyChords ?? []),
+      ...(draft.drumHits ?? []),
+    ]).filter(({ timingOffset }) => timingOffset !== undefined);
+    expect(microtimed.length).toBeGreaterThan(1_000);
+    expect(microtimed.every(({ timingOffset }) =>
+      timingOffset !== undefined && timingOffset >= 0 && timingOffset <= 0.99)).toBe(true);
+
+    expect(pack.drafts.find(({ id }) => id === "memory-opening")?.notes?.map((note) => ({
+      bar: note.bar,
+      step: note.step,
+      note: note.note,
+      duration: note.duration,
+    }))).toEqual([
+      { bar: 3, step: 10, note: "Eb4", duration: "96i" },
+      { bar: 3, step: 12, note: "Eb4", duration: "96i" },
+      { bar: 3, step: 14, note: "F4", duration: "96i" },
+    ]);
+
+    expect(pack.scenePlacements.opening).toEqual({
+      bass: "midi-opening-bass",
+      harmony: "midi-opening-piano-rh",
+      melody: "memory-opening",
+    });
+    expect(pack.sceneLayerStacks?.opening).toEqual({
+      bass: ["midi-opening-piano-lh"],
+      melody: ["midi-opening-guitar"],
+    });
+    expect(pack.scenePlacements.entry?.melody).toBe("midi-entry-tenor");
+    expect(pack.sceneLayerStacks?.entry?.melody).toEqual([
+      "midi-entry-guitar",
+      "midi-entry-alto",
+    ]);
+    expect(pack.scenePlacements.interlude?.melody).toBeUndefined();
+    expect(pack.scenePlacements["instrumental-a"]?.drums).toBeUndefined();
+    expect(pack.scenePlacements["instrumental-a"]?.melody).toBe("midi-instrumental-a-guitar");
+    expect(pack.scenePlacements.outro?.drums).toBeUndefined();
+    expect(pack.scenePlacements.outro?.melody).toBe("midi-outro-alto");
+    expect(pack.sceneLayerStacks?.outro?.melody).toEqual(["midi-outro-tenor"]);
+
+    for (const scene of runtime.session.scenes) {
       const refs = [
-        ...Object.values(scene?.layers ?? {}).filter((value) => value !== null),
-        ...Object.values(scene?.layerStacks ?? {}).flatMap((values) => values ?? []),
+        ...Object.values(scene.layers).filter((ref) => ref !== null),
+        ...Object.values(scene.layerStacks ?? {}).flatMap((refs) => refs ?? []),
       ];
+      expect(refs.length, `${scene.id} should contain MIDI-derived clips`).toBeGreaterThan(0);
       for (const ref of refs) {
         const material = resolveMaterial(runtime.materialBank, ref!);
-        expect(material, `${scene?.id}/${ref!.draftId} should resolve`).toBeDefined();
-        if (!material) continue;
-        const content = material.content;
-        const eventCount = content.kind === "drums" ? content.hits.length
-          : content.kind === "harmony" ? content.chords.length
-            : content.kind === "texture" ? Number(content.level > 0)
-              : content.notes.length;
-        expect(eventCount, `${scene?.id}/${ref!.draftId} should not be empty`).toBeGreaterThan(0);
+        expect(material, `${scene.id}/${ref!.draftId} should resolve`).toBeDefined();
       }
     }
 
-    const openingHarmony = pack.drafts.find((draft) => draft.id === "story-opening");
-    expect(openingHarmony?.harmonyChords?.filter((chord) => chord.notes.length >= 4).map((chord) => ({
-      bar: chord.bar,
-      step: chord.step,
-      root: chord.notes[0],
-    }))).toEqual([
-      { bar: 0, step: 0, root: "Gb2" },
-      { bar: 0, step: 8, root: "F2" },
-      { bar: 1, step: 0, root: "Bb2" },
-    ]);
-
-    const openingBass = pack.drafts.find((draft) => draft.id === "bass-main");
-    expect(openingBass?.notes?.filter((note) => note.bar === 0).map((note) => ({
-      bar: note.bar,
-      step: note.step,
-      note: note.note,
-    }))).toEqual([
-      { bar: 0, step: 0, note: "Gb1" },
-      { bar: 0, step: 2, note: "Db2" },
-      { bar: 0, step: 4, note: "F2" },
-      { bar: 0, step: 6, note: "Db2" },
-      { bar: 0, step: 8, note: "F1" },
-      { bar: 0, step: 10, note: "C2" },
-      { bar: 0, step: 12, note: "Eb2" },
-      { bar: 0, step: 14, note: "C2" },
-    ]);
-    expect(openingBass?.notes?.find((note) => note.bar === 1 && note.step === 0)?.note).toBe("Bb1");
-    expect(pack.soundDesign.harmony.envelope.sustain).toBeGreaterThanOrEqual(0.4);
-
-    const responseBass = pack.drafts.find((draft) => draft.id === "bass-response");
-    const saxBass = pack.drafts.find((draft) => draft.id === "bass-sax");
-    const saxHarmony = pack.drafts.find((draft) => draft.id === "story-sax");
-    expect(responseBass?.notes?.length).toBeGreaterThanOrEqual(36);
-    expect(saxBass?.notes?.length).toBeGreaterThanOrEqual(20);
-    expect(saxHarmony?.harmonyChords?.length).toBeGreaterThanOrEqual(8);
-
-    const sparseDrums = pack.drafts.find((draft) => draft.id === "pulse-sparse");
-    const fullDrums = pack.drafts.find((draft) => draft.id === "pulse-full");
-    const breakDrums = pack.drafts.find((draft) => draft.id === "pulse-break");
-    expect(sparseDrums?.drumHits?.length).toBeGreaterThanOrEqual(24);
-    expect(fullDrums?.drumHits?.length).toBeGreaterThanOrEqual(30);
-    expect(breakDrums?.drumHits?.length).toBeGreaterThanOrEqual(16);
-
-    const mainMelody = pack.drafts.find((draft) => draft.id === "memory-main");
-    expect(Math.min(...(mainMelody?.notes?.map((note) => note.bar ?? 0) ?? []))).toBe(0);
-
-    const openingMelody = pack.drafts.find((draft) => draft.id === "memory-opening");
-    expect(openingMelody?.notes?.filter((note) => note.id.startsWith("signature-")).map((note) => ({
-      bar: note.bar,
-      step: note.step,
-      note: note.note,
-    }))).toEqual([
-      { bar: 0, step: 7, note: "Bb4" },
-      { bar: 0, step: 8, note: "Bb4" },
-      { bar: 0, step: 10, note: "C5" },
-      { bar: 0, step: 14, note: "F5" },
-      { bar: 1, step: 0, note: "C5" },
-      { bar: 1, step: 6, note: "Eb5" },
-      { bar: 1, step: 7, note: "Db5" },
-      { bar: 1, step: 10, note: "C5" },
-      { bar: 1, step: 14, note: "Bb4" },
-    ]);
-    const scoreSections = [
-      { id: "section-a", suffix: "a", bars: 9 },
-      { id: "section-b", suffix: "b", bars: 8 },
-      { id: "section-c", suffix: "c", bars: 8 },
-      { id: "section-d", suffix: "d", bars: 8 },
-    ];
-    for (const { id, suffix, bars } of scoreSections) {
-      expect(pack.scenePlacements[id]).toEqual(expect.objectContaining({
-        drums: `pulse-score-${suffix}`,
-        bass: `bass-score-${suffix}`,
-        harmony: `story-score-${suffix}`,
-        melody: `memory-score-${suffix}`,
-      }));
-      for (const prefix of ["pulse", "bass", "story", "memory"]) {
-        expect(pack.drafts.find((draft) => draft.id === `${prefix}-score-${suffix}`)?.patternBars).toBe(bars);
-      }
-      expect(pack.sceneLayerStacks?.[id]?.melody).toBeUndefined();
-    }
-    expect(pack.scenePlacements["ds-section-c"]).toEqual(pack.scenePlacements["section-c"]);
-    expect(pack.scenePlacements["ds-section-d"]).toEqual(pack.scenePlacements["section-d"]);
-
-    const scoreLeadA = pack.drafts.find((draft) => draft.id === "memory-score-a");
-    expect(scoreLeadA?.notes?.slice(0, 3).map(({ bar, step, note }) => ({ bar, step, note }))).toEqual([
-      { bar: 0, step: 13, note: "Eb4" },
-      { bar: 0, step: 14, note: "Eb4" },
-      { bar: 0, step: 15, note: "F4" },
-    ]);
-    const scoreDrumsA = pack.drafts.find((draft) => draft.id === "pulse-score-a");
-    expect(scoreDrumsA?.drumHits?.some(({ bar }) => bar === 0)).toBe(false);
-    expect(scoreDrumsA?.drumHits?.filter(({ bar }) => bar === 8)).toEqual(expect.arrayContaining([
-      expect.objectContaining({ step: 9, voice: "snare" }),
-      expect.objectContaining({ step: 11, voice: "kick" }),
-      expect.objectContaining({ step: 15, voice: "kick" }),
-    ]));
-    for (const suffix of ["b", "c", "d"]) {
-      const scoreDrums = pack.drafts.find((draft) => draft.id === `pulse-score-${suffix}`);
-      const barSignatures = Array.from({ length: scoreDrums?.patternBars ?? 0 }, (_, bar) =>
-        scoreDrums?.drumHits?.filter((hit) => hit.bar === bar)
-          .map(({ step, voice }) => `${step}:${voice}`).join("|"));
-      expect(new Set(barSignatures).size).toBeGreaterThanOrEqual(6);
-    }
-    expect(pack.scenePlacements["sax-trading"]?.drums).toBe("pulse-score-sax");
-    expect(pack.drafts.find((draft) => draft.id === "pulse-score-sax")?.patternBars).toBe(8);
-    expect(pack.scenes.every(({ fx }) => fx.masterGain <= 1.5)).toBe(true);
-    expect(pack.defaultMix.masterGain).toBeLessThanOrEqual(1);
-    expect(Object.keys(pack.sceneLayerStacks ?? {})).toEqual(["coda"]);
-
-    const drumSolo = arranged.find((scene) => scene?.id === "drum-solo");
-    expect(drumSolo?.layers.drums?.draftId).toBe("pulse-full");
-    expect(drumSolo?.layers.bass).toBeNull();
-    expect(drumSolo?.layers.harmony).toBeNull();
-    expect(drumSolo?.layers.melody).toBeNull();
+    expect(pack.productionChoreography.some(({ kind, target }) =>
+      kind === "previewDraft" && target === "memory-opening")).toBe(true);
+    expect(pack.livePerformanceChoreography.filter(({ action }) => action === "launch").map(({ target }) => target))
+      .toEqual(pack.sections.map(({ id }) => id));
   });
 });

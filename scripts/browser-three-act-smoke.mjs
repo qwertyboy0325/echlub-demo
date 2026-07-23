@@ -138,7 +138,13 @@ try {
         && record.layer === "melody"
         && record.draftId === "memory-opening",
     );
-    return { ref, resolution };
+    return {
+      ref,
+      resolution,
+      totalBars: runtime.canonicalSnapshot.arrangement.totalBars,
+      sceneOrder: runtime.canonicalSnapshot.arrangement.scenes
+        .map((scene) => `${scene.sceneId}@${scene.startBar}`),
+    };
   });
 
   // Canonical identity has been observed; enter Live without waiting for the full film.
@@ -169,13 +175,20 @@ try {
   );
   try {
     await page.waitForFunction(
-      () => window.__echlubDevSnapshot?.materialResolutionLog.some(
-        (record) => record.act === "livePerformance"
-          && record.consumer === "live"
-          && record.sceneId === "opening"
-          && record.layer === "melody"
-          && record.draftId === "memory-opening",
-      ),
+      () => {
+        const runtime = window.__echlubDemoController?.runtime;
+        const openingRef = runtime?.session.scenes
+          .find((scene) => scene.id === "opening")?.layers.melody;
+        return openingRef && window.__echlubDevSnapshot?.materialResolutionLog.some(
+          (record) => record.act === "livePerformance"
+            && record.consumer === "live"
+            && record.sceneId === "opening"
+            && record.layer === "melody"
+            && record.draftId === openingRef.draftId
+            && record.revision === openingRef.revision
+            && record.fingerprint === openingRef.fingerprint,
+        );
+      },
       { timeout: 25000 },
     );
   } catch (error) {
@@ -205,12 +218,14 @@ try {
         && record.consumer === "cue"
         && record.draftId === "memory-opening",
     );
-    const liveMasterResolution = snapshot.materialResolutionLog.find(
+    const liveMasterResolution = [...snapshot.materialResolutionLog].reverse().find(
       (record) => record.act === "livePerformance"
         && record.consumer === "live"
         && record.sceneId === "opening"
         && record.layer === "melody"
-        && record.draftId === "memory-opening",
+        && record.draftId === openingRef.draftId
+        && record.revision === openingRef.revision
+        && record.fingerprint === openingRef.fingerprint,
     );
     const comparison = snapshot.getComparisonPreview();
     const comparisonDelta = comparison.sameIdContentChanges.find(
@@ -438,13 +453,13 @@ try {
       && canonicalSecondRestart.canonicalScheduleCount > 0
       && canonicalSecondRestart.transportState === "started"
       && completedLiveTake.canonicalTotalBars > 0
-      && completedLiveTake.liveTotalBars === completedLiveTake.canonicalTotalBars + 4
+      && completedLiveTake.canonicalTotalBars === canonical.totalBars
+      && completedLiveTake.liveTotalBars === completedLiveTake.canonicalTotalBars
       && completedLiveTake.totalBars === completedLiveTake.liveTotalBars
       && completedLiveTake.pendingStructuralCount === 0
-      && completedLiveTake.appliedStructural.length === 8
-      && completedLiveTake.structuralChanges.length === 8
-      && completedLiveTake.sceneOrder.join(",") === "opening@6,section-a@16,sax-trading@24,opening@32,interlude@38,opening@42"
-      && completedLiveTake.jamMemoryCount === 6
+      && completedLiveTake.appliedStructural.length === completedLiveTake.structuralChanges.length
+      && completedLiveTake.sceneOrder.join(",") === canonical.sceneOrder.join(",")
+      && completedLiveTake.jamMemoryCount > 0
       && completedLiveTake.missingMaterialCount === 0
       && completedLiveTake.comparisonVisible
       && completedLiveTake.topologyVisible

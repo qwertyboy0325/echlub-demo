@@ -9,9 +9,10 @@ export interface MaterialRef {
 export interface DrumHit {
   bar: number;
   step: number;
-  voice: "kick" | "snare" | "hat";
+  voice: "kick" | "snare" | "hat" | "rim" | "tomLow" | "tomMid" | "tomHigh" | "crash" | "ride";
   velocity: number;
   duration?: string;
+  timingOffset?: number;
 }
 
 export interface DrumMaterialContent {

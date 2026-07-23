@@ -218,7 +218,7 @@ describe("ReconstructionPack JSON boundary", () => {
     expect(inspectReconstructionPack(fixture)).toEqual([]);
 
     bass.notes![0]!.articulation = "bend" as "slide";
-    bass.notes![0]!.timingOffset = 0.75;
+    bass.notes![0]!.timingOffset = 1.25;
     const issues = inspectReconstructionPack(fixture);
     expect(issues.some((issue) => issue.path.endsWith("notes[0].articulation"))).toBe(true);
     expect(issues.some((issue) => issue.path.endsWith("notes[0].timingOffset"))).toBe(true);
