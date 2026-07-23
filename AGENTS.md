@@ -45,3 +45,10 @@ Unless explicitly authorized in the active work package:
 ## Proof Of Behavior
 
 Do not claim runtime behavior that has not been verified. Distinguish implemented, visually observed, inferred, and unverified claims.
+
+## Cursor Cloud specific instructions
+
+- Stack: Vite 7 + TypeScript, no framework, single frontend service. Commands live in `package.json` (`dev`, `build`, `typecheck`, `test`). No lint script exists; `npm run typecheck` (`tsc --noEmit`) is the closest static check.
+- Dev server: `npm run dev` serves on port `4173`. Root `/` loads the main Round 2 app (`src/main.ts`); the Four-Brain DJ Lab concept demo is served at `/standalone/`.
+- Browser tests/scripts: `npm test` includes two Puppeteer smoke tests (`browserLoad.test.ts`, `r3BrowserSmoke.test.ts`) plus the `scripts/*.mjs` capture/validate tools. They launch Chrome via `puppeteer-core` and default `executablePath` to a macOS path. On this VM you MUST set `CHROME_PATH=/usr/bin/google-chrome-stable`, e.g. `CHROME_PATH=/usr/bin/google-chrome-stable npm test`. Without it those two tests fail with "Browser was not found"; the other 132 tests pass regardless.
+- `npm run build` outputs to the committed `docs/` directory (GitHub Pages site, `emptyOutDir: true`) and rewrites its hashed assets. Do not commit build output — restore with `git checkout -- docs/` and remove stray untracked `docs/assets/*` after building.
