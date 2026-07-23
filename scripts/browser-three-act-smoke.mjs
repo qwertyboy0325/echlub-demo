@@ -53,7 +53,7 @@ try {
 
   const initial = await page.evaluate(() => ({
     startExists: Boolean(document.querySelector("#start-button")),
-    productionSlot: Boolean(document.querySelector("#production-slot")),
+    productionSlot: Boolean(document.querySelector("#daw-workspace") || document.querySelector("#session-view")),
     demoController: Boolean(window.__echlubDemoController),
   }));
 

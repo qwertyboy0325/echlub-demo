@@ -41,13 +41,20 @@ const pageErrors = [];
 page.on("pageerror", (err) => pageErrors.push(String(err)));
 
 await page.goto(baseUrl, { waitUntil: "networkidle0", timeout: 30000 });
-const initial = await page.evaluate(() => ({
-  appExists: Boolean(document.querySelector("#app")),
-  startButtonExists: Boolean(document.querySelector("#start-button")),
-  brainWindowCount: document.querySelectorAll(".brain-window").length,
-  sceneTitle: document.querySelector("#scene-title")?.textContent ?? "",
-  bodyTextLength: document.body.innerText.length,
-}));
+const initial = await page.evaluate(() => {
+  const runtime = window.__echlubDemoController?.runtime;
+  return {
+    appExists: Boolean(document.querySelector("#app")),
+    startButtonExists: Boolean(document.querySelector("#start-button")),
+    dawWorkspace: Boolean(document.querySelector("#daw-workspace")),
+    sessionView: Boolean(document.querySelector("#session-view")),
+    participantCount: runtime?.session.participants.length ?? 0,
+    trackCount: runtime?.session.tracks.length ?? 0,
+    capabilityCount: runtime?.session.performanceConfig?.capabilities.length ?? 0,
+    sceneTitle: document.querySelector("#scene-title")?.textContent ?? "",
+    bodyTextLength: document.body.innerText.length,
+  };
+});
 
 const mainRes = await page.goto(`${baseUrl}src/main.ts`, { waitUntil: "networkidle0" });
 const mainStatus = mainRes?.status() ?? 0;
@@ -61,7 +68,8 @@ await page.click("#restart-button");
 await delay(1000);
 const afterRestart = await page.evaluate(() => ({
   startButtonExists: Boolean(document.querySelector("#start-button")),
-  brainWindowCount: document.querySelectorAll(".brain-window").length,
+  dawWorkspace: Boolean(document.querySelector("#daw-workspace")),
+  sessionView: Boolean(document.querySelector("#session-view")),
 }));
 
 await browser.close();
@@ -69,14 +77,18 @@ shutdown();
 
 const ok = initial.appExists
   && initial.startButtonExists
-  && initial.brainWindowCount === 4
+  && initial.dawWorkspace
+  && initial.sessionView
+  && initial.participantCount > 4
+  && initial.trackCount >= 4
+  && initial.capabilityCount !== 4
   && initial.sceneTitle.length > 0
   && initial.bodyTextLength > 0
   && mainStatus < 400
   && pageErrors.length === 0
   && afterStart.length > 0
   && afterRestart.startButtonExists
-  && afterRestart.brainWindowCount === 4;
+  && afterRestart.dawWorkspace;
 
 console.log(JSON.stringify({ ok, baseUrl, initial, mainStatus, afterStart, afterRestart, pageErrors }, null, 2));
 process.exit(ok ? 0 : 1);
