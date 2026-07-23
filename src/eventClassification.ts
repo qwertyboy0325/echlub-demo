@@ -24,6 +24,7 @@ const CLASSIFICATION: Partial<Record<ScriptAction, EventClassification>> = {
   addNote: "human_authored",
   moveNote: "human_authored",
   dragToQueue: "human_authored",
+  capability: "human_authored",
   scene: "presentation_only",
 };
 

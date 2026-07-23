@@ -41,7 +41,7 @@ export function buildChoreographyCoverage(): ChoreographyCoverageRow[] {
     const covered = !needs || steps.length > 0;
     return {
       eventId: event.id,
-      actor: event.brain,
+      actor: event.brain ?? event.capabilityId ?? "—",
       action: event.action,
       classification,
       choreographyStepIds: stepIds,

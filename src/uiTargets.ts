@@ -1,3 +1,4 @@
+import { resolveCapabilityTarget, CAPABILITY_UI_TARGETS } from "./capabilityUiTargets";
 import type { BrainId } from "./types";
 
 export interface UiTarget {
@@ -42,6 +43,13 @@ const targetMap = new Map(UI_TARGETS.map((t) => [t.id, t]));
 
 export function resolveTarget(id: string): UiTarget | undefined {
   if (targetMap.has(id)) return targetMap.get(id);
+  const capTarget = resolveCapabilityTarget(id);
+  if (capTarget) return { id: capTarget.id, brain: "memory", selector: capTarget.selector };
+  if (id.startsWith("lowend-") || id.startsWith("harmony-")) {
+    const cap = CAPABILITY_UI_TARGETS.find((t) => t.id === id);
+    if (cap) return { id: cap.id, brain: "memory", selector: cap.selector };
+    if (id.endsWith("-grid")) return { id, brain: "memory", selector: `[data-target="${id}"]` };
+  }
   if (id.startsWith("note-")) return { id, brain: "memory", selector: `[data-note-id="${id}"]` };
   if (id.startsWith("seq-")) return { id, brain: "pulse", selector: `[data-seq-id="${id}"]` };
   if (id.startsWith("queue-item-")) return { id, brain: "story", selector: `[data-queue-id="${id}"]` };

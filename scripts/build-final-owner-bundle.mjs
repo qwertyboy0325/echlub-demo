@@ -65,11 +65,21 @@ for (const name of ["campaign-final-evidence.json", "topology-scenarios.json"]) 
   const src = join(campaignDir, "evidence", name);
   if (existsSync(src)) copyFileSync(src, join(staging, "evidence", name));
 }
+const screenshotSrc = join(campaignDir, "evidence/screenshots");
+if (existsSync(screenshotSrc)) {
+  cpSync(screenshotSrc, join(staging, "evidence/screenshots"), { recursive: true });
+}
 
 const sourceDir = join(staging, "source");
 mkdirSync(sourceDir, { recursive: true });
 for (const rel of [
   "src/style.css",
+  "src/types.ts",
+  "src/choreographyScript.ts",
+  "src/presentation.ts",
+  "src/ui/performanceOverlay.ts",
+  "src/uiTargets.ts",
+  "src/demo/liveMutations.ts",
   "src/domain/capabilityOperations.ts",
   "src/demo/capabilityLiveOperations.ts",
   "src/capabilityUiTargets.ts",

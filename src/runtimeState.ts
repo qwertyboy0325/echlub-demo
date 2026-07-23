@@ -56,6 +56,8 @@ export function applyCollaborationEvent(
   script: readonly PerformanceScriptEvent[] = performanceScript,
 ): void {
   state.lastAction = event;
+  if (event.action === "capability") return;
+  if (!event.brain) return;
   state.activeBrains.add(event.brain);
   state.thoughts[event.brain] = event.detail;
 

@@ -359,6 +359,43 @@ h1, h2, h3, p { margin-top: 0; }
 .app-shell.recording-mode .session-grid-wrap { max-height: none; }
 .app-shell.recording-mode .session-grid { font-size: 10px; }
 .app-shell.recording-mode .clip-title { font-size: 10px; }
+.app-shell.recording-mode .performance-overlay {
+  padding: 6px 8px;
+  border-top: 1px solid var(--line);
+}
+.app-shell.recording-mode .performance-overlay-header h3 { font-size: 11px; }
+.app-shell.recording-mode .performance-overlay-header .pill { font-size: 9px; }
+.app-shell.recording-mode .capability-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+  max-height: 220px;
+  align-items: stretch;
+}
+.app-shell.recording-mode .capability-panel {
+  min-height: 0;
+  max-height: 210px;
+  overflow: hidden;
+  opacity: 0.72;
+  transform: scale(0.98);
+  transition: opacity 0.2s ease, transform 0.2s ease, max-height 0.2s ease;
+}
+.app-shell.recording-mode .capability-panel .brain-header h3 { font-size: 11px; }
+.app-shell.recording-mode .capability-panel .brain-header p,
+.app-shell.recording-mode .capability-panel .thought-strip,
+.app-shell.recording-mode .capability-operator-list { font-size: 9px; }
+.app-shell.recording-mode .capability-panel.capability-panel-active,
+.app-shell.recording-mode .performance-overlay[data-active-capability] .capability-panel[data-capability="cap-lowend"],
+.app-shell.recording-mode .performance-overlay[data-active-capability="cap-lowend"] [data-capability="cap-lowend"],
+.app-shell.recording-mode .performance-overlay[data-active-capability="cap-harmony"] [data-capability="cap-harmony"] {
+  opacity: 1;
+  transform: scale(1);
+  max-height: 280px;
+  grid-column: span 2;
+  z-index: 2;
+}
+.app-shell.recording-mode .capability-cursor { pointer-events: none; }
+.app-shell.recording-mode .daw-workspace-grid { grid-template-columns: 180px minmax(0, 1fr) 220px; }
 
 
 .action-strip { padding: 10px 12px; }

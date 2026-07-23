@@ -18,6 +18,8 @@ import {
   sceneById,
 } from "./sceneExecution";
 import type { BrainId, PerformanceScriptEvent, RuntimeState, SceneDefinition } from "./types";
+import { participantsForCapability } from "./domain/performanceModel";
+import type { CapabilityOperationEvidence } from "./demo/capabilityLiveOperations";
 import { DemoController, scheduleArrangementPlayback } from "./demo/demoController";
 import { capabilityTargetForElement } from "./capabilityUiTargets";
 import { capabilityIdsNeedingRefresh, renderCapabilityWorkspace } from "./ui/liveCapabilityWorkspaces";
@@ -316,6 +318,7 @@ function refreshDawUi(): void {
       const ws = document.querySelector("#daw-workspace");
       ws?.insertAdjacentHTML("afterend", overlayHtml);
     }
+    presentation.initialize();
   } else if (overlaySlot) {
     overlaySlot.remove();
   }
@@ -631,6 +634,11 @@ function scheduleScript(): void {
   audioEngine.setLaunchBoundaries(arrangementLaunchBoundaries(demoController.runtime.session));
   for (const event of currentLiveScript()) {
     const id = transport.schedule((time: number) => {
+      if (event.action === "capability" && event.capabilityId && event.capabilityOperation) {
+        const evidence = demoController.executeCapabilityOperation(event.capabilityId, event.capabilityOperation);
+        Tone.getDraw().schedule(() => projectCapabilityEventUi(event, evidence), time);
+        return;
+      }
       demoController.applyLiveMusicalEvent(event, time);
       if (event.action === "preview" && event.target) {
         const ref = demoController.runtime.getMaterialRefForDraft(event.target);
@@ -647,11 +655,61 @@ function scheduleScript(): void {
   instrumentation.setScheduleCount(scriptIds.length);
 }
 
+function projectCapabilityEventUi(
+  event: PerformanceScriptEvent,
+  evidence: CapabilityOperationEvidence | null,
+): void {
+  instrumentation.logEvent(event);
+  if (!event.capabilityId) return;
+
+  presentation.markCapabilityFocus(event.capabilityId);
+  const session = demoController.runtime.session;
+  const operators = participantsForCapability(session.performanceConfig, event.capabilityId, session.participants)
+    .map((p) => p.displayName)
+    .join(" · ");
+  const cap = session.performanceConfig.capabilities.find((c) => c.id === event.capabilityId);
+  const label = document.querySelector<HTMLElement>("#action-label");
+  const detail = document.querySelector<HTMLElement>("#action-detail");
+  const actor = document.querySelector<HTMLElement>("#action-actor");
+  if (label) label.textContent = event.label;
+  if (detail) {
+    const repin = evidence?.repinnedSceneRefs?.[0];
+    detail.textContent = repin
+      ? `${event.detail} · repinned ${repin.sceneId}/${repin.layer} rev ${repin.revision}`
+      : event.detail;
+  }
+  if (actor) actor.textContent = `${cap?.label ?? event.capabilityId} · ${operators}`;
+
+  const thoughtEl = document.querySelector<HTMLElement>(`#${event.capabilityId}-thought`);
+  const stateEl = document.querySelector<HTMLElement>(`#${event.capabilityId}-state`);
+  if (thoughtEl) thoughtEl.textContent = event.detail;
+  if (stateEl) stateEl.textContent = evidence?.draftStatus ?? event.capabilityOperation ?? "active";
+
+  if (event.capabilityOperation === "privateCue" && evidence) {
+    presentation.markCapabilityFocus(event.capabilityId);
+    document.querySelector(`[data-capability="${event.capabilityId}"]`)?.classList.add("brain-preview");
+  }
+  if (event.capabilityOperation === "revision" && evidence) {
+    document.querySelectorAll(".scene-card").forEach((el) => {
+      const sceneId = el.getAttribute("data-scene");
+      if (sceneId && evidence.repinnedSceneRefs.some((ref) => ref.sceneId === sceneId)) {
+        el.classList.add("queued");
+      }
+    });
+  }
+
+  const steps = stepsForEvent(event.id);
+  if (steps.length) presentation.executeSteps(steps);
+  refreshWorkspaces();
+  updateAllUi();
+  instrumentation.setGsapTweenCount(presentation.getActiveTimelineCount());
+}
+
 function projectScriptEventUi(event: PerformanceScriptEvent): void {
   instrumentation.logEvent(event);
   updateActionUi(event);
 
-  if (event.action === "preview") {
+  if (event.action === "preview" && event.brain) {
     presentation.markPreview(event.brain);
   }
   if (event.action === "launch" && event.target) {
@@ -743,6 +801,7 @@ function updateActionUi(event: PerformanceScriptEvent): void {
   const actor = document.querySelector<HTMLElement>("#action-actor");
   if (label) label.textContent = event.label;
   if (detail) detail.textContent = event.detail;
+  if (!event.brain) return;
   if (actor) actor.textContent = brainMeta[event.brain].title;
   document.querySelector<HTMLElement>(`#${event.brain}-thought`)!.textContent = event.detail;
   document.querySelectorAll(".brain-state").forEach((el) => { el.textContent = "observing"; });

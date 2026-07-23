@@ -6,6 +6,8 @@ export type LayerId = "drums" | "bass" | "harmony" | "melody" | "texture";
 export type BoundaryType = "beat" | "bar" | "phrase";
 export type CursorGesture = "move" | "hover" | "click" | "doubleClick" | "drag" | "scrub" | "idle" | "wait" | "cut";
 
+export type CapabilityLiveOperation = "privateCue" | "revision";
+
 export type ScriptAction =
   | "focus"
   | "edit"
@@ -24,7 +26,8 @@ export type ScriptAction =
   | "toggleStep"
   | "addNote"
   | "moveNote"
-  | "dragToQueue";
+  | "dragToQueue"
+  | "capability";
 
 export interface NoteEvent {
   id: string;
@@ -120,8 +123,10 @@ export interface MixParams {
 export interface PerformanceScriptEvent {
   id: string;
   at: string;
-  brain: BrainId;
+  brain?: BrainId;
   action: ScriptAction;
+  capabilityId?: string;
+  capabilityOperation?: CapabilityLiveOperation;
   target?: string;
   value?: string | number;
   label: string;
@@ -130,7 +135,8 @@ export interface PerformanceScriptEvent {
 }
 
 export interface ChoreographyStep {
-  actor: BrainId;
+  actor?: BrainId;
+  capabilityId?: string;
   gesture: CursorGesture;
   target: string;
   destination?: string;

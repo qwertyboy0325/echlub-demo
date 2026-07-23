@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 /**
  * Campaign final-gate browser evidence collector.
- * Executes extended capability operations and records causal consequences.
+ * Waits for scripted capability choreography during automatic live performance.
  */
 import puppeteer from "puppeteer-core";
 import { spawn } from "node:child_process";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync, readFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { setTimeout as delay } from "node:timers/promises";
@@ -45,7 +45,8 @@ if (!(await waitForServer(baseUrl))) {
 const browser = await puppeteer.launch({
   executablePath: CHROME,
   headless: true,
-  args: ["--no-sandbox", "--disable-setuid-sandbox", "--autoplay-policy=no-user-gesture-required"],
+  args: ["--no-sandbox", "--disable-setuid-sandbox", "--window-size=1920,1080", "--autoplay-policy=no-user-gesture-required"],
+  defaultViewport: { width: 1920, height: 1080 },
 });
 const page = await browser.newPage();
 const pageErrors = [];
@@ -53,9 +54,44 @@ page.on("pageerror", (err) => pageErrors.push(String(err)));
 
 const evidence = { baseUrl, pageErrors, scenarios: {}, lifecycle: {}, timestamp: new Date().toISOString() };
 
+function readBuildAssets() {
+  const htmlPath = join(root, "docs/index.html");
+  if (!existsSync(htmlPath)) return null;
+  const html = readFileSync(htmlPath, "utf8");
+  const jsMatch = html.match(/assets\/(index-[^"]+\.js)/);
+  const cssMatch = html.match(/assets\/(index-[^"]+\.css)/);
+  const jsFile = jsMatch?.[1];
+  const cssFile = cssMatch?.[1];
+  return {
+    jsBundle: jsFile ? `docs/assets/${jsFile}` : null,
+    cssBundle: cssFile ? `docs/assets/${cssFile}` : null,
+    htmlReferencesJs: jsFile ? existsSync(join(root, "docs/assets", jsFile)) : false,
+    htmlReferencesCss: cssFile ? existsSync(join(root, "docs/assets", cssFile)) : false,
+  };
+}
+
 try {
   await page.goto(baseUrl, { waitUntil: "networkidle0", timeout: 30000 });
   await delay(500);
+  await page.click("#record-mode-button");
+  await delay(250);
+
+  const screenshotDir = join(outDir, "screenshots");
+  mkdirSync(screenshotDir, { recursive: true });
+  const screenshotLog = [];
+
+  async function captureShot(file, note) {
+    const shotPath = join(screenshotDir, file);
+    await page.screenshot({ path: shotPath, fullPage: false });
+    const meta = await page.evaluate(() => ({
+      act: window.__echlubDemoController?.runtime.act,
+      activeCapability: document.querySelector("#performance-overlay")?.getAttribute("data-active-capability"),
+      capabilityCount: document.querySelector("#performance-overlay")?.getAttribute("data-capability-count"),
+      recordingMode: document.querySelector(".app-shell")?.classList.contains("recording-mode"),
+      viewport: { width: window.innerWidth, height: window.innerHeight },
+    }));
+    screenshotLog.push({ file, note, ...meta });
+  }
 
   evidence.scenarios.currentSongSixCapability = await page.evaluate(() => {
     const session = window.__echlubDemoController?.runtime?.session;
@@ -66,7 +102,21 @@ try {
       capabilityIds: view?.capabilityIds ?? [],
       participantCount: session?.participants.length ?? 0,
       packId: session?.packId,
+      prototypePresetNote: "Six-capability view is the current-song prototype preset, not a generic topology engine.",
     };
+  });
+
+  evidence.scenarios.scriptedLiveChoreography = await page.evaluate(() => {
+    const script = window.__echlubDemoController?.runtime?.pack?.livePerformanceChoreography ?? [];
+    return script
+      .filter((e) => e.action === "capability")
+      .map((e) => ({
+        id: e.id,
+        at: e.at,
+        capabilityId: e.capabilityId,
+        capabilityOperation: e.capabilityOperation,
+        label: e.label,
+      }));
   });
 
   await page.$eval("#speed-control", (input) => {
@@ -74,16 +124,15 @@ try {
     input.dispatchEvent(new Event("input", { bubbles: true }));
   });
   await page.click("#start-button");
-  await page.waitForFunction(
-    () => window.__echlubDevSnapshot?.transportState === "started"
-      || window.__echlubDemoController?.runtime.act !== "production",
-    { timeout: 20000 },
-  );
+  await delay(1500);
+  await captureShot("01-production-session-view.png", "production session grid");
 
   await page.waitForFunction(
     () => window.__echlubDemoController?.runtime.act === "canonicalPlayback",
-    { timeout: 90000 },
+    { timeout: 120000 },
   );
+  await delay(2000);
+  await captureShot("02-canonical-arrangement-view.png", "canonical arrangement");
 
   await page.waitForFunction(
     () => window.__echlubDevSnapshot?.transportState === "started",
@@ -100,14 +149,24 @@ try {
     () => window.__echlubDemoController?.runtime.act === "livePerformance",
     { timeout: 15000 },
   );
-  await delay(400);
 
   const resolutionCountBefore = await page.evaluate(() =>
     window.__echlubDevSnapshot.materialResolutionLog.length,
   );
 
+  await page.waitForFunction(
+    () => window.__echlubDemoController?.runtime?.capabilityOperationLog?.some(
+      (op) => op.context.capabilityId === "cap-lowend" && op.operation === "privateCue",
+    ),
+    { timeout: 90000 },
+  );
+  await delay(300);
+  await captureShot("03-live-lowend-act.png", "scripted low end private cue");
+
   const lowEndPrivateCue = await page.evaluate(() => {
-    const result = window.__echlubDemoController.executeCapabilityOperation("cap-lowend", "privateCue");
+    const result = window.__echlubDemoController.runtime.capabilityOperationLog.find(
+      (op) => op.context.capabilityId === "cap-lowend" && op.operation === "privateCue",
+    );
     if (!result) return null;
     const draft = window.__echlubState.drafts[result.context.draftId];
     return {
@@ -121,6 +180,7 @@ try {
       afterRevision: result.afterRevision,
       materialRef: result.materialRef,
       cueStarted: result.cueStarted,
+      scriptedEventId: "cap-lowend-cue",
     };
   });
 
@@ -142,12 +202,23 @@ try {
       cueCompletion: window.__echlubDevSnapshot.cueCompletionLog.find(
         (r) => r.act === "livePerformance" && r.draftId === draftId,
       ),
+      audibleConsequence: Boolean(resolution),
     };
   }, lowEndPrivateCue?.draftId);
 
+  await page.waitForFunction(
+    () => window.__echlubDemoController?.runtime?.capabilityOperationLog?.some(
+      (op) => op.context.capabilityId === "cap-harmony" && op.operation === "revision",
+    ),
+    { timeout: 90000 },
+  );
+  await delay(300);
+  await captureShot("04-live-harmony-act.png", "scripted harmony revision");
+
   const harmonyRevision = await page.evaluate(() => {
-    const beforeRev = window.__echlubDemoController.runtime.lastCapabilityOperation?.afterRevision;
-    const result = window.__echlubDemoController.executeCapabilityOperation("cap-harmony", "revision");
+    const result = window.__echlubDemoController.runtime.capabilityOperationLog.find(
+      (op) => op.context.capabilityId === "cap-harmony" && op.operation === "revision",
+    );
     if (!result) return null;
     const draft = window.__echlubState.drafts[result.context.draftId];
     const repinned = result.repinnedSceneRefs[0];
@@ -162,19 +233,40 @@ try {
       afterRevision: result.afterRevision,
       revisionIncreased: result.afterRevision > result.beforeRevision,
       fingerprintChanged: result.afterFingerprint !== result.beforeFingerprint,
-      repinnedScene: repinned ? { sceneId: repinned.sceneId, layer: repinned.layer, fingerprint: repinned.fingerprint } : null,
+      repinnedScene: repinned ? { sceneId: repinned.sceneId, layer: repinned.layer, revision: repinned.revision, fingerprint: repinned.fingerprint } : null,
+      repinCompleted: result.repinnedSceneRefs.length > 0,
+      materialPublished: Boolean(result.materialRef),
+      materialRef: result.materialRef,
       chordCount: draft?.harmonyChords?.length ?? 0,
-      priorOperationRevision: beforeRev,
+      scriptedEventId: "cap-harmony-revise",
     };
   });
 
-  const harmonyMaterialResolution = await page.evaluate((draftId) => {
-    const bankVersion = window.__echlubDevSnapshot.materialBankVersion;
+  await page.waitForFunction(
+    (draftId, revision) => window.__echlubDevSnapshot.materialResolutionLog.some(
+      (r) => r.draftId === draftId && r.revision === revision && r.act === "livePerformance",
+    ),
+    { timeout: 12000 },
+    harmonyRevision?.draftId,
+    harmonyRevision?.afterRevision,
+  ).catch(() => null);
+
+  const harmonyMaterialResolution = await page.evaluate((draftId, revision) => {
     const resolution = [...window.__echlubDevSnapshot.materialResolutionLog].reverse().find(
-      (r) => r.draftId === draftId && r.revision > 0,
+      (r) => r.draftId === draftId && r.revision === revision && r.act === "livePerformance",
     );
-    return { bankVersion, resolution };
-  }, harmonyRevision?.draftId);
+    return {
+      bankVersion: window.__echlubDevSnapshot.materialBankVersion,
+      resolution,
+      materialResolved: Boolean(resolution),
+      revisionMatchesOperation: resolution?.revision === revision,
+      audibleConsequence: Boolean(
+        window.__echlubDevSnapshot.cueCompletionLog.some(
+          (r) => r.act === "livePerformance" && r.draftId === draftId && r.revision === revision,
+        ),
+      ),
+    };
+  }, harmonyRevision?.draftId, harmonyRevision?.afterRevision);
 
   const resolutionCountAfter = await page.evaluate(() =>
     window.__echlubDevSnapshot.materialResolutionLog.length,
@@ -193,8 +285,12 @@ try {
 
   await page.waitForFunction(
     () => window.__echlubDemoController?.runtime.act === "comparison",
-    { timeout: 120000 },
+    { timeout: 180000 },
   );
+  await delay(1000);
+  await captureShot("05-comparison.png", "canonical vs live comparison");
+
+  evidence.screenshots = screenshotLog;
 
   evidence.lifecycle.fullFlow = await page.evaluate(() => ({
     act: window.__echlubDemoController.runtime.act,
@@ -243,10 +339,12 @@ try {
     transportState: await page.evaluate(() => window.__echlubDevSnapshot.transportState),
   };
 
+  evidence.buildAssets = readBuildAssets();
   evidence.pageErrors = pageErrors;
   const ops = evidence.scenarios.extendedCapabilityOperations;
   evidence.ok = Boolean(
     evidence.scenarios.currentSongSixCapability.capabilityCount === 6
+      && evidence.scenarios.scriptedLiveChoreography.length === 2
       && ops.lowEndPrivateCue?.capabilityId === "cap-lowend"
       && ops.lowEndPrivateCue?.participantId
       && ops.lowEndPrivateCue?.trackId
@@ -257,7 +355,10 @@ try {
       && ops.harmonyRevision?.capabilityId === "cap-harmony"
       && ops.harmonyRevision?.revisionIncreased
       && ops.harmonyRevision?.fingerprintChanged
-      && ops.harmonyRevision?.repinnedScene
+      && ops.harmonyRevision?.repinCompleted
+      && ops.harmonyRevision?.materialPublished
+      && ops.harmonyMaterialResolution?.materialResolved
+      && ops.harmonyMaterialResolution?.revisionMatchesOperation
       && ops.usedPackDraftNotPlaceholder
       && ops.materialResolutionDelta > 0
       && evidence.lifecycle.pauseResume.paused

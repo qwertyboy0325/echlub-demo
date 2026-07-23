@@ -37304,6 +37304,24 @@
       "detail": "Audition the edited opening privately."
     },
     {
+      "id": "cap-lowend-cue",
+      "at": "3:0:0",
+      "action": "capability",
+      "capabilityId": "cap-lowend",
+      "capabilityOperation": "privateCue",
+      "label": "Private cue bass",
+      "detail": "Low End operator auditions the assignment-resolved bass draft."
+    },
+    {
+      "id": "cap-harmony-revise",
+      "at": "6:0:0",
+      "action": "capability",
+      "capabilityId": "cap-harmony",
+      "capabilityOperation": "revision",
+      "label": "Voice next chord",
+      "detail": "Harmony revises voicing, repins scene stacks, and auditions the offered material."
+    },
+    {
       "id": "launch-entry",
       "at": "4:0:0",
       "brain": "story",
@@ -37435,6 +37453,9 @@
     "opening": {
       "bass": [
         "midi-opening-piano-lh"
+      ],
+      "harmony": [
+        "midi-opening-piano-rh"
       ],
       "melody": [
         "midi-opening-guitar"

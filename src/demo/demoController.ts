@@ -12,7 +12,7 @@ import { enterAct, registerCanonicalSchedules, registerLiveSchedules } from "./a
 import { projectSessionMusicalState } from "../runtimeState";
 import type { PerformanceScriptEvent } from "../types";
 import type { CapabilityOperationEvidence } from "./capabilityLiveOperations";
-import type { CapabilityLiveOperation } from "./capabilityLiveOperations";
+import type { CapabilityLiveOperation } from "../types";
 
 export interface DemoControllerHooks {
   getState: () => RuntimeState;
@@ -201,6 +201,9 @@ export class DemoController {
       this.hooks.audioEngine.startPrivateCue(evidence.materialRef);
     } else {
       this.hooks.audioEngine.setMaterialBank(this.runtime.materialBank);
+      if (operation === "revision" && capabilityId === "cap-harmony") {
+        this.hooks.audioEngine.startPrivateCue(evidence.materialRef);
+      }
     }
 
     this.syncSessionToState();

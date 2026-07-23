@@ -45,6 +45,19 @@ export function repinDraftReferences(session: ProductionSession, draftId: string
       scene.layers[layer] = { ...nextRef };
       repinned.push({ sceneId: scene.id, layer, ...nextRef });
     }
+    for (const [layer, refs] of Object.entries(scene.layerStacks ?? {})) {
+      if (!refs?.length) continue;
+      let touched = false;
+      const nextRefs = refs.map((ref) => {
+        if (ref.draftId !== draftId) return ref;
+        touched = true;
+        return { ...nextRef };
+      });
+      if (!touched) continue;
+      scene.layerStacks ??= {};
+      scene.layerStacks[layer as LayerId] = nextRefs;
+      repinned.push({ sceneId: scene.id, layer: layer as LayerId, ...nextRef });
+    }
   }
   return repinned;
 }

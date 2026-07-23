@@ -40,7 +40,7 @@ export function validateScriptIntegrity(): ValidationIssue[] {
     if (pos > TOTAL_BARS * 16) {
       issues.push({ severity: "error", code: "RANGE", message: "Event after arrangement end", ref: event.id });
     }
-    if (!VALID_BRAINS.includes(event.brain)) {
+    if (event.action !== "capability" && event.brain && !VALID_BRAINS.includes(event.brain)) {
       issues.push({ severity: "error", code: "BRAIN", message: `Invalid brain: ${event.brain}`, ref: event.id });
     }
     if (event.target) {

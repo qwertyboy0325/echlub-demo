@@ -31,9 +31,9 @@ import {
 } from "./liveStructuralMutations";
 import {
   applyCapabilityLiveOperation,
-  type CapabilityLiveOperation,
   type CapabilityOperationEvidence,
 } from "./capabilityLiveOperations";
+import type { CapabilityLiveOperation } from "../types";
 
 export type ActChangeCallback = (act: DemoAct, session: ProductionSession) => void;
 
@@ -47,6 +47,7 @@ export class DemoRuntime {
   canonicalBank: SessionMaterialBank | null = null;
   readonly liveMutationLog: LiveMutationEvidence[] = [];
   lastCapabilityOperation: CapabilityOperationEvidence | null = null;
+  capabilityOperationLog: CapabilityOperationEvidence[] = [];
   act: DemoAct = "production";
   speedMultiplier = 1;
   productionActionIndex = 0;
@@ -229,6 +230,7 @@ export class DemoRuntime {
     if (!evidence) return null;
     this.publishBank();
     this.lastCapabilityOperation = structuredClone(evidence);
+    this.capabilityOperationLog.push(structuredClone(evidence));
     return evidence;
   }
 

@@ -83,6 +83,7 @@ describe("public MIDI-authority song form", () => {
     });
     expect(pack.sceneLayerStacks?.opening).toEqual({
       bass: ["midi-opening-piano-lh"],
+      harmony: ["midi-opening-piano-rh"],
       melody: ["midi-opening-guitar"],
     });
     expect(pack.scenePlacements.entry?.melody).toBe("midi-entry-tenor");

@@ -59,7 +59,9 @@ export function renderPerformanceOverlay(ctx: PerformanceOverlayContext): string
         </div>
         <div class="brain-workspace capability-workspace">${panelContent?.innerHtml ?? renderCapabilityWorkspace(cap!.id, { session: ctx.session, state: ctx.state, previewBrain: ctx.state.previewBrain })}</div>
         <div class="thought-strip"><span>activity</span><p id="${legacyBrain ?? cap!.id}-thought">${thought}</p></div>
-        ${legacyBrain ? `<div class="virtual-cursor" data-cursor="${legacyBrain}"><i></i><b>${symbol}</b></div>` : ""}
+        ${legacyBrain
+    ? `<div class="virtual-cursor" data-cursor="${legacyBrain}"><i></i><b>${symbol}</b></div>`
+    : `<div class="virtual-cursor capability-cursor" data-capability-cursor="${cap!.id}"><i></i><b>${symbol}</b></div>`}
       </article>`;
   }).join("");
 

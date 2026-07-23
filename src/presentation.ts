@@ -25,6 +25,16 @@ const profiles: Record<BrainId, BrainProfile> = {
   story: { moveDuration: 0.62, hesitation: 0.18, dwellScale: 1.5, ease: "power2.inOut", idle: { x: 28, y: 85 } },
 };
 
+const capabilityColors: Record<string, string> = {
+  "cap-lowend": "#fbbf24",
+  "cap-harmony": "#a78bfa",
+};
+
+const capabilityProfiles: Record<string, BrainProfile> = {
+  "cap-lowend": { moveDuration: 0.48, hesitation: 0.08, dwellScale: 1.0, ease: "power2.out", idle: { x: 26, y: 88 } },
+  "cap-harmony": { moveDuration: 0.52, hesitation: 0.1, dwellScale: 1.1, ease: "power1.inOut", idle: { x: 30, y: 92 } },
+};
+
 interface CursorState {
   element: HTMLElement;
   x: number;
@@ -34,6 +44,7 @@ interface CursorState {
 
 export class PresentationEngine {
   private cursors = new Map<BrainId, CursorState>();
+  private capabilityCursors = new Map<string, CursorState>();
   private activeTimelines: gsap.core.Timeline[] = [];
   private pendingTimers: ReturnType<typeof setTimeout>[] = [];
 
@@ -54,6 +65,12 @@ export class PresentationEngine {
       const profile = profiles[brain];
       this.cursors.set(brain, { element, x: profile.idle.x, y: profile.idle.y, busy: false });
     });
+    document.querySelectorAll<HTMLElement>("[data-capability-cursor]").forEach((element) => {
+      const capabilityId = element.getAttribute("data-capability-cursor");
+      if (!capabilityId) return;
+      const profile = capabilityProfiles[capabilityId] ?? capabilityProfiles["cap-lowend"];
+      this.capabilityCursors.set(capabilityId, { element, x: profile.idle.x, y: profile.idle.y, busy: false });
+    });
   }
 
   getActiveTimelineCount(): number {
@@ -73,8 +90,15 @@ export class PresentationEngine {
       state.busy = false;
       gsap.set(state.element, { x: profile.idle.x, y: profile.idle.y, opacity: 0.35, scale: 0.9 });
     });
-    document.querySelectorAll(".brain-window").forEach((el) => {
-      el.classList.remove("brain-active", "brain-preview");
+    this.capabilityCursors.forEach((state, capabilityId) => {
+      const profile = capabilityProfiles[capabilityId] ?? capabilityProfiles["cap-lowend"];
+      state.x = profile.idle.x;
+      state.y = profile.idle.y;
+      state.busy = false;
+      gsap.set(state.element, { x: profile.idle.x, y: profile.idle.y, opacity: 0, scale: 0.9 });
+    });
+    document.querySelectorAll(".brain-window, .capability-panel").forEach((el) => {
+      el.classList.remove("brain-active", "brain-preview", "capability-panel-active");
     });
     document.querySelectorAll(".click-ripple").forEach((el) => el.remove());
   }
@@ -88,11 +112,12 @@ export class PresentationEngine {
       groups.set(key, list);
     }
     groups.forEach((groupSteps) => {
-      const byActor = new Map<BrainId, ChoreographyStep[]>();
+      const byActor = new Map<string, ChoreographyStep[]>();
       for (const step of groupSteps) {
-        const actorSteps = byActor.get(step.actor) ?? [];
+        const key = step.capabilityId ?? step.actor ?? "unknown";
+        const actorSteps = byActor.get(key) ?? [];
         actorSteps.push(step);
-        byActor.set(step.actor, actorSteps);
+        byActor.set(key, actorSteps);
       }
       byActor.forEach((actorSteps) => this.executeActorChain(actorSteps));
     });
@@ -103,12 +128,19 @@ export class PresentationEngine {
     const [first, ...rest] = steps;
     this.executeStep(first);
     if (rest.length === 0) return;
-    const profile = profiles[first.actor];
+    const profile = first.capabilityId
+      ? (capabilityProfiles[first.capabilityId] ?? capabilityProfiles["cap-lowend"])
+      : profiles[first.actor ?? "memory"];
     const delayMs = Math.round(((first.duration ?? profile.moveDuration) + (first.dwell ?? 0.2) + 0.15) * 1000);
     this.scheduleTimer(() => this.executeActorChain(rest), delayMs);
   }
 
   executeStep(step: ChoreographyStep): void {
+    if (step.capabilityId) {
+      this.executeCapabilityStep(step);
+      return;
+    }
+    if (!step.actor) return;
     const state = this.cursors.get(step.actor);
     if (!state) return;
     const panel = document.querySelector<HTMLElement>(`[data-brain="${step.actor}"]`);
@@ -144,7 +176,7 @@ export class PresentationEngine {
     const tl = gsap.timeline({
       onComplete: () => {
         state.busy = false;
-        if (!this.isBrainBusy(step.actor)) {
+        if (step.actor && !this.isBrainBusy(step.actor)) {
           this.returnToIdle(step.actor, panel);
         }
       },
@@ -188,8 +220,8 @@ export class PresentationEngine {
       tl.call(() => targetEl.classList.remove("cursor-hover"), [], `+=${dwell * 0.5}`);
     }
 
-    if (["click", "doubleClick"].includes(step.gesture)) {
-      tl.add(() => this.clickEffect(state.element, targetCoords, brainColors[step.actor]));
+    if (["click", "doubleClick"].includes(step.gesture) && step.actor) {
+      tl.add(() => this.clickEffect(state.element, targetCoords, brainColors[step.actor!]));
       tl.to(state.element, { scale: 0.78, duration: 0.06 });
       tl.to(state.element, { scale: 1, duration: 0.1 });
       if (targetEl) tl.add(() => targetEl.classList.add("cursor-clicked"), "-=0.1");
@@ -223,6 +255,17 @@ export class PresentationEngine {
   markPreview(brain: BrainId): void {
     document.querySelectorAll(".brain-window").forEach((el) => el.classList.remove("brain-preview"));
     document.querySelector(`[data-brain="${brain}"]`)?.classList.add("brain-preview");
+  }
+
+  markCapabilityFocus(capabilityId: string): void {
+    document.querySelectorAll(".capability-panel").forEach((el) => el.classList.remove("capability-panel-active"));
+    document.querySelector(`[data-capability="${capabilityId}"]`)?.classList.add("capability-panel-active");
+    document.querySelector("#performance-overlay")?.setAttribute("data-active-capability", capabilityId);
+  }
+
+  clearCapabilityFocus(): void {
+    document.querySelectorAll(".capability-panel").forEach((el) => el.classList.remove("capability-panel-active"));
+    document.querySelector("#performance-overlay")?.removeAttribute("data-active-capability");
   }
 
   clearPreview(): void {
@@ -259,7 +302,7 @@ export class PresentationEngine {
   }
 
   private clickEffect(cursor: HTMLElement, coords: { x: number; y: number }, color: string): void {
-    const panel = cursor.closest(".brain-window");
+    const panel = cursor.closest(".brain-window, .capability-panel");
     if (!panel) return;
     const ripple = document.createElement("span");
     ripple.className = "click-ripple";
@@ -282,5 +325,105 @@ export class PresentationEngine {
     state.x = profile.idle.x;
     state.y = profile.idle.y;
     this.scheduleTimer(() => panel.classList.remove("brain-active"), 800);
+  }
+
+  private executeCapabilityStep(step: ChoreographyStep): void {
+    const capabilityId = step.capabilityId!;
+    const state = this.capabilityCursors.get(capabilityId);
+    if (!state) return;
+    const panel = document.querySelector<HTMLElement>(`[data-capability="${capabilityId}"]`);
+    if (!panel) return;
+
+    panel.classList.add("capability-panel-active");
+    const profile = capabilityProfiles[capabilityId] ?? capabilityProfiles["cap-lowend"];
+    const color = capabilityColors[capabilityId] ?? "#fbbf24";
+    const targetEl = this.resolveElement(panel, step.target);
+    const panelRect = panel.getBoundingClientRect();
+    const getCoords = (el: HTMLElement) => {
+      const r = el.getBoundingClientRect();
+      const hostPanel = el.closest(".capability-panel, .brain-window") as HTMLElement | null;
+      const hostRect = hostPanel?.getBoundingClientRect() ?? panelRect;
+      return {
+        x: r.left - hostRect.left + r.width * 0.55,
+        y: r.top - hostRect.top + r.height * 0.5,
+        panel: hostPanel ?? panel,
+      };
+    };
+
+    const targetCoords = targetEl ? getCoords(targetEl) : { x: state.x, y: state.y, panel };
+    const cursorHost = targetCoords.panel ?? panel;
+    if (cursorHost !== panel && state.element.parentElement !== cursorHost) {
+      cursorHost.appendChild(state.element);
+    }
+    const duration = step.duration ?? profile.moveDuration;
+    const dwell = (step.dwell ?? 0.2) * profile.dwellScale;
+    const anticipation = step.anticipation ?? profile.hesitation;
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        state.busy = false;
+        if (!this.isCapabilityBusy(capabilityId)) {
+          this.returnCapabilityToIdle(capabilityId, panel);
+        }
+      },
+    });
+    this.activeTimelines.push(tl);
+    state.busy = true;
+
+    tl.to(state.element, { opacity: 1, scale: 1, duration: 0.12 });
+
+    if (step.gesture === "cut") {
+      tl.set(state.element, { x: targetCoords.x, y: targetCoords.y });
+    } else if (step.gesture === "wait" || step.gesture === "idle") {
+      tl.to(state.element, { duration });
+    } else {
+      if (anticipation > 0) {
+        tl.to(state.element, {
+          x: state.x + (targetCoords.x - state.x) * 0.15,
+          y: state.y + (targetCoords.y - state.y) * 0.15,
+          duration: anticipation,
+          ease: "sine.out",
+        });
+      }
+      tl.to(state.element, {
+        x: targetCoords.x,
+        y: targetCoords.y,
+        duration,
+        ease: profile.ease,
+        onUpdate: () => {
+          state.x = gsap.getProperty(state.element, "x") as number;
+          state.y = gsap.getProperty(state.element, "y") as number;
+        },
+      });
+    }
+
+    state.x = targetCoords.x;
+    state.y = targetCoords.y;
+
+    if (["click", "doubleClick"].includes(step.gesture)) {
+      tl.add(() => this.clickEffect(state.element, targetCoords, color));
+      tl.to(state.element, { scale: 0.78, duration: 0.06 });
+      tl.to(state.element, { scale: 1, duration: 0.1 });
+      if (targetEl) tl.add(() => targetEl.classList.add("cursor-clicked"), "-=0.1");
+      if (targetEl) tl.call(() => targetEl.classList.remove("cursor-clicked"), [], `+=${dwell}`);
+    }
+
+    if (dwell > 0 && step.gesture !== "wait") {
+      tl.to({}, { duration: dwell });
+    }
+  }
+
+  private isCapabilityBusy(capabilityId: string): boolean {
+    return this.capabilityCursors.get(capabilityId)?.busy ?? false;
+  }
+
+  private returnCapabilityToIdle(capabilityId: string, panel: HTMLElement): void {
+    const state = this.capabilityCursors.get(capabilityId);
+    if (!state) return;
+    const profile = capabilityProfiles[capabilityId] ?? capabilityProfiles["cap-lowend"];
+    gsap.to(state.element, { x: profile.idle.x, y: profile.idle.y, opacity: 0, duration: 0.5, ease: "sine.out" });
+    state.x = profile.idle.x;
+    state.y = profile.idle.y;
+    this.scheduleTimer(() => panel.classList.remove("capability-panel-active"), 800);
   }
 }

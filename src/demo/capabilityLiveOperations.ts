@@ -8,7 +8,7 @@ import type { ProductionSession } from "../domain/sessionTypes";
 import type { MaterialRef } from "../domain/sessionTypes";
 import { repinDraftReferences, type LiveMutationEvidence } from "./liveMutations";
 
-export type CapabilityLiveOperation = "privateCue" | "revision";
+import type { CapabilityLiveOperation } from "../types";
 
 export interface CapabilityOperationEvidence {
   operation: CapabilityLiveOperation;

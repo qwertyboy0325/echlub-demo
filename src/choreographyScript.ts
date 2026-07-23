@@ -55,6 +55,12 @@ export const choreographyScript: ChoreographyStep[] = [
   { eventId: "e33", actor: "story", gesture: "click", target: "recompose", duration: 0.5, dwell: 0.45 },
   { eventId: "e36", actor: "story", gesture: "drag", target: "pulse-sparse", destination: "shared-queue", duration: 0.65, dwell: 0.4 },
   { eventId: "e38", actor: "story", gesture: "click", target: "return", duration: 0.55, dwell: 0.6 },
+
+  // Extended capability live moments (assignment-routed, not BrainId)
+  { eventId: "cap-lowend-cue", capabilityId: "cap-lowend", gesture: "move", target: "lowend-grid", duration: 0.5, dwell: 0.2 },
+  { eventId: "cap-lowend-cue", capabilityId: "cap-lowend", gesture: "click", target: "lowend-private-cue", duration: 0.4, dwell: 0.35 },
+  { eventId: "cap-harmony-revise", capabilityId: "cap-harmony", gesture: "move", target: "harmony-grid", duration: 0.5, dwell: 0.2 },
+  { eventId: "cap-harmony-revise", capabilityId: "cap-harmony", gesture: "click", target: "harmony-voice", duration: 0.45, dwell: 0.4 },
 ];
 
 export function stepsForEvent(eventId: string): ChoreographyStep[] {
