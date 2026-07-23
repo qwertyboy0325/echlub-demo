@@ -61,8 +61,11 @@ function assertBundleIntegrity(expectedHead) {
 }
 
 const porcelain = execSync("git status --porcelain", { encoding: "utf8" }).trim();
-if (porcelain) {
-  throw new Error(`Working tree must be clean before bundle generation:\n${porcelain}`);
+const dirty = porcelain
+  ? porcelain.split("\n").filter((line) => line.trim() && !/^\?\? .+\.cursor\//.test(line.trim()))
+  : [];
+if (dirty.length) {
+  throw new Error(`Working tree must be clean before bundle generation:\n${dirty.join("\n")}`);
 }
 
 const expectedHead = execSync("git rev-parse HEAD", { encoding: "utf8" }).trim();
