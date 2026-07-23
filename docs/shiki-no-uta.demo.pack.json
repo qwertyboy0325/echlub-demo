@@ -35837,14 +35837,14 @@
       },
       "layerStacks": {},
       "fx": {
-        "filter": 5200,
+        "filter": 5400,
         "delayWet": 0.1,
-        "reverbWet": 0.24,
-        "masterGain": 4.5,
+        "reverbWet": 0.2,
+        "masterGain": 3.8,
         "faders": {
-          "groove": 68,
-          "harmony": 58,
-          "melody": 68,
+          "groove": 61,
+          "harmony": 50,
+          "melody": 73,
           "texture": 0
         }
       }
@@ -35864,14 +35864,14 @@
       },
       "layerStacks": {},
       "fx": {
-        "filter": 7200,
-        "delayWet": 0.1,
-        "reverbWet": 0.16,
-        "masterGain": 4.5,
+        "filter": 6600,
+        "delayWet": 0.08,
+        "reverbWet": 0.12,
+        "masterGain": 4,
         "faders": {
-          "groove": 68,
-          "harmony": 58,
-          "melody": 68,
+          "groove": 71,
+          "harmony": 51,
+          "melody": 77,
           "texture": 0
         }
       }
@@ -35891,14 +35891,14 @@
       },
       "layerStacks": {},
       "fx": {
-        "filter": 7200,
-        "delayWet": 0.1,
-        "reverbWet": 0.16,
-        "masterGain": 4.5,
+        "filter": 6600,
+        "delayWet": 0.08,
+        "reverbWet": 0.12,
+        "masterGain": 4,
         "faders": {
-          "groove": 68,
-          "harmony": 58,
-          "melody": 68,
+          "groove": 71,
+          "harmony": 51,
+          "melody": 78,
           "texture": 0
         }
       }
@@ -35918,14 +35918,14 @@
       },
       "layerStacks": {},
       "fx": {
-        "filter": 7200,
-        "delayWet": 0.1,
-        "reverbWet": 0.16,
-        "masterGain": 4.5,
+        "filter": 7000,
+        "delayWet": 0.2,
+        "reverbWet": 0.14,
+        "masterGain": 4.1,
         "faders": {
-          "groove": 68,
-          "harmony": 58,
-          "melody": 68,
+          "groove": 67,
+          "harmony": 48,
+          "melody": 80,
           "texture": 0
         }
       }
@@ -35945,14 +35945,14 @@
       },
       "layerStacks": {},
       "fx": {
-        "filter": 7200,
-        "delayWet": 0.1,
-        "reverbWet": 0.16,
-        "masterGain": 4.5,
+        "filter": 6600,
+        "delayWet": 0.08,
+        "reverbWet": 0.12,
+        "masterGain": 4,
         "faders": {
-          "groove": 68,
-          "harmony": 58,
-          "melody": 68,
+          "groove": 71,
+          "harmony": 51,
+          "melody": 77,
           "texture": 0
         }
       }
@@ -35972,14 +35972,14 @@
       },
       "layerStacks": {},
       "fx": {
-        "filter": 7200,
-        "delayWet": 0.1,
-        "reverbWet": 0.16,
-        "masterGain": 4.5,
+        "filter": 6600,
+        "delayWet": 0.08,
+        "reverbWet": 0.12,
+        "masterGain": 4,
         "faders": {
-          "groove": 68,
-          "harmony": 58,
-          "melody": 68,
+          "groove": 71,
+          "harmony": 51,
+          "melody": 78,
           "texture": 0
         }
       }
@@ -35999,14 +35999,14 @@
       },
       "layerStacks": {},
       "fx": {
-        "filter": 7200,
-        "delayWet": 0.1,
-        "reverbWet": 0.16,
-        "masterGain": 4.5,
+        "filter": 7300,
+        "delayWet": 0.04,
+        "reverbWet": 0.06,
+        "masterGain": 3.95,
         "faders": {
-          "groove": 68,
-          "harmony": 58,
-          "melody": 68,
+          "groove": 82,
+          "harmony": 44,
+          "melody": 53,
           "texture": 0
         }
       }
@@ -36026,14 +36026,14 @@
       },
       "layerStacks": {},
       "fx": {
-        "filter": 7200,
-        "delayWet": 0.1,
-        "reverbWet": 0.16,
-        "masterGain": 4.5,
+        "filter": 6200,
+        "delayWet": 0.12,
+        "reverbWet": 0.18,
+        "masterGain": 3.85,
         "faders": {
-          "groove": 68,
-          "harmony": 58,
-          "melody": 68,
+          "groove": 55,
+          "harmony": 55,
+          "melody": 72,
           "texture": 0
         }
       }
@@ -36053,14 +36053,14 @@
       },
       "layerStacks": {},
       "fx": {
-        "filter": 7200,
-        "delayWet": 0.1,
-        "reverbWet": 0.16,
-        "masterGain": 4.5,
+        "filter": 6200,
+        "delayWet": 0.12,
+        "reverbWet": 0.18,
+        "masterGain": 3.85,
         "faders": {
-          "groove": 68,
-          "harmony": 58,
-          "melody": 68,
+          "groove": 55,
+          "harmony": 55,
+          "melody": 72,
           "texture": 0
         }
       }
@@ -36080,14 +36080,14 @@
       },
       "layerStacks": {},
       "fx": {
-        "filter": 7200,
-        "delayWet": 0.1,
-        "reverbWet": 0.16,
-        "masterGain": 4.5,
+        "filter": 5200,
+        "delayWet": 0.17,
+        "reverbWet": 0.26,
+        "masterGain": 3.8,
         "faders": {
-          "groove": 68,
-          "harmony": 58,
-          "melody": 68,
+          "groove": 56,
+          "harmony": 49,
+          "melody": 70,
           "texture": 0
         }
       }
@@ -36107,14 +36107,14 @@
       },
       "layerStacks": {},
       "fx": {
-        "filter": 7200,
-        "delayWet": 0.1,
-        "reverbWet": 0.16,
-        "masterGain": 4.5,
+        "filter": 7600,
+        "delayWet": 0.11,
+        "reverbWet": 0.1,
+        "masterGain": 4.3,
         "faders": {
-          "groove": 68,
-          "harmony": 58,
-          "melody": 68,
+          "groove": 77,
+          "harmony": 49,
+          "melody": 81,
           "texture": 0
         }
       }
@@ -36134,14 +36134,14 @@
       },
       "layerStacks": {},
       "fx": {
-        "filter": 7200,
-        "delayWet": 0.1,
-        "reverbWet": 0.16,
-        "masterGain": 4.5,
+        "filter": 7600,
+        "delayWet": 0.11,
+        "reverbWet": 0.1,
+        "masterGain": 4.3,
         "faders": {
-          "groove": 68,
-          "harmony": 58,
-          "melody": 68,
+          "groove": 77,
+          "harmony": 49,
+          "melody": 81,
           "texture": 0
         }
       }
@@ -36161,14 +36161,14 @@
       },
       "layerStacks": {},
       "fx": {
-        "filter": 4300,
-        "delayWet": 0.2,
-        "reverbWet": 0.24,
-        "masterGain": 4.5,
+        "filter": 4800,
+        "delayWet": 0.22,
+        "reverbWet": 0.3,
+        "masterGain": 3.95,
         "faders": {
-          "groove": 68,
-          "harmony": 58,
-          "melody": 68,
+          "groove": 58,
+          "harmony": 49,
+          "melody": 66,
           "texture": 0
         }
       }
@@ -36251,14 +36251,14 @@
     }
   },
   "defaultMix": {
-    "filter": 6500,
-    "delayWet": 0.1,
-    "reverbWet": 0.16,
-    "masterGain": 4.5,
+    "filter": 6400,
+    "delayWet": 0.08,
+    "reverbWet": 0.12,
+    "masterGain": 4,
     "faders": {
-      "groove": 68,
-      "harmony": 58,
-      "melody": 68,
+      "groove": 70,
+      "harmony": 52,
+      "melody": 76,
       "texture": 0
     }
   },
@@ -36266,9 +36266,9 @@
     "master": {
       "filterRolloff": -24,
       "delayTime": "8n",
-      "delayFeedback": 0.16,
-      "reverbDecay": 1.9,
-      "reverbPreDelay": 0.018,
+      "delayFeedback": 0.2,
+      "reverbDecay": 2.1,
+      "reverbPreDelay": 0.016,
       "compressorThreshold": -10,
       "compressorRatio": 1.5
     },
@@ -36277,16 +36277,16 @@
       "kickOctaves": 3.2,
       "kickDecay": 0.22,
       "snareNoise": "pink",
-      "snareDecay": 0.085,
-      "hatDecay": 0.025,
+      "snareDecay": 0.064,
+      "hatDecay": 0.022,
       "hatResonance": 3300,
-      "drive": 0.025,
-      "filterFrequency": 10500
+      "drive": 0.02,
+      "filterFrequency": 9600
     },
     "bass": {
       "oscillator": "triangle",
-      "volume": -13,
-      "filterQ": 1.15,
+      "volume": -14,
+      "filterQ": 1.05,
       "filterBaseFrequency": 110,
       "filterOctaves": 2.1,
       "drive": 0.02,
@@ -36300,11 +36300,11 @@
     "harmony": {
       "generator": "synth",
       "oscillator": "triangle",
-      "volume": -17,
-      "filterFrequency": 4800,
+      "volume": -20,
+      "filterFrequency": 4400,
       "chorusFrequency": 0.28,
       "chorusDepth": 0.18,
-      "chorusWet": 0.09,
+      "chorusWet": 0.06,
       "envelope": {
         "attack": 0.008,
         "decay": 0.22,
@@ -36316,15 +36316,15 @@
       "generator": "synth",
       "oscillator": "triangle",
       "volume": -15,
-      "filterFrequency": 5200,
+      "filterFrequency": 5100,
       "chorusFrequency": 0.36,
       "chorusDepth": 0.12,
-      "chorusWet": 0.07,
+      "chorusWet": 0.05,
       "envelope": {
-        "attack": 0.008,
-        "decay": 0.18,
-        "sustain": 0.24,
-        "release": 0.34
+        "attack": 0.006,
+        "decay": 0.16,
+        "sustain": 0.22,
+        "release": 0.26
       }
     },
     "texture": {
