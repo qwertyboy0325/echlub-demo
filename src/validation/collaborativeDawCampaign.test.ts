@@ -102,4 +102,39 @@ describe("collaborative DAW campaign — variable topology", () => {
     expect(text).toContain(String(session.participants.length));
     expect(text).toMatch(/capabilities\)/);
   });
+
+  it("one participant controls multiple tracks via workspace", () => {
+    const session = createIncompleteSession(pack);
+    const multiTrack = session.workspaces.find((ws) => ws.trackIds.length > 1);
+    expect(multiTrack).toBeDefined();
+    const participant = session.participants.find((p) => p.id === multiTrack!.participantId);
+    expect(participant).toBeDefined();
+  });
+
+  it("one participant can hold multiple capability assignments", () => {
+    const config = resolvePerformanceConfiguration(pack);
+    const byParticipant = config.assignments.reduce<Record<string, Set<string>>>((acc, a) => {
+      (acc[a.participantId] ??= new Set()).add(a.capabilityId);
+      return acc;
+    }, {});
+    const multiCap = Object.entries(byParticipant).find(([, caps]) => caps.size > 1);
+    expect(multiCap).toBeDefined();
+    expect(multiCap![0]).toBe("p-harmony");
+    expect([...multiCap![1]]).toEqual(expect.arrayContaining(["cap-harmony", "cap-mixfx"]));
+  });
+
+  it("multiple participants share one capability (rhythm)", () => {
+    const config = resolvePerformanceConfiguration(pack);
+    const rhythmAssignees = config.assignments.filter((a) => a.capabilityId === "cap-rhythm");
+    const participantIds = new Set(rhythmAssignees.map((a) => a.participantId));
+    expect(participantIds.size).toBeGreaterThanOrEqual(2);
+  });
+
+  it("current-song view includes operational extended capabilities", () => {
+    const session = createIncompleteSession(pack);
+    const view = getActivePerformanceView(session.performanceConfig);
+    expect(view.capabilityIds).toContain("cap-lowend");
+    expect(view.capabilityIds).toContain("cap-harmony");
+    expect(view.capabilityIds.length).toBe(6);
+  });
 });

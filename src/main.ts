@@ -19,7 +19,7 @@ import {
 } from "./sceneExecution";
 import type { BrainId, PerformanceScriptEvent, RuntimeState, SceneDefinition } from "./types";
 import { DemoController, scheduleArrangementPlayback } from "./demo/demoController";
-import { legacyBrainsInActiveView } from "./domain/draftAuthorship";
+import { capabilityIdsNeedingRefresh, renderCapabilityWorkspace } from "./ui/liveCapabilityWorkspaces";
 import { buildTopologyTransformation } from "./demo/canonicalPlayback";
 import { enterAct, registerLiveSchedules } from "./demo/actScheduleRegistry";
 import type { DemoAct } from "./domain/sessionTypes";
@@ -226,6 +226,10 @@ interface DawShellParts {
   launcherHtml: string;
 }
 
+function liveWorkspaceCtx() {
+  return { session: demoController.runtime.session, state, previewBrain: state.previewBrain };
+}
+
 function buildDawShellContext(parts: DawShellParts) {
   const session = demoController.runtime.session;
   const isPublicSongDemo = parts.isPublicSongDemo;
@@ -237,7 +241,7 @@ function buildDawShellContext(parts: DawShellParts) {
     ? renderPerformanceOverlay({
         session,
         state,
-        panels: legacyBrainPanelsFromState(session, renderWorkspace),
+        panels: legacyBrainPanelsFromState(session, renderWorkspace, liveWorkspaceCtx()),
         viewLabel: demoController.director.getFocusState().actLabel,
       })
     : undefined;
@@ -303,7 +307,7 @@ function refreshDawUi(): void {
     const overlayHtml = renderPerformanceOverlay({
       session,
       state,
-      panels: legacyBrainPanelsFromState(session, renderWorkspace),
+      panels: legacyBrainPanelsFromState(session, renderWorkspace, liveWorkspaceCtx()),
       viewLabel: demoController.director.getFocusState().actLabel,
     });
     if (overlaySlot) overlaySlot.outerHTML = overlayHtml;
@@ -746,10 +750,18 @@ function mapActionToPipeline(action: string): string {
 }
 
 function refreshWorkspaces(): void {
-  const brains = legacyBrainsInActiveView(demoController.runtime.session);
-  for (const brain of brains) {
-    const ws = document.querySelector(`[data-brain="${brain}"] .brain-workspace`);
-    if (ws) ws.innerHTML = renderWorkspace(brain);
+  const session = demoController.runtime.session;
+  const ctx = liveWorkspaceCtx();
+  for (const capId of capabilityIdsNeedingRefresh(session)) {
+    const cap = session.performanceConfig.capabilities.find((c) => c.id === capId);
+    const html = renderCapabilityWorkspace(capId, ctx, renderWorkspace, cap?.legacyBrainId);
+    if (cap?.legacyBrainId) {
+      const ws = document.querySelector(`[data-brain="${cap.legacyBrainId}"] .brain-workspace`);
+      if (ws) ws.innerHTML = html;
+    } else {
+      const ws = document.querySelector(`[data-capability="${capId}"] .capability-workspace`);
+      if (ws) ws.innerHTML = html;
+    }
   }
 }
 

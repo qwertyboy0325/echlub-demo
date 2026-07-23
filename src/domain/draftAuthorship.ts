@@ -1,5 +1,5 @@
 import type { ProductionSession, Participant } from "./sessionTypes";
-import type { PatternDraft } from "../types";
+import type { BrainId, PatternDraft } from "../types";
 import { LEGACY_BRAIN_CAPABILITIES } from "./performanceModel";
 
 const ROLE_LABELS: Record<string, string> = {
@@ -15,6 +15,22 @@ const ROLE_LABELS: Record<string, string> = {
 
 export function formatProductionRole(roleId: string): string {
   return ROLE_LABELS[roleId] ?? roleId.replace(/_/g, " ");
+}
+
+/** `PatternDraft.owner` is choreography/storage compat only — never show as a person name. */
+export function formatDraftOwnerForStorage(draft: PatternDraft): string {
+  const cap = Object.values(LEGACY_BRAIN_CAPABILITIES).find((c) => c.legacyBrainId === draft.owner);
+  return cap ? `legacy-capability:${cap.id}` : `legacy-storage:${draft.owner}`;
+}
+
+export function isDraftPrivatelyPreviewed(draft: PatternDraft, previewBrain: BrainId | null): boolean {
+  if (!previewBrain) return false;
+  return draft.owner === previewBrain;
+}
+
+export function authorDisplayName(session: ProductionSession, draft?: PatternDraft): string {
+  const author = resolveDraftAuthor(session, draft);
+  return author?.displayName ?? "Unassigned";
 }
 
 /** Resolve clip author from participant/workspace data — not from BrainId as identity. */

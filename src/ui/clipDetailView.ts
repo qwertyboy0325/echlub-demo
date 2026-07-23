@@ -1,6 +1,6 @@
 import type { ProductionSession } from "../domain/sessionTypes";
 import type { PatternDraft } from "../types";
-import { formatProductionRole, resolveDraftAuthor } from "../domain/draftAuthorship";
+import { authorDisplayName, formatProductionRole, isDraftPrivatelyPreviewed, resolveDraftAuthor } from "../domain/draftAuthorship";
 
 export interface ClipDetailContext {
   session: ProductionSession;
@@ -65,7 +65,7 @@ export function renderClipDetailView(ctx: ClipDetailContext): string {
   else if (draft.kind === "harmony") editor = renderHarmonyEditor(draft);
   else if (draft.kind === "texture") editor = renderTextureEditor(draft);
 
-  const isPreview = previewBrain === draft.owner;
+  const isPreview = isDraftPrivatelyPreviewed(draft, previewBrain as import("../types").BrainId | null);
 
   return `
     <section class="clip-detail-view ${isPreview ? "clip-previewing" : ""}" id="clip-detail-view" data-draft-id="${draftId}">
@@ -77,7 +77,7 @@ export function renderClipDetailView(ctx: ClipDetailContext): string {
         <span class="pill status-${draft.status}">${draft.status}</span>
       </header>
       <div class="clip-detail-meta">
-        <span>Author <strong>${author?.displayName ?? "—"}</strong></span>
+        <span>Author <strong>${authorDisplayName(session, draft)}</strong></span>
         <span>Role <strong>${author ? formatProductionRole(author.roleId) : "—"}</strong></span>
         <span>Revision <strong>r${draft.revision}</strong></span>
       </div>

@@ -1,6 +1,6 @@
 import type { ProductionSession } from "../domain/sessionTypes";
 import type { RuntimeState } from "../types";
-import { formatProductionRole, resolveDraftAuthor } from "../domain/draftAuthorship";
+import { authorDisplayName, formatProductionRole, isDraftPrivatelyPreviewed, resolveDraftAuthor } from "../domain/draftAuthorship";
 
 export interface CollaborationInspectorContext {
   session: ProductionSession;
@@ -32,10 +32,10 @@ export function renderCollaborationInspector(ctx: CollaborationInspectorContext)
       ${draft ? `
         <dl class="collab-facts">
           <div><dt>Clip</dt><dd>${draft.title}</dd></div>
-          <div><dt>Author</dt><dd>${author?.displayName ?? draft.owner}</dd></div>
+          <div><dt>Author</dt><dd>${authorDisplayName(session, draft)}</dd></div>
           <div><dt>Status</dt><dd class="status-${draft.status}">${draft.status}</dd></div>
           <div><dt>Revision</dt><dd>r${draft.revision}</dd></div>
-          ${state.previewBrain === draft.owner ? "<div><dt>Preview</dt><dd class=\"collab-previewing\">Private preview active</dd></div>" : ""}
+          ${isDraftPrivatelyPreviewed(draft, state.previewBrain) ? "<div><dt>Preview</dt><dd class=\"collab-previewing\">Private preview active</dd></div>" : ""}
           <div><dt>Role</dt><dd>${author ? formatProductionRole(author.roleId) : "—"}</dd></div>
           ${scenePlacement ? `<div><dt>Scene</dt><dd>${scenePlacement}</dd></div>` : ""}
         </dl>
