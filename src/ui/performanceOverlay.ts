@@ -4,6 +4,7 @@ import {
   getActivePerformanceView,
   participantsForCapability,
 } from "../domain/performanceModel";
+import { formatProductionRole } from "../domain/draftAuthorship";
 
 export interface CapabilityPanelContent {
   capabilityId: string;
@@ -56,7 +57,7 @@ export function renderPerformanceOverlay(ctx: PerformanceOverlayContext): string
           </div>
           <span class="brain-state" id="${legacyBrain ?? cap!.id}-state">${stateLabel}</span>
         </div>
-        <div class="brain-workspace capability-workspace">${panelContent?.innerHtml ?? `<div class="capability-placeholder">${participants.length} operator${participants.length === 1 ? "" : "s"}</div>`}</div>
+        <div class="brain-workspace capability-workspace">${panelContent?.innerHtml ?? renderExtendedCapabilityPanel(ctx.session, cap!.id)}</div>
         <div class="thought-strip"><span>activity</span><p id="${legacyBrain ?? cap!.id}-thought">${thought}</p></div>
         ${legacyBrain ? `<div class="virtual-cursor" data-cursor="${legacyBrain}"><i></i><b>${symbol}</b></div>` : ""}
       </article>`;
@@ -73,6 +74,20 @@ export function renderPerformanceOverlay(ctx: PerformanceOverlayContext): string
     </section>`;
 }
 
+function renderExtendedCapabilityPanel(
+  session: ProductionSession,
+  capabilityId: string,
+): string {
+  const participants = participantsForCapability(session.performanceConfig, capabilityId, session.participants);
+  const items = participants.map((p) => {
+    const tracks = session.workspaces
+      .filter((ws) => ws.participantId === p.id)
+      .flatMap((ws) => ws.trackIds.map((tid) => session.tracks.find((t) => t.id === tid)?.label ?? tid));
+    return `<li><strong>${p.displayName}</strong><small>${formatProductionRole(p.roleId)} · ${tracks.join(", ") || "session"}</small></li>`;
+  }).join("");
+  return `<ul class="capability-operator-list">${items || "<li><em>Unassigned</em></li>"}</ul>`;
+}
+
 export function legacyBrainPanelsFromState(
   session: ProductionSession,
   renderWorkspace: (brain: BrainId) => string,
@@ -84,7 +99,7 @@ export function legacyBrainPanelsFromState(
     return {
       capabilityId: capId,
       legacyBrainId: brain,
-      innerHtml: brain ? renderWorkspace(brain) : "",
+      innerHtml: brain ? renderWorkspace(brain) : renderExtendedCapabilityPanel(session, capId),
     };
   });
 }

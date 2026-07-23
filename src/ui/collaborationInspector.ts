@@ -1,5 +1,6 @@
 import type { ProductionSession } from "../domain/sessionTypes";
 import type { RuntimeState } from "../types";
+import { formatProductionRole, resolveDraftAuthor } from "../domain/draftAuthorship";
 
 export interface CollaborationInspectorContext {
   session: ProductionSession;
@@ -11,9 +12,7 @@ export function renderCollaborationInspector(ctx: CollaborationInspectorContext)
   const { session, state, selectedDraftId } = ctx;
   const draftId = selectedDraftId ?? state.activeDraftId ?? state.offeredDrafts[0];
   const draft = draftId ? session.drafts[draftId] : undefined;
-  const author = draft
-    ? session.participants.find((p) => p.performanceBrain === draft.owner)
-    : undefined;
+  const author = draft ? resolveDraftAuthor(session, draft) : undefined;
   const offered = state.offeredDrafts.map((id) => {
     const d = session.drafts[id];
     return `<li class="collab-offered" data-offered="${id}">${d?.title ?? id} <small>offered</small></li>`;
@@ -37,8 +36,8 @@ export function renderCollaborationInspector(ctx: CollaborationInspectorContext)
           <div><dt>Status</dt><dd class="status-${draft.status}">${draft.status}</dd></div>
           <div><dt>Revision</dt><dd>r${draft.revision}</dd></div>
           ${state.previewBrain === draft.owner ? "<div><dt>Preview</dt><dd class=\"collab-previewing\">Private preview active</dd></div>" : ""}
+          <div><dt>Role</dt><dd>${author ? formatProductionRole(author.roleId) : "—"}</dd></div>
           ${scenePlacement ? `<div><dt>Scene</dt><dd>${scenePlacement}</dd></div>` : ""}
-          <div><dt>Fingerprint</dt><dd class="collab-fp">${draftId && session.drafts[draftId] ? `r${draft.revision}` : "—"}</dd></div>
         </dl>
       ` : "<p class=\"collab-empty\">No clip selected</p>"}
       ${offered ? `<section class="collab-section"><h4>Offered</h4><ul>${offered}</ul></section>` : ""}

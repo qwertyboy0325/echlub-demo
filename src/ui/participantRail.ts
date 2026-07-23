@@ -1,5 +1,6 @@
 import type { ProductionSession } from "../domain/sessionTypes";
 import type { DemoDirector } from "../demo/demoDirector";
+import { formatProductionRole } from "../domain/draftAuthorship";
 import { assignmentsForView, getActivePerformanceView } from "../domain/performanceModel";
 
 export interface ParticipantRailOptions {
@@ -38,7 +39,7 @@ export function renderParticipantRail(
         <span class="participant-avatar" style="--chip-color:${cap?.color ?? "#929caf"}">${initial}</span>
         <span class="participant-meta">
           <strong>${p.displayName}</strong>
-          <small>${p.roleId.replace(/_/g, " ")}${cap ? ` · ${cap.label}` : ""}</small>
+          <small>${formatProductionRole(p.roleId)}${cap ? ` · ${cap.label}` : ""}</small>
         </span>
       </button>`;
   }).join("");

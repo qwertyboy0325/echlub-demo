@@ -19,6 +19,7 @@ import {
 } from "./sceneExecution";
 import type { BrainId, PerformanceScriptEvent, RuntimeState, SceneDefinition } from "./types";
 import { DemoController, scheduleArrangementPlayback } from "./demo/demoController";
+import { legacyBrainsInActiveView } from "./domain/draftAuthorship";
 import { buildTopologyTransformation } from "./demo/canonicalPlayback";
 import { enterAct, registerLiveSchedules } from "./demo/actScheduleRegistry";
 import type { DemoAct } from "./domain/sessionTypes";
@@ -745,10 +746,11 @@ function mapActionToPipeline(action: string): string {
 }
 
 function refreshWorkspaces(): void {
-  (["memory", "pulse", "blend", "story"] as BrainId[]).forEach((brain) => {
+  const brains = legacyBrainsInActiveView(demoController.runtime.session);
+  for (const brain of brains) {
     const ws = document.querySelector(`[data-brain="${brain}"] .brain-workspace`);
     if (ws) ws.innerHTML = renderWorkspace(brain);
-  });
+  }
 }
 
 function updateAllUi(): void {
@@ -843,7 +845,10 @@ function resetRuntime(): void {
   const label = document.querySelector<HTMLElement>("#action-label");
   const detail = document.querySelector<HTMLElement>("#action-detail");
   if (label) label.textContent = "Performance started";
-  if (detail) detail.textContent = "The four DJ capability groups are preparing their material, rhythm, mix, and scene controls.";
+  const capCount = demoController.runtime.session.performanceConfig.views
+    .find((v) => v.id === demoController.runtime.session.performanceConfig.activeViewId)
+    ?.capabilityIds.length ?? 0;
+  if (detail) detail.textContent = `Live operators prepare ${capCount} performance capabilities over the shared session materials.`;
 }
 
 function finishPerformance(): void {

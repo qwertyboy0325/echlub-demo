@@ -1,6 +1,7 @@
 import type { ProductionSession } from "../domain/sessionTypes";
 import type { DemoDirector } from "../demo/demoDirector";
 import type { RuntimeState } from "../types";
+import { authorColorForParticipant, resolveDraftAuthor } from "../domain/draftAuthorship";
 
 export interface SessionViewContext {
   session: ProductionSession;
@@ -28,15 +29,14 @@ export function renderSessionView(ctx: SessionViewContext): string {
       }) ?? track.draftIds[0];
       const draft = draftId ? session.drafts[draftId] : undefined;
       const status = draft?.status ?? "editing";
-      const author = draft ? session.participants.find((p) =>
-        p.performanceBrain === draft.owner || p.id === draft.owner,
-      ) : undefined;
+      const author = draft ? resolveDraftAuthor(session, draft) : undefined;
+      const authorColor = authorColorForParticipant(session, author);
       return `
         <td class="clip-slot status-${status} ${draftId === ctx.selectedDraftId ? "clip-selected" : ""}"
           data-scene-id="${scene.id}" data-track-id="${track.id}" data-draft-id="${draftId ?? ""}">
-          <div class="clip-block">
+          <div class="clip-block" style="--author-color:${authorColor}">
             <span class="clip-title">${draft?.title ?? "—"}</span>
-            <span class="clip-meta">r${draft?.revision ?? 0}${author ? ` · ${author.displayName.charAt(0)}` : ""}</span>
+            <span class="clip-meta">r${draft?.revision ?? 0}${author ? ` · ${author.displayName.split(" ")[0]}` : ""}</span>
           </div>
         </td>`;
     }).join("");

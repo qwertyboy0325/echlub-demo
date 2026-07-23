@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { loadReconstructionPack } from "../domain/packLoader";
 import { createIncompleteSession } from "../demo/productionMutations";
+import { buildTopologyTransformation } from "../demo/canonicalPlayback";
+import { placeholderReconstructionPack } from "../domain/placeholderPack";
+import { legacyBrainsInActiveView, resolveDraftAuthor } from "../domain/draftAuthorship";
 import {
   getActivePerformanceView,
   resolvePerformanceConfiguration,
@@ -59,5 +62,44 @@ describe("collaborative DAW campaign — variable topology", () => {
     expect(session.performanceConfig.capabilities.length).toBeGreaterThan(0);
     expect(session.performanceConfig.views.length).toBeGreaterThanOrEqual(2);
     expect(session.performanceConfig.activeViewId).toBeTruthy();
+  });
+
+  it("resolves clip author via workspace, not BrainId identity", () => {
+    const session = createIncompleteSession(pack);
+    const draft = session.drafts["memory-opening"];
+    const author = resolveDraftAuthor(session, draft);
+    expect(author?.roleId).toBe("melody");
+    expect(author?.displayName).toContain("Melody");
+  });
+
+  it("supports non-four participant fixture topology", () => {
+    const miniPack = structuredClone(placeholderReconstructionPack);
+    miniPack.participants = miniPack.participants.slice(0, 3);
+    miniPack.workspaces = miniPack.workspaces.filter((ws) =>
+      miniPack.participants.some((p) => p.id === ws.participantId),
+    );
+    const config = resolvePerformanceConfiguration(miniPack);
+    expect(config.capabilities.length).toBeGreaterThan(0);
+    expect(miniPack.participants.length).toBe(3);
+    const view = getActivePerformanceView(config);
+    expect(view.capabilityIds.length).toBeGreaterThan(0);
+  });
+
+  it("can activate legacy four-capability preset without forcing participant count", () => {
+    const session = createIncompleteSession(pack);
+    const legacy = session.performanceConfig.views.find((v) => v.legacyPreset === "four-capability");
+    expect(legacy).toBeDefined();
+    session.performanceConfig.activeViewId = legacy!.id;
+    const brains = legacyBrainsInActiveView(session);
+    expect(brains.length).toBe(4);
+    expect(session.participants.length).toBeGreaterThan(4);
+  });
+
+  it("emits data-driven topology text without fixed four-capability wording", () => {
+    const session = createIncompleteSession(pack);
+    const text = buildTopologyTransformation(session);
+    expect(text).not.toContain("Performance view regrouping (4 capabilities)");
+    expect(text).toContain(String(session.participants.length));
+    expect(text).toMatch(/capabilities\)/);
   });
 });

@@ -1,5 +1,6 @@
 import type { ProductionSession } from "../domain/sessionTypes";
 import type { PatternDraft } from "../types";
+import { formatProductionRole, resolveDraftAuthor } from "../domain/draftAuthorship";
 
 export interface ClipDetailContext {
   session: ProductionSession;
@@ -57,7 +58,7 @@ export function renderClipDetailView(ctx: ClipDetailContext): string {
   if (!draft) {
     return `<section class="clip-detail-view" id="clip-detail-view"><p>Unknown draft ${draftId}</p></section>`;
   }
-  const author = session.participants.find((p) => p.performanceBrain === draft.owner);
+  const author = resolveDraftAuthor(session, draft);
   let editor = "";
   if (draft.kind === "drums") editor = renderDrumEditor(draft);
   else if (draft.kind === "bass" || draft.kind === "melody") editor = renderPianoEditor(draft);
@@ -76,7 +77,8 @@ export function renderClipDetailView(ctx: ClipDetailContext): string {
         <span class="pill status-${draft.status}">${draft.status}</span>
       </header>
       <div class="clip-detail-meta">
-        <span>Author <strong>${author?.displayName ?? draft.owner}</strong></span>
+        <span>Author <strong>${author?.displayName ?? "—"}</strong></span>
+        <span>Role <strong>${author ? formatProductionRole(author.roleId) : "—"}</strong></span>
         <span>Revision <strong>r${draft.revision}</strong></span>
       </div>
       ${editor}

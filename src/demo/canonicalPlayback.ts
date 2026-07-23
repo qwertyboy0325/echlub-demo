@@ -102,17 +102,22 @@ export function buildCanonicalVsLiveComparison(
 }
 
 export function buildTopologyTransformation(session: ProductionSession): string {
-  const view = session.performanceViews[0];
-  if (!view) return "";
+  const config = session.performanceConfig;
+  const activeView = config.views.find((v) => v.id === config.activeViewId) ?? config.views[0];
+  if (!activeView) return "";
   const roleLabels = session.participants.map((p) => p.displayName);
-  const brainLabels = view.brainOrder.map((b) => b.charAt(0).toUpperCase() + b.slice(1));
+  const capabilityLabels = activeView.capabilityIds
+    .map((id) => config.capabilities.find((c) => c.id === id)?.label ?? id);
+  const legacyNote = activeView.legacyPreset === "four-capability"
+    ? "Legacy compressed preset — optional demonstration view."
+    : "Data-driven performance view for current song complexity.";
   return [
-    "Production responsibilities (8):",
+    `Production participants (${session.participants.length}):`,
     roleLabels.join(" · "),
     "",
-    "Performance view regrouping (4 capabilities):",
-    brainLabels.join(" · "),
+    `Performance view «${activeView.label}» (${capabilityLabels.length} capabilities):`,
+    capabilityLabels.join(" · "),
     "",
-    "Note: eight production roles regroup into four performance capabilities — not fewer people.",
+    legacyNote,
   ].join("\n");
 }
