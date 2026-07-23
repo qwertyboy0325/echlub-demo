@@ -38,6 +38,7 @@ import { renderCollaborationInspector } from "./ui/collaborationInspector";
 import { legacyBrainPanelsFromState, renderPerformanceOverlay } from "./ui/performanceOverlay";
 import { renderComparisonView } from "./ui/comparisonView";
 import { pianoNoteInlineStyle, pianoRollDataAttributes } from "./ui/pianoRollProjection";
+import { OfflineExportController, formatExportProgress, type CanonicalExportContext } from "./offline/exportController";
 
 const brainMeta: Record<BrainId, { title: string; subtitle: string; symbol: string }> = {
   memory: { title: "Material Deck", subtitle: "cue, audition and replace musical phrases", symbol: "M" },
@@ -62,6 +63,7 @@ let canonicalPlaybackIds: number[] = [];
 let demoMode: DemoAct | "idle" = "idle";
 let experienceStarted = false;
 let comparisonHtml = "";
+const exportController = new OfflineExportController(updateExportUi);
 
 const audioEngine = new AudioEngine({
   onBeforeBoundary: (bar, time) => {
@@ -201,7 +203,12 @@ function render(): void {
         <button class="button mini" id="skip-production">回到製作階段</button>
         <label class="speed-control">Speed <input type="range" id="speed-control" min="1" max="8" value="1" /></label>
         <label class="pack-import">Local pack <input type="file" id="pack-file-input" accept="application/json,.json" /></label>
+        <button class="button" id="export-quick-review-button">Export Quick Review</button>
+        <button class="button" id="export-wav-button">Export Master WAV</button>
+        <button class="button" id="export-evidence-button">Export Master Evidence Bundle</button>
+        <button class="button mini" id="export-cancel-button" hidden>Cancel export</button>
         <span class="pack-import-status" id="pack-import-status">${isPublicSongDemo ? "bundled · public song demo" : "validated placeholder"}</span>
+        <span class="pack-import-status" id="export-status">Ready</span>
       </div>
     </section>`;
 
@@ -221,6 +228,7 @@ function render(): void {
   seedJamMemoryButtons();
   refreshDawUi();
   updateAllUi();
+  updateExportUi();
 }
 
 interface DawShellParts {
@@ -444,6 +452,21 @@ function renderStoryWorkspace(): string {
     <div class="workspace-actions"><button data-target="hold-scene">Hold 4 bars</button><button data-target="commit-scene">Commit scene</button></div>`;
 }
 
+function updateExportUi(): void {
+  const status = document.querySelector<HTMLElement>("#export-status");
+  const wavButton = document.querySelector<HTMLButtonElement>("#export-wav-button");
+  const quickReviewButton = document.querySelector<HTMLButtonElement>("#export-quick-review-button");
+  const evidenceButton = document.querySelector<HTMLButtonElement>("#export-evidence-button");
+  const cancelButton = document.querySelector<HTMLButtonElement>("#export-cancel-button");
+  const state = exportController.getState();
+  if (status) status.textContent = formatExportProgress(state);
+  const busy = exportController.isBusy();
+  if (wavButton) wavButton.disabled = busy;
+  if (quickReviewButton) quickReviewButton.disabled = busy;
+  if (evidenceButton) evidenceButton.disabled = busy;
+  if (cancelButton) cancelButton.hidden = !busy;
+}
+
 function seedJamMemoryButtons(): void {
   const list = document.querySelector("#memory-list");
   const count = document.querySelector("#memory-count");
@@ -452,6 +475,18 @@ function seedJamMemoryButtons(): void {
     `<button data-memory="${m.id}" disabled><span>${m.at.split(":")[0]}</span><strong>${m.title}</strong><small>${m.description}</small></button>`,
   ).join("");
   if (count) count.textContent = `0 / ${jamMemories.length}`;
+}
+
+function buildCanonicalExportContext(): CanonicalExportContext {
+  const runtime = demoController.runtime;
+  if (!runtime.session.productionComplete) {
+    runtime.completeProductionInstantly();
+  }
+  return {
+    pack: runtime.pack,
+    session: runtime.canonicalSnapshot ?? runtime.session,
+    materialBank: runtime.canonicalBank ?? runtime.materialBank,
+  };
 }
 
 function bindControls(): void {
@@ -470,6 +505,18 @@ function bindControls(): void {
   });
   document.querySelector<HTMLInputElement>("#pack-file-input")?.addEventListener("change", (event) => {
     void onImportPack(event);
+  });
+  document.querySelector("#export-quick-review-button")?.addEventListener("click", () => {
+    void exportController.exportQuickReviewBundle(buildCanonicalExportContext());
+  });
+  document.querySelector("#export-wav-button")?.addEventListener("click", () => {
+    void exportController.exportWav(buildCanonicalExportContext());
+  });
+  document.querySelector("#export-evidence-button")?.addEventListener("click", () => {
+    void exportController.exportEvidenceBundle(buildCanonicalExportContext());
+  });
+  document.querySelector("#export-cancel-button")?.addEventListener("click", () => {
+    exportController.cancel();
   });
   app?.addEventListener("click", (event) => {
     const el = (event.target as Element | null)?.closest("[data-capability-cue],[data-capability-offer]");

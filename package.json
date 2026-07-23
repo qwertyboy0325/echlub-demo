@@ -17,6 +17,7 @@
     "capture:evidence": "node scripts/capture-evidence.mjs"
   },
   "dependencies": {
+    "fflate": "^0.8.3",
     "gsap": "3.15.0",
     "tone": "15.1.22"
   },
