@@ -5,6 +5,7 @@
  */
 import puppeteer from "puppeteer-core";
 import { spawn } from "node:child_process";
+import { execSync } from "node:child_process";
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -93,6 +94,54 @@ try {
     screenshotLog.push({ file, note, ...meta });
   }
 
+  async function collectViewportVisibility(scope = "all") {
+    return page.evaluate((scopeName) => {
+      function rect(el) {
+        if (!el) return null;
+        const r = el.getBoundingClientRect();
+        return {
+          top: Math.round(r.top),
+          left: Math.round(r.left),
+          width: Math.round(r.width),
+          height: Math.round(r.height),
+          bottom: Math.round(r.bottom),
+          right: Math.round(r.right),
+        };
+      }
+      function isVisibleInViewport(el) {
+        if (!el) return false;
+        const r = el.getBoundingClientRect();
+        return (
+          r.width > 0
+          && r.height > 0
+          && r.bottom > 0
+          && r.right > 0
+          && r.top < window.innerHeight
+          && r.left < window.innerWidth
+        );
+      }
+      const lowEndPanel = document.querySelector('[data-capability-stage="cap-lowend"]');
+      const lowEndTarget = document.querySelector('[data-target="lowend-private-cue"]');
+      const harmonyPanel = document.querySelector('[data-capability-stage="cap-harmony"]');
+      const harmonyTarget = document.querySelector('[data-target="harmony-voice"]');
+      const comparisonStage = document.querySelector("#comparison-stage");
+      const comparisonCanonical = document.querySelector(".comparison-canonical");
+      const comparisonLive = document.querySelector(".comparison-live");
+      const payload = {
+        scope: scopeName,
+        viewport: { width: window.innerWidth, height: window.innerHeight },
+        lowEndPanel: { visible: isVisibleInViewport(lowEndPanel), rect: rect(lowEndPanel) },
+        lowEndOperationTarget: { visible: isVisibleInViewport(lowEndTarget), rect: rect(lowEndTarget) },
+        harmonyPanel: { visible: isVisibleInViewport(harmonyPanel), rect: rect(harmonyPanel) },
+        harmonyOperationTarget: { visible: isVisibleInViewport(harmonyTarget), rect: rect(harmonyTarget) },
+        comparisonStage: { visible: isVisibleInViewport(comparisonStage), rect: rect(comparisonStage) },
+        comparisonCanonicalCard: { visible: isVisibleInViewport(comparisonCanonical), rect: rect(comparisonCanonical) },
+        comparisonLiveCard: { visible: isVisibleInViewport(comparisonLive), rect: rect(comparisonLive) },
+      };
+      return payload;
+    }, scope);
+  }
+
   evidence.scenarios.currentSongSixCapability = await page.evaluate(() => {
     const session = window.__echlubDemoController?.runtime?.session;
     const view = session?.performanceConfig?.views?.find((v) => v.id === "current-song-performance");
@@ -162,6 +211,7 @@ try {
   );
   await delay(300);
   await captureShot("03-live-lowend-act.png", "scripted low end private cue");
+  evidence.scenarios.viewportAtLowEnd = await collectViewportVisibility("lowend");
 
   const lowEndPrivateCue = await page.evaluate(() => {
     const result = window.__echlubDemoController.runtime.capabilityOperationLog.find(
@@ -214,6 +264,7 @@ try {
   );
   await delay(300);
   await captureShot("04-live-harmony-act.png", "scripted harmony revision");
+  evidence.scenarios.viewportAtHarmony = await collectViewportVisibility("harmony");
 
   const harmonyRevision = await page.evaluate(() => {
     const result = window.__echlubDemoController.runtime.capabilityOperationLog.find(
@@ -289,6 +340,7 @@ try {
   );
   await delay(1000);
   await captureShot("05-comparison.png", "canonical vs live comparison");
+  evidence.scenarios.viewportAtComparison = await collectViewportVisibility("comparison");
 
   evidence.screenshots = screenshotLog;
 
@@ -340,8 +392,12 @@ try {
   };
 
   evidence.buildAssets = readBuildAssets();
+  evidence.gitHead = execSync("git rev-parse HEAD", { cwd: root, encoding: "utf8" }).trim();
   evidence.pageErrors = pageErrors;
   const ops = evidence.scenarios.extendedCapabilityOperations;
+  const vpLow = evidence.scenarios.viewportAtLowEnd;
+  const vpHarmony = evidence.scenarios.viewportAtHarmony;
+  const vpCompare = evidence.scenarios.viewportAtComparison;
   evidence.ok = Boolean(
     evidence.scenarios.currentSongSixCapability.capabilityCount === 6
       && evidence.scenarios.scriptedLiveChoreography.length === 2
@@ -361,6 +417,13 @@ try {
       && ops.harmonyMaterialResolution?.revisionMatchesOperation
       && ops.usedPackDraftNotPlaceholder
       && ops.materialResolutionDelta > 0
+      && vpLow?.lowEndPanel?.visible
+      && vpLow?.lowEndOperationTarget?.visible
+      && vpHarmony?.harmonyPanel?.visible
+      && vpHarmony?.harmonyOperationTarget?.visible
+      && vpCompare?.comparisonStage?.visible
+      && vpCompare?.comparisonCanonicalCard?.visible
+      && vpCompare?.comparisonLiveCard?.visible
       && evidence.lifecycle.pauseResume.paused
       && evidence.lifecycle.pauseResume.resumed
       && evidence.lifecycle.fullFlow.missingMaterials === 0

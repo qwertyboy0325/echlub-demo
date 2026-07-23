@@ -236,11 +236,13 @@ function liveWorkspaceCtx() {
 function buildDawShellContext(parts: DawShellParts) {
   const session = demoController.runtime.session;
   const isPublicSongDemo = parts.isPublicSongDemo;
-  const mainWorkspace = demoMode === "canonicalPlayback"
-    ? renderArrangementView(session, state.currentBar)
-    : renderSessionView({ session, director: demoController.director, state, selectedDraftId: state.activeDraftId });
+  const mainWorkspace = demoMode === "comparison" && comparisonHtml
+    ? comparisonHtml
+    : demoMode === "canonicalPlayback"
+      ? renderArrangementView(session, state.currentBar)
+      : renderSessionView({ session, director: demoController.director, state, selectedDraftId: state.activeDraftId });
 
-  const performanceOverlay = (demoMode === "livePerformance" || demoMode === "comparison")
+  const performanceOverlay = demoMode === "livePerformance"
     ? renderPerformanceOverlay({
         session,
         state,
@@ -290,10 +292,13 @@ function refreshDawUi(): void {
   const main = document.querySelector(".daw-main");
   if (main) {
     main.classList.toggle("daw-main-arrangement", demoMode === "canonicalPlayback");
-    main.classList.toggle("daw-main-session", demoMode !== "canonicalPlayback");
-    main.innerHTML = demoMode === "canonicalPlayback"
-      ? renderArrangementView(session, state.currentBar)
-      : renderSessionView({ session, director: demoController.director, state, selectedDraftId: state.activeDraftId });
+    main.classList.toggle("daw-main-session", demoMode !== "canonicalPlayback" && demoMode !== "comparison");
+    main.classList.toggle("daw-main-comparison", demoMode === "comparison");
+    main.innerHTML = demoMode === "comparison" && comparisonHtml
+      ? comparisonHtml
+      : demoMode === "canonicalPlayback"
+        ? renderArrangementView(session, state.currentBar)
+        : renderSessionView({ session, director: demoController.director, state, selectedDraftId: state.activeDraftId });
   }
   const rail = document.querySelector("#participant-rail");
   if (rail) rail.outerHTML = renderParticipantRail(session, demoController.director);
@@ -301,31 +306,35 @@ function refreshDawUi(): void {
   if (inspector) {
     inspector.outerHTML = renderCollaborationInspector({ session, state, selectedDraftId: state.activeDraftId });
   }
-  const clipDetail = document.querySelector("#clip-detail-view");
-  if (clipDetail) {
-    clipDetail.outerHTML = renderClipDetailView({ session, draftId: state.activeDraftId, previewBrain: state.previewBrain });
+  const clipDetailWrap = document.querySelector(".daw-clip-detail");
+  if (clipDetailWrap) {
+    clipDetailWrap.classList.toggle("daw-clip-detail-secondary", demoMode === "livePerformance" || demoMode === "comparison");
   }
-  const overlaySlot = document.querySelector("#performance-overlay");
-  if (demoMode === "livePerformance" || demoMode === "comparison") {
+  const clipDetail = document.querySelector("#clip-detail-view");
+  if (clipDetail && demoMode !== "comparison") {
+    clipDetail.outerHTML = renderClipDetailView({ session, draftId: state.activeDraftId, previewBrain: state.previewBrain });
+  } else if (clipDetailWrap && demoMode === "comparison") {
+    clipDetailWrap.innerHTML = "";
+  }
+  const liveDock = document.querySelector("#daw-live-dock");
+  if (demoMode === "livePerformance") {
     const overlayHtml = renderPerformanceOverlay({
       session,
       state,
       panels: legacyBrainPanelsFromState(session, renderWorkspace, liveWorkspaceCtx()),
       viewLabel: demoController.director.getFocusState().actLabel,
     });
-    if (overlaySlot) overlaySlot.outerHTML = overlayHtml;
-    else {
-      const ws = document.querySelector("#daw-workspace");
-      ws?.insertAdjacentHTML("afterend", overlayHtml);
+    if (liveDock) {
+      liveDock.innerHTML = overlayHtml;
+    } else {
+      document.querySelector("#daw-workspace")?.insertAdjacentHTML(
+        "beforeend",
+        `<div class="daw-live-dock" id="daw-live-dock">${overlayHtml}</div>`,
+      );
     }
     presentation.initialize();
-  } else if (overlaySlot) {
-    overlaySlot.remove();
-  }
-  const comparisonSlot = document.querySelector("#comparison-slot");
-  if (demoMode === "comparison" && comparisonHtml) {
-    if (comparisonSlot) comparisonSlot.innerHTML = comparisonHtml;
-    else document.querySelector(".daw-shell")?.insertAdjacentHTML("beforeend", `<div id="comparison-slot">${comparisonHtml}</div>`);
+  } else if (liveDock) {
+    liveDock.remove();
   }
   demoController.director.applyDomFocus(app!);
 }

@@ -31,12 +31,228 @@ button:disabled { cursor: not-allowed; }
 .app-shell.recording-mode {
   width: min(var(--rec-width), 100vw - 20px);
   margin: 10px auto;
-  aspect-ratio: 16 / 9;
-  max-height: calc(100vh - 20px);
+  height: min(var(--rec-height), calc(100vh - 20px));
+  max-height: min(var(--rec-height), calc(100vh - 20px));
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
+.app-shell.recording-mode[data-experience-started="true"] .experience-launcher { display: none; }
 .app-shell.recording-mode .demo-footer,
 .app-shell.recording-mode .topbar .brand-block p { display: none; }
+.app-shell.recording-mode .topbar { padding: 10px 14px; flex: 0 0 auto; }
+.app-shell.recording-mode .daw-workspace {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 8px;
+}
+.app-shell.recording-mode .daw-workspace-grid {
+  flex: 0 0 auto;
+  min-height: 0;
+  grid-template-columns: 150px minmax(0, 1fr) 200px;
+  max-height: 34%;
+}
+.app-shell.recording-mode[data-act="livePerformance"] .daw-workspace-grid {
+  max-height: 32%;
+}
+.app-shell.recording-mode[data-act="livePerformance"] .session-grid-wrap {
+  max-height: 180px;
+  overflow: auto;
+}
+.app-shell.recording-mode[data-act="comparison"] .daw-workspace-grid {
+  display: none;
+}
+.app-shell.recording-mode[data-act="comparison"] .daw-clip-detail-secondary {
+  display: none;
+}
+.app-shell.recording-mode .daw-live-dock {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+.app-shell.recording-mode .daw-clip-detail-secondary {
+  flex: 0 0 auto;
+  max-height: 120px;
+  overflow: hidden;
+  margin-top: 6px;
+  padding-top: 6px;
+}
+.app-shell.recording-mode[data-act="livePerformance"] .daw-clip-detail-secondary {
+  display: none;
+}
+.app-shell.recording-mode .daw-clip-detail:has(.clip-detail-empty) {
+  display: none;
+}
+.app-shell.recording-mode .master-stage {
+  flex: 0 0 auto;
+  padding: 8px 10px;
+  grid-template-columns: minmax(180px, 1fr) minmax(200px, 1.2fr);
+}
+.app-shell.recording-mode .scene-timeline { display: none; }
+.app-shell.recording-mode .step-grid i { height: 16px; }
+
+.app-shell.recording-mode .capability-grid-full { display: none; }
+.app-shell:not(.recording-mode) .capability-dock-recording { display: none; }
+.app-shell.recording-mode .performance-overlay {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 6px 8px;
+  border-top: 1px solid var(--line);
+}
+.app-shell.recording-mode .performance-overlay-header {
+  flex: 0 0 auto;
+  margin-bottom: 6px;
+}
+.app-shell.recording-mode .performance-overlay-header h3 { font-size: 11px; }
+.app-shell.recording-mode .performance-overlay-header .pill { font-size: 9px; }
+.app-shell.recording-mode .capability-dock-recording {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 6px;
+}
+.app-shell.recording-mode .capability-dock-strip {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+}
+.app-shell.recording-mode .capability-strip-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 6px;
+  align-items: center;
+  text-align: left;
+  color: var(--text);
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 4px 6px;
+  min-height: 42px;
+}
+.app-shell.recording-mode .capability-strip-item.active,
+.app-shell.recording-mode .performance-overlay[data-active-capability] .capability-strip-item[data-capability-strip="cap-lowend"],
+.app-shell.recording-mode .performance-overlay[data-active-capability="cap-lowend"] .capability-strip-item[data-capability-strip="cap-lowend"],
+.app-shell.recording-mode .performance-overlay[data-active-capability="cap-harmony"] .capability-strip-item[data-capability-strip="cap-harmony"] {
+  border-color: rgba(103,232,249,.45);
+  background: rgba(103,232,249,.08);
+}
+.app-shell.recording-mode .capability-strip-item .capability-mark {
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  font-size: 9px;
+  font-weight: 800;
+  color: #061016;
+}
+.app-shell.recording-mode .capability-strip-copy strong { display: block; font-size: 9px; }
+.app-shell.recording-mode .capability-strip-copy small { display: block; font-size: 7px; color: var(--muted); }
+.app-shell.recording-mode .capability-strip-state { font-size: 7px; }
+.app-shell.recording-mode .capability-dock-stage {
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+.app-shell.recording-mode .capability-stage-panel {
+  display: none;
+  min-height: 0;
+  height: 100%;
+  overflow: auto;
+}
+.app-shell.recording-mode .performance-overlay[data-active-capability="cap-lowend"] .capability-stage-panel[data-capability-stage="cap-lowend"],
+.app-shell.recording-mode .performance-overlay[data-active-capability="cap-harmony"] .capability-stage-panel[data-capability-stage="cap-harmony"],
+.app-shell.recording-mode .performance-overlay[data-active-capability="cap-material"] .capability-stage-panel[data-capability-stage="cap-material"],
+.app-shell.recording-mode .performance-overlay[data-active-capability="cap-rhythm"] .capability-stage-panel[data-capability-stage="cap-rhythm"],
+.app-shell.recording-mode .performance-overlay[data-active-capability="cap-mixfx"] .capability-stage-panel[data-capability-stage="cap-mixfx"],
+.app-shell.recording-mode .performance-overlay[data-active-capability="cap-structure"] .capability-stage-panel[data-capability-stage="cap-structure"],
+.app-shell.recording-mode .capability-stage-panel.capability-panel-active {
+  display: block;
+}
+.app-shell.recording-mode .capability-stage-panel .piano-roll { height: 120px; }
+.app-shell.recording-mode .capability-stage-panel .draft-chords {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.app-shell.recording-mode .capability-stage-panel .chord-block {
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 9px;
+}
+.app-shell.recording-mode .capability-stage-panel .workspace-actions button {
+  font-size: 9px;
+  padding: 8px 10px;
+}
+.app-shell.recording-mode .capability-cursor { pointer-events: none; z-index: 4; }
+
+.app-shell.recording-mode[data-act="canonicalPlayback"] .daw-workspace-grid {
+  max-height: none;
+  flex: 1 1 auto;
+  grid-template-columns: 130px minmax(0, 1fr) 180px;
+}
+.app-shell.recording-mode[data-act="canonicalPlayback"] .daw-main-arrangement {
+  min-height: 0;
+}
+.app-shell.recording-mode[data-act="canonicalPlayback"] .arrangement-view {
+  min-height: 0;
+  height: 100%;
+}
+.app-shell.recording-mode[data-act="canonicalPlayback"] .arrangement-timeline {
+  min-height: 420px;
+}
+.app-shell.recording-mode[data-act="canonicalPlayback"] .arr-section-marker {
+  font-size: 9px;
+}
+.app-shell.recording-mode[data-act="canonicalPlayback"] .arr-lane-track {
+  height: 30px;
+}
+.app-shell.recording-mode[data-act="canonicalPlayback"] .arr-lane-label {
+  font-size: 8px;
+}
+
+.app-shell.recording-mode[data-act="comparison"] .daw-workspace {
+  flex: 1 1 auto;
+}
+.app-shell.recording-mode[data-act="comparison"] .daw-main-comparison {
+  min-height: 0;
+  height: 100%;
+}
+.app-shell.recording-mode[data-act="comparison"] #comparison-stage {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin-top: 0;
+}
+.app-shell.recording-mode[data-act="comparison"] .comparison-visual {
+  flex: 0 0 auto;
+}
+.app-shell.recording-mode[data-act="comparison"] .comparison-summary {
+  flex: 1 1 auto;
+  overflow: auto;
+  font-size: 9px;
+  line-height: 1.45;
+}
+.app-shell.recording-mode[data-act="comparison"] .comparison-card h4 { font-size: 12px; }
+.app-shell.recording-mode[data-act="comparison"] .comparison-card p { font-size: 9px; }
+.app-shell.recording-mode[data-act="comparison"] #topology-stage { display: none; }
+
+.app-shell.recording-mode #action-strip,
+.app-shell.recording-mode #jam-memory-panel,
+.app-shell.recording-mode .track-list-rail,
+.app-shell.recording-mode #provenance-label,
+.app-shell.recording-mode .collab-pipeline { display: none; }
+.app-shell.recording-mode .session-grid { font-size: 10px; }
+.app-shell.recording-mode .clip-title { font-size: 10px; }
 .glass { border: 1px solid var(--line); background: linear-gradient(180deg, rgba(24,29,43,.97), rgba(13,16,24,.97)); border-radius: 18px; box-shadow: 0 24px 80px rgba(0,0,0,.28); }
 .topbar { padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
 .brand-block { display: flex; align-items: center; gap: 12px; flex: 1 1 280px; min-width: 0; }
@@ -349,54 +565,6 @@ h1, h2, h3, p { margin-top: 0; }
 .capability-operator-list { margin: 0; padding: 0 0 0 14px; font-size: 9px; }
 .capability-operator-list li { margin-bottom: 6px; }
 .capability-operator-list small { display: block; color: var(--muted); font-size: 8px; }
-
-.app-shell.recording-mode #action-strip,
-.app-shell.recording-mode #jam-memory-panel,
-.app-shell.recording-mode .track-list-rail,
-.app-shell.recording-mode #provenance-label,
-.app-shell.recording-mode .collab-pipeline { display: none; }
-.app-shell.recording-mode .daw-workspace-grid { min-height: 520px; }
-.app-shell.recording-mode .session-grid-wrap { max-height: none; }
-.app-shell.recording-mode .session-grid { font-size: 10px; }
-.app-shell.recording-mode .clip-title { font-size: 10px; }
-.app-shell.recording-mode .performance-overlay {
-  padding: 6px 8px;
-  border-top: 1px solid var(--line);
-}
-.app-shell.recording-mode .performance-overlay-header h3 { font-size: 11px; }
-.app-shell.recording-mode .performance-overlay-header .pill { font-size: 9px; }
-.app-shell.recording-mode .capability-grid {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 6px;
-  max-height: 220px;
-  align-items: stretch;
-}
-.app-shell.recording-mode .capability-panel {
-  min-height: 0;
-  max-height: 210px;
-  overflow: hidden;
-  opacity: 0.72;
-  transform: scale(0.98);
-  transition: opacity 0.2s ease, transform 0.2s ease, max-height 0.2s ease;
-}
-.app-shell.recording-mode .capability-panel .brain-header h3 { font-size: 11px; }
-.app-shell.recording-mode .capability-panel .brain-header p,
-.app-shell.recording-mode .capability-panel .thought-strip,
-.app-shell.recording-mode .capability-operator-list { font-size: 9px; }
-.app-shell.recording-mode .capability-panel.capability-panel-active,
-.app-shell.recording-mode .performance-overlay[data-active-capability] .capability-panel[data-capability="cap-lowend"],
-.app-shell.recording-mode .performance-overlay[data-active-capability="cap-lowend"] [data-capability="cap-lowend"],
-.app-shell.recording-mode .performance-overlay[data-active-capability="cap-harmony"] [data-capability="cap-harmony"] {
-  opacity: 1;
-  transform: scale(1);
-  max-height: 280px;
-  grid-column: span 2;
-  z-index: 2;
-}
-.app-shell.recording-mode .capability-cursor { pointer-events: none; }
-.app-shell.recording-mode .daw-workspace-grid { grid-template-columns: 180px minmax(0, 1fr) 220px; }
-
 
 .action-strip { padding: 10px 12px; }
 .action-strip > p { margin: 6px 0; color: var(--muted); font-size: 9px; }

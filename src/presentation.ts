@@ -258,13 +258,22 @@ export class PresentationEngine {
   }
 
   markCapabilityFocus(capabilityId: string): void {
-    document.querySelectorAll(".capability-panel").forEach((el) => el.classList.remove("capability-panel-active"));
+    document.querySelectorAll(".capability-panel, .capability-stage-panel").forEach((el) => {
+      el.classList.remove("capability-panel-active");
+    });
+    document.querySelectorAll(".capability-strip-item").forEach((el) => {
+      el.classList.toggle("active", el.getAttribute("data-capability-strip") === capabilityId);
+    });
     document.querySelector(`[data-capability="${capabilityId}"]`)?.classList.add("capability-panel-active");
+    document.querySelector(`[data-capability-stage="${capabilityId}"]`)?.classList.add("capability-panel-active");
     document.querySelector("#performance-overlay")?.setAttribute("data-active-capability", capabilityId);
   }
 
   clearCapabilityFocus(): void {
-    document.querySelectorAll(".capability-panel").forEach((el) => el.classList.remove("capability-panel-active"));
+    document.querySelectorAll(".capability-panel, .capability-stage-panel").forEach((el) => {
+      el.classList.remove("capability-panel-active");
+    });
+    document.querySelectorAll(".capability-strip-item").forEach((el) => el.classList.remove("active"));
     document.querySelector("#performance-overlay")?.removeAttribute("data-active-capability");
   }
 
@@ -331,7 +340,8 @@ export class PresentationEngine {
     const capabilityId = step.capabilityId!;
     const state = this.capabilityCursors.get(capabilityId);
     if (!state) return;
-    const panel = document.querySelector<HTMLElement>(`[data-capability="${capabilityId}"]`);
+    const panel = document.querySelector<HTMLElement>(`[data-capability-stage="${capabilityId}"]`)
+      ?? document.querySelector<HTMLElement>(`[data-capability="${capabilityId}"]`);
     if (!panel) return;
 
     panel.classList.add("capability-panel-active");

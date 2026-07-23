@@ -58,14 +58,17 @@ export function renderAppShell(ctx: AppShellContext): string {
           ${ctx.trackListHtml}
           ${ctx.participantRailHtml}
         </div>
-        <div class="daw-main ${showArrangement ? "daw-main-arrangement" : "daw-main-session"}">
+        <div class="daw-main ${showArrangement ? "daw-main-arrangement" : showComparison ? "daw-main-comparison" : "daw-main-session"}">
           ${ctx.mainWorkspaceHtml}
         </div>
         <div class="daw-right-rail">
           ${ctx.inspectorHtml}
         </div>
       </div>
-      <div class="daw-clip-detail">
+      ${showPerformance && ctx.performanceOverlayHtml
+    ? `<div class="daw-live-dock" id="daw-live-dock">${ctx.performanceOverlayHtml}</div>`
+    : ""}
+      <div class="daw-clip-detail ${showPerformance || showComparison ? "daw-clip-detail-secondary" : ""}">
         ${ctx.clipDetailHtml}
       </div>
     </section>
@@ -91,9 +94,6 @@ export function renderAppShell(ctx: AppShellContext): string {
       <div class="section-heading"><div><span class="eyebrow">Jam Memory</span><h3>Captured structural moments</h3></div><span id="memory-count">0 / 0</span></div>
       <div class="memory-list" id="memory-list"></div>
     </article>
-
-    ${showPerformance && ctx.performanceOverlayHtml ? ctx.performanceOverlayHtml : ""}
-    ${showComparison && ctx.comparisonHtml ? `<div id="comparison-slot">${ctx.comparisonHtml}</div>` : ""}
 
     <footer class="demo-footer">${ctx.footerHtml}</footer>
   </main>`;
