@@ -88,6 +88,13 @@ export interface PerformanceViewPreset {
   participantIds: string[];
 }
 
+export type {
+  PerformanceCapability,
+  CapabilityAssignment,
+  PerformanceView,
+  PerformanceConfiguration,
+} from "./performanceModel";
+
 export interface ProductionSession {
   packId: string;
   participants: Participant[];
@@ -98,6 +105,7 @@ export interface ProductionSession {
   arrangement: Arrangement;
   liveStructure: LiveStructureState;
   performanceViews: PerformanceViewPreset[];
+  performanceConfig: import("./performanceModel").PerformanceConfiguration;
   mix: MixParams;
   productionComplete: boolean;
   canonicalPlaybackComplete: boolean;

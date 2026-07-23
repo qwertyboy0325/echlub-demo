@@ -1,5 +1,6 @@
 import type { LayerId, NoteEvent, PatternDraft } from "../types";
 import type { ReconstructionPack } from "../domain/reconstructionPack";
+import { resolvePerformanceConfiguration } from "../domain/performanceModel";
 import { compileDraftMaterial, materialRefForDraft } from "../domain/sessionMaterialBank";
 import type { MaterialRef, ProductionAction, ProductionMutationResult, ProductionSession } from "../domain/sessionTypes";
 
@@ -60,6 +61,7 @@ export function createIncompleteSession(pack: ReconstructionPack): ProductionSes
       removedLayerRefs: {},
     },
     performanceViews: structuredClone(pack.performanceViews),
+    performanceConfig: resolvePerformanceConfiguration(pack),
     mix: structuredClone(pack.defaultMix),
     productionComplete: false,
     canonicalPlaybackComplete: false,
