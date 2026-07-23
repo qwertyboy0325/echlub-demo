@@ -60,12 +60,10 @@ run("npm", ["run", "build"], join(validationDir, "build.txt"));
 run("npm", ["run", "validate:browser"], join(validationDir, "validate-browser.txt"));
 writeFileSync(join(validationDir, "git-diff-check.txt"), execSync("git diff --check", { encoding: "utf8" }));
 
-if (!existsSync(join(staging, "evidence/campaign-final-evidence.json"))) {
-  run("node", ["scripts/campaign-final-evidence.mjs"], join(validationDir, "campaign-final-evidence-run.txt"));
-  copyFileSync(
-    join(campaignDir, "evidence/campaign-final-evidence.json"),
-    join(staging, "evidence/campaign-final-evidence.json"),
-  );
+run("node", ["scripts/campaign-final-evidence.mjs"], join(validationDir, "campaign-final-evidence-run.txt"));
+for (const name of ["campaign-final-evidence.json", "topology-scenarios.json"]) {
+  const src = join(campaignDir, "evidence", name);
+  if (existsSync(src)) copyFileSync(src, join(staging, "evidence", name));
 }
 
 const sourceDir = join(staging, "source");
