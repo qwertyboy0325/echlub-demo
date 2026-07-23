@@ -62,7 +62,7 @@ function assertBundleIntegrity(expectedHead) {
 
 const porcelain = execSync("git status --porcelain", { encoding: "utf8" }).trim();
 const dirty = porcelain
-  ? porcelain.split("\n").filter((line) => line.trim() && !/^\?\? .+\.cursor\//.test(line.trim()))
+  ? porcelain.split("\n").filter((line) => line.trim() && !/^\?\? \.cursor\//.test(line.trim()))
   : [];
 if (dirty.length) {
   throw new Error(`Working tree must be clean before bundle generation:\n${dirty.join("\n")}`);
