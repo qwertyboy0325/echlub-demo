@@ -3,7 +3,7 @@ import type { AudioEngine } from "../audioEngine";
 import { materialRefForDraft } from "../domain/sessionMaterialBank";
 import { loadReconstructionPack } from "../domain/packLoader";
 import type { ReconstructionPack } from "../domain/reconstructionPack";
-import type { DemoAct, LiveStructuralOperation } from "../domain/sessionTypes";
+import type { DemoAct, LiveStructuralOperation, CanonicalVsLiveComparison } from "../domain/sessionTypes";
 import type { RuntimeState } from "../types";
 import { resolveSceneAtBar, provenanceForScene } from "./canonicalPlayback";
 import { DemoRuntime } from "./demoRuntime";
@@ -22,7 +22,7 @@ export interface DemoControllerHooks {
   onProductionAction: (label: string, participantId: string) => void;
   onActChange: (act: DemoAct) => void;
   runLivePerformance: () => void;
-  showComparison: (summary: string) => void;
+  showComparison: (comparison: CanonicalVsLiveComparison) => void;
   scheduleCanonicalPlayback: (onDone: () => void) => void;
   clearTransportSchedules: (ids: number[]) => void;
 }
@@ -272,16 +272,7 @@ export class DemoController {
   onLivePerformanceFinished(liveSceneIds: string[], jamMemoryCount: number): void {
     enterAct(this.runtime.scheduleRegistry, "comparison", this.hooks.clearTransportSchedules);
     const comparison = this.runtime.beginComparison(liveSceneIds, jamMemoryCount);
-    const summary = [
-      `Canonical scenes: ${comparison.canonicalSceneIds.join(" → ")}`,
-      `Live scenes: ${comparison.liveSceneIds.join(" → ")}`,
-      `Same-ID content changes: ${comparison.sameIdContentChanges.length ? comparison.sameIdContentChanges.map((c) => `${c.sceneId}/${c.layer} ${c.draftId}`).join(", ") : "none"}`,
-      `Changed drafts: ${comparison.changedDrafts.length ? comparison.changedDrafts.join(", ") : "none"}`,
-      `Structural changes: ${comparison.structuralChanges.length ? comparison.structuralChanges.join("; ") : "none"}`,
-      `Duration: ${comparison.canonicalTotalBars} → ${comparison.liveTotalBars} bars`,
-      `Jam Memory captures: ${comparison.jamMemoryCount}`,
-    ].join("\n");
-    this.hooks.showComparison(summary);
+    this.hooks.showComparison(comparison);
     this.running = false;
   }
 

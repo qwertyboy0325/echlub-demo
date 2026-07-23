@@ -35,7 +35,7 @@ import { renderArrangementView } from "./ui/arrangementView";
 import { renderClipDetailView } from "./ui/clipDetailView";
 import { renderCollaborationInspector } from "./ui/collaborationInspector";
 import { legacyBrainPanelsFromState, renderPerformanceOverlay } from "./ui/performanceOverlay";
-import { renderComparisonPanelFromSummary } from "./ui/comparisonView";
+import { renderComparisonView } from "./ui/comparisonView";
 
 const brainMeta: Record<BrainId, { title: string; subtitle: string; symbol: string }> = {
   memory: { title: "Material Deck", subtitle: "cue, audition and replace musical phrases", symbol: "M" },
@@ -147,9 +147,9 @@ const demoController = new DemoController({
     refreshDawUi();
   },
   runLivePerformance: () => { void runLivePerformanceAct(); },
-  showComparison: (summary) => {
+  showComparison: (comparison) => {
     const topology = buildTopologyTransformation(demoController.runtime.session);
-    comparisonHtml = renderComparisonPanelFromSummary(summary, topology);
+    comparisonHtml = renderComparisonView(comparison, topology);
     demoMode = "comparison";
     app!.querySelector(".app-shell")?.setAttribute("data-act", "comparison");
     refreshDawUi();
@@ -475,6 +475,7 @@ function bindControls(): void {
     if (!capTarget) return;
     event.preventDefault();
     demoController.executeCapabilityOperation(capTarget.capabilityId, capTarget.operation);
+    presentation.markCapabilityFocus(capTarget.capabilityId);
   });
 }
 
@@ -645,6 +646,7 @@ function scheduleScript(): void {
     const id = transport.schedule((time: number) => {
       if (event.action === "capability" && event.capabilityId && event.capabilityOperation) {
         const evidence = demoController.executeCapabilityOperation(event.capabilityId, event.capabilityOperation);
+        presentation.markCapabilityFocus(event.capabilityId);
         Tone.getDraw().schedule(() => projectCapabilityEventUi(event, evidence), time);
         return;
       }
@@ -671,7 +673,6 @@ function projectCapabilityEventUi(
   instrumentation.logEvent(event);
   if (!event.capabilityId) return;
 
-  presentation.markCapabilityFocus(event.capabilityId);
   const session = demoController.runtime.session;
   const operators = participantsForCapability(session.performanceConfig, event.capabilityId, session.participants)
     .map((p) => p.displayName)
@@ -695,7 +696,6 @@ function projectCapabilityEventUi(
   if (stateEl) stateEl.textContent = evidence?.draftStatus ?? event.capabilityOperation ?? "active";
 
   if (event.capabilityOperation === "privateCue" && evidence) {
-    presentation.markCapabilityFocus(event.capabilityId);
     document.querySelector(`[data-capability="${event.capabilityId}"]`)?.classList.add("brain-preview");
   }
   if (event.capabilityOperation === "revision" && evidence) {

@@ -81,6 +81,16 @@ try {
   mkdirSync(screenshotDir, { recursive: true });
   const screenshotLog = [];
 
+  async function clickControl(selector) {
+    const ok = await page.evaluate((sel) => {
+      const el = document.querySelector(sel);
+      if (!el) return false;
+      el.click();
+      return true;
+    }, selector);
+    if (!ok) throw new Error(`Missing control: ${selector}`);
+  }
+
   async function captureShot(file, note) {
     const shotPath = join(screenshotDir, file);
     await page.screenshot({ path: shotPath, fullPage: false });
@@ -121,9 +131,9 @@ try {
         );
       }
       const lowEndPanel = document.querySelector('[data-capability-stage="cap-lowend"]');
-      const lowEndTarget = document.querySelector('[data-target="lowend-private-cue"]');
+      const lowEndTarget = document.querySelector('[data-capability-stage="cap-lowend"] [data-target="lowend-private-cue"]');
       const harmonyPanel = document.querySelector('[data-capability-stage="cap-harmony"]');
-      const harmonyTarget = document.querySelector('[data-target="harmony-voice"]');
+      const harmonyTarget = document.querySelector('[data-capability-stage="cap-harmony"] [data-target="harmony-voice"]');
       const comparisonStage = document.querySelector("#comparison-stage");
       const comparisonCanonical = document.querySelector(".comparison-canonical");
       const comparisonLive = document.querySelector(".comparison-live");
@@ -187,13 +197,13 @@ try {
     () => window.__echlubDevSnapshot?.transportState === "started",
     { timeout: 10000 },
   );
-  await page.click("#pause-button");
+  await clickControl("#pause-button");
   await page.waitForFunction(() => window.__echlubDevSnapshot?.transportState === "paused", { timeout: 5000 });
-  await page.click("#pause-button");
+  await clickControl("#pause-button");
   await page.waitForFunction(() => window.__echlubDevSnapshot?.transportState === "started", { timeout: 5000 });
   evidence.lifecycle.pauseResume = { paused: true, resumed: true };
 
-  await page.click("#skip-performance");
+  await clickControl("#skip-performance");
   await page.waitForFunction(
     () => window.__echlubDemoController?.runtime.act === "livePerformance",
     { timeout: 15000 },
@@ -351,7 +361,7 @@ try {
     missingMaterials: window.__echlubDevSnapshot?.missingMaterialLog?.length ?? -1,
   }));
 
-  await page.click("#skip-playback");
+  await clickControl("#skip-playback");
   await page.waitForFunction(
     () => window.__echlubDemoController?.runtime.act === "canonicalPlayback"
       && window.__echlubDevSnapshot?.transportState === "started",
@@ -363,7 +373,7 @@ try {
       (r) => r.act === "canonicalPlayback" && r.consumer === "canonical",
     ).length,
   );
-  await page.click("#restart-button");
+  await clickControl("#restart-button");
   await page.waitForFunction(
     (before) => window.__echlubDevSnapshot.materialResolutionLog.filter(
       (r) => r.act === "canonicalPlayback" && r.consumer === "canonical",
@@ -376,7 +386,7 @@ try {
       (r) => r.act === "canonicalPlayback" && r.consumer === "canonical",
     ).length,
   );
-  await page.click("#restart-button");
+  await clickControl("#restart-button");
   await page.waitForFunction(
     (before) => window.__echlubDevSnapshot.materialResolutionLog.filter(
       (r) => r.act === "canonicalPlayback" && r.consumer === "canonical",

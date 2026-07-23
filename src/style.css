@@ -64,6 +64,22 @@ button:disabled { cursor: not-allowed; }
   overflow: auto;
 }
 .app-shell.recording-mode[data-act="comparison"] .daw-workspace-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  flex: 1 1 auto;
+  max-height: none;
+  min-height: 0;
+}
+.app-shell.recording-mode[data-act="comparison"] .daw-left-rail,
+.app-shell.recording-mode[data-act="comparison"] .daw-right-rail {
+  display: none;
+}
+.app-shell.recording-mode[data-act="comparison"] .daw-main-comparison {
+  grid-column: 1 / -1;
+  min-height: 0;
+  height: 100%;
+}
+.app-shell.recording-mode[data-act="comparison"] .master-stage {
   display: none;
 }
 .app-shell.recording-mode[data-act="comparison"] .daw-clip-detail-secondary {
