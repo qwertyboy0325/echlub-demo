@@ -104,6 +104,86 @@ try {
     screenshotLog.push({ file, note, ...meta });
   }
 
+  async function collectGeometryEvidence(scope = "all") {
+    return page.evaluate((scopeName) => {
+      function rect(el) {
+        if (!el) return null;
+        const r = el.getBoundingClientRect();
+        return {
+          top: Math.round(r.top),
+          left: Math.round(r.left),
+          width: Math.round(r.width),
+          height: Math.round(r.height),
+          bottom: Math.round(r.bottom),
+          right: Math.round(r.right),
+        };
+      }
+      function intersects(a, b) {
+        if (!a || !b) return false;
+        return a.width > 0 && a.height > 0 && b.width > 0 && b.height > 0
+          && a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+      }
+      function isVisibleInViewport(el) {
+        if (!el) return false;
+        const r = el.getBoundingClientRect();
+        return (
+          r.width > 0
+          && r.height > 0
+          && r.bottom > 0
+          && r.right > 0
+          && r.top < window.innerHeight
+          && r.left < window.innerWidth
+        );
+      }
+      function noteVisibleInRoll(note, roll) {
+        if (!note || !roll) return false;
+        return intersects(rect(note), rect(roll));
+      }
+      function firstVisibleNoteInRoll(rollSelector) {
+        const roll = document.querySelector(rollSelector);
+        if (!roll) return { visible: false, rect: null, rollRect: rect(roll) };
+        const notes = [...roll.querySelectorAll(".piano-note")];
+        for (const note of notes) {
+          if (noteVisibleInRoll(note, roll)) {
+            return { visible: true, rect: rect(note), rollRect: rect(roll) };
+          }
+        }
+        return { visible: false, rect: rect(notes[0] ?? null), rollRect: rect(roll) };
+      }
+
+      const participantRail = document.querySelector("#participant-rail");
+      const clipDetail = document.querySelector("#clip-detail-view");
+      const liveDock = document.querySelector("#daw-live-dock");
+      const comparisonStructural = document.querySelector("#comparison-structural-difference");
+      const comparisonTimelines = document.querySelector(".comparison-timelines");
+      const comparisonLiveTimeline = document.querySelector(".comparison-timeline-live");
+
+      const productionOrCanonicalNote = firstVisibleNoteInRoll("#clip-detail-view .piano-roll");
+      const lowEndNote = firstVisibleNoteInRoll('[data-capability-stage="cap-lowend"] .piano-roll');
+
+      return {
+        scope: scopeName,
+        productionOrCanonicalPianoNote: productionOrCanonicalNote,
+        lowEndPianoNote: lowEndNote,
+        clipDetailOverlapsParticipantRail: intersects(rect(clipDetail), rect(participantRail)),
+        liveDockOverlapsParticipantRail: intersects(rect(liveDock), rect(participantRail)),
+        comparisonTimelines: {
+          visible: isVisibleInViewport(comparisonTimelines),
+          rect: rect(comparisonTimelines),
+        },
+        comparisonStructuralDifference: {
+          visible: isVisibleInViewport(comparisonStructural),
+          hasDivergence: comparisonStructural?.getAttribute("data-has-divergence") === "true",
+          rect: rect(comparisonStructural),
+        },
+        comparisonLiveTimeline: {
+          visible: isVisibleInViewport(comparisonLiveTimeline),
+          rect: rect(comparisonLiveTimeline),
+        },
+      };
+    }, scope);
+  }
+
   async function collectViewportVisibility(scope = "all") {
     return page.evaluate((scopeName) => {
       function rect(el) {
@@ -135,8 +215,8 @@ try {
       const harmonyPanel = document.querySelector('[data-capability-stage="cap-harmony"]');
       const harmonyTarget = document.querySelector('[data-capability-stage="cap-harmony"] [data-target="harmony-voice"]');
       const comparisonStage = document.querySelector("#comparison-stage");
-      const comparisonCanonical = document.querySelector(".comparison-canonical");
-      const comparisonLive = document.querySelector(".comparison-live");
+      const comparisonCanonical = document.querySelector(".comparison-timeline-canonical");
+      const comparisonLive = document.querySelector(".comparison-timeline-live");
       const payload = {
         scope: scopeName,
         viewport: { width: window.innerWidth, height: window.innerHeight },
@@ -184,6 +264,7 @@ try {
   });
   await page.click("#start-button");
   await delay(1500);
+  evidence.scenarios.geometryAtProduction = await collectGeometryEvidence("production");
   await captureShot("01-production-session-view.png", "production session grid");
 
   await page.waitForFunction(
@@ -191,6 +272,7 @@ try {
     { timeout: 120000 },
   );
   await delay(2000);
+  evidence.scenarios.geometryAtCanonical = await collectGeometryEvidence("canonical");
   await captureShot("02-canonical-arrangement-view.png", "canonical arrangement");
 
   await page.waitForFunction(
@@ -222,6 +304,7 @@ try {
   await delay(300);
   await captureShot("03-live-lowend-act.png", "scripted low end private cue");
   evidence.scenarios.viewportAtLowEnd = await collectViewportVisibility("lowend");
+  evidence.scenarios.geometryAtLowEnd = await collectGeometryEvidence("lowend");
 
   const lowEndPrivateCue = await page.evaluate(() => {
     const result = window.__echlubDemoController.runtime.capabilityOperationLog.find(
@@ -275,6 +358,7 @@ try {
   await delay(300);
   await captureShot("04-live-harmony-act.png", "scripted harmony revision");
   evidence.scenarios.viewportAtHarmony = await collectViewportVisibility("harmony");
+  evidence.scenarios.geometryAtHarmony = await collectGeometryEvidence("harmony");
 
   const harmonyRevision = await page.evaluate(() => {
     const result = window.__echlubDemoController.runtime.capabilityOperationLog.find(
@@ -351,6 +435,7 @@ try {
   await delay(1000);
   await captureShot("05-comparison.png", "canonical vs live comparison");
   evidence.scenarios.viewportAtComparison = await collectViewportVisibility("comparison");
+  evidence.scenarios.geometryAtComparison = await collectGeometryEvidence("comparison");
 
   evidence.screenshots = screenshotLog;
 
@@ -408,6 +493,10 @@ try {
   const vpLow = evidence.scenarios.viewportAtLowEnd;
   const vpHarmony = evidence.scenarios.viewportAtHarmony;
   const vpCompare = evidence.scenarios.viewportAtComparison;
+  const geoProd = evidence.scenarios.geometryAtProduction;
+  const geoCanon = evidence.scenarios.geometryAtCanonical;
+  const geoLow = evidence.scenarios.geometryAtLowEnd;
+  const geoCompare = evidence.scenarios.geometryAtComparison;
   evidence.ok = Boolean(
     evidence.scenarios.currentSongSixCapability.capabilityCount === 6
       && evidence.scenarios.scriptedLiveChoreography.length === 2
@@ -434,6 +523,14 @@ try {
       && vpCompare?.comparisonStage?.visible
       && vpCompare?.comparisonCanonicalCard?.visible
       && vpCompare?.comparisonLiveCard?.visible
+      && (geoProd?.productionOrCanonicalPianoNote?.visible || geoCanon?.productionOrCanonicalPianoNote?.visible)
+      && geoLow?.lowEndPianoNote?.visible
+      && !geoProd?.clipDetailOverlapsParticipantRail
+      && !geoLow?.liveDockOverlapsParticipantRail
+      && geoCompare?.comparisonTimelines?.visible
+      && geoCompare?.comparisonStructuralDifference?.visible
+      && geoCompare?.comparisonStructuralDifference?.hasDivergence
+      && geoCompare?.comparisonLiveTimeline?.visible
       && evidence.lifecycle.pauseResume.paused
       && evidence.lifecycle.pauseResume.resumed
       && evidence.lifecycle.fullFlow.missingMaterials === 0

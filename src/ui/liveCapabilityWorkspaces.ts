@@ -2,6 +2,7 @@ import type { ProductionSession } from "../domain/sessionTypes";
 import type { BrainId, RuntimeState } from "../types";
 import { draftIdsForCapability, resolveCapabilityOperationContext } from "../domain/capabilityOperations";
 import { participantsForCapability } from "../domain/performanceModel";
+import { pianoNoteInlineStyle, pianoRollDataAttributes } from "./pianoRollProjection";
 
 export interface LiveWorkspaceContext {
   session: ProductionSession;
@@ -22,14 +23,14 @@ export function renderLowEndWorkspace(ctx: LiveWorkspaceContext): string {
     return `<button class="mini ${id === activeId ? "active" : ""} status-${d.status}" data-draft-tab="${id}" data-target="${id}">${d.title}</button>`;
   }).join("");
   const notes = (draft?.notes ?? []).map((n) =>
-    `<div class="piano-note status-${draft?.status ?? "editing"}" data-note-id="${n.id}" style="--step:${n.step};--pitch:${n.pitch}"><span>${n.note}</span></div>`,
+    `<div class="piano-note status-${draft?.status ?? "editing"}" data-note-id="${n.id}" style="${pianoNoteInlineStyle(n, draft)}"><span>${n.note}</span></div>`,
   ).join("");
   const operators = participantsForCapability(ctx.session.performanceConfig, "cap-lowend", ctx.session.participants)
     .map((p) => p.displayName).join(" · ");
   return `
     <div class="capability-toolbar"><span class="eyebrow">Low End · ${operators}</span></div>
     <div class="workspace-toolbar">${tabs}</div>
-    <div class="piano-roll brain-primary-target capability-primary-target" data-target="lowend-grid" data-capability-workspace="cap-lowend" data-active-draft="${activeId}">
+    <div class="piano-roll brain-primary-target capability-primary-target" data-target="lowend-grid" data-capability-workspace="cap-lowend" data-active-draft="${activeId}" ${pianoRollDataAttributes(draft)}>
       <div class="piano-grid">${notes || "<em class=\"empty\">Select bass draft</em>"}</div>
     </div>
     <div class="workspace-actions">

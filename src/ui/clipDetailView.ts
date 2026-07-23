@@ -1,6 +1,7 @@
 import type { ProductionSession } from "../domain/sessionTypes";
 import type { PatternDraft } from "../types";
 import { authorDisplayName, formatProductionRole, isDraftPrivatelyPreviewed, resolveDraftAuthor } from "../domain/draftAuthorship";
+import { pianoNoteInlineStyle, pianoRollDataAttributes } from "./pianoRollProjection";
 
 export interface ClipDetailContext {
   session: ProductionSession;
@@ -21,9 +22,9 @@ function renderDrumEditor(draft: PatternDraft): string {
 
 function renderPianoEditor(draft: PatternDraft): string {
   const notes = (draft.notes ?? []).map((n) =>
-    `<div class="piano-note status-${draft.status}" data-note-id="${n.id}" style="--step:${n.step};--pitch:${n.pitch}"><span>${n.note}</span></div>`,
+    `<div class="piano-note status-${draft.status}" data-note-id="${n.id}" style="${pianoNoteInlineStyle(n, draft)}"><span>${n.note}</span></div>`,
   ).join("");
-  return `<div class="clip-editor clip-editor-piano"><div class="piano-roll"><div class="piano-grid">${notes}</div></div></div>`;
+  return `<div class="clip-editor clip-editor-piano"><div class="piano-roll" ${pianoRollDataAttributes(draft)}><div class="piano-grid">${notes}</div></div></div>`;
 }
 
 function renderHarmonyEditor(draft: PatternDraft): string {

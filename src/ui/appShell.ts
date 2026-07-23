@@ -104,7 +104,7 @@ export function renderTrackList(tracks: { id: string; label: string; layerKind: 
     <aside class="track-list-rail" id="track-list-rail">
       <header><span class="eyebrow">Tracks</span><span class="pill">${tracks.length}</span></header>
       <ul class="track-list">
-        ${tracks.map((t) => `<li data-track-id="${t.id}"><span>${t.label}</span><small>${t.layerKind}</small></li>`).join("")}
+        ${tracks.map((t) => `<li data-track-id="${t.id}"><span class="track-name">${t.label}</span><small class="track-layer">${t.layerKind}</small></li>`).join("")}
       </ul>
     </aside>`;
 }

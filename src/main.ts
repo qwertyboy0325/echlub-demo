@@ -36,6 +36,7 @@ import { renderClipDetailView } from "./ui/clipDetailView";
 import { renderCollaborationInspector } from "./ui/collaborationInspector";
 import { legacyBrainPanelsFromState, renderPerformanceOverlay } from "./ui/performanceOverlay";
 import { renderComparisonView } from "./ui/comparisonView";
+import { pianoNoteInlineStyle, pianoRollDataAttributes } from "./ui/pianoRollProjection";
 
 const brainMeta: Record<BrainId, { title: string; subtitle: string; symbol: string }> = {
   memory: { title: "Material Deck", subtitle: "cue, audition and replace musical phrases", symbol: "M" },
@@ -149,7 +150,8 @@ const demoController = new DemoController({
   runLivePerformance: () => { void runLivePerformanceAct(); },
   showComparison: (comparison) => {
     const topology = buildTopologyTransformation(demoController.runtime.session);
-    comparisonHtml = renderComparisonView(comparison, topology);
+    const canonical = demoController.runtime.canonicalSnapshot ?? demoController.runtime.session;
+    comparisonHtml = renderComparisonView(comparison, canonical, demoController.runtime.session, topology);
     demoMode = "comparison";
     app!.querySelector(".app-shell")?.setAttribute("data-act", "comparison");
     refreshDawUi();
@@ -353,11 +355,11 @@ function renderMemoryWorkspace(): string {
     return `<button class="mini ${id === state.activeDraftId ? "active" : ""} status-${d.status}" data-draft-tab="${id}" data-target="${id}">${d.title}</button>`;
   }).join("");
   const notes = (draft?.notes ?? []).map((n) =>
-    `<div class="piano-note status-${draft?.status ?? "editing"}" data-note-id="${n.id}" style="--step:${n.step};--pitch:${n.pitch}"><span>${n.note}</span></div>`,
+    `<div class="piano-note status-${draft?.status ?? "editing"}" data-note-id="${n.id}" style="${pianoNoteInlineStyle(n, draft)}"><span>${n.note}</span></div>`,
   ).join("");
   return `
     <div class="workspace-toolbar">${tabs}</div>
-    <div class="piano-roll brain-primary-target ${state.previewBrain === "memory" ? "private-preview" : ""}" data-target="memory-grid">
+    <div class="piano-roll brain-primary-target ${state.previewBrain === "memory" ? "private-preview" : ""}" data-target="memory-grid" ${pianoRollDataAttributes(draft)}>
       <div class="piano-grid">${notes}</div>
     </div>
     <div class="workspace-actions">

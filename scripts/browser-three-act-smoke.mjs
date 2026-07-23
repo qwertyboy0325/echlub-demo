@@ -454,11 +454,11 @@ try {
       && canonicalSecondRestart.transportState === "started"
       && completedLiveTake.canonicalTotalBars > 0
       && completedLiveTake.canonicalTotalBars === canonical.totalBars
-      && completedLiveTake.liveTotalBars === completedLiveTake.canonicalTotalBars
+      && completedLiveTake.liveTotalBars > completedLiveTake.canonicalTotalBars
       && completedLiveTake.totalBars === completedLiveTake.liveTotalBars
       && completedLiveTake.pendingStructuralCount === 0
+      && completedLiveTake.appliedStructural.length > 0
       && completedLiveTake.appliedStructural.length === completedLiveTake.structuralChanges.length
-      && completedLiveTake.sceneOrder.join(",") === canonical.sceneOrder.join(",")
       && completedLiveTake.jamMemoryCount > 0
       && completedLiveTake.missingMaterialCount === 0
       && completedLiveTake.comparisonVisible

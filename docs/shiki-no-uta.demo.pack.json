@@ -37430,7 +37430,15 @@
       "detail": "Launch the next MIDI-authority scene on its written boundary."
     }
   ],
-  "liveStructuralOperations": [],
+  "liveStructuralOperations": [
+    {
+      "id": "structure-hold-opening",
+      "kind": "hold",
+      "executeAtBar": 3,
+      "sceneId": "opening",
+      "bars": 4
+    }
+  ],
   "performanceViews": [
     {
       "id": "four-brain-performance",
