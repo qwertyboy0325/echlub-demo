@@ -118,6 +118,14 @@ export interface MixParams {
   reverbWet: number;
   masterGain: number;
   faders: Record<string, number>;
+  /** Per-scene drum tone; defaults to pack soundDesign.drums.filterFrequency. */
+  drumFilter?: number;
+  /** Independent drum room send; defaults to 0. */
+  drumReverbWet?: number;
+  /** Post-bus drum subgroup trim in dB; defaults to 0. */
+  drumTrimDb?: number;
+  /** Post-drive bass subgroup trim in dB; defaults to 0. */
+  bassTrimDb?: number;
 }
 
 export interface PerformanceScriptEvent {

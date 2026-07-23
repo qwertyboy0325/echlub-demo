@@ -61,5 +61,9 @@ export function mixEquals(a: MixParams, b: MixParams): boolean {
     && a.delayWet === b.delayWet
     && a.reverbWet === b.reverbWet
     && a.masterGain === b.masterGain
+    && a.drumFilter === b.drumFilter
+    && a.drumReverbWet === b.drumReverbWet
+    && a.drumTrimDb === b.drumTrimDb
+    && a.bassTrimDb === b.bassTrimDb
     && FADER_KEYS.every((k) => a.faders[k] === b.faders[k]);
 }

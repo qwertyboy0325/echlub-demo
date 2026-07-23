@@ -55,6 +55,61 @@ export interface SynthEnvelopePreset {
   release: number;
 }
 
+export interface ReedSoundDesignPreset {
+  attack: number;
+  altAttack: number;
+  release: number;
+  altRelease: number;
+  breathVolume: number;
+  altBreathVolume: number;
+  drive: number;
+  bodyGain: number;
+  presenceGain: number;
+}
+
+export const DEFAULT_REED_SOUND_DESIGN: ReedSoundDesignPreset = {
+  attack: 0.018,
+  altAttack: 0.016,
+  release: 0.18,
+  altRelease: 0.17,
+  breathVolume: -31,
+  altBreathVolume: -33,
+  drive: 0.095,
+  bodyGain: 3.2,
+  presenceGain: 1.2,
+};
+
+export function resolveReedSoundDesign(preset: SoundDesignPreset): ReedSoundDesignPreset {
+  return { ...DEFAULT_REED_SOUND_DESIGN, ...preset.reed };
+}
+
+export type MixAutomationAct = "canonicalPlayback" | "livePerformance" | "both";
+
+export type MixAutomationFaderKey = "groove" | "harmony" | "melody" | "texture";
+
+export const SUBGROUP_TRIM_DB_MIN = -12;
+export const SUBGROUP_TRIM_DB_MAX = 6;
+
+export interface MixAutomationPatch {
+  filter?: number;
+  delayWet?: number;
+  reverbWet?: number;
+  masterGain?: number;
+  drumFilter?: number;
+  drumReverbWet?: number;
+  drumTrimDb?: number;
+  bassTrimDb?: number;
+  faders?: Partial<Record<MixAutomationFaderKey, number>>;
+}
+
+export interface MixAutomationEvent {
+  id: string;
+  act: MixAutomationAct;
+  at: string;
+  rampSeconds: number;
+  patch: MixAutomationPatch;
+}
+
 export interface SoundDesignPreset {
   master: {
     filterRolloff: -12 | -24 | -48 | -96;
@@ -111,6 +166,26 @@ export interface SoundDesignPreset {
     filterFrequency: number;
     envelope: SynthEnvelopePreset;
   };
+  reed?: Partial<ReedSoundDesignPreset>;
+}
+
+export function resolveMixDrumDefaults(
+  mix: MixParams,
+  soundDesign: SoundDesignPreset,
+): { drumFilter: number; drumReverbWet: number } {
+  return {
+    drumFilter: mix.drumFilter ?? soundDesign.drums.filterFrequency,
+    drumReverbWet: mix.drumReverbWet ?? 0,
+  };
+}
+
+export function resolveMixSubgroupTrims(
+  mix: Pick<MixParams, "drumTrimDb" | "bassTrimDb">,
+): { drumTrimDb: number; bassTrimDb: number } {
+  return {
+    drumTrimDb: mix.drumTrimDb ?? 0,
+    bassTrimDb: mix.bassTrimDb ?? 0,
+  };
 }
 
 export const DEFAULT_SOUND_DESIGN: SoundDesignPreset = {
@@ -140,6 +215,7 @@ export interface ReconstructionPack {
   sceneLayerStacks?: SceneLayerStackMap;
   defaultMix: MixParams;
   soundDesign: SoundDesignPreset;
+  mixAutomation?: MixAutomationEvent[];
   arrangement: Arrangement;
   productionChoreography: ProductionAction[];
   livePerformanceChoreography: PerformanceScriptEvent[];
@@ -319,6 +395,71 @@ function checkSoundDesign(issues: PackValidationIssue[], value: unknown): void {
     checkFiniteNumber(issues, texture.filterFrequency, "soundDesign.texture.filterFrequency", { min: Number.EPSILON });
     checkEnvelope(issues, texture.envelope, "soundDesign.texture.envelope");
   }
+
+  if (value.reed !== undefined) {
+    if (!isRecord(value.reed)) issues.push({ path: "soundDesign.reed", message: "must be an object" });
+    else {
+      const reed = value.reed;
+      if (reed.attack !== undefined) checkFiniteNumber(issues, reed.attack, "soundDesign.reed.attack", { min: 0 });
+      if (reed.altAttack !== undefined) checkFiniteNumber(issues, reed.altAttack, "soundDesign.reed.altAttack", { min: 0 });
+      if (reed.release !== undefined) checkFiniteNumber(issues, reed.release, "soundDesign.reed.release", { min: 0 });
+      if (reed.altRelease !== undefined) checkFiniteNumber(issues, reed.altRelease, "soundDesign.reed.altRelease", { min: 0 });
+      if (reed.breathVolume !== undefined) checkFiniteNumber(issues, reed.breathVolume, "soundDesign.reed.breathVolume");
+      if (reed.altBreathVolume !== undefined) checkFiniteNumber(issues, reed.altBreathVolume, "soundDesign.reed.altBreathVolume");
+      if (reed.drive !== undefined) checkFiniteNumber(issues, reed.drive, "soundDesign.reed.drive", { min: 0, max: 1 });
+      if (reed.bodyGain !== undefined) checkFiniteNumber(issues, reed.bodyGain, "soundDesign.reed.bodyGain");
+      if (reed.presenceGain !== undefined) checkFiniteNumber(issues, reed.presenceGain, "soundDesign.reed.presenceGain");
+    }
+  }
+}
+
+function checkMixAutomationPatch(issues: PackValidationIssue[], value: unknown, path: string): void {
+  if (!isRecord(value)) {
+    issues.push({ path, message: "must be an object" });
+    return;
+  }
+  if (value.filter !== undefined) checkFiniteNumber(issues, value.filter, `${path}.filter`, { min: Number.EPSILON });
+  if (value.delayWet !== undefined) checkFiniteNumber(issues, value.delayWet, `${path}.delayWet`, { min: 0, max: 1 });
+  if (value.reverbWet !== undefined) checkFiniteNumber(issues, value.reverbWet, `${path}.reverbWet`, { min: 0, max: 1 });
+  if (value.masterGain !== undefined) checkFiniteNumber(issues, value.masterGain, `${path}.masterGain`);
+  if (value.drumFilter !== undefined) checkFiniteNumber(issues, value.drumFilter, `${path}.drumFilter`, { min: Number.EPSILON });
+  if (value.drumReverbWet !== undefined) checkFiniteNumber(issues, value.drumReverbWet, `${path}.drumReverbWet`, { min: 0, max: 1 });
+  if (value.drumTrimDb !== undefined) checkFiniteNumber(issues, value.drumTrimDb, `${path}.drumTrimDb`, { min: SUBGROUP_TRIM_DB_MIN, max: SUBGROUP_TRIM_DB_MAX });
+  if (value.bassTrimDb !== undefined) checkFiniteNumber(issues, value.bassTrimDb, `${path}.bassTrimDb`, { min: SUBGROUP_TRIM_DB_MIN, max: SUBGROUP_TRIM_DB_MAX });
+  if (value.faders !== undefined) {
+    if (!isRecord(value.faders)) issues.push({ path: `${path}.faders`, message: "must be an object" });
+    else for (const [key, faderValue] of Object.entries(value.faders)) {
+      if (!["groove", "harmony", "melody", "texture"].includes(key)) {
+        issues.push({ path: `${path}.faders.${key}`, message: "has unsupported fader key" });
+      } else {
+        checkFiniteNumber(issues, faderValue, `${path}.faders.${key}`, { min: 0, max: 100 });
+      }
+    }
+  }
+}
+
+function checkMixAutomation(issues: PackValidationIssue[], value: unknown): void {
+  if (!Array.isArray(value)) {
+    issues.push({ path: "mixAutomation", message: "must be an array" });
+    return;
+  }
+  const ids = new Set<string>();
+  value.forEach((raw, index) => {
+    const path = `mixAutomation[${index}]`;
+    if (!isRecord(raw)) {
+      issues.push({ path, message: "must be an object" });
+      return;
+    }
+    if (typeof raw.id !== "string" || !raw.id.trim()) issues.push({ path: `${path}.id`, message: "must be a non-empty string" });
+    else if (ids.has(raw.id)) issues.push({ path: `${path}.id`, message: `duplicate id ${raw.id}` });
+    else ids.add(raw.id);
+    checkEnum(issues, raw.act, `${path}.act`, ["canonicalPlayback", "livePerformance", "both"]);
+    if (typeof raw.at !== "string" || !/^\d+:\d+:\d+$/.test(raw.at)) {
+      issues.push({ path: `${path}.at`, message: "must be a transport position bar:beat:sixteenth" });
+    }
+    checkFiniteNumber(issues, raw.rampSeconds, `${path}.rampSeconds`, { min: 0 });
+    checkMixAutomationPatch(issues, raw.patch, `${path}.patch`);
+  });
 }
 
 /** Strict structural and cross-reference validation for untrusted JSON input. */
@@ -402,6 +543,7 @@ export function inspectReconstructionPack(input: unknown): PackValidationIssue[]
   if (!Array.isArray(input.timeSignatures) || input.timeSignatures.length === 0) issues.push({ path: "timeSignatures", message: "must be a non-empty array" });
 
   checkSoundDesign(issues, input.soundDesign);
+  if (input.mixAutomation !== undefined) checkMixAutomation(issues, input.mixAutomation);
 
   if (Array.isArray(input.workspaces)) input.workspaces.forEach((raw, i) => {
     if (!isRecord(raw)) return;
