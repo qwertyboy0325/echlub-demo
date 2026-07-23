@@ -8,7 +8,7 @@ import {
   readFileSync,
   existsSync,
 } from "node:fs";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
 import { createHash } from "node:crypto";
 
 const root = process.cwd();
@@ -66,6 +66,28 @@ if (!existsSync(join(staging, "evidence/campaign-final-evidence.json"))) {
     join(campaignDir, "evidence/campaign-final-evidence.json"),
     join(staging, "evidence/campaign-final-evidence.json"),
   );
+}
+
+const sourceDir = join(staging, "source");
+mkdirSync(sourceDir, { recursive: true });
+for (const rel of [
+  "src/style.css",
+  "src/domain/capabilityOperations.ts",
+  "src/demo/capabilityLiveOperations.ts",
+  "src/capabilityUiTargets.ts",
+  "src/ui/liveCapabilityWorkspaces.ts",
+  "src/demo/demoController.ts",
+  "src/demo/demoRuntime.ts",
+  "src/main.ts",
+  "scripts/campaign-final-evidence.mjs",
+  "src/validation/capabilityOperations.test.ts",
+]) {
+  const src = join(root, rel);
+  if (existsSync(src)) {
+    const dest = join(sourceDir, rel);
+    mkdirSync(dirname(dest), { recursive: true });
+    copyFileSync(src, dest);
+  }
 }
 
 execSync(`rm -f "${zipPath}"`, { shell: true });

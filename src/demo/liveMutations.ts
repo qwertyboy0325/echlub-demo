@@ -31,7 +31,7 @@ export interface LiveMusicalMutationResult {
   evidence?: LiveMutationEvidence;
 }
 
-function repinDraftReferences(session: ProductionSession, draftId: string): RepinnedSceneLayer[] {
+export function repinDraftReferences(session: ProductionSession, draftId: string): RepinnedSceneLayer[] {
   const draft = session.drafts[draftId];
   if (!draft) return [];
   const nextRef = materialRefForDraft(draft);

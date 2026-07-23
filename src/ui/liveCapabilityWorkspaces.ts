@@ -1,5 +1,6 @@
 import type { ProductionSession } from "../domain/sessionTypes";
 import type { BrainId, RuntimeState } from "../types";
+import { draftIdsForCapability, resolveCapabilityOperationContext } from "../domain/capabilityOperations";
 import { participantsForCapability } from "../domain/performanceModel";
 
 export interface LiveWorkspaceContext {
@@ -8,26 +9,13 @@ export interface LiveWorkspaceContext {
   previewBrain: BrainId | null;
 }
 
-function bassDraftIds(session: ProductionSession, capabilityId: string): string[] {
-  const assignments = session.performanceConfig.assignments.filter((a) => a.capabilityId === capabilityId);
-  const trackIds = assignments.flatMap((a) => a.trackIds ?? []);
-  const fromTracks = session.tracks
-    .filter((t) => trackIds.includes(t.id) || t.layerKind === "bass")
-    .flatMap((t) => t.draftIds);
-  return [...new Set(fromTracks.length ? fromTracks : ["bass-main", "bass-alt"])];
-}
-
-function harmonyDraftIds(session: ProductionSession): string[] {
-  return session.tracks
-    .filter((t) => t.layerKind === "harmony")
-    .flatMap((t) => t.draftIds)
-    .filter((id, i, arr) => arr.indexOf(id) === i);
-}
-
 export function renderLowEndWorkspace(ctx: LiveWorkspaceContext): string {
-  const draftIds = bassDraftIds(ctx.session, "cap-lowend");
-  const activeId = draftIds.find((id) => ctx.state.drafts[id]) ?? draftIds[0] ?? "bass-main";
-  const draft = ctx.state.drafts[activeId];
+  const ctxResolved = resolveCapabilityOperationContext(ctx.session, "cap-lowend");
+  const draftIds = draftIdsForCapability(ctx.session, "cap-lowend");
+  const activeId = ctx.state.activeDraftId && draftIds.includes(ctx.state.activeDraftId)
+    ? ctx.state.activeDraftId
+    : ctxResolved?.draftId ?? draftIds[0] ?? "";
+  const draft = activeId ? ctx.state.drafts[activeId] : undefined;
   const tabs = draftIds.map((id) => {
     const d = ctx.state.drafts[id];
     if (!d) return "";
@@ -41,19 +29,20 @@ export function renderLowEndWorkspace(ctx: LiveWorkspaceContext): string {
   return `
     <div class="capability-toolbar"><span class="eyebrow">Low End · ${operators}</span></div>
     <div class="workspace-toolbar">${tabs}</div>
-    <div class="piano-roll brain-primary-target capability-primary-target" data-target="lowend-grid" data-capability-workspace="cap-lowend">
+    <div class="piano-roll brain-primary-target capability-primary-target" data-target="lowend-grid" data-capability-workspace="cap-lowend" data-active-draft="${activeId}">
       <div class="piano-grid">${notes || "<em class=\"empty\">Select bass draft</em>"}</div>
     </div>
     <div class="workspace-actions">
-      <button data-target="lowend-private-cue" data-capability-cue="cap-lowend">Private cue bass</button>
-      <button data-target="lowend-offer" data-capability-offer="cap-lowend">Offer bass revision</button>
+      <button type="button" data-target="lowend-private-cue" data-capability-cue="cap-lowend">Private cue bass</button>
+      <button type="button" data-target="lowend-offer" data-capability-offer="cap-lowend">Offer bass revision</button>
     </div>`;
 }
 
 export function renderHarmonyWorkspace(ctx: LiveWorkspaceContext): string {
-  const draftIds = harmonyDraftIds(ctx.session);
-  const activeId = draftIds[0] ?? "story-opening";
-  const draft = ctx.state.drafts[activeId];
+  const ctxResolved = resolveCapabilityOperationContext(ctx.session, "cap-harmony");
+  const draftIds = draftIdsForCapability(ctx.session, "cap-harmony");
+  const activeId = ctxResolved?.draftId ?? draftIds[0] ?? "";
+  const draft = activeId ? ctx.state.drafts[activeId] : undefined;
   const chords = (draft?.harmonyChords ?? []).slice(0, 6).map((c, i) =>
     `<div class="chord-block" data-chord-idx="${i}" data-target="harmony-chord-${i}"><strong>${c.notes.join(" ")}</strong><small>bar ${c.bar + 1}</small></div>`,
   ).join("");
@@ -61,10 +50,12 @@ export function renderHarmonyWorkspace(ctx: LiveWorkspaceContext): string {
     .map((p) => p.displayName).join(" · ");
   return `
     <div class="capability-toolbar"><span class="eyebrow">Harmony · ${operators}</span></div>
-    <div class="draft-chords capability-primary-target" data-target="harmony-grid" data-capability-workspace="cap-harmony">${chords || "<em>No chords</em>"}</div>
+    <div class="draft-chords capability-primary-target" data-target="harmony-grid" data-capability-workspace="cap-harmony" data-active-draft="${activeId}">
+      ${chords || "<em>No chords</em>"}
+    </div>
     <div class="workspace-actions">
-      <button data-target="harmony-private-cue" data-capability-cue="cap-harmony">Private cue harmony</button>
-      <button data-target="harmony-voice" data-capability-offer="cap-harmony">Voice next chord</button>
+      <button type="button" data-target="harmony-private-cue" data-capability-cue="cap-harmony">Private cue harmony</button>
+      <button type="button" data-target="harmony-voice" data-capability-offer="cap-harmony">Voice next chord</button>
     </div>`;
 }
 

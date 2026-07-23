@@ -384,6 +384,7 @@ h1, h2, h3, p { margin-top: 0; }
   .daw-workspace-grid { grid-template-columns: 1fr; }
 }
 
+@media (max-width: 700px) {
   .app-shell { width: calc(100% - 12px); margin-top: 6px; }
   .topbar { align-items: flex-start; }
   .header-status { justify-content: flex-start; }

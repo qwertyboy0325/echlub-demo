@@ -19,6 +19,7 @@ import {
 } from "./sceneExecution";
 import type { BrainId, PerformanceScriptEvent, RuntimeState, SceneDefinition } from "./types";
 import { DemoController, scheduleArrangementPlayback } from "./demo/demoController";
+import { capabilityTargetForElement } from "./capabilityUiTargets";
 import { capabilityIdsNeedingRefresh, renderCapabilityWorkspace } from "./ui/liveCapabilityWorkspaces";
 import { buildTopologyTransformation } from "./demo/canonicalPlayback";
 import { enterAct, registerLiveSchedules } from "./demo/actScheduleRegistry";
@@ -454,6 +455,14 @@ function bindControls(): void {
   });
   document.querySelector<HTMLInputElement>("#pack-file-input")?.addEventListener("change", (event) => {
     void onImportPack(event);
+  });
+  app?.addEventListener("click", (event) => {
+    const el = (event.target as Element | null)?.closest("[data-capability-cue],[data-capability-offer]");
+    if (!el || demoMode !== "livePerformance") return;
+    const capTarget = capabilityTargetForElement(el);
+    if (!capTarget) return;
+    event.preventDefault();
+    demoController.executeCapabilityOperation(capTarget.capabilityId, capTarget.operation);
   });
 }
 

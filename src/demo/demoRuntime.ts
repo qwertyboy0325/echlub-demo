@@ -1,4 +1,4 @@
-import type { DemoAct, ProductionSession, CanonicalVsLiveComparison } from "../domain/sessionTypes";
+import type { DemoAct, ProductionSession, CanonicalVsLiveComparison, LiveStructuralOperation } from "../domain/sessionTypes";
 import type { ReconstructionPack } from "../domain/reconstructionPack";
 import { compileSessionMaterialBank, materialRefForDraft } from "../domain/sessionMaterialBank";
 import type { SessionMaterialBank } from "../domain/sessionMaterialBank";
@@ -29,7 +29,11 @@ import {
   queueLiveStructuralOperation,
   type LiveStructuralBoundaryResult,
 } from "./liveStructuralMutations";
-import type { LiveStructuralOperation } from "../domain/sessionTypes";
+import {
+  applyCapabilityLiveOperation,
+  type CapabilityLiveOperation,
+  type CapabilityOperationEvidence,
+} from "./capabilityLiveOperations";
 
 export type ActChangeCallback = (act: DemoAct, session: ProductionSession) => void;
 
@@ -42,6 +46,7 @@ export class DemoRuntime {
   canonicalSnapshot: ProductionSession | null = null;
   canonicalBank: SessionMaterialBank | null = null;
   readonly liveMutationLog: LiveMutationEvidence[] = [];
+  lastCapabilityOperation: CapabilityOperationEvidence | null = null;
   act: DemoAct = "production";
   speedMultiplier = 1;
   productionActionIndex = 0;
@@ -214,6 +219,17 @@ export class DemoRuntime {
   getMaterialRefForDraft(draftId: string): import("../types").MaterialRef | undefined {
     const draft = this.session.drafts[draftId];
     return draft ? materialRefForDraft(draft) : undefined;
+  }
+
+  applyCapabilityOperation(
+    capabilityId: string,
+    operation: CapabilityLiveOperation,
+  ): CapabilityOperationEvidence | null {
+    const evidence = applyCapabilityLiveOperation(this.session, this.pack, capabilityId, operation);
+    if (!evidence) return null;
+    this.publishBank();
+    this.lastCapabilityOperation = structuredClone(evidence);
+    return evidence;
   }
 
   applyLiveMusicalEvent(event: PerformanceScriptEvent): LiveMusicalMutationResult {

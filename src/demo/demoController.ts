@@ -2,6 +2,7 @@ import * as Tone from "tone";
 import type { AudioEngine } from "../audioEngine";
 import { materialRefForDraft } from "../domain/sessionMaterialBank";
 import { loadReconstructionPack } from "../domain/packLoader";
+import type { ReconstructionPack } from "../domain/reconstructionPack";
 import type { DemoAct, LiveStructuralOperation } from "../domain/sessionTypes";
 import type { RuntimeState } from "../types";
 import { resolveSceneAtBar, provenanceForScene } from "./canonicalPlayback";
@@ -10,7 +11,8 @@ import { DemoDirector } from "./demoDirector";
 import { enterAct, registerCanonicalSchedules, registerLiveSchedules } from "./actScheduleRegistry";
 import { projectSessionMusicalState } from "../runtimeState";
 import type { PerformanceScriptEvent } from "../types";
-import type { ReconstructionPack } from "../domain/reconstructionPack";
+import type { CapabilityOperationEvidence } from "./capabilityLiveOperations";
+import type { CapabilityLiveOperation } from "./capabilityLiveOperations";
 
 export interface DemoControllerHooks {
   getState: () => RuntimeState;
@@ -184,6 +186,30 @@ export class DemoController {
     this.runtime.publishBank();
     this.hooks.audioEngine.setMaterialBank(this.runtime.materialBank);
     this.hooks.audioEngine.startPrivateCue(ref);
+  }
+
+  executeCapabilityOperation(
+    capabilityId: string,
+    operation: CapabilityLiveOperation,
+  ): CapabilityOperationEvidence | null {
+    if (this.runtime.act !== "livePerformance") return null;
+    const evidence = this.runtime.applyCapabilityOperation(capabilityId, operation);
+    if (!evidence) return null;
+
+    if (evidence.cueStarted) {
+      this.hooks.audioEngine.setMaterialBank(this.runtime.materialBank);
+      this.hooks.audioEngine.startPrivateCue(evidence.materialRef);
+    } else {
+      this.hooks.audioEngine.setMaterialBank(this.runtime.materialBank);
+    }
+
+    this.syncSessionToState();
+    const state = this.hooks.getState();
+    state.activeDraftId = evidence.context.draftId;
+    state.previewBrain = null;
+    this.hooks.refreshUi();
+    this.hooks.refreshProductionUi();
+    return evidence;
   }
 
   private stopProductionTimer(): void {
