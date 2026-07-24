@@ -172,18 +172,20 @@ button:disabled {
 /* —— Focus Shell —— */
 .focus-shell {
   display: grid;
-  grid-template-columns: var(--presence-width) 1fr;
-  grid-template-rows: 1fr auto;
+  grid-template-columns: var(--presence-width) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
   grid-template-areas:
     "presence center"
     "presence bottom";
   min-height: 0;
   height: 100%;
+  width: 100%;
+  overflow: hidden;
   position: relative;
 }
 
 .focus-shell--wide {
-  grid-template-columns: var(--presence-width) 1fr var(--exchange-width);
+  grid-template-columns: var(--presence-width) minmax(0, 1fr) minmax(0, var(--exchange-width));
   grid-template-areas:
     "presence center exchange"
     "presence bottom exchange";
@@ -270,6 +272,7 @@ button:disabled {
   padding: 10px;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .focus-bottom {
@@ -277,9 +280,11 @@ button:disabled {
   border-top: 1px solid var(--separator);
   background: var(--panel);
   min-height: var(--transport-height);
+  min-width: 0;
   display: flex;
   align-items: center;
   padding: 0 16px;
+  overflow: hidden;
 }
 
 .focus-bottom--dock {
@@ -316,10 +321,14 @@ button:disabled {
   flex-direction: column;
   gap: 8px;
   min-height: 0;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .exchange-panel--rail {
   grid-area: exchange;
+  width: var(--exchange-width);
+  max-width: var(--exchange-width);
 }
 
 .exchange-panel--drawer {
@@ -603,14 +612,20 @@ button:disabled {
 }
 
 .room--participant {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  height: 100%;
   min-height: 0;
+  gap: 0;
+  overflow: hidden;
 }
 
 .room--participant [data-rac] {
-  flex: 1;
+  grid-row: 3;
   display: flex;
   flex-direction: column;
   min-height: 0;
+  overflow: hidden;
 }
 
 .surface-header {
@@ -935,11 +950,12 @@ button:disabled {
 /* —— Participant workspace —— */
 .participant-context {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   align-items: baseline;
+  flex-wrap: wrap;
   font-size: 11px;
   color: var(--muted);
-  padding: 8px 12px;
+  padding: 6px 12px;
   border-bottom: 1px solid var(--separator);
   background: var(--panel);
   border-radius: var(--radius) var(--radius) 0 0;
@@ -992,13 +1008,15 @@ button:disabled {
 
 .participant-tab-panel {
   flex: 1;
-  min-height: 280px;
+  min-height: 0;
   border: 1px solid var(--separator);
   border-top: none;
   border-radius: 0 0 var(--radius) var(--radius);
-  overflow: auto;
+  overflow: hidden;
   background: var(--panel);
   outline: none;
+  display: flex;
+  flex-direction: column;
 }
 
 .participant-tab-panel[hidden] {
@@ -1106,9 +1124,9 @@ button:disabled {
 .step-grid,
 .clip-editor-pane {
   flex: 1;
+  min-height: 0;
   background: var(--canvas);
   position: relative;
-  min-height: 200px;
 }
 
 .piano-grid {
@@ -1145,9 +1163,12 @@ button:disabled {
 .step-grid {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
   gap: 4px;
   padding: 12px;
-  align-content: start;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
 }
 
 .step-cell {
@@ -1188,6 +1209,29 @@ button:disabled {
 .devices-panel {
   padding: 16px;
   position: relative;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.room--participant .device-rack {
+  flex-shrink: 0;
+}
+
+.room--participant .device-inspector-inline {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  margin-top: 12px;
+}
+
+.room--participant .device-inspector-body {
+  flex: 1;
+  align-items: stretch;
 }
 
 .devices-panel h2 {
@@ -1370,6 +1414,9 @@ button:disabled {
 /* —— Mixer (B scoped) —— */
 .room--mixer {
   gap: 8px;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
 }
 
 .mixer-header {
@@ -1393,26 +1440,30 @@ button:disabled {
 
 .mixer-channels {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 6px;
   flex: 1;
-  min-height: 140px;
+  min-height: 0;
+  min-width: 0;
   padding: 8px;
   background: var(--panel);
   border: 1px solid var(--separator);
   border-radius: var(--radius);
+  overflow: hidden;
 }
 
 .mixer-channel {
   background: var(--raised);
   border: 1px solid var(--separator);
   border-radius: var(--radius-control);
-  padding: 8px 6px;
+  padding: 8px 4px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
   box-shadow: var(--shadow);
+  min-width: 0;
+  overflow: hidden;
 }
 
 .mixer-channel--selected {
@@ -1514,12 +1565,14 @@ button:disabled {
 .live-control-dock {
   flex: 1;
   min-height: var(--dock-height);
+  min-width: 0;
   background: var(--panel);
   border-top: 1px solid var(--separator);
   padding: 10px 12px;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  overflow: hidden;
 }
 
 .live-control-dock header {
@@ -1572,28 +1625,31 @@ button:disabled {
 
 .dock-slots {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
+  grid-template-columns: repeat(8, minmax(0, 1fr));
   gap: 8px;
   flex: 1;
+  min-width: 0;
 }
 
 .live-control-dock--compact .dock-slots {
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
 }
 
 .dock-slot {
   background: var(--raised);
   border: 1px solid var(--separator);
   border-radius: var(--radius-control);
-  padding: 6px;
+  padding: 6px 4px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
   gap: 4px;
   min-height: 100px;
+  min-width: 0;
   box-shadow: var(--shadow);
   position: relative;
+  overflow: hidden;
 }
 
 .dock-slot-state-line {
@@ -1711,28 +1767,167 @@ button:disabled {
   display: none;
 }
 
+/* —— Automation editor (fixture) —— */
+.automation-editor {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--canvas);
+}
+
+.automation-editor-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--separator);
+  background: var(--panel);
+  font-size: 11px;
+}
+
+.automation-editor-state {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+
+.automation-editor-playhead {
+  color: var(--text);
+}
+
+.automation-ruler {
+  display: flex;
+  border-bottom: 1px solid var(--separator);
+  background: var(--raised);
+  flex-shrink: 0;
+}
+
+.automation-ruler-spacer {
+  width: 160px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--separator);
+}
+
+.automation-ruler-bars {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
+.automation-ruler-bar {
+  flex: 1;
+  min-width: 0;
+  font-size: 10px;
+  font-family: var(--mono);
+  color: var(--muted);
+  padding: 4px 0 4px 4px;
+  border-right: 1px solid var(--grid-line);
+}
+
+.automation-ruler-bar--downbeat {
+  color: var(--text);
+  font-weight: 600;
+  border-right-color: var(--separator);
+}
+
+.automation-lanes {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.automation-lane-row {
+  display: flex;
+  border-bottom: 1px solid var(--separator);
+  min-height: 96px;
+  flex: 1;
+}
+
+.automation-lane-meta {
+  width: 160px;
+  flex-shrink: 0;
+  padding: 10px 12px;
+  border-right: 1px solid var(--separator);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  background: var(--panel);
+}
+
+.automation-lane-meta strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.automation-lane-context {
+  color: var(--muted);
+}
+
+.automation-lane-range {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.automation-lane-canvas {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  background: var(--canvas);
+}
+
+.automation-lane-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.automation-grid-line {
+  stroke: var(--grid-line);
+  stroke-width: 1;
+}
+
+.automation-grid-line--bar {
+  stroke: var(--separator);
+}
+
+.automation-curve-path {
+  stroke: var(--focus);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.automation-point {
+  fill: var(--panel);
+  stroke: var(--focus);
+  stroke-width: 2;
+  cursor: pointer;
+}
+
+.automation-point--selected {
+  fill: var(--focus);
+  stroke: var(--text);
+}
+
+.automation-playhead {
+  stroke: var(--recording);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
 /* —— Placeholder panels —— */
-.automation-lane,
 .mix-panel,
 .queue-panel {
   padding: 16px;
   font-size: 12px;
   color: var(--text);
   height: 100%;
-}
-
-.automation-curve {
-  height: 80px;
-  background: var(--canvas);
-  border: 1px solid var(--separator);
-  border-radius: var(--radius);
-  margin-bottom: 8px;
-  background-image: linear-gradient(to right, transparent 49%, var(--focus) 49%, var(--focus) 51%, transparent 51%);
-}
-
-.automation-label {
-  font-size: 11px;
-  color: var(--muted);
+  overflow: auto;
 }
 
 .mix-trim-row {

@@ -12,10 +12,12 @@ const RECORD = process.env.ECHLUB_SHELL_RECORD === "1";
 const RECORD_OUT = join(OUT, "shell-walkthrough.webm");
 const FRAMES_DIR = join(OUT, ".screencast-frames");
 const ERROR_LOG = join(OUT, "capture-console-errors.json");
+const ASSERTIONS_OUT = join(OUT, "viewport-assertions.json");
 const FRAME_INTERVAL_MS = 250;
 const FRAME_FPS = 4;
 
 mkdirSync(OUT, { recursive: true });
+rmSync(FRAMES_DIR, { recursive: true, force: true });
 
 function wait(ms) {
   return new Promise((r) => setTimeout(r, ms));
@@ -35,8 +37,24 @@ async function waitForServer(url, timeoutMs = 45000) {
   throw new Error(`Server not ready: ${url}`);
 }
 
+const ROOM_LABELS = ["Global Studio", "Participant", "Mixer"];
+const ROOM_SELECTORS = [".room--global", ".room--participant", ".room--mixer"];
+
 async function clickNav(page, index) {
-  await page.$$eval(".room-nav button", (buttons, i) => buttons[i].click(), index);
+  const clicked = await page.evaluate((label) => {
+    const btn = [...document.querySelectorAll(".room-nav button")].find(
+      (b) => b.textContent?.trim() === label,
+    );
+    if (!btn) return false;
+    btn.click();
+    return true;
+  }, ROOM_LABELS[index]);
+  if (!clicked) throw new Error(`Room nav not found: ${ROOM_LABELS[index]}`);
+  await page.waitForSelector(ROOM_SELECTORS[index], { timeout: 15000 });
+  if (index === 1) {
+    await page.waitForSelector(".participant-tabs [role='tab']", { timeout: 15000 });
+  }
+  await wait(350);
 }
 
 async function clickParticipantTab(page, label) {
@@ -63,6 +81,20 @@ async function assertDevicesTabActive(page) {
   if (!hasRack) throw new Error("Devices panel rack not visible");
 }
 
+async function assertNoHorizontalScroll(page, label) {
+  const result = await page.evaluate(() => ({
+    scrollWidth: document.documentElement.scrollWidth,
+    clientWidth: document.documentElement.clientWidth,
+    pass: document.documentElement.scrollWidth === document.documentElement.clientWidth,
+  }));
+  return { label, viewport: await page.viewport(), ...result };
+}
+
+async function captureViewportSuite(page, roomIndex, roomLabel) {
+  const assertion = await assertNoHorizontalScroll(page, roomLabel);
+  return assertion;
+}
+
 function runFfmpeg(args) {
   return new Promise((resolve, reject) => {
     const proc = spawn("ffmpeg", args, { stdio: "pipe" });
@@ -81,6 +113,7 @@ function createFrameRecorder(page) {
   let frameIndex = 0;
 
   return async function captureFrame() {
+    mkdirSync(FRAMES_DIR, { recursive: true });
     const path = join(FRAMES_DIR, `frame-${String(frameIndex++).padStart(5, "0")}.jpg`);
     await page.screenshot({ path, type: "jpeg", quality: 82 });
   };
@@ -122,6 +155,7 @@ const preview = spawn("npm", ["run", "preview", "--", "--host", "127.0.0.1", "--
 });
 
 const captureMeta = { recording: false, recordingError: null, frameCount: 0, durationTargetSec: "45-90" };
+const viewportAssertions = [];
 
 try {
   await waitForServer(BASE);
@@ -147,10 +181,12 @@ try {
   if (captureFrame) await captureFrame();
   await pause(500, 3000);
   await page.screenshot({ path: join(OUT, "global-studio-1440.png") });
+  viewportAssertions.push(await captureViewportSuite(page, 0, "global-1440x900"));
 
   await clickNav(page, 1);
   await pause(400, 2500);
   await page.screenshot({ path: join(OUT, "participant-create-1440.png") });
+  viewportAssertions.push(await captureViewportSuite(page, 1, "participant-1440x900"));
 
   await clickParticipantTab(page, "Devices");
   await assertDevicesTabActive(page);
@@ -164,6 +200,7 @@ try {
   await clickNav(page, 2);
   await pause(500, 3500);
   await page.screenshot({ path: join(OUT, "mixer-dock-1440.png") });
+  viewportAssertions.push(await captureViewportSuite(page, 2, "mixer-1440x900"));
   await page.screenshot({ path: join(OUT, "dock-8-slots-1440.png") });
 
   await clickNav(page, 0);
@@ -175,12 +212,25 @@ try {
   await clickNav(page, 0);
   await pause(400, 3000);
   await page.screenshot({ path: join(OUT, "global-studio-1280x720.png") });
+  viewportAssertions.push(await captureViewportSuite(page, 0, "global-1280x720"));
+
+  await clickNav(page, 1);
+  await pause(400, 2500);
+  await page.screenshot({ path: join(OUT, "participant-1280x720.png") });
+  viewportAssertions.push(await captureViewportSuite(page, 1, "participant-1280x720"));
+
+  await clickNav(page, 2);
+  await pause(400, 2500);
+  await page.screenshot({ path: join(OUT, "mixer-dock-1280x720.png") });
+  viewportAssertions.push(await captureViewportSuite(page, 2, "mixer-1280x720"));
 
   const toggle = await page.$(".exchange-toggle");
   if (toggle) {
     await toggle.click();
     await pause(300, 4000);
-    await page.screenshot({ path: join(OUT, "exchange-drawer-1280.png") });
+    await page.screenshot({ path: join(OUT, "exchange-drawer-mixer-1280.png") });
+    await page.click(".exchange-drawer-close");
+    await wait(300);
   }
 
   await page.setViewport({ width: 1440, height: 900 });
@@ -222,7 +272,10 @@ try {
 
   await clickNav(page, 2);
   await page.click(".dock-mode-btn--capture");
-  await page.$eval(".dock-knob", (el) => el.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true })));
+  await page.$eval(".dock-knob", (el) => {
+    el.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+    el.dispatchEvent(new PointerEvent("pointerup", { bubbles: true }));
+  });
   await page.$eval(".dock-fader", (el) => {
     el.value = "85";
     el.dispatchEvent(new Event("input", { bubbles: true }));
@@ -231,14 +284,22 @@ try {
   await pause(400, 5000);
   await page.screenshot({ path: join(OUT, "source-to-dock-mapping-1440.png") });
 
-  await clickNav(page, 0);
-  await pause(300, 3000);
+  await page.setViewport({ width: 1440, height: 900 });
   await clickNav(page, 1);
+  await clickParticipantTab(page, "Create");
+  await pause(300, 2500);
+  await clickParticipantTab(page, "Devices");
+  await pause(300, 2500);
+  await clickParticipantTab(page, "Automation");
   await pause(300, 2500);
   await clickNav(page, 2);
   await pause(300, 3000);
+  await page.setViewport({ width: 1280, height: 720 });
+  await pause(300, 2500);
+  await clickNav(page, 2);
+  await pause(300, 2500);
   await clickNav(page, 0);
-  await pause(300, 4000);
+  await pause(300, 12000);
   await page.screenshot({ path: join(OUT, "shell-walkthrough-end.png") });
 
   if (captureFrame) {
@@ -257,10 +318,20 @@ try {
 
   await browser.close();
 
-  writeFileSync(ERROR_LOG, JSON.stringify({ errors, captureMeta }, null, 2));
+  const allPass = viewportAssertions.every((a) => a.pass);
+  writeFileSync(
+    ASSERTIONS_OUT,
+    JSON.stringify({ allPass, assertions: viewportAssertions, capturedAt: new Date().toISOString() }, null, 2),
+  );
+
+  writeFileSync(ERROR_LOG, JSON.stringify({ errors, captureMeta, viewportAssertions }, null, 2));
 
   if (errors.length) {
     console.warn("Console errors:", errors.slice(0, 8));
+    process.exitCode = 1;
+  }
+  if (!allPass) {
+    console.warn("Viewport assertion failures:", viewportAssertions.filter((a) => !a.pass));
     process.exitCode = 1;
   }
   console.log(`Shell evidence captured in ${OUT}`);

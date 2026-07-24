@@ -1,5 +1,6 @@
 import { Tab, TabList, TabPanel, Tabs } from "react-aria-components";
 import type { ExchangeClip, ParticipantTab, ShellCommand, ShellState } from "../shell/domain/shellTypes";
+import { AutomationEditor } from "../features/automation/AutomationEditor";
 import { CreateEditor } from "../features/create/CreateEditor";
 import { DevicesPanel } from "../features/devices/DevicesPanel";
 
@@ -32,12 +33,7 @@ function TabPanelContent({
     case "Devices":
       return <DevicesPanel dispatch={dispatch} draggable />;
     case "Automation":
-      return (
-        <div className="automation-lane">
-          <div className="automation-curve" aria-hidden />
-          <span className="automation-label">Filter cutoff · bass-loop · r3</span>
-        </div>
-      );
+      return <AutomationEditor />;
     case "Mix":
       return (
         <div className="mix-panel">
