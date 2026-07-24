@@ -19,6 +19,96 @@ async function waitForServer(url, timeoutMs = 45000) {
   return false;
 }
 
+async function clickRoomNav(page, index) {
+  await page.$$eval(".room-nav button", (buttons, i) => buttons[i].click(), index);
+  await delay(300);
+}
+
+async function clickExchangeCta(page, labelSubstring) {
+  const buttons = await page.$$(".exchange-room-cta button");
+  for (const btn of buttons) {
+    const label = await page.evaluate((el) => el.textContent?.trim() ?? "", btn);
+    if (!label.includes(labelSubstring)) continue;
+    const disabled = await page.evaluate(
+      (el) => el.disabled || el.getAttribute("aria-disabled") === "true",
+      btn,
+    );
+    if (disabled) throw new Error(`Exchange CTA disabled: ${labelSubstring}`);
+    await btn.click();
+    await delay(200);
+    return;
+  }
+  throw new Error(`Exchange CTA unavailable: ${labelSubstring}`);
+}
+
+async function clickRowWithChip(page, chipClass, innerSelector) {
+  const clicked = await page.evaluate(
+    ({ chip, sel }) => {
+      const row = [...document.querySelectorAll(".exchange-row")].find((r) => r.querySelector(`.${chip}`));
+      const target = row?.querySelector(sel);
+      if (!target) return false;
+      target.click();
+      return true;
+    },
+    { chip: chipClass, sel: innerSelector },
+  );
+  if (!clicked) throw new Error(`Row action missing: ${chipClass} ${innerSelector}`);
+  await delay(200);
+}
+
+/** Phase 4 sparse state: seed a Ready clip via Participant Share → Fork → Review → Ready. */
+async function seedReadyClipViaUi(page) {
+  await clickRoomNav(page, 1);
+
+  if (await page.$(".exchange-row .chip-ready")) {
+    await clickRowWithChip(page, "chip-ready", ".exchange-row-head");
+    return;
+  }
+
+  if (!(await page.$(".exchange-row"))) {
+    await clickExchangeCta(page, "Share revision");
+  }
+
+  if (await page.$(".exchange-row .chip-available")) {
+    await clickRowWithChip(page, "chip-available", ".exchange-primary-action");
+  }
+
+  if (await page.$(".exchange-row .chip-progress")) {
+    await clickExchangeCta(page, "Submit for review");
+  }
+
+  if (await page.$(".exchange-row .chip-review")) {
+    await clickRowWithChip(page, "chip-review", ".exchange-overflow-trigger");
+    await delay(100);
+    await page.evaluate(() => {
+      const row = [...document.querySelectorAll(".exchange-row")].find((r) => r.querySelector(".chip-review"));
+      [...(row?.querySelectorAll(".exchange-overflow-menu button") ?? [])]
+        .find((b) => b.textContent?.includes("Mark ready"))
+        ?.click();
+    });
+    await delay(200);
+  }
+
+  if (!(await page.$(".exchange-row .chip-ready"))) {
+    throw new Error("Failed to seed Ready clip via UI");
+  }
+  await clickRowWithChip(page, "chip-ready", ".exchange-row-head");
+}
+
+async function selectReadyExchangeRow(page) {
+  if (await page.$(".exchange-row .chip-ready")) {
+    await clickRowWithChip(page, "chip-ready", ".exchange-row-head");
+    return true;
+  }
+  const first = await page.$(".exchange-row");
+  if (first) {
+    await first.click();
+    await delay(100);
+    return true;
+  }
+  return false;
+}
+
 const dev = spawn("npm", ["run", "dev", "--", "--port", String(PORT), "--strictPort", "--host", "127.0.0.1"], {
   stdio: ["ignore", "pipe", "pipe"],
   shell: true,
@@ -48,22 +138,21 @@ const followBtn = await page.$(".follow-controls button");
 if (followBtn) await followBtn.click();
 await delay(200);
 
-await page.$$eval(".room-nav button", (buttons, i) => buttons[i].click(), 1);
-await delay(300);
+await clickRoomNav(page, 1);
 const followLocked = await page.evaluate(() => Boolean(document.querySelector(".follow-chip--locked")));
 
-await page.$$eval(".room-nav button", (buttons, i) => buttons[i].click(), 0);
-await delay(300);
-await page.click(".exchange-row[data-clip-id='c4']");
-await delay(200);
+await seedReadyClipViaUi(page);
+
+await clickRoomNav(page, 0);
+const selectedRow = await selectReadyExchangeRow(page);
+if (!selectedRow) throw new Error("No exchange row to select for stage test");
 
 const stageControls = await page.evaluate(() => ({
   stageButton: Boolean(document.querySelector(".arrangement-drop-target--empty .stage-btn")),
   activateOnlyGlobal: !document.querySelector(".room--participant .arrangement-drop-target"),
 }));
 
-await page.$$eval(".room-nav button", (buttons, i) => buttons[i].click(), 1);
-await delay(200);
+await clickRoomNav(page, 1);
 const noStageInParticipant = await page.evaluate(() => !document.querySelector(".arrangement-drop-target"));
 
 await browser.close();
@@ -81,6 +170,6 @@ console.log(JSON.stringify({
   stageControls,
   noStageInParticipant,
   pageErrors,
-  note: "Phase 3B.1 shell smoke — stage/activate Global-only",
+  note: "Phase 4 shell smoke — sparse exchange seeded via Share revision flow",
 }, null, 2));
 process.exit(ok ? 0 : 1);
