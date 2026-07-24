@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>EchLub Skeleton B — Global Studio (1440×900)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; font-family: system-ui, sans-serif; }
+    body { background: #0d0f14; color: #e8eaef; width: 1440px; height: 900px; overflow: hidden; }
+    .top { height: 48px; background: #151922; border-bottom: 1px solid #2a3142; display: flex; align-items: center; padding: 0 16px; gap: 16px; font-size: 13px; }
+    .top .brand { font-weight: 700; color: #7eb6ff; }
+    .top .pill { background: #1e2433; padding: 4px 10px; border-radius: 6px; border: 1px solid #3d4a66; }
+    .body { display: flex; height: calc(900px - 48px); }
+    .presence { width: 200px; background: #12161f; border-right: 1px solid #2a3142; padding: 12px; }
+    .presence h3 { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #8b93a7; margin-bottom: 12px; }
+    .person { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; padding: 8px; border-radius: 8px; background: #1a2030; }
+    .avatar { width: 28px; height: 28px; border-radius: 50%; }
+    .center { flex: 1; display: flex; flex-direction: column; padding: 12px; gap: 8px; }
+    .arrange { flex: 1; background: #141a26; border: 1px solid #2a3142; border-radius: 8px; padding: 16px; position: relative; }
+    .lane { height: 48px; background: #1c2433; border-radius: 6px; margin-bottom: 8px; border: 1px dashed #3d4f6e; display: flex; align-items: center; padding: 0 12px; font-size: 12px; color: #6b7894; }
+    .lane.active { border: 1px solid #4a9eff; color: #a8d4ff; }
+    .master { height: 72px; background: #1a2030; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 12px; }
+    .meter { flex: 1; height: 24px; background: linear-gradient(90deg, #2d6a4f 0%, #40916c 60%, #95d5b2 100%); border-radius: 4px; opacity: .7; }
+    .activity { height: 56px; background: #12161f; border-radius: 8px; padding: 8px 12px; font-size: 12px; color: #8b93a7; }
+    .exchange { width: 320px; background: #12161f; border-left: 1px solid #2a3142; padding: 12px; }
+    .exchange h3 { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: #8b93a7; margin-bottom: 12px; }
+    .row { background: #1a2030; border-radius: 8px; padding: 10px; margin-bottom: 8px; border-left: 3px solid #4a9eff; font-size: 12px; }
+    .row .state { color: #7eb6ff; font-size: 10px; text-transform: uppercase; }
+    .wave { height: 20px; background: repeating-linear-gradient(90deg, #3d5a80 0 2px, transparent 2px 6px); margin-top: 6px; border-radius: 2px; }
+    .anno { position: absolute; right: 12px; top: 12px; font-size: 10px; color: #6b7894; background: #0d0f14; padding: 4px 8px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div class="top">
+    <span class="brand">EchLub</span>
+    <span class="pill">Global Studio</span>
+    <span class="pill">Follow ○</span>
+    <span style="flex:1"></span>
+    <span class="pill">▶ bar 1.1.1</span>
+    <span class="pill">Master</span>
+    <span class="pill">Bleed: Low</span>
+  </div>
+  <div class="body">
+    <aside class="presence">
+      <h3>Presence</h3>
+      <div class="person"><div class="avatar" style="background:#e76f51"></div><div><div>Alex</div><div style="font-size:10px;color:#8b93a7">MIDI · idle</div></div></div>
+      <div class="person"><div class="avatar" style="background:#2a9d8f"></div><div><div>Jordan</div><div style="font-size:10px;color:#8b93a7">Devices · active</div></div></div>
+      <div class="person"><div class="avatar" style="background:#e9c46a"></div><div><div>Sam</div><div style="font-size:10px;color:#8b93a7">Mix · idle</div></div></div>
+    </aside>
+    <main class="center">
+      <div class="arrange">
+        <div class="anno">55% center — arrangement</div>
+        <div class="lane">Empty slot — drag from Exchange to stage</div>
+        <div class="lane active">pulse-r2 · staged · Jordan</div>
+        <div class="lane">Empty slot</div>
+      </div>
+      <div class="master"><span style="font-size:11px;width:80px">Shared Master</span><div class="meter"></div></div>
+      <div class="activity">Jordan forked pulse-r2 · Ready for Review → Alex revising</div>
+    </main>
+    <aside class="exchange">
+      <h3>Shared Clip Exchange</h3>
+      <div class="row"><div class="state">Shared → Forked</div><div>pulse-r1 → pulse-r2</div><div class="wave"></div></div>
+      <div class="row"><div class="state">In Progress</div><div>melody-draft · Sam</div><div class="wave"></div></div>
+    </aside>
+  </div>
+</body>
+</html>

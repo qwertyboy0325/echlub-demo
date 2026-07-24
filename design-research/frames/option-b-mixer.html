@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>EchLub Skeleton B — Mixer Performance (1440×900)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; font-family: system-ui, sans-serif; }
+    body { background: #0d0f14; color: #e8eaef; width: 1440px; height: 900px; overflow: hidden; }
+    .top { height: 48px; background: #151922; border-bottom: 1px solid #2a3142; display: flex; align-items: center; padding: 0 16px; gap: 12px; font-size: 13px; }
+    .body { display: flex; height: calc(900px - 48px); }
+    .presence { width: 200px; background: #12161f; border-right: 1px solid #2a3142; }
+    .center { flex: 1; display: flex; flex-direction: column; padding: 8px; gap: 8px; }
+    .channels { height: 38%; background: #141a26; border-radius: 8px; display: flex; gap: 8px; padding: 12px; align-items: flex-end; }
+    .ch { width: 64px; background: #1a2030; border-radius: 6px; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 8px; gap: 4px; }
+    .fader { width: 8px; height: 60%; background: linear-gradient(#2a9d8f, #1a5c54); border-radius: 4px; }
+    .meter { width: 4px; height: 40%; background: #40916c; }
+    .dock { flex: 1; background: #141a26; border-radius: 8px; padding: 16px; }
+    .dock h3 { font-size: 11px; text-transform: uppercase; color: #8b93a7; margin-bottom: 12px; }
+    .slots { display: grid; grid-template-columns: repeat(8, 1fr); gap: 12px; height: calc(100% - 32px); }
+    .slot { background: #1a2030; border-radius: 12px; border: 2px solid #3d4a66; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+    .slot.master { border-color: #4a9eff; }
+    .knob { width: 56px; height: 56px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #4a5568, #1a2030); border: 3px solid #5a6a8a; }
+    .lbl { font-size: 10px; color: #8b93a7; }
+    .badges { display: flex; gap: 8px; margin-top: 8px; font-size: 10px; }
+    .badge { padding: 4px 8px; border-radius: 4px; background: #1e3a5f; color: #a8d4ff; }
+    .exchange { width: 320px; background: #12161f; border-left: 1px solid #2a3142; }
+  </style>
+</head>
+<body>
+  <div class="top">
+    <span style="color:#7eb6ff;font-weight:700">EchLub</span>
+    <span>Sam · Mixer / Performance</span>
+    <span style="margin-left:auto" class="badge">▶ LIVE</span>
+  </div>
+  <div class="body">
+    <aside class="presence"></aside>
+    <main class="center">
+      <div class="channels">
+        <div class="ch"><div class="meter"></div><div class="fader"></div><span class="lbl">Kick</span></div>
+        <div class="ch"><div class="meter"></div><div class="fader"></div><span class="lbl">Bass</span></div>
+        <div class="ch"><div class="meter"></div><div class="fader"></div><span class="lbl">Lead</span></div>
+        <div class="ch"><div class="meter"></div><div class="fader"></div><span class="lbl">FX</span></div>
+      </div>
+      <div class="dock">
+        <h3>Live Control Dock — 8 slots</h3>
+        <div class="slots">
+          <div class="slot master"><div class="knob"></div><span class="lbl">Filter</span><span class="lbl">MASTER</span></div>
+          <div class="slot"><div class="knob"></div><span class="lbl">Delay</span></div>
+          <div class="slot"><div class="knob" style="height:80px;width:24px;border-radius:4px"></div><span class="lbl">Reverb</span></div>
+          <div class="slot"><div class="knob" style="height:80px;width:24px;border-radius:4px"></div><span class="lbl">Level</span></div>
+          <div class="slot"><div style="width:40px;height:24px;background:#2a9d8f;border-radius:4px"></div><span class="lbl">Mute</span></div>
+          <div class="slot"><div style="width:48px;height:48px;background:#3d4a66;border-radius:8px"></div><span class="lbl">Trigger</span></div>
+          <div class="slot empty" style="border-style:dashed;opacity:.5"><span class="lbl">Drop param</span></div>
+          <div class="slot empty" style="border-style:dashed;opacity:.5"><span class="lbl">Drop param</span></div>
+        </div>
+        <div class="badges"><span class="badge">PREVIEW</span><span class="badge">CAPTURE</span><span class="badge">MASTER</span></div>
+      </div>
+    </main>
+    <aside class="exchange"></aside>
+  </div>
+</body>
+</html>
