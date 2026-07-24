@@ -60,7 +60,7 @@ await page.$$eval(".room-nav button", (buttons, i) => buttons[i].click(), 1);
 await delay(400);
 const participant = await page.evaluate(() => ({
   participantRoom: Boolean(document.querySelector(".room--participant")),
-  tabCount: document.querySelectorAll(".participant-tabs button").length,
+  tabCount: document.querySelectorAll(".participant-tabs [role='tab']").length,
 }));
 
 await page.$$eval(".room-nav button", (buttons, i) => buttons[i].click(), 2);

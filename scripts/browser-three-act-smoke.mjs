@@ -50,7 +50,7 @@ await delay(200);
 
 await page.$$eval(".room-nav button", (buttons, i) => buttons[i].click(), 1);
 await delay(300);
-const followLocked = await page.evaluate(() => document.body.innerText.includes("Follow locked"));
+const followLocked = await page.evaluate(() => Boolean(document.querySelector(".follow-chip--locked")));
 
 await page.$$eval(".room-nav button", (buttons, i) => buttons[i].click(), 0);
 await delay(300);

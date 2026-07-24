@@ -39,6 +39,14 @@ async function clickNav(page, index) {
   await page.$$eval(".room-nav button", (buttons, i) => buttons[i].click(), index);
 }
 
+async function clickParticipantTab(page, label) {
+  await page.$$eval(".participant-tabs [role='tab']", (tabs, text) => {
+    for (const t of tabs) {
+      if (t.textContent?.trim() === text) t.click();
+    }
+  }, label);
+}
+
 function runFfmpeg(args) {
   return new Promise((resolve, reject) => {
     const proc = spawn("ffmpeg", args, { stdio: "pipe" });
@@ -128,9 +136,18 @@ try {
   await pause(500, 4000);
   await page.screenshot({ path: join(OUT, "participant-create-1440.png") });
 
+  await clickParticipantTab(page, "Devices");
+  await pause(500, 4000);
+  await page.screenshot({ path: join(OUT, "participant-devices-1440.png") });
+
   await clickNav(page, 2);
   await pause(500, 4000);
   await page.screenshot({ path: join(OUT, "mixer-dock-1440.png") });
+  await page.screenshot({ path: join(OUT, "dock-8-slots-1440.png") });
+
+  await clickNav(page, 0);
+  await pause(400, 3000);
+  await page.screenshot({ path: join(OUT, "lifecycle-states-1440.png") });
 
   await page.setViewport({ width: 1280, height: 720 });
   await clickNav(page, 0);
@@ -164,6 +181,15 @@ try {
   if (stageBtn) await stageBtn.click();
   await pause(200, 5000);
   await page.screenshot({ path: join(OUT, "stage-activate-global-only.png") });
+
+  await page.$$eval(".arrangement-lane", (lanes) => {
+    for (const lane of lanes) {
+      const btn = lane.querySelector("button");
+      if (btn?.textContent?.includes("Activate")) btn.click();
+    }
+  });
+  await pause(300, 4000);
+  await page.screenshot({ path: join(OUT, "preview-vs-active-1440.png") });
 
   await clickNav(page, 1);
   await pause(300, 3000);
