@@ -1,5 +1,5 @@
 import puppeteer from "puppeteer-core";
-import { mkdirSync } from "fs";
+import { mkdirSync, writeFileSync, rmSync, readdirSync } from "fs";
 import { join } from "path";
 import { spawn } from "child_process";
 
@@ -8,6 +8,12 @@ const CHROME = process.env.CHROME_PATH ?? "/Applications/Google Chrome.app/Conte
 const PORT = Number(process.env.ECHLUB_SHELL_PORT ?? 4178);
 const BASE_PATH = process.env.ECHLUB_SHELL_BASE ?? "/echlub-demo/";
 const BASE = `http://127.0.0.1:${PORT}${BASE_PATH.replace(/\/$/, "")}/`;
+const RECORD = process.env.ECHLUB_SHELL_RECORD === "1";
+const RECORD_OUT = join(OUT, "shell-walkthrough.webm");
+const FRAMES_DIR = join(OUT, ".screencast-frames");
+const ERROR_LOG = join(OUT, "capture-console-errors.json");
+const FRAME_INTERVAL_MS = 250;
+const FRAME_FPS = 4;
 
 mkdirSync(OUT, { recursive: true });
 
@@ -33,11 +39,65 @@ async function clickNav(page, index) {
   await page.$$eval(".room-nav button", (buttons, i) => buttons[i].click(), index);
 }
 
+function runFfmpeg(args) {
+  return new Promise((resolve, reject) => {
+    const proc = spawn("ffmpeg", args, { stdio: "pipe" });
+    let stderr = "";
+    proc.stderr.on("data", (chunk) => { stderr += chunk; });
+    proc.on("close", (code) => {
+      if (code === 0) resolve();
+      else reject(new Error(`ffmpeg exit ${code}: ${stderr.slice(-400)}`));
+    });
+  });
+}
+
+function createFrameRecorder(page) {
+  rmSync(FRAMES_DIR, { recursive: true, force: true });
+  mkdirSync(FRAMES_DIR, { recursive: true });
+  let frameIndex = 0;
+
+  return async function captureFrame() {
+    const path = join(FRAMES_DIR, `frame-${String(frameIndex++).padStart(5, "0")}.jpg`);
+    await page.screenshot({ path, type: "jpeg", quality: 82 });
+  };
+}
+
+async function hold(page, captureFrame, shotMs, recordMs) {
+  if (!RECORD) {
+    await wait(shotMs);
+    return;
+  }
+  const end = Date.now() + recordMs;
+  while (Date.now() < end) {
+    await captureFrame();
+    await wait(FRAME_INTERVAL_MS);
+  }
+}
+
+async function encodeScreencast(frameCount) {
+  if (frameCount < 8) {
+    throw new Error(`Walkthrough recording produced too few frames: ${frameCount}`);
+  }
+  await runFfmpeg([
+    "-y",
+    "-framerate", String(FRAME_FPS),
+    "-i", join(FRAMES_DIR, "frame-%05d.jpg"),
+    "-frames:v", String(frameCount),
+    "-c:v", "libvpx-vp9",
+    "-pix_fmt", "yuv420p",
+    "-b:v", "1M",
+    RECORD_OUT,
+  ]);
+  rmSync(FRAMES_DIR, { recursive: true, force: true });
+}
+
 const preview = spawn("npm", ["run", "preview", "--", "--host", "127.0.0.1", "--port", String(PORT)], {
   cwd: process.cwd(),
   stdio: "pipe",
   shell: true,
 });
+
+const captureMeta = { recording: false, recordingError: null, frameCount: 0, durationTargetSec: "30-90" };
 
 try {
   await waitForServer(BASE);
@@ -50,62 +110,86 @@ try {
   });
   const page = await browser.newPage();
   const errors = [];
-  page.on("pageerror", (e) => errors.push(e.message));
-  page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
+  page.on("pageerror", (e) => errors.push({ type: "pageerror", message: e.message }));
+  page.on("console", (m) => {
+    if (m.type() === "error") errors.push({ type: "console", message: m.text() });
+  });
+
+  const captureFrame = RECORD ? createFrameRecorder(page) : null;
+  const pause = (shotMs, recordMs) => hold(page, captureFrame, shotMs, recordMs);
 
   await page.goto(BASE, { waitUntil: "networkidle0", timeout: 30000 });
   await page.waitForSelector(".app-root");
+  if (captureFrame) await captureFrame();
+  await pause(500, 4000);
   await page.screenshot({ path: join(OUT, "global-studio-1440.png") });
 
   await clickNav(page, 1);
-  await wait(500);
+  await pause(500, 4000);
   await page.screenshot({ path: join(OUT, "participant-create-1440.png") });
 
   await clickNav(page, 2);
-  await wait(500);
+  await pause(500, 4000);
   await page.screenshot({ path: join(OUT, "mixer-dock-1440.png") });
 
   await page.setViewport({ width: 1280, height: 720 });
   await clickNav(page, 0);
-  await wait(400);
+  await pause(400, 3500);
   await page.screenshot({ path: join(OUT, "global-studio-1280x720.png") });
 
   const toggle = await page.$(".exchange-toggle");
   if (toggle) {
     await toggle.click();
-    await wait(300);
+    await pause(300, 5000);
     await page.screenshot({ path: join(OUT, "exchange-drawer-1280.png") });
   }
 
   await page.setViewport({ width: 1440, height: 900 });
   const followBtn = await page.$(".follow-controls button");
   if (followBtn) await followBtn.click();
-  await wait(200);
+  await pause(200, 3000);
   await clickNav(page, 1);
-  await wait(300);
+  await pause(300, 5000);
   await page.screenshot({ path: join(OUT, "follow-lock-sequence.png") });
 
   await clickNav(page, 0);
-  await wait(300);
+  await pause(300, 3000);
   await page.$$eval(".exchange-actions button", (buttons) => {
     for (const b of buttons) {
       if (b.textContent === "Ready") b.click();
     }
   });
-  await wait(200);
+  await pause(200, 2500);
   const stageBtn = await page.$(".arrangement-lane button");
   if (stageBtn) await stageBtn.click();
-  await wait(200);
+  await pause(200, 5000);
   await page.screenshot({ path: join(OUT, "stage-activate-global-only.png") });
 
   await clickNav(page, 1);
-  await wait(300);
+  await pause(300, 3000);
   await clickNav(page, 2);
-  await wait(300);
+  await pause(300, 3000);
   await clickNav(page, 0);
+  await pause(300, 4000);
   await page.screenshot({ path: join(OUT, "shell-walkthrough-end.png") });
 
+  if (captureFrame) {
+    const count = readdirSync(FRAMES_DIR).filter((f) => f.startsWith("frame-") && f.endsWith(".jpg")).length;
+    captureMeta.frameCount = count;
+    try {
+      await encodeScreencast(count);
+      captureMeta.recording = true;
+      captureMeta.durationSec = Math.round(count / FRAME_FPS);
+      console.log(`Recording saved: ${RECORD_OUT} (${count} frames, ~${captureMeta.durationSec}s)`);
+    } catch (e) {
+      captureMeta.recordingError = e.message;
+      console.warn("Recording encode failed:", e.message);
+    }
+  }
+
   await browser.close();
+
+  writeFileSync(ERROR_LOG, JSON.stringify({ errors, captureMeta }, null, 2));
 
   if (errors.length) console.warn("Console errors:", errors.slice(0, 8));
   console.log(`Shell evidence captured in ${OUT}`);
