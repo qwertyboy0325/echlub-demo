@@ -49,10 +49,7 @@ export function CreateEditor({ state, dispatch }: CreateEditorProps) {
           <button
             type="button"
             className="primary-btn"
-            onClick={() => {
-              dispatch({ type: "PREVIEW_WORKSPACE", draftId });
-              dispatch({ type: "INSERT_NOTE", draftId, noteIndex: 0 });
-            }}
+            onClick={() => dispatch({ type: "PREVIEW_WORKSPACE", draftId })}
           >
             Preview clip
           </button>

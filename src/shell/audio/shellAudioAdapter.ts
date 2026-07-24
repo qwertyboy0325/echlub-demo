@@ -1,6 +1,6 @@
 import * as Tone from "tone";
 import { AudioEngine } from "../../audioEngine";
-import { materialRefForDraft, type MaterialRef } from "../../domain/sessionMaterialBank";
+import { materialRefForDraft } from "../../domain/sessionMaterialBank";
 import { compileSessionMaterialBank } from "../../domain/sessionMaterialBank";
 import type { MixParams } from "../../types";
 import { musicalDomain, type MusicalDomainStore } from "../domain/musicalDomain";
@@ -20,6 +20,7 @@ function publicPackUrl(): string {
 export interface ShellAudioAdapterEvidence {
   packSha256?: string;
   packLoaded: boolean;
+  audioReady: boolean;
   transportState: string;
   cueActive: boolean;
   activeMasterDraftId: string | null;
@@ -30,10 +31,14 @@ export class ShellAudioAdapter {
   private engine: AudioEngine | null = null;
   private initialized = false;
   private initToken: { cancelled: boolean } | null = null;
+  private initPromise: Promise<void> | null = null;
   private unsubscribe: (() => void) | null = null;
   private lastTransportPlaying = false;
+  private pendingPreviewDraftId: string | null = null;
+  private readyListeners = new Set<() => void>();
   readonly evidence: ShellAudioAdapterEvidence = {
     packLoaded: false,
+    audioReady: false,
     transportState: "stopped",
     cueActive: false,
     activeMasterDraftId: null,
@@ -42,7 +47,28 @@ export class ShellAudioAdapter {
 
   constructor(private readonly domain: MusicalDomainStore = musicalDomain) {}
 
-  async initialize(): Promise<void> {
+  isAudioReady(): boolean {
+    return this.evidence.audioReady;
+  }
+
+  subscribeReady(listener: () => void): () => void {
+    this.readyListeners.add(listener);
+    return () => this.readyListeners.delete(listener);
+  }
+
+  initialize(): Promise<void> {
+    if (this.initialized && this.engine) {
+      this.syncTransportFromStore();
+      return Promise.resolve();
+    }
+    if (this.initPromise) return this.initPromise;
+    this.initPromise = this.initializeInternal().finally(() => {
+      this.initPromise = null;
+    });
+    return this.initPromise;
+  }
+
+  private async initializeInternal(): Promise<void> {
     if (this.initialized) return;
     const token = { cancelled: false };
     if (this.initToken) this.initToken.cancelled = true;
@@ -53,6 +79,8 @@ export class ShellAudioAdapter {
     const json = await response.text();
     if (token.cancelled) return;
     const pack = this.domain.loadPackJson(json);
+    this.evidence.packLoaded = true;
+    this.notifyReady();
     const engine = new AudioEngine({
       onStep: (bar, beat, sixteenth) => {
         shellStore.dispatch({
@@ -72,7 +100,7 @@ export class ShellAudioAdapter {
       },
     });
     if (token.cancelled) {
-      engine.stop();
+      engine.dispose();
       return;
     }
     engine.setSoundDesign(pack.soundDesign);
@@ -80,29 +108,52 @@ export class ShellAudioAdapter {
     engine.setTempoMap(pack.tempoMap);
     engine.setTotalBars(pack.arrangement.totalBars);
     if (token.cancelled) {
-      engine.stop();
+      engine.dispose();
       return;
     }
     await engine.initialize();
     if (token.cancelled) {
-      engine.stop();
+      engine.dispose();
       return;
     }
     this.engine = engine;
     this.publishBank("production");
     this.unsubscribe = shellStore.subscribe((state) => this.onShellState(state));
     this.initialized = true;
-    this.evidence.packLoaded = true;
+    this.evidence.audioReady = true;
+    this.syncTransportFromStore();
+    this.notifyReady();
+    if (import.meta.env.DEV) {
+      console.info("[shell-audio] ready · pack loaded · engine initialized");
+      exposeDevAudioDiagnostics(this);
+    }
+    const pending = this.pendingPreviewDraftId;
+    this.pendingPreviewDraftId = null;
+    if (pending) void this.playPreviewDraft(pending);
   }
 
   dispose(): void {
     if (this.initToken) this.initToken.cancelled = true;
+    this.initToken = null;
+    this.initPromise = null;
     this.unsubscribe?.();
     this.unsubscribe = null;
-    this.engine?.stop();
+    this.engine?.dispose();
     this.engine = null;
     this.initialized = false;
+    this.lastTransportPlaying = false;
+    this.pendingPreviewDraftId = null;
     this.evidence.packLoaded = false;
+    this.evidence.audioReady = false;
+    this.notifyReady();
+  }
+
+  private syncTransportFromStore(): void {
+    const { transportPlaying } = shellStore.getState();
+    this.lastTransportPlaying = transportPlaying;
+    if (transportPlaying) {
+      void this.handleTransportToggle(true);
+    }
   }
 
   getEngine(): AudioEngine | null {
@@ -123,6 +174,7 @@ export class ShellAudioAdapter {
 
   private async handleTransportToggle(playing: boolean): Promise<void> {
     if (!this.engine) return;
+    void Tone.start();
     await Tone.start();
     if (playing) {
       if (this.domain.getAuthority() === "shared-master") {
@@ -136,6 +188,14 @@ export class ShellAudioAdapter {
   }
 
   handleCommand(command: ShellCommand, before: ShellState, after: ShellState): void {
+    if (command.type === "PREVIEW_WORKSPACE") {
+      if (!this.engine) {
+        this.pendingPreviewDraftId = command.draftId;
+        return;
+      }
+      this.previewDraft(command.draftId);
+      return;
+    }
     if (!this.engine) return;
     switch (command.type) {
       case "EDIT_NOTE_STEP":
@@ -196,9 +256,6 @@ export class ShellAudioAdapter {
         this.domain.restart();
         this.publishBank("production");
         break;
-      case "PREVIEW_WORKSPACE":
-        this.previewDraft(command.draftId);
-        break;
       default:
         break;
     }
@@ -208,21 +265,39 @@ export class ShellAudioAdapter {
     if (!result || !this.engine) return;
     this.publishBank(this.domain.getAuthority() === "shared-master" ? "livePerformance" : "production");
     const draft = this.domain.draftForId(result.draftId);
-    if (draft) this.startPrivateCueAfterAudioUnlock(materialRefForDraft(draft));
+    if (draft) {
+      void Tone.start();
+      void this.playDraftCue(draft.id);
+    }
+  }
+
+  private async playDraftCue(draftId: string): Promise<void> {
+    await Tone.start();
+    if (!this.engine) return;
+    this.publishBank(this.domain.getAuthority() === "shared-master" ? "livePerformance" : "production");
+    const draft = this.domain.draftForId(draftId);
+    if (draft) this.engine.startPrivateCue(materialRefForDraft(draft));
   }
 
   previewDraft(draftId: string): void {
-    if (!this.engine) return;
+    void Tone.start();
+    void this.playPreviewDraft(draftId);
+  }
+
+  private async playPreviewDraft(draftId: string): Promise<void> {
+    await Tone.start();
+    if (!this.engine) {
+      this.pendingPreviewDraftId = draftId;
+      return;
+    }
     const draft = this.domain.draftForId(draftId);
     if (!draft) return;
     this.publishBank("production");
-    this.startPrivateCueAfterAudioUnlock(materialRefForDraft(draft));
+    this.engine.startPrivateCue(materialRefForDraft(draft));
   }
 
-  private startPrivateCueAfterAudioUnlock(materialRef: MaterialRef): void {
-    void Tone.start().then(() => {
-      this.engine?.startPrivateCue(materialRef);
-    });
+  private notifyReady(): void {
+    this.readyListeners.forEach((listener) => listener());
   }
 
   private publishBank(act: "production" | "livePerformance"): void {
@@ -271,5 +346,24 @@ export function installShellAudioDispatchBridge(): () => void {
   };
   return () => {
     shellStore.dispatch = original;
+  };
+}
+
+function exposeDevAudioDiagnostics(adapter: ShellAudioAdapter): void {
+  if (typeof window === "undefined") return;
+  const globalWindow = window as typeof window & {
+    __shellAudioEvidence?: () => Record<string, unknown>;
+  };
+  globalWindow.__shellAudioEvidence = () => {
+    const engine = adapter.getEngine();
+    return {
+      ...adapter.evidence,
+      engineExists: Boolean(engine),
+      cueActive: engine?.isCueActive() ?? false,
+      cueNoteCount: engine?.getCueNoteCount() ?? 0,
+      cueScheduleCount: engine?.getCueScheduleCount() ?? 0,
+      toneContextState: Tone.context.state,
+      toneTransportState: Tone.getTransport().state,
+    };
   };
 }

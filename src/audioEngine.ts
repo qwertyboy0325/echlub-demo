@@ -268,7 +268,8 @@ export class AudioEngine {
   private async initializeOnce(): Promise<void> {
     // Larger render buffer must be requested before any node exists.
     configurePlaybackAudioContext();
-    await Tone.start();
+    // Do not await Tone.start() here — browsers block AudioContext resume without
+    // a user gesture. Shell playback paths call Tone.start() on the click gesture.
 
     const initMix = this.baselineMix ?? this.currentMix;
     this.graph = createMasterAudioGraph({

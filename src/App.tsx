@@ -8,13 +8,14 @@ import { installShellAudioDispatchBridge, shellAudioAdapter } from "./shell/audi
 import { FocusShell } from "./shell/FocusShell";
 import { useShellStore } from "./shell/useShellStore";
 import { useViewportMode } from "./shell/useViewportMode";
-import { useMusicalDomainReady } from "./shell/useMusicalDraft";
+import { useMusicalDomainReady, useShellAudioReady } from "./shell/useMusicalDraft";
 
 export function App() {
   const [state, dispatch] = useShellStore();
   const viewport = useViewportMode();
   const compact = viewport === "compact";
   const musicalReady = useMusicalDomainReady();
+  const audioReady = useShellAudioReady();
   const [packError, setPackError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -29,7 +30,6 @@ export function App() {
     return () => {
       cancelled = true;
       uninstallBridge();
-      shellAudioAdapter.dispose();
       setPackError(null);
     };
   }, []);
@@ -54,7 +54,7 @@ export function App() {
         <span className="tabular-nums">
           Shared transport · bar {state.transportBar}:{state.transportBeat}
           {state.activeMasterDraftId ? ` · master: ${state.activeMasterDraftId}` : ""}
-          {!musicalReady ? " · loading pack…" : ""}
+          {!musicalReady ? " · loading pack…" : !audioReady ? " · preparing audio…" : " · audio ready"}
         </span>
         <button type="button" onClick={() => dispatch({ type: "RESTART_SESSION" })}>
           Restart
