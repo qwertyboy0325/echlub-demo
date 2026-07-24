@@ -18,13 +18,23 @@
 | Distance from rejected dashboard | High | **Highest** | Medium |
 | Implementation risk | Transition UX | Shell integration | Width math |
 | Library fit | dockview booths | **dockview + rails** | interact kanban |
-| **Recommendation** | Alternate | **Primary** | Alternate |
+| **Recommendation** | Alternate | **Grok + prior** | Alternate |
 
-★ = Sol + Grok convergent recommendation (with Grok caveats on collapse + row visuals)
+### Researcher picks (see `strong-model-synthesis.md`)
+
+| Researcher | Pick | Notes |
+|------------|------|-------|
+| Grok | **Focus Shell / Arrangement Hub** (≈ B) | Kill list + 1280×720 collapse rules |
+| Sol | **Three Rooms** (≠ repo Stage Booths A) | Route-owned 100% viewport; prefers React |
+| Prior orchestrator | **Focus Shell (B)** | vanilla TS |
+
+**Naming:** repo Option A = Stage & Booths. Sol "Option A" = Three Rooms — different designs.
 
 ## Owner selection
 
-- [ ] **Option A** — accept teleport UX
-- [ ] **Option B** — recommended
-- [ ] **Option C** — accept 1280×720 weakness
+- [ ] **Focus Shell (B)** — Grok-aligned; persistent rails
+- [ ] **Three Rooms (Sol)** — explicit Global \| Participant \| Mixer routes
+- [ ] **Stage & Booths** — repo Option A; teleport
+- [ ] **Dual Canvas (C)** — 50/50 split
+- [ ] **Framework:** vanilla | react
 - [ ] Hybrid (specify): _______________

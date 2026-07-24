@@ -1,103 +1,78 @@
-# Recommended Skeleton — Option B: Exchange-Anchored Focus Shell
+# Recommended Skeleton — Owner Gate (Split Researcher Verdict)
 
-## Recommendation
+**Do not treat this as closed.** Sol and Grok did not fully converge. See `design-research/strong-model-synthesis.md`.
 
-**Adopt Skeleton Option B** for Phase 3A browser shell implementation.
+---
 
-## Why B over A and C
+## Researcher positions
 
-| Criterion | A Stage&Booths | **B Focus Shell** | C Dual Canvas |
-|-----------|----------------|-------------------|---------------|
-| Full-size editor | Yes (in booth) | **Yes (center)** | Yes (half) |
-| Exchange visibility | Good | **Always on** | Good |
-| Presenter spatial memory | Low (teleport) | **High (persistent rails)** | Medium |
-| Arrangement prominence | High | **High (center global)** | Medium (half) |
-| Mixer dock size | Good in booth | **Excellent (45% height)** | Cramped |
-| 1280×720 survivability | Good | **Good (collapsible exchange)** | Poor |
-| Distance from rejected dashboard | High | **Highest** | Medium |
+| Researcher | Skeleton | Framework |
+|------------|----------|-----------|
+| [Grok product critique](c6e4ee43-3e1d-4c9e-84e6-878c91a3b516) | **Arrangement Hub + Full Workspace** (≈ repo Option B Focus Shell) | (not specified) |
+| [Sol framework/library research](4402ecad-84a2-4e65-a86b-73a0a5e91d11) | **Three Rooms** (explicit Global \| Participant \| Mixer routes) | **Vite + React** |
+| Prior orchestrator | **Option B — Exchange-Anchored Focus Shell** | **Vite + vanilla TS** |
 
-## Why it no longer resembles rejected dashboard
+### Naming warning
 
-- Rejected: grid of 7 miniature workspaces + story panel
-- B: **one** primary center surface + fixed Exchange rail
-- No scene cards, no guided focus, no simultaneous mini editors
+Sol's "Option A = Three Rooms" ≠ repo `skeleton-option-a.md` (Stage & Booths). Use descriptive names at approval.
 
-## Screen-space justification
+---
 
-| Area | Allocation | Purpose |
-|------|------------|---------|
-| Center | 55% width × 45–65% height | Arrangement or primary editor — deserves dominance |
-| Exchange rail | 25% width | Collaboration anchor — always visible |
-| Presence rail | 200px / 14% | Figma-like who + task |
-| Transport | 48px | Musical position — never competes with editors |
-| Live Control Dock | 45% height in Mixer mode | Performance credibility |
+## Option B — Exchange-Anchored Focus Shell (Grok-aligned / prior pick)
 
-## Presenter switching
+Persistent left presence rail + center primary surface + right Exchange rail. Same shell in Global and Participant; center morphs.
 
-```text
-Global     → center = arrangement + master scope
-Participant→ center = editor tabs; rails unchanged
-Follow     → highlights active participant in presence rail; optional auto-scroll Exchange
-```
+**Choose if:** collaboration visibility during editing is paramount; presenter needs spatial memory without route teleport.
 
-Viewpoint change = CSS projection swap on center panel group only. Domain state untouched.
+**Grok pass conditions (mandatory if B):**
+- Exchange rows: waveform thumb + author color; max **4** visible lifecycle chips
+- Max **5** editor tabs; overflow for rare modes
+- **1280×720:** Exchange → drawer; presence → icons; Dock 6-slot compact
+- Follow Active: manual lock + banner
+- Single home for Stage/Activate (Exchange → Arrangement, not dual controls)
 
-## Shared Clip Exchange workflow
+Details: `design-research/skeleton-option-b.md`
 
-1. Creator shares from Participant → row appears in Exchange
-2. Contributor claims → fork created, lineage shown
-3. Review/revise loops update row state chip
-4. Drag to arrangement → staged slot (non-destructive)
-5. Human activate → Shared Master consumes clip
+---
 
-## Human arrangement replaces scenes
+## Option A (Sol) — Three Rooms
 
-- Timeline shows clip slots, not "Entry" / "Return A" labels
-- Activation is click/Launch on staged slot
-- Pack scene boundaries drive timing internally at Phase 4
+Explicit top-level routes: `Global | Participant: [name] | Mixer`. Each route owns **100% viewport**. Exchange as rail/tray, not center spine. CSS Grid first; Dockview inside workspaces only.
 
-## Live Control Dock during playback
+**Choose if:** editor width is non-negotiable; route clarity beats persistent tri-pane shell.
 
-- Enter Mixer workspace preset for any participant
-- 8 slots visible without scroll at 1440×900
-- Drag filter cutoff from Devices → slot 1; turn knob → master graph updates
-- Badge: `PREVIEW` | `CAPTURE` | `MASTER` per slot
+**Sol conditions if adopted:**
+- React + external domain event store
+- Tone/audio injected service; transport ticks outside React render tree
+- @dnd-kit for Exchange reorder; interact.js for timeline only
 
-## Library support
+Sol does **not** map to repo Stage & Booths teleport model.
 
-| Surface | Library |
-|---------|---------|
-| Shell tabs | dockview |
-| Exchange → timeline drag | interact.js |
-| Queue ordering | sortablejs |
-| Inspector popover | @floating-ui/dom |
-| Piano roll | canvas custom |
-| Dock controls | custom web components |
+---
 
-## Custom semantics (not from libraries)
+## Orchestrator provisional guidance
 
-- Clip lifecycle states
-- Fork/claim/review vocabulary
-- Shared Master vs Bleed vs Preview
-- Presenter projection model
+| Owner priority | Suggested pick |
+|----------------|----------------|
+| Minimize migration / fastest shell | **Focus Shell + vanilla TS** |
+| Max a11y/component ecosystem | **Three Rooms + React** (Sol) |
+| Strongest anti-dashboard guarantee | **Three Rooms** (either framework) — structurally one workspace visible |
 
-## Sol synthesis (accepted)
+---
 
-- Framework: Vite + vanilla TS
-- Docking: dockview v7 vanilla package
-- Defer XState until exchange edge cases demand it
+## Why neither resembles rejected dashboard
 
-## Grok critique (accepted findings)
+- One full-size primary surface per mode
+- No simultaneous miniature DAW cards
+- No story beats / scene tour UI
+- Exchange shows artifacts, not narration
 
-- **Risk:** Exchange rail at 25% may feel like "sidebar CRM" if rows are text-heavy → mitigate with waveform thumbs and color state chips
-- **Risk:** Persistent rails reduce editor width → at 1280×720 collapse Exchange to overlay drawer
-- **Valid:** Kanban (Option C) risks project-management aesthetic — rejected for demo
-- **Valid:** Teleport (Option A) risks presenter disorientation during recording
-
-## Grok critique (rejected)
-
-- "Remove Exchange from Participant view" — rejected; Exchange must remain visible during personal work to show collaboration continuity (filtered to relevant rows)
+---
 
 ## Owner decision required
 
-Approve **Option B** as skeleton for Phase 3A shell, or select A/C with stated tradeoff acceptance.
+1. **Skeleton:** `focus-shell` | `three-rooms` | `stage-booths` | `dual-canvas`
+2. **Framework:** `vanilla` | `react` (coupled decision if Three Rooms + Sol stack)
+3. **Accept Grok lifecycle/collapse rules** (yes/no)
+
+**No Phase 3A until explicit approval on all three.**

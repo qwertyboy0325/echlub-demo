@@ -72,7 +72,16 @@ interface DockSlotState {
 
 `SceneDefinition` from public pack → maps to arrangement boundaries and mix snapshots. No `Scene` label in UI.
 
-## Restart
+## Domain events (Sol — accepted for Phase 3+)
 
-Clears: queue, staged clips, preview, dock capture mode, presenter follow override.
-Preserves: participant list, pack material bank, task profile definitions.
+UI and commands dispatch facts; reducers project views. Tone callbacks append boundary-execution facts only.
+
+```
+ClipRevisionCreated | ClipPreviewStarted | ClipOffered | ClipAccepted
+PlacementQueued | PlacementCommittedAtBoundary | MixControlChanged
+ControlPinned | ParticipantTaskProfileChanged
+```
+
+XState reserved for: audio permission, MIDI connection, export jobs — not per-clip actors.
+
+See `design-research/strong-model-synthesis.md`.

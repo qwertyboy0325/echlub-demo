@@ -1,6 +1,6 @@
 # Grok Independent Critique — Cold Viewer Analysis
 
-*Role: Grok 4.5 High — product critic. Independent of implementation.*
+*Role: Grok 4.5 High — product critic. Full output: [Grok product critique](c6e4ee43-3e1d-4c9e-84e6-878c91a3b516). Reconciled in `strong-model-synthesis.md`.*
 
 ## Patterns that MUST NOT survive
 

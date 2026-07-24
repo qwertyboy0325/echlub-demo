@@ -16,31 +16,45 @@
 | Accessibility | Manual on custom controls | Radix/shadcn available | Limited audio UI libs |
 | Composer/subagent reliability | **Matches existing codebase** | More files, more boundaries | New conventions |
 
-## Decision
+## Decision status: **OWNER GATE — split verdict**
 
-**Retain Vite + vanilla TypeScript** for the rewrite shell.
+| Researcher | Recommendation |
+|------------|----------------|
+| Prior orchestrator | **Vite + vanilla TS** |
+| [Sol framework/library research](4402ecad-84a2-4e65-a86b-73a0a5e91d11) | **Vite + React + TS** |
 
-### Rationale
+See `design-research/strong-model-synthesis.md` for full reconciliation.
 
-1. Baseline `4a18901` and all reusable audio/domain code are vanilla TS — migration to React/Svelte buys component ergonomics but does not solve the hard problems (MIDI canvas, dock layout, live control sync).
-2. Dockview v7 (`dockview` package) provides vanilla-first docking with popouts — the primary layout gap — without React.
-3. Owner rejected presentation, not language — a framework swap would delay the shell gate without addressing product failure modes.
-4. GSAP and Tone.js integrations are already proven in vanilla modules.
-5. Composer can implement faster when conventions match the archived codebase's non-UI layers.
+### Vanilla TS path (orchestrator provisional)
+
+1. Baseline `4a18901` and reusable audio/domain are vanilla TS — no migration tax.
+2. Dockview v7 (`dockview` package) provides vanilla-first docking.
+3. Smallest bundle; matches archived non-UI modules.
+4. Risk: manual lifecycle across three workspaces (Sol's concern).
+
+### React path (Sol)
+
+1. Component ownership maps to workspace/panel/exchange/dock boundaries.
+2. `@dnd-kit`, `dockview-react`, Floating UI, Testing Library ecosystem.
+3. Tone/audio as injected service; transport ticks via rAF — React never schedules music.
+4. Risk: migration cost; render-frequency discipline required.
 
 ### Third option (narrowly justified)
 
-**Vite + Svelte 5** — credible for reactive UI with smaller bundle, but lacks mature docking library parity with Dockview and forces full rewrite of working domain imports. Rejected unless owner prioritizes Svelte.
+**Vite + Lit** — Sol's credible #2; custom elements for controls. Rejected unless framework independence is strategic.
 
-### React rejection (for this project)
+**Vite + Svelte 5** — rejected; weak docking ecosystem.
 
-Do not migrate to React merely for component libraries. Custom DAW surfaces (piano roll, step grid, mixer) will be canvas/SVG-heavy regardless. React adds reconciliation cost in high-frequency parameter updates unless carefully isolated.
+## Owner must choose before Phase 3A
 
-## Implications for Phase 3
+- [ ] `framework: vanilla` — dockview, interact.js, sortablejs, CSS Grid shell
+- [ ] `framework: react` — dockview-react, @dnd-kit, external domain store
 
-- Add `dockview` (vanilla) as production dependency after skeleton approval
-- Keep Vitest; add Playwright for shell gates (optional MCP or npm)
-- No JSX/TSX in canonical `src/` unless owner overrides
+## Implications by path
+
+**Vanilla:** `dockview`, `interactjs`, `sortablejs`, `@floating-ui/dom` after approval. No JSX in `src/`.
+
+**React:** `react`, `react-dom`, `dockview-react`, `@dnd-kit/core`, `@dnd-kit/sortable`, `@floating-ui/react`. Rewrite worktree bootstrap from approved skeleton.
 
 ## Stale rule note
 
