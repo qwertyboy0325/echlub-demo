@@ -75,16 +75,20 @@ export class ShellAudioAdapter {
       engine.stop();
       return;
     }
+    engine.setSoundDesign(pack.soundDesign);
+    engine.setBaseBpm(pack.metadata.bpm);
+    engine.setTempoMap(pack.tempoMap);
+    engine.setTotalBars(pack.arrangement.totalBars);
+    if (token.cancelled) {
+      engine.stop();
+      return;
+    }
     await engine.initialize();
     if (token.cancelled) {
       engine.stop();
       return;
     }
     this.engine = engine;
-    this.engine.setSoundDesign(pack.soundDesign);
-    this.engine.setBaseBpm(pack.metadata.bpm);
-    this.engine.setTempoMap(pack.tempoMap);
-    this.engine.setTotalBars(pack.arrangement.totalBars);
     this.publishBank("production");
     this.unsubscribe = shellStore.subscribe((state) => this.onShellState(state));
     this.initialized = true;
