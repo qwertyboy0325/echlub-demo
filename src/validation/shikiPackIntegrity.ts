@@ -5,6 +5,8 @@ export const SHIKI_PUBLIC_PACK_PATH = "public/shiki-no-uta.demo.pack.json";
 export const SHIKI_PUBLIC_PACK_ID = "shiki-no-uta-cover-public-demo-v1";
 export const SHIKI_PRIVATE_PACK_RELATIVE = "local-reconstruction/shiki-no-uta.midi-only.pack.json";
 
+export { SHIKI_SEVEN_TRACK_IDS, SHIKI_SEVEN_TRACK_INSTRUMENTS } from "../domain/shikiSevenTracks";
+
 export interface ShikiMusicalEvent {
   bar?: number;
   step?: number;

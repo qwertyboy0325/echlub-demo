@@ -1,18 +1,43 @@
 #!/usr/bin/env node
 /**
  * Phase 4 musical runtime proof — lifecycle, dock round-trip, restart sparse state.
- * Targets preview server @ localhost:4173 (npm run build && npm run preview).
+ * Targets preview server @ localhost:4173/echlub-demo/ (npm run build && npm run preview).
  */
 import puppeteer from "puppeteer-core";
+import { spawn } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 
 const CHROME = process.env.CHROME_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-const BASE = process.env.PHASE4_BASE_URL ?? "http://127.0.0.1:4173/";
+const PORT = Number(process.env.PHASE4_PORT ?? 4173);
+const BASE = process.env.PHASE4_BASE_URL ?? `http://127.0.0.1:${PORT}/echlub-demo/`;
 const OUT = "artifacts/phase4-musical";
 
 mkdirSync(OUT, { recursive: true });
+
+async function waitForServer(url, timeoutMs = 45000) {
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    try {
+      if ((await fetch(url)).ok) return;
+    } catch { /* retry */ }
+    await delay(400);
+  }
+  throw new Error(`Server not ready: ${url}`);
+}
+
+const preview = process.env.PHASE4_SKIP_PREVIEW
+  ? null
+  : spawn("npm", ["run", "preview", "--", "--host", "127.0.0.1", "--port", String(PORT)], {
+      cwd: process.cwd(),
+      stdio: "pipe",
+      shell: true,
+    });
+const shutdown = () => { if (preview && !preview.killed) preview.kill("SIGTERM"); };
+process.on("exit", shutdown);
+
+await waitForServer(BASE);
 
 async function clickNav(page, index) {
   await page.$$eval(".room-nav button", (buttons, i) => buttons[i]?.click(), index);
@@ -42,6 +67,7 @@ async function shellSnapshot(page) {
   }));
 }
 
+try {
 const browser = await puppeteer.launch({
   executablePath: CHROME,
   headless: true,
@@ -105,14 +131,21 @@ const capture = {
     audioReady: bootEvidence?.audioReady === true,
     transportStarted: playingEvidence?.toneTransportState === "started",
     masterDraftActive: Boolean(playingEvidence?.activeMasterDraftId),
+    sevenTrackAudible:
+      typeof playingEvidence?.sevenTrackAudibleCount === "number"
+      && playingEvidence.sevenTrackAudibleCount >= 7,
+    activeMasterTracks:
+      Array.isArray(playingEvidence?.activeMasterTracks)
+      && playingEvidence.activeMasterTracks.length >= 3,
     masterLayersHydrated: Boolean(
-      playingEvidence?.activeMasterLayers && Object.values(playingEvidence.activeMasterLayers).some(Boolean),
+      playingEvidence?.sevenTrackAudibleCount && playingEvidence.sevenTrackAudibleCount >= 7,
     ),
     dockRoundTrip:
       dockDisplay === 72
       && typeof dockEvidence?.mixFilter === "number"
       && Math.abs(dockEvidence.mixFilter - (200 + 0.72 * 7800)) < 50,
     restartSparse: postRestartShell.exchangeCount === 0,
+    restartEpochReset: typeof postRestartEvidence?.restartEpoch === "number" && postRestartEvidence.restartEpoch >= 1,
     noPageErrors: pageErrors.length === 0,
   },
 };
@@ -123,4 +156,7 @@ const failed = Object.entries(capture.checks).filter(([, v]) => !v);
 if (failed.length) {
   console.error("Phase 4 browser checks failed:", failed.map(([k]) => k).join(", "));
   process.exitCode = 1;
+}
+} finally {
+  shutdown();
 }

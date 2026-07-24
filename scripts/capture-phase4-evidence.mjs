@@ -35,18 +35,25 @@ function grepArtifacts(dir, pattern) {
 
 const packPath = "public/shiki-no-uta.demo.pack.json";
 const packSha = sha256File(packPath);
-const distPrivate = grepArtifacts("docs", /midi-only\.pack|shiki-no-uta-midi-only-private/);
-const shellAssertions = existsSync("artifacts/shell-ready/viewport-assertions.json")
-  ? JSON.parse(readFileSync("artifacts/shell-ready/viewport-assertions.json", "utf8"))
-  : [];
+const distPrivate = grepArtifacts("docs", /midi-only\.pack|shiki-no-uta-midi-only-private|local-reconstruction\//);
 const browserCapture = existsSync(join(OUT, "browser-console-capture.json"))
   ? JSON.parse(readFileSync(join(OUT, "browser-console-capture.json"), "utf8"))
+  : null;
+const lifecycleTrace = existsSync(join(OUT, "lifecycle-event-trace.json"))
+  ? JSON.parse(readFileSync(join(OUT, "lifecycle-event-trace.json"), "utf8"))
+  : null;
+const archiveComparison = existsSync(join(OUT, "archive-rewrite-comparison.json"))
+  ? JSON.parse(readFileSync(join(OUT, "archive-rewrite-comparison.json"), "utf8"))
+  : null;
+const safariValidation = existsSync(join(OUT, "safari-validation.json"))
+  ? JSON.parse(readFileSync(join(OUT, "safari-validation.json"), "utf8"))
   : null;
 
 const manifest = {
   generatedAt: new Date().toISOString(),
   gitHead: HEAD,
-  phase: "4-musical-integration",
+  phase: "4-musical-closure",
+  stopLine: "ECHLUB PHASE 4 MUSICAL CLOSURE READY — STOPPED FOR OWNER MUSICAL APPROVAL",
   publicPack: {
     id: "shiki-no-uta-cover-public-demo-v1",
     path: packPath,
@@ -56,38 +63,35 @@ const manifest = {
     docsHits: distPrivate,
     clean: distPrivate.length === 0,
   },
-  visualEvidence: {
-    shellAssertionsPath: "artifacts/shell-ready/viewport-assertions.json",
-    screenshots1440: existsSync("artifacts/shell-ready")
-      ? readdirSync("artifacts/shell-ready").filter((f) => f.includes("1440"))
-      : [],
-    screenshots1280: existsSync("artifacts/shell-ready")
-      ? readdirSync("artifacts/shell-ready").filter((f) => f.includes("1280"))
-      : [],
+  sevenTrackMaster: {
+    trackIds: [
+      "track-alto",
+      "track-tenor",
+      "track-piano-rh",
+      "track-piano-lh",
+      "track-guitar",
+      "track-bass",
+      "track-drums",
+    ],
+    instruments: ["alto", "tenor", "piano-rh", "piano-lh", "guitar", "bass", "drums"],
+    browserSevenTrackAtActivate: browserCapture?.playingEvidence?.sevenTrackAudibleCount ?? null,
   },
-  tests: {
-    shellMusicalIntegration: "src/validation/shellMusicalIntegration.test.ts",
-    shellAudioAdapter: "src/validation/shellAudioAdapter.test.ts",
-    dockMixSync: "src/validation/dockMixSync.test.ts",
-    shikiPublicPack: "src/validation/shikiPublicPack.test.ts",
-  },
-  walkthrough: "src/shell/presenterWalkthrough.ts",
   runtimePlayback: {
-    archiveA_B: "NOT EXECUTED — archive branch present locally; comparable playback not captured this session",
-    rewritePlayback: browserCapture?.checks?.transportStarted
-      ? "OBSERVED — lifecycle + master layers @ localhost:4173"
-      : "PARTIAL — see browser-console-capture.json",
-    restart: browserCapture?.checks?.restartSparse
-      ? "OBSERVED — RESTART_SESSION sparse exchange @ browser proof"
-      : "IMPLEMENTED — RESTART_SESSION command",
-    dockSync: browserCapture?.checks?.dockRoundTrip
-      ? "OBSERVED — UI 0.72 ↔ engine mixFilter 5816"
-      : "PARTIAL",
+    archiveWorktree: archiveComparison?.worktreePath ?? null,
+    archiveBuild: archiveComparison?.archiveStartup?.buildExit === 0 ? "PASS" : "PARTIAL",
+    archivePackSemanticMatch: archiveComparison?.comparison?.semanticInventoryMatch ?? false,
+    rewriteBrowserProof: browserCapture?.checks ?? null,
+    audibleWalkthrough: existsSync(join(OUT, "phase4-audible-walkthrough.webm"))
+      ? join(OUT, "phase4-audible-walkthrough.webm")
+      : "NOT CAPTURED",
+    archiveComparisonMedia: existsSync(join(OUT, "archive-comparison-rewrite-sample.webm"))
+      ? join(OUT, "archive-comparison-rewrite-sample.webm")
+      : "NOT CAPTURED",
+    lifecycleTrace: join(OUT, "lifecycle-event-trace.json"),
+    safari: safariValidation?.status ?? "NOT RUN",
   },
-  browserCapture: "artifacts/phase4-musical/browser-console-capture.json",
-  browserProofScript: "scripts/browser-phase4-musical-proof.mjs",
-  walkthroughRecording: "artifacts/shell-ready/shell-walkthrough.webm",
-  grokCritique: "research/phase4-grok-cold-viewer-critique.md",
+  browserCapture: join(OUT, "browser-console-capture.json"),
+  archiveComparison: join(OUT, "archive-rewrite-comparison.json"),
 };
 
 writeFileSync(join(OUT, "phase4-evidence-manifest.json"), JSON.stringify(manifest, null, 2));
@@ -100,34 +104,32 @@ const browserSummary = browserCapture?.checks
 
 writeFileSync(
   join(OUT, "observation-log.md"),
-  `# Phase 4 Observation Log
+  `# Phase 4 Closure Observation Log
 
 - Git HEAD: \`${HEAD}\`
+- Stop line: **ECHLUB PHASE 4 MUSICAL CLOSURE READY — STOPPED FOR OWNER MUSICAL APPROVAL**
 - Public pack SHA-256: \`${packSha}\`
-- Shell viewport assertions: ${shellAssertions.length} checks
 - Private pack in docs build: ${distPrivate.length === 0 ? "CLEAN" : distPrivate.join(", ")}
-- Audio adapter: \`src/shell/audio/shellAudioAdapter.ts\`
-- Musical domain: \`src/shell/domain/musicalDomain.ts\`
-- Dock sync: \`src/shell/audio/dockMixSync.ts\` + \`SYNC_DOCK_FROM_MIX\`
 
-## Browser verification (@ http://localhost:4173/, preview build)
+## Chromium browser proof
 
 ${browserSummary}
 
-## Implemented this session
+## Archive @ 1be1206
 
-- Dock bidirectional sync (UI→engine→dock via \`SYNC_DOCK_FROM_MIX\`)
-- Shared Master hydrates pack \`scenePlacements\` + \`sceneLayerStacks\`; activated fork overrides kind layer
-- \`publishBank\` no longer resets mix on draft edits (root-cause fix for dock round-trip race)
-- Dispatch bridge installed at module load (Strict Mode safe)
-- Browser proof script: \`scripts/browser-phase4-musical-proof.mjs\`
+- Worktree: ${archiveComparison?.worktreePath ?? "not created"}
+- Semantic inventory match: ${archiveComparison?.comparison?.semanticInventoryMatch ?? "unknown"}
+- Full SHA match: ${archiveComparison?.comparison?.sha256Match ?? "unknown"}
 
-## Honest gaps
+## Audible artifacts
 
-- Archive A/B comparable playback @ \`archive/rejected-dashboard-2026-07-24\` / \`1be1206\` not captured
-- 7-track audible verification across full song — arrangement boundaries wired; owner ear-check required
-- Safari walkthrough: **unverified**
-- Fresh 2–4 min audio walkthrough recording not re-captured (prior shell-walkthrough.webm is visual-only @ Phase 3B)
+- Walkthrough: \`artifacts/phase4-musical/phase4-audible-walkthrough.webm\`
+- Archive comparison sample: \`artifacts/phase4-musical/archive-comparison-rewrite-sample.webm\`
+- Lifecycle trace: \`artifacts/phase4-musical/lifecycle-event-trace.json\`
+
+## Safari
+
+- Status: ${safariValidation?.status ?? "NOT RUN"}
 `,
 );
 

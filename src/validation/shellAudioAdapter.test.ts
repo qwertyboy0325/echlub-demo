@@ -89,6 +89,7 @@ describe("ShellAudioAdapter", () => {
     (adapter as unknown as AdapterInternals).engine = {
       setMixParams,
       getMix,
+      dispose: vi.fn(),
     } as unknown as AdapterInternals["engine"];
     const before = createInitialShellState();
     const after = {

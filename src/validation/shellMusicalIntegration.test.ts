@@ -79,6 +79,47 @@ describe("shell musical integration", () => {
     expect(store.getState().transportBar).toBe(0);
   });
 
+  it("activate hydrates all seven tracks for Shared Master payoff", () => {
+    const domain = new MusicalDomainStore();
+    domain.loadPackJson(packJson);
+    domain.activateSharedMaster("midi-opening-bass", 0);
+    const inventory = domain.getSevenTrackMasterInventory();
+    expect(inventory).toHaveLength(7);
+    expect(inventory.every((track) => track.packClipSources.length > 0)).toBe(true);
+    expect(inventory.filter((track) => track.audibleInPayoff).length).toBe(7);
+    expect(inventory.map((track) => track.instrument).sort()).toEqual([
+      "alto",
+      "bass",
+      "drums",
+      "guitar",
+      "piano-lh",
+      "piano-rh",
+      "tenor",
+    ]);
+  });
+
+  it("collaboration path logs revision ids through activate", () => {
+    const domain = new MusicalDomainStore();
+    domain.loadPackJson(packJson);
+    const store = new ShellStore(createInitialShellState());
+    store.dispatch({ type: "SHARE_CLIP" });
+    store.dispatch({ type: "SELECT_PARTICIPANT", participantId: "p2" });
+    store.dispatch({ type: "FORK_CLIP", clipId: "c1" });
+    const fork = store.getState().exchangeClips.find((c) => c.forkOf === "c1")!;
+    domain.forkDraft("midi-opening-bass", fork.draftId!, fork.title);
+    domain.moveNoteStep(fork.draftId!, domain.draftForId(fork.draftId!)!.notes![0]!.id, 4);
+    store.dispatch({ type: "SUBMIT_REVIEW", clipId: fork.id });
+    store.dispatch({ type: "MARK_READY", clipId: fork.id });
+    store.dispatch({ type: "STAGE_CLIP", clipId: fork.id, slotId: "s1" });
+    store.dispatch({ type: "ACTIVATE_SLOT", slotId: "s1" });
+    domain.activateSharedMaster(fork.draftId!, 0);
+    const forkRevision = domain.draftForId(fork.draftId!)!.revision ?? 0;
+    expect(forkRevision).toBeGreaterThan(0);
+    expect(domain.eventLog.some((event) => event.detail.includes(`r${forkRevision}`))).toBe(true);
+    const bassTrack = domain.getSevenTrackMasterInventory().find((track) => track.instrument === "bass");
+    expect(bassTrack?.activePlacements.some((placement) => placement.draftId === fork.draftId)).toBe(true);
+  });
+
   it("public pack sha256 matches preservation baseline", () => {
     expect(sha256Hex(packJson)).toBe("85fafb0a95d81f92e87e26a4941fbdd4dff783bc6c5d0743e1f6019cd7def7af");
   });

@@ -383,20 +383,118 @@ function exposeShellAudioDiagnostics(adapter: ShellAudioAdapter): void {
   if (typeof window === "undefined") return;
   const globalWindow = window as typeof window & {
     __shellAudioEvidence?: () => Record<string, unknown>;
+    __startShellAudioCapture?: () => void;
+    __stopShellAudioCapture?: () => Promise<{ byteLength: number; base64: string }>;
+    __phase4AudioCapture?: {
+      recorder: MediaRecorder;
+      chunks: Blob[];
+      disconnect: () => void;
+    };
+  };
+  globalWindow.__startShellAudioCapture = () => {
+    const engine = adapter.getEngine();
+    if (!engine) throw new Error("AudioEngine not ready");
+    const rawContext = Tone.getContext().rawContext as AudioContext;
+    const destination = rawContext.createMediaStreamDestination();
+    const disconnect = engine.connectMasterTap(destination);
+    const chunks: Blob[] = [];
+    const recorder = new MediaRecorder(destination.stream, { mimeType: "audio/webm;codecs=opus" });
+    recorder.addEventListener("dataavailable", (event) => {
+      if (event.data.size > 0) chunks.push(event.data);
+    });
+    globalWindow.__phase4AudioCapture = { recorder, chunks, disconnect };
+    recorder.start(250);
+  };
+  globalWindow.__stopShellAudioCapture = async () => {
+    const bag = globalWindow.__phase4AudioCapture;
+    if (!bag) throw new Error("Audio capture not started");
+    await new Promise<void>((resolve) => bag.recorder.addEventListener("stop", () => resolve(), { once: true }));
+    bag.recorder.stop();
+    bag.disconnect();
+    const blob = new Blob(bag.chunks, { type: "audio/webm;codecs=opus" });
+    const bytes = new Uint8Array(await blob.arrayBuffer());
+    let binary = "";
+    for (let offset = 0; offset < bytes.length; offset += 0x8000) {
+      binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
+    }
+    delete globalWindow.__phase4AudioCapture;
+    return { byteLength: bytes.length, base64: btoa(binary) };
   };
   globalWindow.__shellAudioEvidence = () => {
     const engine = adapter.getEngine();
+    const shell = shellStore.getState();
+    const mix = engine?.getMix();
+    const domainEvents = musicalDomain.eventLog.slice(0, 16);
+    const masterInventory = musicalDomain.getSevenTrackMasterInventory();
+    const activeMasterTracks = musicalDomain.getActiveMasterTracksList();
+    const exchangeRevisions = shell.exchangeClips.map((clip) => ({
+      id: clip.id,
+      title: clip.title,
+      revision: clip.revision,
+      lifecycle: clip.lifecycle,
+      draftId: clip.draftId,
+      forkOf: clip.forkOf,
+    }));
+    const stagedSlots = shell.arrangementSlots
+      .filter((slot) => slot.state === "staged")
+      .map((slot) => ({ id: slot.id, clipId: slot.clipId, label: slot.label }));
+    const activeSlots = shell.arrangementSlots
+      .filter((slot) => slot.state === "active")
+      .map((slot) => ({ id: slot.id, clipId: slot.clipId, label: slot.label }));
+    const dockMappings = shell.dockSlots
+      .filter((slot) => slot.mapped)
+      .map((slot) => ({
+        index: slot.index,
+        param: slot.sourceParam,
+        value: slot.value,
+        mode: shell.dockMode,
+      }));
     return {
       ...adapter.evidence,
+      capturedAt: new Date().toISOString(),
       engineExists: Boolean(engine),
-      cueActive: engine?.isCueActive() ?? false,
-      cueNoteCount: engine?.getCueNoteCount() ?? 0,
-      cueScheduleCount: engine?.getCueScheduleCount() ?? 0,
       toneContextState: Tone.context.state,
       toneTransportState: Tone.getTransport().state,
-      mixFilter: engine?.getMix().filter ?? null,
-      dockSlot0: shellStore.getState().dockSlots[0]?.value ?? null,
-      activeMasterLayers: musicalDomain.getSession()?.scenes.find((scene) => scene.id === "opening")?.layers ?? null,
+      transportPlaying: shell.transportPlaying,
+      transportBar: shell.transportBar,
+      transportBeat: shell.transportBeat,
+      previewPendingDraftId: (adapter as unknown as { pendingPreviewDraftId: string | null }).pendingPreviewDraftId ?? null,
+      cueActive: engine?.isCueActive() ?? false,
+      cueDraftId: engine?.getCueDraftId() ?? null,
+      cueNoteCount: engine?.getCueNoteCount() ?? 0,
+      cueScheduleCount: engine?.getCueScheduleCount() ?? 0,
+      masterLevelDb: engine?.getMasterLevelDb() ?? Number.NEGATIVE_INFINITY,
+      masterStepCount: engine?.getMasterStepCount() ?? 0,
+      playbackGeneration: engine?.getPlaybackGeneration() ?? 0,
+      mixFilter: mix?.filter ?? null,
+      mixDelayWet: mix?.delayWet ?? null,
+      mixReverbWet: mix?.reverbWet ?? null,
+      mixMasterGain: mix?.masterGain ?? null,
+      deviceParams: {
+        filter: mix?.filter ?? null,
+        delayWet: mix?.delayWet ?? null,
+        reverbWet: mix?.reverbWet ?? null,
+      },
+      dockSlot0: shell.dockSlots[0]?.value ?? null,
+      dockMappings,
+      dockMode: shell.dockMode,
+      workspaceDraftId: shell.workspaceDraftId,
+      workspaceBleed: shell.workspaceBleed,
+      authority: musicalDomain.getAuthority(),
+      restartEpoch: musicalDomain.getRestartEpoch(),
+      domainEventTrace: domainEvents,
+      exchangeRevisions,
+      stagedSlots,
+      activeSlots,
+      activeMasterTracks,
+      sevenTrackMasterInventory: masterInventory,
+      sevenTrackAudibleCount: masterInventory.filter((track) => track.audibleInPayoff).length,
+      schedulerHealth: {
+        transportState: Tone.getTransport().state,
+        cueScheduleCount: engine?.getCueScheduleCount() ?? 0,
+        playbackGeneration: engine?.getPlaybackGeneration() ?? 0,
+        masterStepCount: engine?.getMasterStepCount() ?? 0,
+      },
     };
   };
 }

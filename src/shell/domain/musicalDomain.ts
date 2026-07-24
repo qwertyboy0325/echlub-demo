@@ -4,6 +4,11 @@ import type { ReconstructionPack } from "../../domain/reconstructionPack";
 import { createIncompleteSession } from "../../demo/productionMutations";
 import type { ProductionSession } from "../../domain/sessionTypes";
 import type { LayerId, NoteEvent, PatternDraft } from "../../types";
+import {
+  SHIKI_SEVEN_TRACK_IDS,
+  SHIKI_SEVEN_TRACK_INSTRUMENTS,
+  type ShikiSevenTrackId,
+} from "../../domain/shikiSevenTracks";
 
 const SHIKI_PUBLIC_PACK_ID = "shiki-no-uta-cover-public-demo-v1";
 
@@ -21,6 +26,41 @@ export interface DraftEditResult {
   draftId: string;
   revision: number;
   fingerprint: string;
+}
+
+export interface MasterTrackPlacement {
+  sceneId: string;
+  draftId: string;
+  revision: number;
+  source: "layer" | "stack";
+  eventCount: number;
+}
+
+export interface MasterTrackInventoryEntry {
+  trackId: ShikiSevenTrackId;
+  instrument: string;
+  label: string;
+  layerKind: string;
+  packClipSources: string[];
+  activePlacements: MasterTrackPlacement[];
+  audibleInPayoff: boolean;
+}
+
+export interface ActiveMasterTrackSummary {
+  trackId: string;
+  instrument: string;
+  draftId: string;
+  revision: number;
+  sceneId: string;
+}
+
+function countDraftEvents(draft: PatternDraft): number {
+  if (draft.notes?.length) return draft.notes.length;
+  if (draft.drumHits?.length) return draft.drumHits.length;
+  if (draft.harmonyChords?.length) {
+    return draft.harmonyChords.reduce((sum, chord) => sum + chord.notes.length, 0);
+  }
+  return 0;
 }
 
 const DEMO_WORKSPACE_DRAFT = "midi-opening-bass";
@@ -46,6 +86,7 @@ export class MusicalDomainStore {
   private authority: AudioAuthority = "clip-preview";
   private activeMasterDraftId: string | null = null;
   private workspaceDraftId: string | null = null;
+  private restartEpoch = 0;
   readonly eventLog: MusicalDomainEvent[] = [];
   private listeners = new Set<() => void>();
 
@@ -69,6 +110,10 @@ export class MusicalDomainStore {
     return this.activeMasterDraftId;
   }
 
+  getRestartEpoch(): number {
+    return this.restartEpoch;
+  }
+
   getWorkspaceDraftId(): string | null {
     return this.workspaceDraftId;
   }
@@ -87,13 +132,14 @@ export class MusicalDomainStore {
 
   restart(): void {
     if (!this.pack) return;
+    this.restartEpoch += 1;
     this.session = createIncompleteSession(this.pack);
     this.bleed = "low";
     this.authority = "clip-preview";
     this.activeMasterDraftId = null;
     this.seedWorkspaceDraft(DEMO_WORKSPACE_DRAFT);
     this.eventLog.length = 0;
-    this.log("restart", "Sparse session restored");
+    this.log("restart", `Sparse session restored · epoch ${this.restartEpoch}`);
   }
 
   private seedWorkspaceDraft(draftId: string): void {
@@ -173,9 +219,82 @@ export class MusicalDomainStore {
     const stackCount = Object.values(scene.layerStacks ?? {}).reduce((n, refs) => n + (refs?.length ?? 0), 0);
     this.log(
       "activate-master",
-      `${draftId} r${draft.revision} → ${draft.kind} @ bar ${scene.startBar} · ${layerCount} layers · ${stackCount} stack refs`,
+      `${draftId} r${draft.revision} → ${draft.kind} @ bar ${scene.startBar} · ${layerCount} layers · ${stackCount} stack refs · tracks ${this.getSevenTrackMasterInventory().filter((t) => t.audibleInPayoff).length}/7`,
     );
     return true;
+  }
+
+  getSevenTrackMasterInventory(): MasterTrackInventoryEntry[] {
+    if (!this.pack || !this.session) return [];
+    const resolveSourceDraftId = (draftId: string): string => {
+      const forkMatch = draftId.match(/^(.+)-fork-\d+$/);
+      return forkMatch?.[1] ?? draftId;
+    };
+    const trackForDraftId = (draftId: string): ShikiSevenTrackId | null => {
+      const sourceId = resolveSourceDraftId(draftId);
+      const track = this.pack!.tracks.find((entry) => entry.draftIds.includes(sourceId));
+      if (!track || !(SHIKI_SEVEN_TRACK_IDS as readonly string[]).includes(track.id)) return null;
+      return track.id as ShikiSevenTrackId;
+    };
+    return SHIKI_SEVEN_TRACK_IDS.map((trackId) => {
+      const track = this.pack!.tracks.find((entry) => entry.id === trackId);
+      const packClipSources = track?.draftIds ?? [];
+      const activePlacements: MasterTrackPlacement[] = [];
+      for (const sessionScene of this.session!.scenes) {
+        const pushRef = (draftId: string | undefined, source: "layer" | "stack") => {
+          if (!draftId || trackForDraftId(draftId) !== trackId) return;
+          const layerDraft = this.session!.drafts[draftId];
+          if (!layerDraft) return;
+          activePlacements.push({
+            sceneId: sessionScene.id,
+            draftId,
+            revision: layerDraft.revision ?? 0,
+            source,
+            eventCount: countDraftEvents(layerDraft),
+          });
+        };
+        for (const ref of Object.values(sessionScene.layers)) {
+          pushRef(ref?.draftId, "layer");
+        }
+        for (const refs of Object.values(sessionScene.layerStacks ?? {})) {
+          for (const ref of refs ?? []) pushRef(ref?.draftId, "stack");
+        }
+      }
+      return {
+        trackId,
+        instrument: SHIKI_SEVEN_TRACK_INSTRUMENTS[trackId],
+        label: track?.label ?? trackId,
+        layerKind: track?.layerKind ?? "unknown",
+        packClipSources,
+        activePlacements,
+        audibleInPayoff: activePlacements.some((placement) => placement.eventCount > 0),
+      };
+    });
+  }
+
+  getActiveMasterTracksList(): ActiveMasterTrackSummary[] {
+    const opening = this.session?.scenes.find((scene) => scene.id === "opening") ?? this.session?.scenes[0];
+    if (!opening) return [];
+    const seen = new Set<string>();
+    const rows: ActiveMasterTrackSummary[] = [];
+    const push = (draftId: string | undefined) => {
+      if (!draftId || seen.has(draftId) || !this.pack) return;
+      const track = this.pack.tracks.find((entry) => entry.draftIds.includes(draftId));
+      if (!track || !(SHIKI_SEVEN_TRACK_IDS as readonly string[]).includes(track.id)) return;
+      seen.add(draftId);
+      rows.push({
+        trackId: track.id,
+        instrument: SHIKI_SEVEN_TRACK_INSTRUMENTS[track.id as ShikiSevenTrackId],
+        draftId,
+        revision: this.session!.drafts[draftId]?.revision ?? 0,
+        sceneId: opening.id,
+      });
+    };
+    for (const ref of Object.values(opening.layers)) push(ref?.draftId);
+    for (const refs of Object.values(opening.layerStacks ?? {})) {
+      for (const ref of refs ?? []) push(ref?.draftId);
+    }
+    return rows;
   }
 
   private collectPlacementDraftIds(): Set<string> {

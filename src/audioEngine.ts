@@ -480,6 +480,16 @@ export class AudioEngine {
   getCueStartedAtTransportPosition(): string { return this.cueStartedAtTransportPosition; }
   getCueStopsAtTransportPosition(): string { return this.cueStopsAtTransportPosition; }
   cueStartedTransport(): boolean { return this.cueOwnsTransport; }
+  getPlaybackGeneration(): number { return this.playbackGeneration; }
+  getMasterStepCountAtCapture(): number { return this.masterStepCount; }
+
+  /** Connect a Web Audio tap after the master limiter (evidence capture only). */
+  connectMasterTap(node: AudioNode): () => void {
+    this.limiter.connect(node);
+    return () => {
+      this.limiter.disconnect(node);
+    };
+  }
 
   startPrivateCue(materialRef: MaterialRef, atTransportPosition?: MusicalPosition): void {
     if (!this.materialBank) return;
