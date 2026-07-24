@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { PresenterNav } from "./features/presenter/PresenterNav";
 import { LiveControlDock } from "./features/dock/LiveControlDock";
 import { GlobalStudioRoom } from "./rooms/GlobalStudioRoom";
@@ -15,17 +15,23 @@ export function App() {
   const viewport = useViewportMode();
   const compact = viewport === "compact";
   const musicalReady = useMusicalDomainReady();
-  const bridgeInstalled = useRef(false);
+  const [packError, setPackError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!bridgeInstalled.current) {
-      installShellAudioDispatchBridge();
-      bridgeInstalled.current = true;
-    }
+    const uninstallBridge = installShellAudioDispatchBridge();
+    let cancelled = false;
     void shellAudioAdapter.initialize().catch((error) => {
+      if (cancelled) return;
+      const message = error instanceof Error ? error.message : String(error);
+      setPackError(message);
       console.error("Shell audio adapter failed:", error);
     });
-    return () => shellAudioAdapter.dispose();
+    return () => {
+      cancelled = true;
+      uninstallBridge();
+      shellAudioAdapter.dispose();
+      setPackError(null);
+    };
   }, []);
 
   const center =
@@ -57,7 +63,14 @@ export function App() {
     );
 
   return (
-    <div className="app-root">
+    <div className={`app-root${packError ? " app-root--boot-error" : ""}`}>
+      {packError && (
+        <div className="boot-error-banner" role="alert">
+          Public pack failed to load ({packError}). UI stays available, but Play / Preview clip need{" "}
+          <code>shiki-no-uta.demo.pack.json</code> at the app origin. Dev:{" "}
+          <code>http://localhost:4173/</code> · Preview/build: <code>/echlub-demo/</code>
+        </div>
+      )}
       <PresenterNav state={state} dispatch={dispatch} />
       <FocusShell
         state={state}

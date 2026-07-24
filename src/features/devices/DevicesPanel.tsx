@@ -24,7 +24,6 @@ export function DevicesPanel({ dispatch, draggable = false }: DevicesPanelProps)
 
   const setPopoverOpen = (id: string | null) => {
     setOpenId(id ?? "filter");
-    dispatch?.({ type: "SET_INTERACTION_FROZEN", frozen: id !== null });
   };
 
   const setDeviceValue = (deviceId: string, value: number) => {

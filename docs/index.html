@@ -9,10 +9,22 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-    <script type="module" crossorigin src="/echlub-demo/assets/index-CYDko9lE.js"></script>
-    <link rel="stylesheet" crossorigin href="/echlub-demo/assets/index-B1AvaU57.css">
+    <script type="module" crossorigin src="/echlub-demo/assets/index-D1Zh42iG.js"></script>
+    <link rel="stylesheet" crossorigin href="/echlub-demo/assets/index-cS-krIlk.css">
   </head>
   <body>
     <div id="app"></div>
+    <div id="boot-fallback" hidden>
+      <p><strong>EchLub failed to start.</strong> JavaScript did not mount.</p>
+      <p>Dev: open the exact URL Vite prints, usually <code>http://localhost:4173/</code>.</p>
+      <p>Preview/build: use <code>/echlub-demo/</code> (not the repo root on GitHub Pages).</p>
+    </div>
+    <script>
+      window.setTimeout(function () {
+        var app = document.getElementById("app");
+        var fallback = document.getElementById("boot-fallback");
+        if (fallback && app && !app.innerHTML.trim()) fallback.hidden = false;
+      }, 5000);
+    </script>
   </body>
 </html>

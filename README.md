@@ -34,13 +34,15 @@ npm install
 npm run dev
 ```
 
-Open the local URL printed by Vite, normally:
+Open the **exact** local URL printed by Vite (do not guess the port). Normally:
 
 ```text
-http://localhost:4173
+http://localhost:4173/
 ```
 
-Click **Start auto performance** once to unlock browser audio and run the approximately 104-second scripted arrangement.
+You should see **Global Studio · Participant · Mixer** tabs, a **Play** transport bar, and arrangement lanes. Audio requires a user click (**Play** or **Preview clip** in Participant → Create) to unlock the browser AudioContext.
+
+If the page stays blank for 5+ seconds, you are likely on the wrong URL or base path.
 
 ## Build
 
@@ -48,6 +50,14 @@ Click **Start auto performance** once to unlock browser audio and run the approx
 npm run build
 npm run preview
 ```
+
+Preview is served under the production base path:
+
+```text
+http://localhost:4173/echlub-demo/
+```
+
+(Vite may pick another port if `4173` is already in use — always use the URL it prints.)
 
 ## Architecture
 

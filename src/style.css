@@ -90,6 +90,34 @@ button:disabled {
   background: var(--canvas);
 }
 
+.app-root--boot-error {
+  grid-template-rows: auto var(--transport-height) 1fr;
+}
+
+.boot-error-banner {
+  grid-column: 1 / -1;
+  background: #3a2020;
+  color: #f0c0c0;
+  padding: 8px 16px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--recording);
+}
+
+.boot-error-banner code {
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+#boot-fallback {
+  padding: 24px;
+  max-width: 40rem;
+  line-height: 1.5;
+}
+
+#boot-fallback code {
+  font-family: var(--mono);
+}
+
 /* —— Presenter Nav —— */
 .presenter-nav {
   display: flex;

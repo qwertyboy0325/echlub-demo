@@ -28,6 +28,7 @@ export interface ShellAudioAdapterEvidence {
 export class ShellAudioAdapter {
   private engine: AudioEngine | null = null;
   private initialized = false;
+  private initToken: { cancelled: boolean } | null = null;
   private unsubscribe: (() => void) | null = null;
   private lastTransportPlaying = false;
   readonly evidence: ShellAudioAdapterEvidence = {
@@ -42,11 +43,16 @@ export class ShellAudioAdapter {
 
   async initialize(): Promise<void> {
     if (this.initialized) return;
+    const token = { cancelled: false };
+    if (this.initToken) this.initToken.cancelled = true;
+    this.initToken = token;
     const response = await fetch(publicPackUrl(), { cache: "no-store" });
+    if (token.cancelled) return;
     if (!response.ok) throw new Error(`Failed to load public pack: ${response.status}`);
     const json = await response.text();
+    if (token.cancelled) return;
     const pack = this.domain.loadPackJson(json);
-    this.engine = new AudioEngine({
+    const engine = new AudioEngine({
       onStep: (bar, beat, sixteenth) => {
         shellStore.dispatch({
           type: "SYNC_TRANSPORT",
@@ -64,7 +70,16 @@ export class ShellAudioAdapter {
         void bar;
       },
     });
-    await this.engine.initialize();
+    if (token.cancelled) {
+      engine.stop();
+      return;
+    }
+    await engine.initialize();
+    if (token.cancelled) {
+      engine.stop();
+      return;
+    }
+    this.engine = engine;
     this.engine.setSoundDesign(pack.soundDesign);
     this.engine.setBaseBpm(pack.metadata.bpm);
     this.engine.setTempoMap(pack.tempoMap);
@@ -76,11 +91,13 @@ export class ShellAudioAdapter {
   }
 
   dispose(): void {
+    if (this.initToken) this.initToken.cancelled = true;
     this.unsubscribe?.();
     this.unsubscribe = null;
     this.engine?.stop();
     this.engine = null;
     this.initialized = false;
+    this.evidence.packLoaded = false;
   }
 
   getEngine(): AudioEngine | null {
