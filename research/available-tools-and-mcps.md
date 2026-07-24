@@ -35,12 +35,22 @@ Verified 2026-07-24 from Cursor MCP catalog, repo inspection, and owner environm
 | `user-finmind` | **Ready** | Taiwan stock data — **unnecessary** for EchLub |
 | `plugin-linear-linear` | **needsAuth** | Blocked until auth |
 
+## Approved post-Gate-1 (owner §9)
+
+| Resource | Status | Notes |
+|----------|--------|-------|
+| Playwright MCP (`@playwright/mcp@latest`) | **Approved** | User-level `~/.cursor/mcp.json`; deterministic walkthroughs |
+| Chrome DevTools MCP (`chrome-devtools-mcp@latest`) | **Approved** | User-level install; deep debug only — never concurrent with Playwright on same page |
+
+**Boundary:** Do not run Playwright MCP and Chrome DevTools MCP on the same page/profile concurrently.  
+**Fallback:** `cursor-ide-browser` or repo `puppeteer-core` scripts if MCP not yet installed — does not block shell work.
+
 ## NOT installed (evaluated, not present)
 
 | Resource | Status | Notes |
 |----------|--------|-------|
-| Chrome DevTools MCP | **Installable** | Official Google; not in current Cursor config |
-| Playwright MCP | **Installable** | Official Microsoft `@playwright/mcp` |
+| Chrome DevTools MCP | **Approved, user install pending** | See post-Gate-1 table |
+| Playwright MCP | **Approved, user install pending** | See post-Gate-1 table |
 | Context7 MCP | **Installable** | Upstash `@upstash/context7-mcp` |
 | GitHub official MCP | **Installable** | Not configured |
 | Figma MCP / plugin | **Not available** | No Figma integration detected |

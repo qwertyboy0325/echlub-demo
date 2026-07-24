@@ -1,61 +1,41 @@
 # Framework Decision — EchLub V2
 
-## Candidates compared
+**Status: LOCKED by owner 2026-07-24**
 
-| Criterion | Vite + vanilla TS | Vite + React | Vite + Svelte 5 |
-|-----------|-------------------|--------------|-----------------|
-| Full-size professional workspaces | Good with Dockview vanilla | Good with dockview-react | Good; smaller ecosystem for docking |
-| Docking / popouts | **Dockview v7 native** | dockview-react first-class | No first-class dock lib |
-| Complex shared state | Manual but existing patterns | Context/reducer ecosystem | Runes/stores — migration cost |
-| Audio isolation | **Direct Tone.js** (current) | Same; extra React render layer | Same |
-| Interaction perf (MIDI editor) | **Canvas/DOM direct** | Reconciliation overhead in dense editors | Good but team unfamiliar |
-| Testability | Vitest + jsdom (current) | + Testing Library | + @testing-library/svelte |
-| Visual prototyping speed | Moderate | Fast with component libs | Fast |
-| Long-term replacement cost | Lowest (baseline) | High migration | High migration |
-| Bundle size | **Smallest** (~no framework) | +40–80 KB gzip React | +15–25 KB Svelte |
-| Accessibility | Manual on custom controls | Radix/shadcn available | Limited audio UI libs |
-| Composer/subagent reliability | **Matches existing codebase** | More files, more boundaries | New conventions |
+## Decision
 
-## Decision status: **OWNER GATE — split verdict**
+**Vite + React + TypeScript** for UI projection. Domain and audio remain framework-independent TypeScript modules.
 
-| Researcher | Recommendation |
-|------------|----------------|
-| Prior orchestrator | **Vite + vanilla TS** |
-| [Sol framework/library research](4402ecad-84a2-4e65-a86b-73a0a5e91d11) | **Vite + React + TS** |
+### Rationale
 
-See `design-research/strong-model-synthesis.md` for full reconciliation.
+1. Component boundaries clarify Three Rooms / Focus Shell surfaces without entangling Tone.js lifecycle.
+2. `dockview-react`, Testing Library, and a11y primitives accelerate Participant editor groups.
+3. Audio, material, and offline modules stay vanilla TS — React mounts views only; no musical authority in React.
+4. Transport ticks and parameter writes use external store + scoped subscriptions — no whole-tree rerender on bar advance.
 
-### Vanilla TS path (orchestrator provisional)
+### Boundaries
 
-1. Baseline `4a18901` and reusable audio/domain are vanilla TS — no migration tax.
-2. Dockview v7 (`dockview` package) provides vanilla-first docking.
-3. Smallest bundle; matches archived non-UI modules.
-4. Risk: manual lifecycle across three workspaces (Sol's concern).
+| Layer | Technology | Authority |
+|-------|------------|-----------|
+| UI shell | React + TSX | Projection only |
+| Domain | Pure TS (`src/shell/domain/`, `src/domain/`) | Commands, lifecycle, follow lock |
+| Audio | Tone.js (`src/audioEngine.ts`, `src/audio/`) | Musical clock (not wired Phase 3A) |
+| Layout libs | dockview-react (Participant center), interactjs, sortablejs, @floating-ui/dom | Scoped per surface |
 
-### React path (Sol)
+### Rejected for Phase 3A
 
-1. Component ownership maps to workspace/panel/exchange/dock boundaries.
-2. `@dnd-kit`, `dockview-react`, Floating UI, Testing Library ecosystem.
-3. Tone/audio as injected service; transport ticks via rAF — React never schedules music.
-4. Risk: migration cost; render-frequency discipline required.
+- Vanilla-only shell (prior research) — superseded by owner gate
+- Svelte 5 — no mature dock parity
+- @dnd-kit — use sortablejs for 1D queue order; interactjs for spatial
+- XState — defer until permission/MIDI subgraphs demand it
 
-### Third option (narrowly justified)
+### Implications
 
-**Vite + Lit** — Sol's credible #2; custom elements for controls. Rejected unless framework independence is strategic.
+- `src/main.tsx` + `src/App.tsx` replace Four-Brain bootstrap
+- `src/legacy/fourBrainMain.ts` parked unimported
+- Vitest + jsdom for shell store; puppeteer for browser gates
+- JSX allowed in `src/**/*.tsx`; domain modules stay `.ts`
 
-**Vite + Svelte 5** — rejected; weak docking ecosystem.
+## Historical note
 
-## Owner must choose before Phase 3A
-
-- [ ] `framework: vanilla` — dockview, interact.js, sortablejs, CSS Grid shell
-- [ ] `framework: react` — dockview-react, @dnd-kit, external domain store
-
-## Implications by path
-
-**Vanilla:** `dockview`, `interactjs`, `sortablejs`, `@floating-ui/dom` after approval. No JSX in `src/`.
-
-**React:** `react`, `react-dom`, `dockview-react`, `@dnd-kit/core`, `@dnd-kit/sortable`, `@floating-ui/react`. Rewrite worktree bootstrap from approved skeleton.
-
-## Stale rule note
-
-README and AGENTS still describe "one-page" Four-Brain architecture — framework decision does not extend that metaphor.
+Prior revision recommended vanilla TS + Dockview vanilla. Retained in git history for audit; owner resolved framework conflict in favor of React projection layer.

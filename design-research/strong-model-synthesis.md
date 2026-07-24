@@ -4,7 +4,7 @@ Sources:
 - [Sol framework/library research](4402ecad-84a2-4e65-a86b-73a0a5e91d11)
 - [Grok product critique](c6e4ee43-3e1d-4c9e-84e6-878c91a3b516)
 
-**Status:** Research complete. Owner must resolve conflicts before Phase 3A.
+**Status:** Research complete. **Owner resolved 2026-07-24** — see Resolved section below.
 
 ---
 
@@ -190,3 +190,22 @@ Apply to Focus Shell / Arrangement Hub if selected:
 | `design-research/grok-independent-critique.md` | Pointer to full Grok output |
 
 No product source changed. No dependencies installed.
+
+---
+
+## Resolved by owner 2026-07-24
+
+| Gate | Decision |
+|------|----------|
+| Framework | **Vite + React + TS** — domain/audio framework-independent |
+| Skeleton | **Three Rooms** (Global \| Participant \| Mixer) each with **Focus Shell** |
+| Lifecycle UI | 4 chips: Available, In Progress, Review, Ready |
+| Participant tabs | Max 5: Create, Devices, Automation, Mix, Queue |
+| Viewport | Exchange rail ≥1360px; drawer 1280–1359; 1280×720 compact |
+| Follow Active | Lock semantics per owner spec; resume explicit only |
+| Stage/Activate | Global arrangement only |
+| Phase 3A exclusions | No Tone wiring, Scene UI, Story Beats, rejected dashboard |
+
+Canonical binding spec: `design-research/owner-approved-architecture.md`.
+
+Historical alternatives (vanilla TS, Stage & Booths, Dual Canvas, Exchange Spine) retained above for audit only.

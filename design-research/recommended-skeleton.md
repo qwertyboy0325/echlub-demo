@@ -1,78 +1,79 @@
-# Recommended Skeleton — Owner Gate (Split Researcher Verdict)
+# Recommended Skeleton — Three Rooms + Focus Shell
 
-**Do not treat this as closed.** Sol and Grok did not fully converge. See `design-research/strong-model-synthesis.md`.
+**Status: LOCKED by owner 2026-07-24**
 
----
+## Architecture
 
-## Researcher positions
+Three explicit Rooms, each rendered inside the same **Focus Shell** grid:
 
-| Researcher | Skeleton | Framework |
-|------------|----------|-----------|
-| [Grok product critique](c6e4ee43-3e1d-4c9e-84e6-878c91a3b516) | **Arrangement Hub + Full Workspace** (≈ repo Option B Focus Shell) | (not specified) |
-| [Sol framework/library research](4402ecad-84a2-4e65-a86b-73a0a5e91d11) | **Three Rooms** (explicit Global \| Participant \| Mixer routes) | **Vite + React** |
-| Prior orchestrator | **Option B — Exchange-Anchored Focus Shell** | **Vite + vanilla TS** |
+| Room | Route | Center dominance |
+|------|-------|------------------|
+| **Global Studio** | `global` | Arrangement / Launcher — sole home for Stage + Activate |
+| **Participant Workspace** | `participant` | Full editor (Create, Devices, Automation, Mix, Queue) |
+| **Mixer / Performance** | `mixer` | Channel strips + Live Control Dock |
 
-### Naming warning
+Focus Shell regions (all Rooms):
 
-Sol's "Option A = Three Rooms" ≠ repo `skeleton-option-a.md` (Stage & Booths). Use descriptive names at approval.
+| Region | Size | Content |
+|--------|------|---------|
+| Left rail | 200px (48px icon-only at compact) | Presence, task profiles, room nav |
+| Center | `1fr` | One dominant surface per Room |
+| Right rail | 320px if ≥1360px; drawer if 1280–1359px | Shared Clip Exchange |
+| Bottom | 48px transport OR 112–140px Live Control Dock | Room-dependent |
 
----
+## Viewport collapse
 
-## Option B — Exchange-Anchored Focus Shell (Grok-aligned / prior pick)
+| Mode | Width | Exchange | Presence |
+|------|-------|----------|----------|
+| `wide` | ≥1360px | Fixed 320px rail | Full 200px |
+| `drawer` | 1280–1359px | Overlay drawer | Full 200px |
+| `compact` | 1280×720 | Drawer | 48px icons |
 
-Persistent left presence rail + center primary surface + right Exchange rail. Same shell in Global and Participant; center morphs.
+## Lifecycle chips (4 only)
 
-**Choose if:** collaboration visibility during editing is paramount; presenter needs spatial memory without route teleport.
+`Available` | `In Progress` | `Review` | `Ready`
 
-**Grok pass conditions (mandatory if B):**
-- Exchange rows: waveform thumb + author color; max **4** visible lifecycle chips
-- Max **5** editor tabs; overflow for rare modes
-- **1280×720:** Exchange → drawer; presence → icons; Dock 6-slot compact
-- Follow Active: manual lock + banner
-- Single home for Stage/Activate (Exchange → Arrangement, not dual controls)
+No Jira-style 8-state rows. Detail on select/hover.
 
-Details: `design-research/skeleton-option-b.md`
+## Participant tabs (max 5)
 
----
+Create | Devices | Automation | Mix | Queue
 
-## Option A (Sol) — Three Rooms
+Create sub-modes (not separate tabs): Piano Roll | Step | Clip editor.
 
-Explicit top-level routes: `Global | Participant: [name] | Mixer`. Each route owns **100% viewport**. Exchange as rail/tray, not center spine. CSS Grid first; Dockview inside workspaces only.
+## Presenter + Follow Active
 
-**Choose if:** editor width is non-negotiable; route clarity beats persistent tri-pane shell.
+- Top nav: Global / Participant picker / Mixer
+- **Follow Active** lock highlights active participant; manual room/participant select breaks follow until explicit Resume Follow
+- Follow frozen during drag, knob hold, open popover
 
-**Sol conditions if adopted:**
-- React + external domain event store
-- Tone/audio injected service; transport ticks outside React render tree
-- @dnd-kit for Exchange reorder; interact.js for timeline only
+## Stage / Activate authority
 
-Sol does **not** map to repo Stage & Booths teleport model.
+- **Only** in Global arrangement surface
+- Exchange cards never expose stage/activate
+- Human select → stage → activate (no scene launch)
 
----
+## Why this replaces rejected dashboard
 
-## Orchestrator provisional guidance
+- Rejected: grid of 7 miniature workspaces + story panel
+- Approved: one primary center surface + Exchange rail per Room
+- No scene cards, no guided focus, no simultaneous mini editors
 
-| Owner priority | Suggested pick |
-|----------------|----------------|
-| Minimize migration / fastest shell | **Focus Shell + vanilla TS** |
-| Max a11y/component ecosystem | **Three Rooms + React** (Sol) |
-| Strongest anti-dashboard guarantee | **Three Rooms** (either framework) — structurally one workspace visible |
+## Library support
 
----
+| Surface | Library |
+|---------|---------|
+| Outer shell | CSS Grid (not Dockview) |
+| Participant center | dockview-react |
+| Exchange → timeline drag | interact.js |
+| Queue ordering | sortablejs |
+| Inspector popover | @floating-ui/dom |
+| Piano roll | canvas/SVG custom |
 
-## Why neither resembles rejected dashboard
+## Visual baseline
 
-- One full-size primary surface per mode
-- No simultaneous miniature DAW cards
-- No story beats / scene tour UI
-- Exchange shows artifacts, not narration
+Static frames: `design-research/frames/option-b-*.html` — adapted to Three-Room routing.
 
----
+## Canonical spec
 
-## Owner decision required
-
-1. **Skeleton:** `focus-shell` | `three-rooms` | `stage-booths` | `dual-canvas`
-2. **Framework:** `vanilla` | `react` (coupled decision if Three Rooms + Sol stack)
-3. **Accept Grok lifecycle/collapse rules** (yes/no)
-
-**No Phase 3A until explicit approval on all three.**
+See `design-research/owner-approved-architecture.md`.
