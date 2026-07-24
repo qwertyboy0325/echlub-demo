@@ -41,14 +41,17 @@ describe("shell musical integration", () => {
     expect(domain.draftForId(forkId)!.revision).toBeGreaterThan(sourceRevision);
   });
 
-  it("activate maps draft kind to scene layer", () => {
+  it("activate maps draft kind to scene layer and hydrates canonical placements", () => {
     const domain = new MusicalDomainStore();
     domain.loadPackJson(packJson);
     domain.forkDraft("midi-opening-guitar", "midi-opening-guitar-fork", "guitar-r1");
     domain.activateSharedMaster("midi-opening-guitar-fork", 0);
     const scene = domain.getSession()!.scenes[0]!;
     expect(scene.layers.melody?.draftId).toBe("midi-opening-guitar-fork");
-    expect(scene.layers.bass).toBeNull();
+    expect(scene.layers.bass?.draftId).toBe("midi-opening-bass");
+    expect(scene.layers.harmony?.draftId).toBe("midi-opening-piano-rh");
+    expect(scene.layerStacks?.bass?.length).toBeGreaterThan(0);
+    expect(domain.getSession()!.arrangement.scenes.length).toBeGreaterThan(1);
   });
 
   it("exchange lifecycle assigns draft ids through share and fork", () => {

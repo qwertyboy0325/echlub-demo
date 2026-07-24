@@ -184,6 +184,17 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
           slot.index === command.slotIndex ? { ...slot, value: command.value } : slot,
         ),
       };
+    case "SYNC_DOCK_FROM_MIX": {
+      if (!command.updates.length) return state;
+      const byIndex = new Map(command.updates.map((u) => [u.index, u.value]));
+      return {
+        ...state,
+        dockSlots: state.dockSlots.map((slot) => {
+          const value = byIndex.get(slot.index);
+          return value === undefined ? slot : { ...slot, value };
+        }),
+      };
+    }
     case "SET_DOCK_MODE":
       return { ...state, dockMode: command.mode };
     case "SELECT_EXCHANGE_CLIP":

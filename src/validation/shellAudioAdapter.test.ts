@@ -77,6 +77,32 @@ describe("ShellAudioAdapter", () => {
     expect(toneStart).toHaveBeenCalledTimes(1);
   });
 
+  it("applies dock value to engine mix params", () => {
+    const setMixParams = vi.fn();
+    const getMix = vi.fn().mockReturnValue({
+      filter: 5816,
+      delayWet: 0.1,
+      reverbWet: 0.2,
+      masterGain: -3,
+      faders: { groove: 64, harmony: 48, melody: 28, texture: 58 },
+    });
+    (adapter as unknown as AdapterInternals).engine = {
+      setMixParams,
+      getMix,
+    } as unknown as AdapterInternals["engine"];
+    const before = createInitialShellState();
+    const after = {
+      ...before,
+      dockSlots: before.dockSlots.map((slot, index) =>
+        index === 0
+          ? { ...slot, mapped: true, sourceParam: "Filter · Cutoff", value: 0.72 }
+          : slot,
+      ),
+    };
+    adapter.handleCommand({ type: "SET_DOCK_VALUE", slotIndex: 0, value: 0.72 }, before, after);
+    expect(setMixParams).toHaveBeenCalledWith({ filter: expect.closeTo(5816, 1) }, 0.12);
+  });
+
   it("dispose clears engine without leaving initialized state", () => {
     expect(adapter.isAudioReady()).toBe(false);
     adapter.dispose();

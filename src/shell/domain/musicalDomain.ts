@@ -3,7 +3,7 @@ import { parseReconstructionPackJson } from "../../domain/packLoader";
 import type { ReconstructionPack } from "../../domain/reconstructionPack";
 import { createIncompleteSession } from "../../demo/productionMutations";
 import type { ProductionSession } from "../../domain/sessionTypes";
-import type { NoteEvent, PatternDraft } from "../../types";
+import type { LayerId, NoteEvent, PatternDraft } from "../../types";
 
 const SHIKI_PUBLIC_PACK_ID = "shiki-no-uta-cover-public-demo-v1";
 
@@ -127,18 +127,88 @@ export class MusicalDomainStore {
   }
 
   activateSharedMaster(draftId: string, startBar = 0): boolean {
-    if (!this.session?.drafts[draftId]) return false;
+    if (!this.session?.drafts[draftId] || !this.pack) return false;
     const draft = this.session.drafts[draftId];
-    const ref = materialRefForDraft(draft);
     const scene = this.session.scenes.find((s) => s.startBar === startBar) ?? this.session.scenes[0];
     if (!scene) return false;
-    const layer = draft.kind;
-    scene.layers[layer] = { ...ref };
+
+    for (const id of this.collectPlacementDraftIds()) {
+      this.hydrateDraftFromPack(id);
+    }
+
+    for (const sessionScene of this.session.scenes) {
+      const hints = this.pack.scenePlacements[sessionScene.id] ?? {};
+      for (const [layer, placementDraftId] of Object.entries(hints)) {
+        if (!placementDraftId) continue;
+        const useDraftId =
+          sessionScene.id === scene.id && layer === draft.kind ? draftId : placementDraftId;
+        const layerDraft = this.session.drafts[useDraftId];
+        if (!layerDraft) continue;
+        sessionScene.layers[layer as LayerId] = materialRefForDraft(layerDraft);
+      }
+
+      const stackHints = this.pack.sceneLayerStacks?.[sessionScene.id] ?? {};
+      sessionScene.layerStacks ??= {};
+      for (const [layer, draftIds] of Object.entries(stackHints)) {
+        const refs = draftIds.flatMap((id) => {
+          const layerDraft = this.session!.drafts[id];
+          return layerDraft ? [materialRefForDraft(layerDraft)] : [];
+        });
+        if (refs.length) sessionScene.layerStacks[layer as LayerId] = refs;
+      }
+    }
+
+    this.session.arrangement.scenes = this.session.scenes
+      .filter(
+        (s) =>
+          Object.values(s.layers).some((ref) => ref !== null)
+          || Object.values(s.layerStacks ?? {}).some((refs) => refs && refs.length > 0),
+      )
+      .map((s) => ({ sceneId: s.id, startBar: s.startBar }));
+
     this.activeMasterDraftId = draftId;
     this.authority = "shared-master";
     this.bleed = "low";
-    this.log("activate-master", `${draftId} r${draft.revision} → ${layer} @ bar ${scene.startBar}`);
+    const layerCount = Object.values(scene.layers).filter(Boolean).length;
+    const stackCount = Object.values(scene.layerStacks ?? {}).reduce((n, refs) => n + (refs?.length ?? 0), 0);
+    this.log(
+      "activate-master",
+      `${draftId} r${draft.revision} → ${draft.kind} @ bar ${scene.startBar} · ${layerCount} layers · ${stackCount} stack refs`,
+    );
     return true;
+  }
+
+  private collectPlacementDraftIds(): Set<string> {
+    const ids = new Set<string>();
+    if (!this.pack) return ids;
+    for (const placement of Object.values(this.pack.scenePlacements)) {
+      for (const draftId of Object.values(placement)) {
+        if (draftId) ids.add(draftId);
+      }
+    }
+    if (this.pack.sceneLayerStacks) {
+      for (const stacks of Object.values(this.pack.sceneLayerStacks)) {
+        for (const draftIds of Object.values(stacks)) {
+          for (const id of draftIds ?? []) ids.add(id);
+        }
+      }
+    }
+    return ids;
+  }
+
+  private hydrateDraftFromPack(draftId: string): void {
+    if (!this.pack || !this.session) return;
+    const source = this.pack.drafts.find((d) => d.id === draftId);
+    if (!source) return;
+    const existing = this.session.drafts[draftId];
+    if (existing && (existing.notes?.length || existing.drumHits?.length || existing.harmonyChords?.length)) {
+      return;
+    }
+    this.session.drafts[draftId] = {
+      ...structuredClone(source),
+      status: existing?.status ?? "ready",
+      revision: existing?.revision ?? source.revision ?? 0,
+    };
   }
 
   setBleed(level: WorkspaceBleed): void {

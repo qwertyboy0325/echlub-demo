@@ -122,6 +122,7 @@ export type ShellCommand =
   | { type: "REORDER_EXCHANGE"; clipIds: string[] }
   | { type: "PIN_DOCK"; slotIndex: number; label: string; sourceTrack?: string; sourceClip?: string; sourceParam?: string }
   | { type: "SET_DOCK_VALUE"; slotIndex: number; value: number }
+  | { type: "SYNC_DOCK_FROM_MIX"; updates: { index: number; value: number }[] }
   | { type: "SET_DOCK_MODE"; mode: DockMode }
   | { type: "SELECT_EXCHANGE_CLIP"; clipId: string | null }
   | { type: "SELECT_MIXER_CHANNEL"; channelIndex: number }

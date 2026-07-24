@@ -4,8 +4,10 @@ import { LiveControlDock } from "./features/dock/LiveControlDock";
 import { GlobalStudioRoom } from "./rooms/GlobalStudioRoom";
 import { MixerPerformanceRoom } from "./rooms/MixerPerformanceRoom";
 import { ParticipantWorkspaceRoom } from "./rooms/ParticipantWorkspaceRoom";
-import { installShellAudioDispatchBridge, shellAudioAdapter } from "./shell/audio/shellAudioAdapter";
+import { shellAudioAdapter } from "./shell/audio/shellAudioAdapter";
 import { FocusShell } from "./shell/FocusShell";
+import { runPhase4Walkthrough, PHASE4_WALKTHROUGH } from "./shell/presenterWalkthrough";
+import { shellStore } from "./shell/domain/shellStore";
 import { useShellStore } from "./shell/useShellStore";
 import { useViewportMode } from "./shell/useViewportMode";
 import { useMusicalDomainReady, useShellAudioReady } from "./shell/useMusicalDraft";
@@ -19,8 +21,37 @@ export function App() {
   const [packError, setPackError] = useState<string | null>(null);
 
   useEffect(() => {
-    const uninstallBridge = installShellAudioDispatchBridge();
     let cancelled = false;
+    if (typeof window !== "undefined") {
+      const globalWindow = window as typeof window & {
+        __runPhase4Walkthrough?: () => Promise<string[]>;
+        __runPhase4WalkthroughUntil?: (maxBeat: number) => Promise<string[]>;
+        __runPhase4WalkthroughRange?: (fromBeat: number, toBeat: number) => Promise<string[]>;
+        __shellStore?: typeof shellStore;
+      };
+      globalWindow.__runPhase4WalkthroughRange = async (fromBeat: number, toBeat: number) => {
+        const labels: string[] = [];
+        for (const step of PHASE4_WALKTHROUGH.filter((entry) => entry.beat >= fromBeat && entry.beat <= toBeat)) {
+          labels.push(step.label);
+          for (const command of step.commands) shellStore.dispatch(command);
+        }
+        return labels;
+      };
+      globalWindow.__runPhase4WalkthroughUntil = async (maxBeat: number) => {
+        const labels: string[] = [];
+        for (const step of PHASE4_WALKTHROUGH.filter((entry) => entry.beat <= maxBeat)) {
+          labels.push(step.label);
+          for (const command of step.commands) shellStore.dispatch(command);
+        }
+        return labels;
+      };
+      globalWindow.__runPhase4Walkthrough = async () => {
+        const labels: string[] = [];
+        await runPhase4Walkthrough(undefined, (step) => labels.push(step.label));
+        return labels;
+      };
+      globalWindow.__shellStore = shellStore;
+    }
     void shellAudioAdapter.initialize().catch((error) => {
       if (cancelled) return;
       const message = error instanceof Error ? error.message : String(error);
@@ -29,7 +60,6 @@ export function App() {
     });
     return () => {
       cancelled = true;
-      uninstallBridge();
       setPackError(null);
     };
   }, []);

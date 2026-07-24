@@ -2,7 +2,7 @@ import * as Tone from "tone";
 import { AudioEngine } from "../../audioEngine";
 import { materialRefForDraft } from "../../domain/sessionMaterialBank";
 import { compileSessionMaterialBank } from "../../domain/sessionMaterialBank";
-import type { MixParams } from "../../types";
+import { dockUpdatesFromMix, mixPatchFromDockParam } from "./dockMixSync";
 import { musicalDomain, type MusicalDomainStore } from "../domain/musicalDomain";
 import type { ShellCommand, ShellState } from "../domain/shellTypes";
 import { shellStore } from "../domain/shellStore";
@@ -117,7 +117,7 @@ export class ShellAudioAdapter {
       return;
     }
     this.engine = engine;
-    this.publishBank("production");
+    this.publishBank("production", { resetMix: true });
     this.unsubscribe = shellStore.subscribe((state) => this.onShellState(state));
     this.initialized = true;
     this.evidence.audioReady = true;
@@ -125,8 +125,8 @@ export class ShellAudioAdapter {
     this.notifyReady();
     if (import.meta.env.DEV) {
       console.info("[shell-audio] ready · pack loaded · engine initialized");
-      exposeDevAudioDiagnostics(this);
     }
+    exposeShellAudioDiagnostics(this);
     const pending = this.pendingPreviewDraftId;
     this.pendingPreviewDraftId = null;
     if (pending) void this.playPreviewDraft(pending);
@@ -218,14 +218,20 @@ export class ShellAudioAdapter {
         break;
       case "SET_DEVICE_PARAM": {
         const patch = this.domain.deviceMixPatch(command.deviceId, command.value);
-        if (patch) this.engine.setMixParams(patch, 0.18);
+        if (patch) {
+          this.engine.setMixParams(patch, 0.18);
+          this.syncDockFromMix(after);
+        }
         break;
       }
       case "SET_DOCK_VALUE": {
         const slot = after.dockSlots[command.slotIndex];
         if (!slot?.mapped || !slot.sourceParam) break;
-        const patch = this.paramPatchFromDockSlot(slot.sourceParam, command.value, after.dockMode);
-        if (patch) this.engine.setMixParams(patch, 0.12);
+        const patch = mixPatchFromDockParam(slot.sourceParam, command.value);
+        if (patch) {
+          this.engine.setMixParams(patch, 0.12);
+          this.syncDockFromMix(after);
+        }
         break;
       }
       case "FORK_CLIP": {
@@ -259,8 +265,9 @@ export class ShellAudioAdapter {
       }
       case "RESTART_SESSION":
         this.engine.stop();
+        this.engine.clearArrangementSceneBoundaries();
         this.domain.restart();
-        this.publishBank("production");
+        this.publishBank("production", { resetMix: true });
         break;
       default:
         break;
@@ -269,7 +276,10 @@ export class ShellAudioAdapter {
 
   private applyDraftEdit(result: ReturnType<MusicalDomainStore["moveNoteStep"]>): void {
     if (!result || !this.engine) return;
-    this.publishBank(this.domain.getAuthority() === "shared-master" ? "livePerformance" : "production");
+    this.publishBank(
+      this.domain.getAuthority() === "shared-master" ? "livePerformance" : "production",
+      { resetMix: false },
+    );
     const draft = this.domain.draftForId(result.draftId);
     if (draft) {
       void Tone.start();
@@ -280,7 +290,7 @@ export class ShellAudioAdapter {
   private async playDraftCue(draftId: string): Promise<void> {
     await Tone.start();
     if (!this.engine) return;
-    this.publishBank(this.domain.getAuthority() === "shared-master" ? "livePerformance" : "production");
+    this.publishBank(this.domain.getAuthority() === "shared-master" ? "livePerformance" : "production", { resetMix: false });
     const draft = this.domain.draftForId(draftId);
     if (draft) this.engine.startPrivateCue(materialRefForDraft(draft));
   }
@@ -298,7 +308,7 @@ export class ShellAudioAdapter {
     }
     const draft = this.domain.draftForId(draftId);
     if (!draft) return;
-    this.publishBank("production");
+    this.publishBank("production", { resetMix: false });
     this.engine.startPrivateCue(materialRefForDraft(draft));
   }
 
@@ -306,27 +316,32 @@ export class ShellAudioAdapter {
     this.readyListeners.forEach((listener) => listener());
   }
 
-  private publishBank(act: "production" | "livePerformance"): void {
+  private publishBank(act: "production" | "livePerformance", options?: { resetMix?: boolean }): void {
     const session = this.domain.getSession();
     if (!session || !this.engine) return;
     const bank = compileSessionMaterialBank(session);
     this.engine.setMaterialBank(bank);
-    this.engine.setBaselineMix(session.mix);
+    if (options?.resetMix !== false) {
+      this.engine.setBaselineMix(session.mix);
+    }
     this.engine.setCurrentAct(act);
+    if (act === "livePerformance") {
+      const boundaries = session.scenes
+        .filter((scene) => session.arrangement.scenes.some((entry) => entry.sceneId === scene.id))
+        .map((scene) => ({ startBar: scene.startBar, scene }));
+      this.engine.setArrangementSceneBoundaries(boundaries);
+      const opening = session.scenes.find((scene) => scene.id === "opening") ?? session.scenes[0];
+      if (opening) this.engine.activateSceneAtBoundary(opening);
+    } else {
+      this.engine.clearArrangementSceneBoundaries();
+    }
   }
 
-  private paramPatchFromDockSlot(
-    sourceParam: string,
-    value: number,
-    mode: ShellState["dockMode"],
-  ): Partial<MixParams> | null {
-    void mode;
-    const label = sourceParam.toLowerCase();
-    if (label.includes("cutoff") || label.includes("filter")) return { filter: 200 + value * 7800 };
-    if (label.includes("delay") || label.includes("wet")) return { delayWet: value * 0.65 };
-    if (label.includes("reverb") || label.includes("send")) return { reverbWet: value * 0.85 };
-    if (label.includes("level")) return { masterGain: -24 + value * 18 };
-    return null;
+  private syncDockFromMix(state: ShellState): void {
+    if (!this.engine) return;
+    const updates = dockUpdatesFromMix(state, this.engine.getMix());
+    if (!updates.length) return;
+    shellStore.dispatch({ type: "SYNC_DOCK_FROM_MIX", updates });
   }
 }
 
@@ -343,7 +358,11 @@ export function bindShellAudioAdapter(): () => void {
   return unsub;
 }
 
+let dispatchBridgeInstalled = false;
+
 export function installShellAudioDispatchBridge(): () => void {
+  if (dispatchBridgeInstalled) return () => {};
+  dispatchBridgeInstalled = true;
   const original = shellStore.dispatch.bind(shellStore);
   shellStore.dispatch = (command: ShellCommand) => {
     const before = shellStore.getState();
@@ -352,10 +371,15 @@ export function installShellAudioDispatchBridge(): () => void {
   };
   return () => {
     shellStore.dispatch = original;
+    dispatchBridgeInstalled = false;
   };
 }
 
-function exposeDevAudioDiagnostics(adapter: ShellAudioAdapter): void {
+if (typeof window !== "undefined") {
+  installShellAudioDispatchBridge();
+}
+
+function exposeShellAudioDiagnostics(adapter: ShellAudioAdapter): void {
   if (typeof window === "undefined") return;
   const globalWindow = window as typeof window & {
     __shellAudioEvidence?: () => Record<string, unknown>;
@@ -370,6 +394,9 @@ function exposeDevAudioDiagnostics(adapter: ShellAudioAdapter): void {
       cueScheduleCount: engine?.getCueScheduleCount() ?? 0,
       toneContextState: Tone.context.state,
       toneTransportState: Tone.getTransport().state,
+      mixFilter: engine?.getMix().filter ?? null,
+      dockSlot0: shellStore.getState().dockSlots[0]?.value ?? null,
+      activeMasterLayers: musicalDomain.getSession()?.scenes.find((scene) => scene.id === "opening")?.layers ?? null,
     };
   };
 }
