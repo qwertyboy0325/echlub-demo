@@ -54,21 +54,17 @@ const followLocked = await page.evaluate(() => Boolean(document.querySelector(".
 
 await page.$$eval(".room-nav button", (buttons, i) => buttons[i].click(), 0);
 await delay(300);
-await page.$$eval(".exchange-actions button", (buttons) => {
-  for (const b of buttons) {
-    if (b.textContent === "Ready") b.click();
-  }
-});
+await page.click(".exchange-row[data-clip-id='c4']");
 await delay(200);
 
 const stageControls = await page.evaluate(() => ({
-  stageButton: Boolean(document.querySelector(".arrangement-lane button")),
-  activateOnlyGlobal: !document.querySelector(".room--participant .arrangement-lane"),
+  stageButton: Boolean(document.querySelector(".arrangement-drop-target--empty .stage-btn")),
+  activateOnlyGlobal: !document.querySelector(".room--participant .arrangement-drop-target"),
 }));
 
 await page.$$eval(".room-nav button", (buttons, i) => buttons[i].click(), 1);
 await delay(200);
-const noStageInParticipant = await page.evaluate(() => !document.querySelector(".arrangement-lane"));
+const noStageInParticipant = await page.evaluate(() => !document.querySelector(".arrangement-drop-target"));
 
 await browser.close();
 shutdown();
@@ -85,6 +81,6 @@ console.log(JSON.stringify({
   stageControls,
   noStageInParticipant,
   pageErrors,
-  note: "Phase 3A shell smoke — three-act demo deferred to Phase 4",
+  note: "Phase 3B.1 shell smoke — stage/activate Global-only",
 }, null, 2));
 process.exit(ok ? 0 : 1);

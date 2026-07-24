@@ -1,6 +1,5 @@
 import { Tab, TabList, Tabs } from "react-aria-components";
 import type { CreateSubMode, ShellCommand, ShellState } from "../../shell/domain/shellTypes";
-import { DevicesPanel } from "../devices/DevicesPanel";
 
 interface CreateEditorProps {
   state: ShellState;
@@ -20,21 +19,27 @@ export function CreateEditor({ state, dispatch }: CreateEditorProps) {
         >
           <TabList className="create-submodes" aria-label="Create sub-mode">
             {modes.map((mode) => (
-              <Tab key={mode} id={mode}>
+              <Tab key={mode} id={mode} className="create-submode-tab">
                 {labels[mode]}
               </Tab>
             ))}
           </TabList>
         </Tabs>
-        <div className="create-floating-devices">
-          <DevicesPanel dispatch={dispatch} draggable />
-        </div>
+        <button
+          type="button"
+          className="devices-summary-btn"
+          onClick={() => dispatch({ type: "SET_PARTICIPANT_TAB", tab: "Devices" })}
+        >
+          <span className="devices-summary-count">3 Devices</span>
+          <span className="devices-summary-action">Open Devices</span>
+        </button>
       </div>
       {state.createSubMode === "piano" && (
         <div className="piano-roll" aria-label="Piano roll editor">
           <div className="piano-grid">
             <div className="piano-note" style={{ left: 120, top: 80, width: 72 }} />
             <div className="piano-note" style={{ left: 200, top: 120, width: 48 }} />
+            <div className="piano-note piano-note--accent" style={{ left: 280, top: 60, width: 96 }} />
             <div className="playhead" />
           </div>
         </div>

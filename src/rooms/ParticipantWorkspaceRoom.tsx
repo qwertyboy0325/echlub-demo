@@ -1,6 +1,4 @@
-import { DockviewReact, type DockviewReadyEvent } from "dockview-react";
-import "dockview-react/dist/styles/dockview.css";
-import { Tab, TabList, Tabs } from "react-aria-components";
+import { Tab, TabList, TabPanel, Tabs } from "react-aria-components";
 import type { ExchangeClip, ParticipantTab, ShellCommand, ShellState } from "../shell/domain/shellTypes";
 import { CreateEditor } from "../features/create/CreateEditor";
 import { DevicesPanel } from "../features/devices/DevicesPanel";
@@ -34,11 +32,36 @@ function TabPanelContent({
     case "Devices":
       return <DevicesPanel dispatch={dispatch} draggable />;
     case "Automation":
-      return <div className="automation-lane">Automation lane (fixture curves)</div>;
+      return (
+        <div className="automation-lane">
+          <div className="automation-curve" aria-hidden />
+          <span className="automation-label">Filter cutoff · bass-loop · r3</span>
+        </div>
+      );
     case "Mix":
-      return <div className="mix-panel">Mix prep — channel trim and sends (fixture)</div>;
+      return (
+        <div className="mix-panel">
+          <div className="mix-trim-row">
+            <span className="mix-channel-name">Bass</span>
+            <input type="range" min={0} max={100} defaultValue={58} aria-label="Bass trim" />
+            <span className="tabular-nums mix-value">−4.2 dB</span>
+          </div>
+          <div className="mix-trim-row">
+            <span className="mix-channel-name">Send A</span>
+            <input type="range" min={0} max={100} defaultValue={22} aria-label="Send A" />
+            <span className="tabular-nums mix-value">22%</span>
+          </div>
+        </div>
+      );
     case "Queue":
-      return <div className="queue-panel">Personal queue — handoffs to Exchange</div>;
+      return (
+        <div className="queue-panel">
+          <ul className="queue-list">
+            <li>melody-draft · r2 · submit for review</li>
+            <li>bass-loop · r3 · ready in Exchange</li>
+          </ul>
+        </div>
+      );
   }
 }
 
@@ -62,25 +85,17 @@ export function ParticipantWorkspaceRoom({ state, dispatch }: ParticipantWorkspa
       >
         <TabList className="participant-tabs" aria-label="Participant workspace">
           {TABS.map((tab) => (
-            <Tab key={tab} id={tab}>
+            <Tab key={tab} id={tab} className="participant-tab">
               {tab}
             </Tab>
           ))}
         </TabList>
+        {TABS.map((tab) => (
+          <TabPanel key={tab} id={tab} className="participant-tab-panel">
+            <TabPanelContent tab={tab} state={state} dispatch={dispatch} />
+          </TabPanel>
+        ))}
       </Tabs>
-      <div className="participant-center dockview-theme-echlub">
-        <DockviewReact
-          className="dockview-theme-echlub"
-          onReady={(event: DockviewReadyEvent) => {
-            if (event.api.panels.length === 0) {
-              event.api.addPanel({ id: "editor", component: "editor", title: state.participantTab });
-            }
-          }}
-          components={{
-            editor: () => <TabPanelContent tab={state.participantTab} state={state} dispatch={dispatch} />,
-          }}
-        />
-      </div>
     </div>
   );
 }

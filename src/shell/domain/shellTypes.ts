@@ -12,7 +12,24 @@ export type DockSlotType = "knob" | "fader" | "toggle" | "momentary";
 
 export type DockBadge = "PREVIEW" | "CAPTURE" | "MASTER";
 
+export type DockMode = "preview" | "capture" | "master";
+
 export type ViewportMode = "wide" | "drawer" | "compact";
+
+export interface ArrangementTrack {
+  id: string;
+  name: string;
+  identity: string;
+}
+
+export interface TimelineClip {
+  id: string;
+  exchangeClipId: string;
+  trackId: string;
+  startBar: number;
+  lengthBars: number;
+  variant: "normal" | "staged" | "active" | "selected";
+}
 
 export interface Participant {
   id: string;
@@ -48,8 +65,11 @@ export interface DockSlot {
   label: string;
   type: DockSlotType;
   value: number;
-  badge: DockBadge;
-  sourceLabel: string | null;
+  badge: DockBadge | null;
+  sourceTrack: string | null;
+  sourceClip: string | null;
+  sourceParam: string | null;
+  mapped: boolean;
 }
 
 export interface ShellState {
@@ -67,6 +87,11 @@ export interface ShellState {
   participants: Participant[];
   exchangeClips: ExchangeClip[];
   arrangementSlots: ArrangementSlot[];
+  arrangementTracks: ArrangementTrack[];
+  timelineClips: TimelineClip[];
+  selectedExchangeClipId: string | null;
+  selectedMixerChannel: number;
+  dockMode: DockMode;
   dockSlots: DockSlot[];
   activityFeed: string[];
 }
@@ -89,8 +114,11 @@ export type ShellCommand =
   | { type: "STAGE_CLIP"; clipId: string; slotId: string }
   | { type: "ACTIVATE_SLOT"; slotId: string }
   | { type: "REORDER_EXCHANGE"; clipIds: string[] }
-  | { type: "PIN_DOCK"; slotIndex: number; label: string }
+  | { type: "PIN_DOCK"; slotIndex: number; label: string; sourceTrack?: string; sourceClip?: string; sourceParam?: string }
   | { type: "SET_DOCK_VALUE"; slotIndex: number; value: number }
+  | { type: "SET_DOCK_MODE"; mode: DockMode }
+  | { type: "SELECT_EXCHANGE_CLIP"; clipId: string | null }
+  | { type: "SELECT_MIXER_CHANNEL"; channelIndex: number }
   | { type: "TOGGLE_TRANSPORT" };
 
 export function viewportModeForSize(width: number, height: number): ViewportMode {

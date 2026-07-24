@@ -154,7 +154,16 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
       return {
         ...state,
         dockSlots: state.dockSlots.map((slot) =>
-          slot.index === command.slotIndex ? { ...slot, sourceLabel: command.label, label: command.label } : slot,
+          slot.index === command.slotIndex
+            ? {
+                ...slot,
+                label: command.sourceParam ?? command.label,
+                sourceTrack: command.sourceTrack ?? slot.sourceTrack,
+                sourceClip: command.sourceClip ?? slot.sourceClip,
+                sourceParam: command.sourceParam ?? command.label,
+                mapped: true,
+              }
+            : slot,
         ),
       };
     case "SET_DOCK_VALUE":
@@ -164,8 +173,14 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
           slot.index === command.slotIndex ? { ...slot, value: command.value } : slot,
         ),
       };
+    case "SET_DOCK_MODE":
+      return { ...state, dockMode: command.mode };
+    case "SELECT_EXCHANGE_CLIP":
+      return { ...state, selectedExchangeClipId: command.clipId };
     case "TOGGLE_TRANSPORT":
       return { ...state, transportPlaying: !state.transportPlaying };
+    case "SELECT_MIXER_CHANNEL":
+      return { ...state, selectedMixerChannel: command.channelIndex };
     default:
       return state;
   }

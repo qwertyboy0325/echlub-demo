@@ -16,13 +16,13 @@ interface DevicesPanelProps {
 }
 
 export function DevicesPanel({ dispatch, draggable = false }: DevicesPanelProps) {
-  const [openId, setOpenId] = useState<string | null>(null);
+  const [openId, setOpenId] = useState<string>("filter");
   const anchorRef = useRef<HTMLButtonElement | null>(null);
   const popoverRef = useRef<HTMLDivElement | null>(null);
   const blockRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const setPopoverOpen = (id: string | null) => {
-    setOpenId(id);
+    setOpenId(id ?? "filter");
     dispatch?.({ type: "SET_INTERACTION_FROZEN", frozen: id !== null });
   };
 
@@ -61,16 +61,16 @@ export function DevicesPanel({ dispatch, draggable = false }: DevicesPanelProps)
             const target = event.target as HTMLElement;
             target.style.transform = "";
             el.classList.remove("device-block--dragging");
-            dispatch?.({ type: "SET_INTERACTION_FROZEN", frozen: openId !== null });
+            dispatch?.({ type: "SET_INTERACTION_FROZEN", frozen: false });
           },
         },
       });
       cleanups.push(() => instance.unset());
     });
     return () => cleanups.forEach((c) => c());
-  }, [dispatch, draggable, openId]);
+  }, [dispatch, draggable]);
 
-  const openDevice = DEVICES.find((d) => d.id === openId);
+  const openDevice = DEVICES.find((d) => d.id === openId) ?? DEVICES[0]!;
 
   return (
     <section className="devices-panel" aria-label="Devices and effects">
@@ -78,44 +78,46 @@ export function DevicesPanel({ dispatch, draggable = false }: DevicesPanelProps)
       <div className="device-rack">
         {DEVICES.map((device, index) => (
           <span key={device.id} style={{ display: "contents" }}>
-            {index > 0 && (
-              <ChevronRight size={14} className="device-chain-arrow" aria-hidden />
-            )}
+            {index > 0 && <ChevronRight size={14} className="device-chain-arrow" aria-hidden />}
             <button
               type="button"
-              className={`device-block param-chip${draggable ? " device-block--draggable" : ""}`}
+              className={`device-block param-chip${draggable ? " device-block--draggable" : ""}${openId === device.id ? " device-block--active" : ""}`}
               ref={(el) => {
                 blockRefs.current[index] = el;
-                if (index === 0) anchorRef.current = el;
+                if (openId === device.id) anchorRef.current = el;
               }}
-              onClick={() => setPopoverOpen(openId === device.id ? null : device.id)}
+              onClick={() => setPopoverOpen(device.id)}
             >
               {device.name}
             </button>
           </span>
         ))}
       </div>
-      {openId && openDevice && (
-        <div ref={popoverRef} className="device-popover" role="dialog" aria-label="Device inspector">
-          <div
-            className="device-knob"
-            aria-hidden
-          >
+      <div className="device-inspector-inline" aria-label="Device inspector">
+        <div className="device-inspector-head">
+          <strong>{openDevice.name}</strong>
+          <span className="tabular-nums">{openDevice.param}</span>
+        </div>
+        <div className="device-inspector-body">
+          <div className="device-knob" aria-hidden>
             <span
               className="device-knob-indicator"
               style={{ transform: `translateX(-50%) rotate(${(openDevice.value / 100) * 270 - 135}deg)` }}
             />
           </div>
-          <label>
-            {openDevice.param}
-            <input type="range" min={0} max={100} defaultValue={openDevice.value} />
-            <span className="tabular-nums">{openDevice.value}</span>
-          </label>
-          <button type="button" onClick={() => setPopoverOpen(null)}>
-            Close
-          </button>
+          <div className="device-inspector-controls">
+            <label>
+              {openDevice.param}
+              <input type="range" min={0} max={100} defaultValue={openDevice.value} />
+            </label>
+            <span className="device-value tabular-nums">{openDevice.value}</span>
+            <div className="device-meter-strip" aria-hidden>
+              <span style={{ width: `${openDevice.value}%` }} />
+            </div>
+          </div>
         </div>
-      )}
+      </div>
+      <div ref={popoverRef} className="device-popover device-popover--hidden" role="dialog" aria-label="Device popover" hidden />
     </section>
   );
 }
