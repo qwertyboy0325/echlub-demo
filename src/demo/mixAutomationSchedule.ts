@@ -1,4 +1,3 @@
-import * as Tone from "tone";
 import type { MixAutomationEvent } from "../domain/reconstructionPack";
 import type { DemoAct } from "../domain/sessionTypes";
 import type { AudioEngine } from "../audioEngine";
@@ -17,19 +16,32 @@ export function filterMixAutomationEvents(
     .sort((a, b) => positionToTicks(parsePosition(a.at)) - positionToTicks(parsePosition(b.at)));
 }
 
+/** Group pack automation by transport sixteenth tick for clock-coherent playback. */
+export function indexMixAutomationByTick(
+  events: readonly MixAutomationEvent[] | undefined,
+  act: DemoAct,
+): Map<number, MixAutomationEvent[]> {
+  const indexed = new Map<number, MixAutomationEvent[]>();
+  if (!events?.length) return indexed;
+  for (const event of filterMixAutomationEvents(events, act)) {
+    const tick = positionToTicks(parsePosition(event.at));
+    const bucket = indexed.get(tick) ?? [];
+    bucket.push(event);
+    indexed.set(tick, bucket);
+  }
+  for (const [tick, bucket] of indexed) {
+    bucket.sort((a, b) => a.id.localeCompare(b.id));
+    indexed.set(tick, bucket);
+  }
+  return indexed;
+}
+
+/** Register automation on the musical clock instead of independent Transport callbacks. */
 export function schedulePackMixAutomation(
   audioEngine: AudioEngine,
   events: readonly MixAutomationEvent[] | undefined,
   act: DemoAct,
 ): number[] {
-  if (!events?.length) return [];
-  const transport = Tone.getTransport();
-  const ids: number[] = [];
-  for (const event of filterMixAutomationEvents(events, act)) {
-    const id = transport.schedule((time) => {
-      audioEngine.applyMixAutomationEvent(event, time);
-    }, event.at);
-    ids.push(id);
-  }
-  return ids;
+  audioEngine.setPackMixAutomation(events, act);
+  return [];
 }

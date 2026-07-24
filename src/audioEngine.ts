@@ -1,14 +1,24 @@
 import * as Tone from "tone";
 import { BPM, TOTAL_BARS } from "./musicalConstants";
 import { createIdleScene, IDLE_SCENE_ID, type SceneExecutionAuthority } from "./sceneExecution";
-import { computeRampTargetTime } from "./mixMapping";
-import { createMasterAudioGraph, type MasterAudioGraph } from "./audio/masterAudioGraph";
+import {
+  createMasterAudioGraph,
+  prepareMasterAudioGraph,
+  type MasterAudioGraph,
+} from "./audio/masterAudioGraph";
 import {
   applyMixAutomationEventToGraph,
   applyMixParamsToGraph,
   applySceneFxToGraph,
   resetMixToBaseline,
 } from "./audio/mixApplication";
+import { audioNow, clampAudioTime, rampLinear } from "./audio/audioParamScheduling";
+import {
+  configurePlaybackAudioContext,
+  notePlayDeferSeconds,
+  transportStartOffsetSeconds,
+} from "./audio/browserAudioProfile";
+import { indexMixAutomationByTick } from "./demo/mixAutomationSchedule";
 import { playLayerOnGraph } from "./audio/voicePlayback";
 import type { LayerId, MaterialRef, MixParams, SceneDefinition } from "./types";
 import type { SessionMaterialBank } from "./domain/sessionMaterialBank";
@@ -95,6 +105,9 @@ export class AudioEngine {
   private currentMix: MixParams = { filter: 1200, delayWet: 0.2, reverbWet: 0.42, masterGain: -3, faders: { groove: 64, harmony: 48, melody: 28, texture: 58 } };
   private playingScene: SceneDefinition = createIdleScene();
   private launchAtBar = new Map<number, string>();
+  private sceneAtBar = new Map<number, SceneDefinition>();
+  private mixAutomationByTick = new Map<number, MixAutomationEvent[]>();
+  private mixDirtyAtCurrentTick = false;
   private masterStepCount = 0;
   private cueNoteCount = 0;
   private cueActive = false;
@@ -137,19 +150,19 @@ export class AudioEngine {
   private bassDrive!: Tone.Distortion;
   private bassTrim!: Tone.Volume;
   private harmonyFilter!: Tone.Filter;
-  private harmonyChorus!: Tone.Chorus;
+  private harmonyChorus!: Tone.Gain;
   private melodyFilter!: Tone.Filter;
-  private melodyChorus!: Tone.Chorus;
+  private melodyChorus!: Tone.Gain;
   private textureFilter!: Tone.Filter;
   private kick!: Tone.MembraneSynth;
   private snare!: Tone.NoiseSynth;
-  private hat!: Tone.MetalSynth;
+  private hat!: Tone.NoiseSynth;
   private rim!: Tone.NoiseSynth;
   private tomLow!: Tone.MembraneSynth;
   private tomMid!: Tone.MembraneSynth;
   private tomHigh!: Tone.MembraneSynth;
-  private crash!: Tone.MetalSynth;
-  private ride!: Tone.MetalSynth;
+  private crash!: Tone.NoiseSynth;
+  private ride!: Tone.NoiseSynth;
   private bass!: Tone.MonoSynth;
   private bassAccent!: Tone.MonoSynth;
   private bassMute!: Tone.NoiseSynth;
@@ -167,7 +180,6 @@ export class AudioEngine {
   private reedDrive!: Tone.Distortion;
   private reedBody!: Tone.Filter;
   private reedPresence!: Tone.Filter;
-  private reedVibrato!: Tone.LFO;
   private guitarBody!: Tone.MonoSynth;
   private guitarString!: Tone.PluckSynth;
   private guitarFretNoise!: Tone.NoiseSynth;
@@ -177,7 +189,7 @@ export class AudioEngine {
   private cueMelody!: Tone.Synth;
   private cueReed!: Tone.MonoSynth;
   private cueGuitar!: Tone.PluckSynth;
-  private cueHat!: Tone.MetalSynth;
+  private cueHat!: Tone.NoiseSynth;
   private cueKick!: Tone.MembraneSynth;
   private cueGain!: Tone.Volume;
 
@@ -224,6 +236,25 @@ export class AudioEngine {
     this.launchAtBar.clear();
   }
 
+  setArrangementSceneBoundaries(scenes: readonly { startBar: number; scene: SceneDefinition }[]): void {
+    this.sceneAtBar.clear();
+    for (const { startBar, scene } of scenes) {
+      this.sceneAtBar.set(startBar, scene);
+    }
+  }
+
+  clearArrangementSceneBoundaries(): void {
+    this.sceneAtBar.clear();
+  }
+
+  setPackMixAutomation(events: readonly MixAutomationEvent[] | undefined, act: DemoAct): void {
+    this.mixAutomationByTick = indexMixAutomationByTick(events, act);
+  }
+
+  clearPackMixAutomation(): void {
+    this.mixAutomationByTick.clear();
+  }
+
   async initialize(): Promise<void> {
     if (this.initialized) return;
     if (!this.initializationPromise) this.initializationPromise = this.initializeOnce();
@@ -235,6 +266,8 @@ export class AudioEngine {
   }
 
   private async initializeOnce(): Promise<void> {
+    // Larger render buffer must be requested before any node exists.
+    configurePlaybackAudioContext();
     await Tone.start();
 
     const initMix = this.baselineMix ?? this.currentMix;
@@ -243,6 +276,7 @@ export class AudioEngine {
       baselineMix: initMix,
       destination: Tone.getDestination(),
     });
+    await prepareMasterAudioGraph(this.graph);
     this.bindGraphFields();
     this.masterMeter = new Tone.Meter({ normalRange: false, smoothing: 0.8 });
     this.limiter.connect(this.masterMeter);
@@ -261,14 +295,11 @@ export class AudioEngine {
       volume: -11,
     });
     this.cueGuitar = new Tone.PluckSynth({ attackNoise: 1.1, dampening: 3400, resonance: 0.88, release: 0.42, volume: -9 });
-    this.cueHat = new Tone.MetalSynth({
-      envelope: { attack: 0.001, decay: 0.04, release: 0.01 },
-      harmonicity: 5.1,
-      modulationIndex: 24,
-      resonance: 4200,
-      octaves: 1.5,
+    this.cueHat = new Tone.NoiseSynth({
+      noise: { type: "white" },
+      envelope: { attack: 0.001, decay: 0.04, sustain: 0, release: 0.01 },
       volume: -22,
-    } as Tone.MetalSynthOptions);
+    });
     this.cueKick = new Tone.MembraneSynth({
       pitchDecay: 0.03,
       octaves: 4,
@@ -298,6 +329,9 @@ export class AudioEngine {
       const beat = Math.floor((totalSixteenths % 16) / 4);
       const sixteenth = totalSixteenths % 4;
       const step = beat * 4 + sixteenth;
+      const tick = totalSixteenths;
+      this.mixDirtyAtCurrentTick = false;
+      let mixChangedThisTick = false;
       if (beat === 0 && sixteenth === 0) {
         const tempoChange = this.tempoMap.find((entry) => entry.bar === bar);
         if (tempoChange) {
@@ -307,12 +341,27 @@ export class AudioEngine {
         this.callbacks.onBeforeBoundary?.(bar, time);
         const launchSceneId = this.launchAtBar.get(bar);
         if (launchSceneId) this.callbacks.onLaunchAtBar?.(bar, launchSceneId, time);
+        const arrangementScene = this.sceneAtBar.get(bar);
+        if (arrangementScene) {
+          this.playingScene = arrangementScene;
+          this.applySceneFx(arrangementScene, time, true);
+          mixChangedThisTick = true;
+        }
       }
+      const automationEvents = this.mixAutomationByTick.get(tick);
+      if (automationEvents?.length) {
+        for (const event of automationEvents) {
+          this.applyMixAutomationEvent(event, time);
+        }
+        mixChangedThisTick = true;
+      }
+      if (this.mixDirtyAtCurrentTick) mixChangedThisTick = true;
       const scene = this.currentAct === "livePerformance"
         ? (this.sceneAuthority?.playingScene ?? this.playingScene)
         : this.playingScene;
 
-      this.playStep(scene, bar, step, time);
+      const noteTime = mixChangedThisTick ? time + notePlayDeferSeconds() : time;
+      this.playStep(scene, bar, step, noteTime);
       this.masterStepCount += 1;
 
       Tone.getDraw().schedule(() => {
@@ -397,7 +446,7 @@ export class AudioEngine {
   activateSceneAtBoundary(scene: SceneDefinition, time?: number): void {
     this.playingScene = scene;
     if (!this.initialized) return;
-    const ramp = time ?? Tone.getTransport().seconds + 0.05;
+    const ramp = time ?? audioNow() + 0.01;
     this.applySceneFx(scene, ramp, true);
   }
 
@@ -406,6 +455,7 @@ export class AudioEngine {
   }
 
   applyMixAutomationEvent(event: MixAutomationEvent, atTime: number): void {
+    this.mixDirtyAtCurrentTick = true;
     this.currentMix = applyMixAutomationEventToGraph(this.graph, this.currentMix, event, atTime);
     this.mixAutomationLog.push({
       id: event.id,
@@ -459,7 +509,7 @@ export class AudioEngine {
     // Tone's transport can report a tiny negative epsilon at the zero boundary.
     // Web Audio rejects any negative AudioParam time, even one caused only by
     // floating-point rounding.
-    this.cueGain.volume.setValueAtTime(-8, Math.max(0, transport.seconds));
+    rampLinear(this.cueGain.volume, -8, audioNow(), 0.001);
 
     this.logResolution("cue", "", "cue", materialRef);
 
@@ -491,7 +541,7 @@ export class AudioEngine {
     const draftId = this.cueDraftId;
     const ref = this.cueMaterialRef;
     const transport = Tone.getTransport();
-    const time = at ?? transport.seconds;
+    const time = at ?? audioNow();
     const stoppedAt = atTransportPosition ?? parseTransportPosition(transport.position.toString());
     const transportStartedByCue = this.cueOwnsTransport;
 
@@ -502,7 +552,7 @@ export class AudioEngine {
       this.cueStopScheduleId = null;
     }
     this.cueMelody.triggerRelease(time);
-    this.cueGain.volume.linearRampToValueAtTime(-60, computeRampTargetTime(time, 0.08));
+    rampLinear(this.cueGain.volume, -60, clampAudioTime(time), 0.08);
 
     if (wasActive && draftId && ref) {
       const evidence: CueCompletionEvidence = {
@@ -553,7 +603,7 @@ export class AudioEngine {
     this.masterStepCount = 0;
     this.resetPrivateCue();
     if (!this.initialized) return;
-    resetMixToBaseline(this.graph, mix, this.soundDesign, Tone.getTransport().seconds + 0.01);
+    resetMixToBaseline(this.graph, mix, this.soundDesign, audioNow() + 0.01);
   }
 
   start(): void {
@@ -566,11 +616,27 @@ export class AudioEngine {
     this.masterStepCount = 0;
     this.clearMixAutomationLog();
     this.resetPrivateCue();
-    transport.start("+0.08");
+    if (this.initialized) {
+      const fadeAt = audioNow();
+      rampLinear(this.graph.outputFade.gain, 0, fadeAt, 0.02);
+      rampLinear(
+        this.graph.outputFade.gain,
+        1,
+        fadeAt + 0.025,
+        0.08,
+      );
+    }
+    transport.start(transportStartOffsetSeconds());
   }
 
   pause(): void { Tone.getTransport().pause(); }
-  resume(): void { Tone.getTransport().start("+0.08"); }
+  resume(): void {
+    void Tone.start().then(() => {
+      if (Tone.getContext().state === "running") {
+        Tone.getTransport().start(transportStartOffsetSeconds());
+      }
+    });
+  }
 
   stop(): void {
     const transport = Tone.getTransport();
@@ -586,6 +652,7 @@ export class AudioEngine {
   get state(): string { return Tone.getTransport().state; }
 
   private applySceneFx(scene: SceneDefinition, startTime: number, includeFaders: boolean): void {
+    this.mixDirtyAtCurrentTick = true;
     this.currentMix = applySceneFxToGraph(this.graph, this.soundDesign, scene, startTime, includeFaders);
   }
 
@@ -674,7 +741,6 @@ export class AudioEngine {
       reedDrive: this.reedDrive,
       reedBody: this.reedBody,
       reedPresence: this.reedPresence,
-      reedVibrato: this.reedVibrato,
       guitarBody: this.guitarBody,
       guitarString: this.guitarString,
       guitarFretNoise: this.guitarFretNoise,
@@ -771,7 +837,7 @@ export class AudioEngine {
     [this.kick, this.snare, this.hat, this.rim, this.tomLow, this.tomMid, this.tomHigh, this.crash, this.ride,
       this.bass, this.bassAccent, this.bassMute,
       this.harmony, this.harmonyComp, this.melody, this.melodyCounter, this.melodyLead, this.melodyLeadAlt, this.melodyMute,
-      this.reedLead, this.reedLeadAlt, this.reedBreath, this.reedBreathAlt, this.reedDrive, this.reedBody, this.reedPresence, this.reedVibrato, this.texture,
+      this.reedLead, this.reedLeadAlt, this.reedBreath, this.reedBreathAlt, this.reedDrive, this.reedBody, this.reedPresence, this.texture,
       this.guitarBody, this.guitarString, this.guitarFretNoise, this.guitarDrive, this.guitarPresence,
       this.grooveGain, this.harmonyGain, this.melodyGain, this.textureGain,
       this.delay, this.reverb, this.delaySend, this.reverbSend, this.drumBus, this.drumTrim, this.drumReverbSend,

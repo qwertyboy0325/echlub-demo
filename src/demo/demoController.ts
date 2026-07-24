@@ -292,18 +292,18 @@ export class DemoController {
 }
 
 export function scheduleArrangementPlayback(
-  audioEngine: AudioEngine,
+  _audioEngine: AudioEngine,
   scenes: { scene: import("../types").SceneDefinition; startBar: number }[],
   totalBars: number,
   onStep: (bar: number) => void,
   onDone: () => void,
 ): number[] {
+  void _audioEngine;
   const transport = Tone.getTransport();
   const ids: number[] = [];
-  for (const { scene, startBar } of scenes) {
+  for (const { startBar } of scenes) {
     const at = `${startBar}:0:0`;
     ids.push(transport.schedule((time) => {
-      audioEngine.activateSceneAtBoundary(scene, time);
       Tone.getDraw().schedule(() => onStep(startBar), time);
     }, at));
   }

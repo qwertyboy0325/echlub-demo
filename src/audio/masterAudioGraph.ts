@@ -1,5 +1,5 @@
 import * as Tone from "tone";
-import { delayUiToWet, faderUiToDb } from "../mixMapping";
+import { delayUiToWet, faderUiToDb, filterUiToHz } from "../mixMapping";
 import type { MixParams } from "../types";
 import {
   resolveMixDrumDefaults,
@@ -7,9 +7,11 @@ import {
   resolveReedSoundDesign,
   type SoundDesignPreset,
 } from "../domain/reconstructionPack";
+import { reverbDecaySeconds } from "./browserAudioProfile";
 
 export interface MasterAudioGraph {
   master: Tone.Volume;
+  outputFade: Tone.Gain;
   limiter: Tone.Limiter;
   masterFilter: Tone.Filter;
   masterCompressor: Tone.Compressor;
@@ -29,19 +31,19 @@ export interface MasterAudioGraph {
   bassDrive: Tone.Distortion;
   bassTrim: Tone.Volume;
   harmonyFilter: Tone.Filter;
-  harmonyChorus: Tone.Chorus;
+  harmonyChorus: Tone.Gain;
   melodyFilter: Tone.Filter;
-  melodyChorus: Tone.Chorus;
+  melodyChorus: Tone.Gain;
   textureFilter: Tone.Filter;
   kick: Tone.MembraneSynth;
   snare: Tone.NoiseSynth;
-  hat: Tone.MetalSynth;
+  hat: Tone.NoiseSynth;
   rim: Tone.NoiseSynth;
   tomLow: Tone.MembraneSynth;
   tomMid: Tone.MembraneSynth;
   tomHigh: Tone.MembraneSynth;
-  crash: Tone.MetalSynth;
-  ride: Tone.MetalSynth;
+  crash: Tone.NoiseSynth;
+  ride: Tone.NoiseSynth;
   bass: Tone.MonoSynth;
   bassAccent: Tone.MonoSynth;
   bassMute: Tone.NoiseSynth;
@@ -59,7 +61,6 @@ export interface MasterAudioGraph {
   reedDrive: Tone.Distortion;
   reedBody: Tone.Filter;
   reedPresence: Tone.Filter;
-  reedVibrato: Tone.LFO;
   guitarBody: Tone.MonoSynth;
   guitarString: Tone.PluckSynth;
   guitarFretNoise: Tone.NoiseSynth;
@@ -74,6 +75,22 @@ export interface MasterAudioGraphOptions {
   destination: Tone.InputNode;
 }
 
+interface CymbalOptions {
+  envelope: { attack: number; decay: number; release: number };
+  volume: number;
+}
+
+function createCymbalSynth(
+  options: CymbalOptions,
+  noiseType: "white" | "pink",
+): Tone.NoiseSynth {
+  return new Tone.NoiseSynth({
+    noise: { type: noiseType },
+    envelope: { ...options.envelope, sustain: 0 },
+    volume: options.volume,
+  });
+}
+
 export function createMasterAudioGraph(options: MasterAudioGraphOptions): MasterAudioGraph {
   const { soundDesign: sound, baselineMix: initMix, destination } = options;
   const drumDefaults = resolveMixDrumDefaults(initMix, sound);
@@ -81,6 +98,7 @@ export function createMasterAudioGraph(options: MasterAudioGraphOptions): Master
   const reed = resolveReedSoundDesign(sound);
 
   const master = new Tone.Volume(initMix.masterGain);
+  const outputFade = new Tone.Gain(0);
   const limiter = new Tone.Limiter(-1);
   const masterCompressor = new Tone.Compressor({
     threshold: sound.master.compressorThreshold,
@@ -89,7 +107,7 @@ export function createMasterAudioGraph(options: MasterAudioGraphOptions): Master
     release: 0.22,
   });
   const masterFilter = new Tone.Filter({
-    frequency: initMix.filter,
+    frequency: filterUiToHz(initMix.filter),
     type: "lowpass",
     rolloff: sound.master.filterRolloff,
   });
@@ -99,7 +117,7 @@ export function createMasterAudioGraph(options: MasterAudioGraphOptions): Master
     wet: 1,
   });
   const reverb = new Tone.Reverb({
-    decay: sound.master.reverbDecay,
+    decay: reverbDecaySeconds(sound.master.reverbDecay),
     preDelay: sound.master.reverbPreDelay,
     wet: 1,
   });
@@ -118,22 +136,12 @@ export function createMasterAudioGraph(options: MasterAudioGraphOptions): Master
   const bassDrive = new Tone.Distortion({ distortion: sound.bass.drive, wet: sound.bass.drive > 0 ? 1 : 0 });
   const bassTrim = new Tone.Volume(subgroupTrims.bassTrimDb);
   const harmonyFilter = new Tone.Filter({ frequency: sound.harmony.filterFrequency, type: "lowpass", rolloff: -24 });
-  const harmonyChorus = new Tone.Chorus({
-    frequency: sound.harmony.chorusFrequency,
-    delayTime: 3.5,
-    depth: sound.harmony.chorusDepth,
-    wet: sound.harmony.chorusWet,
-  }).start();
+  const harmonyChorus = new Tone.Gain(1);
   const melodyFilter = new Tone.Filter({ frequency: sound.melody.filterFrequency, type: "lowpass", rolloff: -24 });
-  const melodyChorus = new Tone.Chorus({
-    frequency: sound.melody.chorusFrequency,
-    delayTime: 2.8,
-    depth: sound.melody.chorusDepth,
-    wet: sound.melody.chorusWet,
-  }).start();
+  const melodyChorus = new Tone.Gain(1);
   const textureFilter = new Tone.Filter({ frequency: sound.texture.filterFrequency, type: "lowpass", rolloff: -24 });
 
-  master.chain(masterFilter, masterCompressor, limiter, destination);
+  master.chain(masterFilter, masterCompressor, limiter, outputFade, destination);
   delaySend.chain(delay, master);
   reverbSend.chain(reverb, master);
 
@@ -147,14 +155,10 @@ export function createMasterAudioGraph(options: MasterAudioGraphOptions): Master
     noise: { type: sound.drums.snareNoise },
     envelope: { attack: 0.002, decay: sound.drums.snareDecay, sustain: 0, release: 0.05 },
   });
-  const hat = new Tone.MetalSynth({
+  const hat = createCymbalSynth({
     envelope: { attack: 0.001, decay: sound.drums.hatDecay, release: 0.01 },
-    harmonicity: 5.1,
-    modulationIndex: 24,
-    resonance: sound.drums.hatResonance,
-    octaves: 1.5,
     volume: -18,
-  } as Tone.MetalSynthOptions);
+  }, "white");
   const rim = new Tone.NoiseSynth({
     noise: { type: "white" },
     envelope: { attack: 0.001, decay: 0.035, sustain: 0, release: 0.015 },
@@ -172,19 +176,14 @@ export function createMasterAudioGraph(options: MasterAudioGraphOptions): Master
   const tomHigh = new Tone.MembraneSynth(tomOptions);
   const cymbalOptions = {
     envelope: { attack: 0.001, decay: 0.42, release: 0.08 },
-    harmonicity: 5.1,
-    modulationIndex: 18,
-    resonance: 5200,
-    octaves: 1.8,
     volume: -22,
-  } as Tone.MetalSynthOptions;
-  const crash = new Tone.MetalSynth(cymbalOptions);
-  const ride = new Tone.MetalSynth({
+  };
+  const crash = createCymbalSynth(cymbalOptions, "pink");
+  const ride = createCymbalSynth({
     ...cymbalOptions,
     envelope: { attack: 0.001, decay: 0.2, release: 0.04 },
-    resonance: 6800,
     volume: -24,
-  } as Tone.MetalSynthOptions);
+  }, "white");
   const bass = new Tone.MonoSynth({
     oscillator: { type: sound.bass.oscillator },
     filter: { Q: sound.bass.filterQ, type: "lowpass", rolloff: -24 },
@@ -310,9 +309,6 @@ export function createMasterAudioGraph(options: MasterAudioGraphOptions): Master
   const reedDrive = new Tone.Distortion({ distortion: reed.drive, wet: reed.drive > 0 ? 0.24 : 0 });
   const reedBody = new Tone.Filter({ type: "peaking", frequency: 690, Q: 0.72, gain: reed.bodyGain });
   const reedPresence = new Tone.Filter({ type: "peaking", frequency: 1850, Q: 0.95, gain: reed.presenceGain });
-  const reedVibrato = new Tone.LFO({ frequency: 5.05, min: -3, max: 3 }).start();
-  reedVibrato.connect(reedLead.detune);
-  reedVibrato.connect(reedLeadAlt.detune);
   const guitarBody = new Tone.MonoSynth({
     oscillator: { type: "fattriangle", count: 2, spread: 3 },
     portamento: 0,
@@ -385,6 +381,7 @@ export function createMasterAudioGraph(options: MasterAudioGraphOptions): Master
 
   return {
     master,
+    outputFade,
     limiter,
     masterFilter,
     masterCompressor,
@@ -434,7 +431,6 @@ export function createMasterAudioGraph(options: MasterAudioGraphOptions): Master
     reedDrive,
     reedBody,
     reedPresence,
-    reedVibrato,
     guitarBody,
     guitarString,
     guitarFretNoise,
@@ -450,12 +446,17 @@ export function disposeMasterAudioGraph(graph: MasterAudioGraph): void {
     graph.bass, graph.bassAccent, graph.bassMute,
     graph.harmony, graph.melody, graph.melodyLead, graph.melodyMute,
     graph.reedLead, graph.reedLeadAlt, graph.reedBreath, graph.reedBreathAlt, graph.reedDrive, graph.reedBody,
-    graph.reedPresence, graph.reedVibrato, graph.texture,
+    graph.reedPresence, graph.texture,
     graph.guitarBody, graph.guitarString, graph.guitarFretNoise, graph.guitarDrive, graph.guitarPresence,
     graph.grooveGain, graph.harmonyGain, graph.melodyGain, graph.textureGain,
     graph.delay, graph.reverb, graph.delaySend, graph.reverbSend, graph.drumBus, graph.drumTrim, graph.drumReverbSend,
-    graph.masterFilter, graph.masterCompressor, graph.master, graph.limiter,
+    graph.masterFilter, graph.masterCompressor, graph.master, graph.limiter, graph.outputFade,
     graph.drumDrive, graph.drumFilter, graph.bassDrive, graph.bassTrim, graph.harmonyFilter, graph.harmonyChorus,
     graph.melodyFilter, graph.melodyChorus, graph.textureFilter,
   ].forEach((node) => node.dispose());
+}
+
+/** Tone.Reverb requires a generated impulse before first use; skipping this causes clicks on Safari. */
+export async function prepareMasterAudioGraph(graph: MasterAudioGraph): Promise<void> {
+  await graph.reverb.generate();
 }

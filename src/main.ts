@@ -1027,6 +1027,8 @@ async function runCanonicalPlaybackAct(onDone: () => void): Promise<void> {
   audioEngine.setTotalBars(session.arrangement.totalBars);
   updateTotalBarsUi();
   audioEngine.clearLaunchBoundaries();
+  audioEngine.clearArrangementSceneBoundaries();
+  audioEngine.clearPackMixAutomation();
   audioEngine.clearMixAutomationLog();
 
   const sceneRefs = session.arrangement.scenes.map((ref) => ({
@@ -1034,9 +1036,9 @@ async function runCanonicalPlaybackAct(onDone: () => void): Promise<void> {
     startBar: ref.startBar,
   })).filter((s) => s.scene);
 
+  audioEngine.setArrangementSceneBoundaries(sceneRefs);
   const firstScene = sceneRefs[0]?.scene;
   if (firstScene) {
-    audioEngine.activateSceneAtBoundary(firstScene);
     updateMasterSceneUi(firstScene);
   }
 

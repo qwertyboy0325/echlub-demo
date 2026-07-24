@@ -9,7 +9,7 @@ import {
   type MixAutomationEvent,
 } from "../domain/reconstructionPack";
 import { placeholderReconstructionPack } from "../domain/placeholderPack";
-import { schedulePackMixAutomation, filterMixAutomationEvents } from "../demo/mixAutomationSchedule";
+import { schedulePackMixAutomation, filterMixAutomationEvents, indexMixAutomationByTick } from "../demo/mixAutomationSchedule";
 import { parsePosition, positionToTicks } from "../musicalPosition";
 import type { AudioEngine } from "../audioEngine";
 import { mixEquals } from "../mixMapping";
@@ -133,6 +133,16 @@ describe("filterMixAutomationEvents", () => {
     const restoreAt = parsePosition("27:1:0");
     expect(positionToTicks(restoreAt) - positionToTicks(throwAt)).toBe(4);
   });
+
+  it("indexes automation by sixteenth tick for clock-coherent playback", () => {
+    const events: MixAutomationEvent[] = [
+      { id: "b", act: "canonicalPlayback", at: "4:0:0", rampSeconds: 0.1, patch: { delayWet: 0.2 } },
+      { id: "a", act: "canonicalPlayback", at: "3:3:0", rampSeconds: 0.1, patch: { delayWet: 0.1 } },
+    ];
+    const indexed = indexMixAutomationByTick(events, "canonicalPlayback");
+    expect(indexed.get(60)?.map((event) => event.id)).toEqual(["a"]);
+    expect(indexed.get(64)?.map((event) => event.id)).toEqual(["b"]);
+  });
 });
 
 const OUTRO_SCENE_BOUNDARY = "88:0:0";
@@ -196,9 +206,12 @@ describe("private shiki midi-only pack", () => {
 });
 
 describe("schedulePackMixAutomation", () => {
-  it("returns no schedule ids for absent automation", () => {
-    const engine = { applyMixAutomationEvent: vi.fn() } as unknown as AudioEngine;
+  it("returns no schedule ids and registers automation on the audio engine", () => {
+    const engine = {
+      setPackMixAutomation: vi.fn(),
+    } as unknown as AudioEngine;
     expect(schedulePackMixAutomation(engine, undefined, "canonicalPlayback")).toEqual([]);
+    expect(engine.setPackMixAutomation).toHaveBeenCalledWith(undefined, "canonicalPlayback");
   });
 
   it("isolates canonical and live automation by act", () => {
@@ -249,21 +262,32 @@ describe("act schedule lifecycle", () => {
 });
 
 describe("canonical playback registration order", () => {
-  // Scene FX must be scheduled before same-boundary automation in main.ts.
   const mainSource = readFileSync(join(process.cwd(), "src/main.ts"), "utf8");
+  const engineSource = readFileSync(join(process.cwd(), "src/audioEngine.ts"), "utf8");
   const mixSource = readFileSync(join(process.cwd(), "src/audio/mixApplication.ts"), "utf8");
 
-  it("registers arrangement scene FX before pack mix automation", () => {
-    const arrangementIdx = mainSource.indexOf("canonicalPlaybackIds = scheduleArrangementPlayback(");
-    const automationIdx = mainSource.indexOf("schedulePackMixAutomation(\n    audioEngine,\n    demoController.runtime.pack.mixAutomation,\n    \"canonicalPlayback\",");
-    expect(arrangementIdx).toBeGreaterThan(-1);
-    expect(automationIdx).toBeGreaterThan(arrangementIdx);
+  it("applies arrangement scene FX inside the musical clock before playStep", () => {
+    const boundaryIdx = engineSource.indexOf("const arrangementScene = this.sceneAtBar.get(bar);");
+    const automationIdx = engineSource.indexOf("const automationEvents = this.mixAutomationByTick.get(tick);");
+    const playStepIdx = engineSource.indexOf("this.playStep(scene, bar, step, noteTime);");
+    expect(boundaryIdx).toBeGreaterThan(-1);
+    expect(automationIdx).toBeGreaterThan(boundaryIdx);
+    expect(playStepIdx).toBeGreaterThan(automationIdx);
+    expect(mainSource).toContain("audioEngine.setArrangementSceneBoundaries(sceneRefs);");
   });
 
-  it("ramps drum filter and room on scene changes and restores baseline on reset", () => {
-    expect(mixSource).toContain("graph.drumFilter.frequency.exponentialRampToValueAtTime(drumDefaults.drumFilter, targetTime)");
-    expect(mixSource).toContain("graph.drumReverbSend.gain.linearRampToValueAtTime(drumDefaults.drumReverbWet, targetTime)");
-    expect(mixSource).toContain("graph.drumFilter.frequency.setValueAtTime(drumDefaults.drumFilter, atTime)");
-    expect(mixSource).toContain("graph.drumReverbSend.gain.setValueAtTime(drumDefaults.drumReverbWet, atTime)");
+  it("configures pack automation on the engine instead of independent transport callbacks", () => {
+    expect(mainSource).toContain("schedulePackMixAutomation(");
+    expect(engineSource).toContain("setPackMixAutomation(");
+    const schedulingSource = readFileSync(join(process.cwd(), "src/demo/mixAutomationSchedule.ts"), "utf8");
+    expect(schedulingSource).toContain("audioEngine.setPackMixAutomation(events, act)");
+    expect(schedulingSource).toContain("return [];");
+  });
+
+  it("ramps drum filter and room on scene changes and restores baseline with short ramps", () => {
+    expect(mixSource).toContain("rampFilterFrequency(graph.drumFilter.frequency, drumDefaults.drumFilter, startTime, rampDuration)");
+    expect(mixSource).toContain("rampLinear(graph.drumReverbSend.gain, drumDefaults.drumReverbWet, startTime, rampDuration)");
+    expect(mixSource).toContain("rampFilterFrequency(graph.drumFilter.frequency, drumDefaults.drumFilter, atTime, rampDuration)");
+    expect(mixSource).toContain("rampLinear(graph.drumReverbSend.gain, drumDefaults.drumReverbWet, atTime, rampDuration)");
   });
 });

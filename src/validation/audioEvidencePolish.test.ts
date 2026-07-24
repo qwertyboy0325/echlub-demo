@@ -82,10 +82,10 @@ describe("AudioEngine subgroup routing", () => {
   it("ramps, resets, scenes, and automation all patch subgroup trims", () => {
     expect(mixSource).toContain("params.drumTrimDb !== undefined");
     expect(mixSource).toContain("params.bassTrimDb !== undefined");
-    expect(mixSource).toContain("graph.drumTrim.volume.setValueAtTime(subgroupTrims.drumTrimDb, atTime)");
-    expect(mixSource).toContain("graph.bassTrim.volume.setValueAtTime(subgroupTrims.bassTrimDb, atTime)");
-    expect(mixSource).toContain("graph.drumTrim.volume.linearRampToValueAtTime(subgroupTrims.drumTrimDb, targetTime)");
-    expect(mixSource).toContain("graph.bassTrim.volume.linearRampToValueAtTime(subgroupTrims.bassTrimDb, targetTime)");
+    expect(mixSource).toContain("rampLinear(graph.drumTrim.volume, subgroupTrims.drumTrimDb, atTime, rampDuration)");
+    expect(mixSource).toContain("rampLinear(graph.bassTrim.volume, subgroupTrims.bassTrimDb, atTime, rampDuration)");
+    expect(mixSource).toContain("rampLinear(graph.drumTrim.volume, subgroupTrims.drumTrimDb, startTime, rampDuration)");
+    expect(mixSource).toContain("rampLinear(graph.bassTrim.volume, subgroupTrims.bassTrimDb, startTime, rampDuration)");
   });
 });
 
