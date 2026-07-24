@@ -1,6 +1,6 @@
 import * as Tone from "tone";
 import { AudioEngine } from "../../audioEngine";
-import { materialRefForDraft } from "../../domain/sessionMaterialBank";
+import { materialRefForDraft, type MaterialRef } from "../../domain/sessionMaterialBank";
 import { compileSessionMaterialBank } from "../../domain/sessionMaterialBank";
 import type { MixParams } from "../../types";
 import { musicalDomain, type MusicalDomainStore } from "../domain/musicalDomain";
@@ -186,7 +186,7 @@ export class ShellAudioAdapter {
     if (!result || !this.engine) return;
     this.publishBank(this.domain.getAuthority() === "shared-master" ? "livePerformance" : "production");
     const draft = this.domain.draftForId(result.draftId);
-    if (draft) this.engine.startPrivateCue(materialRefForDraft(draft));
+    if (draft) this.startPrivateCueAfterAudioUnlock(materialRefForDraft(draft));
   }
 
   previewDraft(draftId: string): void {
@@ -194,7 +194,13 @@ export class ShellAudioAdapter {
     const draft = this.domain.draftForId(draftId);
     if (!draft) return;
     this.publishBank("production");
-    this.engine.startPrivateCue(materialRefForDraft(draft));
+    this.startPrivateCueAfterAudioUnlock(materialRefForDraft(draft));
+  }
+
+  private startPrivateCueAfterAudioUnlock(materialRef: MaterialRef): void {
+    void Tone.start().then(() => {
+      this.engine?.startPrivateCue(materialRef);
+    });
   }
 
   private publishBank(act: "production" | "livePerformance"): void {
