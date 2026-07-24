@@ -17,6 +17,7 @@ interface DevicesPanelProps {
 
 export function DevicesPanel({ dispatch, draggable = false }: DevicesPanelProps) {
   const [openId, setOpenId] = useState<string>("filter");
+  const [values, setValues] = useState<Record<string, number>>(Object.fromEntries(DEVICES.map((d) => [d.id, d.value])));
   const anchorRef = useRef<HTMLButtonElement | null>(null);
   const popoverRef = useRef<HTMLDivElement | null>(null);
   const blockRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -24,6 +25,11 @@ export function DevicesPanel({ dispatch, draggable = false }: DevicesPanelProps)
   const setPopoverOpen = (id: string | null) => {
     setOpenId(id ?? "filter");
     dispatch?.({ type: "SET_INTERACTION_FROZEN", frozen: id !== null });
+  };
+
+  const setDeviceValue = (deviceId: string, value: number) => {
+    setValues((prev) => ({ ...prev, [deviceId]: value }));
+    dispatch?.({ type: "SET_DEVICE_PARAM", deviceId, value: value / 100 });
   };
 
   useEffect(() => {
@@ -71,6 +77,7 @@ export function DevicesPanel({ dispatch, draggable = false }: DevicesPanelProps)
   }, [dispatch, draggable]);
 
   const openDevice = DEVICES.find((d) => d.id === openId) ?? DEVICES[0]!;
+  const openValue = values[openDevice.id] ?? openDevice.value;
 
   return (
     <section className="devices-panel" aria-label="Devices and effects">
@@ -102,17 +109,23 @@ export function DevicesPanel({ dispatch, draggable = false }: DevicesPanelProps)
           <div className="device-knob" aria-hidden>
             <span
               className="device-knob-indicator"
-              style={{ transform: `translateX(-50%) rotate(${(openDevice.value / 100) * 270 - 135}deg)` }}
+              style={{ transform: `translateX(-50%) rotate(${(openValue / 100) * 270 - 135}deg)` }}
             />
           </div>
           <div className="device-inspector-controls">
             <label>
               {openDevice.param}
-              <input type="range" min={0} max={100} defaultValue={openDevice.value} />
+              <input
+                type="range"
+                min={0}
+                max={100}
+                value={openValue}
+                onChange={(e) => setDeviceValue(openDevice.id, Number(e.target.value))}
+              />
             </label>
-            <span className="device-value tabular-nums">{openDevice.value}</span>
+            <span className="device-value tabular-nums">{openValue}</span>
             <div className="device-meter-strip" aria-hidden>
-              <span style={{ width: `${openDevice.value}%` }} />
+              <span style={{ width: `${openValue}%` }} />
             </div>
           </div>
         </div>

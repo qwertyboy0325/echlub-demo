@@ -11,7 +11,10 @@ interface SharedClipExchangeProps {
 }
 
 function RoomCta({ room, state, dispatch }: { room: RoomId; state: ShellState; dispatch: (command: ShellCommand) => void }) {
-  const clipId = state.exchangeClips.find((c) => c.contributorId === state.selectedParticipantId)?.id ?? state.exchangeClips[0]!.id;
+  const clipId =
+    state.exchangeClips.find((c) => c.contributorId === state.selectedParticipantId)?.id ??
+    state.exchangeClips[0]?.id ??
+    null;
 
   switch (room) {
     case "global":
@@ -28,13 +31,13 @@ function RoomCta({ room, state, dispatch }: { room: RoomId; state: ShellState; d
     case "participant":
       return (
         <div className="exchange-room-cta">
-          <Button className="ghost-btn" onPress={() => dispatch({ type: "SELECT_EXCHANGE_CLIP", clipId })}>
+          <Button className="ghost-btn" isDisabled={!clipId} onPress={() => clipId && dispatch({ type: "SELECT_EXCHANGE_CLIP", clipId })}>
             Preview
           </Button>
           <Button className="primary-btn" onPress={() => dispatch({ type: "SHARE_CLIP" })}>
             Share revision
           </Button>
-          <Button onPress={() => dispatch({ type: "SUBMIT_REVIEW", clipId })}>
+          <Button isDisabled={!clipId} onPress={() => clipId && dispatch({ type: "SUBMIT_REVIEW", clipId })}>
             Submit for review
           </Button>
         </div>

@@ -1151,6 +1151,32 @@ button:disabled {
   border-color: var(--focus);
 }
 
+.piano-inspector {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 8px;
+  background: color-mix(in srgb, var(--raised) 90%, transparent);
+  border: 1px solid var(--separator);
+  border-radius: var(--radius);
+}
+
+.piano-inspector label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 10px;
+}
+
+.clip-meta {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
 .playhead {
   position: absolute;
   top: 0;
