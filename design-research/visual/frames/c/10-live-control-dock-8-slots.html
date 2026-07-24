@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=1440, height=900"/>
+<title>EchLub Editorial Broadcast Studio — Live Control Dock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&family=Source+Code+Pro:wght@400;500&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --canvas: #0e0e0e;
+  --panel: #161616;
+  --raised: #1c1c1c;
+  --separator: #2e2e2e;
+  --text: #f2f2f2;
+  --muted: #9a9a9a;
+  --selection: #d44d2a;
+  --focus: #e85a34;
+  --hover: #242424;
+  --preview: #4a7a6a;
+  --recording: #d44d2a;
+  --ready: #5a8a6a;
+  --master: #c4a035;
+  --active-shared: #e85a34;
+  --radius: 0px;
+  --radius-control: 2px;
+  --shadow: none;
+  --font: 'Source Sans 3', 'Inter', system-ui, sans-serif;
+  --mono: 'Source Code Pro', ui-monospace, monospace;
+  --knob: #242424;
+  --knob-ring: #505050;
+  --fader-track: #121212;
+  --fader-fill: #888888;
+  --meter: #d44d2a;
+  --chip-bg: #1a1a1a;
+  --grid-line: #282828;
+}
+* { box-sizing: border-box; margin: 0; }
+body { font-family: var(--font); background: var(--canvas); color: var(--text); overflow: hidden; }
+.shell { display: flex; flex-direction: column; height: 100%; }
+.top { height: 48px; background: var(--panel); border-bottom: 1px solid var(--separator); display: flex; align-items: center; padding: 0 16px; gap: 12px; font-size: 13px; }
+.top .brand { font-weight: 600; letter-spacing: -0.02em; }
+.top .room { color: var(--muted); font-size: 12px; }
+.top .chip { background: var(--chip-bg); border: 1px solid var(--separator); padding: 3px 8px; font-size: 11px; border-radius: var(--radius); }
+.top .chip.on { border-color: var(--focus); color: var(--focus); }
+.body { display: flex; flex: 1; min-height: 0; }
+.presence { width: 200px; background: var(--panel); border-right: 1px solid var(--separator); padding: 12px; flex-shrink: 0; }
+.presence h3, .exchange h3, .section-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 10px; font-weight: 600; }
+.person { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; padding: 6px 8px; border-radius: var(--radius); border: 1px solid transparent; }
+.person.active { background: var(--raised); border-color: var(--separator); }
+.avatar { width: 24px; height: 24px; border-radius: 2px; flex-shrink: 0; }
+.person-meta { font-size: 11px; line-height: 1.3; }
+.person-meta .sub { color: var(--muted); font-size: 10px; }
+.center { flex: 1; display: flex; flex-direction: column; padding: 10px; gap: 8px; min-width: 0; }
+.panel { background: var(--panel); border: 1px solid var(--separator); border-radius: var(--radius); box-shadow: var(--shadow); }
+.exchange { width: 320px; background: var(--panel); border-left: 1px solid var(--separator); padding: 12px; flex-shrink: 0; overflow: auto; }
+.exchange.compact { display: none; }
+.row { background: var(--raised); border: 1px solid var(--separator); padding: 8px 10px; margin-bottom: 6px; border-radius: var(--radius); font-size: 11px; }
+.row .lifecycle { font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; margin-bottom: 4px; }
+.row .title { font-weight: 500; }
+.wave { height: 18px; margin-top: 6px; background: repeating-linear-gradient(90deg, var(--separator) 0 1px, transparent 1px 5px); opacity: 0.7; }
+.transport { height: 48px; background: var(--panel); border-top: 1px solid var(--separator); display: flex; align-items: center; padding: 0 16px; gap: 16px; font-size: 12px; font-family: var(--mono); }
+.btn { background: var(--raised); border: 1px solid var(--separator); color: var(--text); padding: 4px 10px; font-size: 11px; border-radius: var(--radius); cursor: default; }
+.btn.primary { border-color: var(--focus); color: var(--focus); }
+.btn.stage { border-color: var(--selection); }
+.lane { height: 44px; background: var(--raised); border: 1px solid var(--separator); margin-bottom: 6px; display: flex; align-items: center; padding: 0 12px; font-size: 11px; color: var(--muted); border-radius: var(--radius); }
+.lane.staged { border-color: var(--selection); color: var(--text); }
+.lane.active { border-color: var(--active-shared); background: color-mix(in srgb, var(--active-shared) 8%, var(--raised)); }
+.master-strip { height: 56px; display: flex; align-items: center; gap: 12px; padding: 8px 12px; }
+.meter-bar { flex: 1; height: 20px; background: var(--fader-track); border: 1px solid var(--separator); position: relative; overflow: hidden; }
+.meter-fill { height: 100%; background: var(--meter); width: 62%; }
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--separator); margin-bottom: 8px; }
+.tab { padding: 8px 14px; font-size: 11px; color: var(--muted); border-bottom: 2px solid transparent; }
+.tab.active { color: var(--text); border-bottom-color: var(--focus); font-weight: 600; }
+.editor { flex: 1; min-height: 0; position: relative; }
+.piano-grid { position: absolute; inset: 0; background-image: linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px); background-size: 24px 20px; }
+.note { position: absolute; height: 18px; background: color-mix(in srgb, var(--selection) 60%, transparent); border: 1px solid var(--selection); border-radius: var(--radius); }
+.playhead { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--recording); left: 38%; }
+.slot-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; height: 100%; }
+.slot { background: var(--raised); border: 1px solid var(--separator); border-radius: var(--radius-control); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 8px; min-height: 100px; }
+.slot.master-slot { border-color: var(--master); }
+.slot.snap-target { border-color: var(--focus); border-style: dashed; }
+.knob { width: 48px; height: 48px; border-radius: 50%; background: var(--knob); border: 2px solid var(--knob-ring); position: relative; }
+.knob::after { content: ''; position: absolute; top: 6px; left: 50%; width: 2px; height: 10px; background: var(--text); transform: translateX(-50%); }
+.fader { width: 8px; height: 72px; background: var(--fader-track); border: 1px solid var(--separator); position: relative; border-radius: var(--radius-control); }
+.fader-fill { position: absolute; bottom: 0; left: 0; right: 0; height: 55%; background: var(--fader-fill); }
+.toggle { width: 36px; height: 20px; background: var(--preview); border: 1px solid var(--separator); border-radius: 10px; }
+.trigger { width: 44px; height: 44px; background: var(--raised); border: 1px solid var(--separator); border-radius: var(--radius-control); }
+.badge { font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 5px; border: 1px solid var(--separator); border-radius: var(--radius); color: var(--muted); }
+.badge.preview { color: var(--preview); border-color: var(--preview); }
+.badge.capture { color: var(--recording); border-color: var(--recording); }
+.badge.master { color: var(--master); border-color: var(--master); }
+.lifecycle-available { color: var(--muted); }
+.lifecycle-progress { color: var(--focus); }
+.lifecycle-review { color: var(--recording); }
+.lifecycle-ready { color: var(--ready); }
+.cursor { position: absolute; pointer-events: none; z-index: 10; }
+.cursor-label { font-size: 10px; padding: 2px 6px; white-space: nowrap; }
+.cursor-dot { width: 8px; height: 8px; border: 1px solid #fff; }
+.chain { display: flex; align-items: center; gap: 8px; padding: 16px; }
+.device { background: var(--raised); border: 1px solid var(--separator); padding: 12px 16px; font-size: 11px; border-radius: var(--radius-control); min-width: 80px; text-align: center; }
+.chain-arrow { color: var(--muted); font-size: 14px; }
+.header-ctx { font-size: 11px; color: var(--muted); padding: 8px 12px; border-bottom: 1px solid var(--separator); display: flex; gap: 16px; }
+.header-ctx strong { color: var(--text); }
+.compact .presence { width: 48px; padding: 8px 4px; }
+.compact .presence h3, .compact .person-meta { display: none; }
+.compact .person { justify-content: center; padding: 4px; }
+.frame-label { position: fixed; bottom: 4px; right: 8px; font-size: 9px; color: var(--muted); font-family: var(--mono); opacity: 0.6; z-index: 99; }
+
+body { width: 1440px; height: 900px; }
+.exchange-drawer-btn { display: none; }
+</style>
+</head>
+<body class="">
+<div class="shell">
+<div class="top">
+  <span class="brand">EchLub</span>
+  <span class="room">Mixer · Sam · Performance</span>
+  <span class="chip">Follow ○</span>
+  <span class="chip on">LIVE</span>
+  <span style="flex:1"></span>
+  <span class="chip">▶ 1.1.1</span>
+  <span class="chip">Bleed Low</span>
+</div>
+<div class="body">
+<aside class="presence">
+  <h3>Presence</h3>
+  <div class="person">
+    <div class="avatar" style="background:#e76f51"></div>
+    <div class="person-meta"><div>Alex</div><div class="sub">MIDI · idle</div></div>
+  </div>
+  <div class="person">
+    <div class="avatar" style="background:#2a9d8f"></div>
+    <div class="person-meta"><div>Jordan</div><div class="sub">Devices · idle</div></div>
+  </div>
+  <div class="person active">
+    <div class="avatar" style="background:#e9c46a"></div>
+    <div class="person-meta"><div>Sam</div><div class="sub">Mix · active</div></div>
+  </div>
+</aside>
+<main class="center">
+  <div class="panel" style="flex:1;padding:12px">
+    <div class="section-label">Live Control Dock · 8 slots</div>
+    <div class="slot-grid" style="margin-top:8px;height:calc(100% - 24px)">
+      <div class="slot master-slot"><div class="knob"></div><span style="font-size:10px">Filter</span><span class="badge master">MASTER</span></div>
+      <div class="slot"><div class="knob"></div><span style="font-size:10px">Delay</span><span class="badge preview">PREVIEW</span></div>
+      <div class="slot"><div class="fader"><div class="fader-fill"></div></div><span style="font-size:10px">Reverb</span></div>
+      <div class="slot"><div class="fader"><div class="fader-fill" style="height:30%"></div></div><span style="font-size:10px">Level</span></div>
+      <div class="slot"><div class="toggle"></div><span style="font-size:10px">Mute</span></div>
+      <div class="slot"><div class="trigger"></div><span style="font-size:10px">Trigger</span><span class="badge capture">CAPTURE</span></div>
+      <div class="slot snap-target" style="border-style:dashed;opacity:0.8"><span style="font-size:10px;color:var(--muted)">Drop param</span></div>
+      <div class="slot" style="border-style:dashed;opacity:0.5"><span style="font-size:10px;color:var(--muted)">Empty</span></div>
+    </div>
+  </div>
+</main>
+<aside class="exchange"><h3>Shared Clip Exchange</h3><div class="row" style="border-left: 3px solid #e76f51">
+      <div class="lifecycle lifecycle-available">Available</div>
+      <div class="title">pulse-r1</div>
+      <div class="sub" style="color:var(--muted);font-size:10px;margin-top:2px">Alex</div>
+      <div class="wave"></div>
+      
+    </div>
+  <div class="row" style="border-left: 3px solid #2a9d8f">
+      <div class="lifecycle lifecycle-progress">In Progress</div>
+      <div class="title">pulse-r2</div>
+      <div class="sub" style="color:var(--muted);font-size:10px;margin-top:2px">Jordan</div>
+      <div class="wave"></div>
+      
+    </div>
+  <div class="row" style="border-left: 3px solid #e9c46a">
+      <div class="lifecycle lifecycle-review">Review</div>
+      <div class="title">melody-draft</div>
+      <div class="sub" style="color:var(--muted);font-size:10px;margin-top:2px">Sam</div>
+      <div class="wave"></div>
+      
+    </div>
+  <div class="row" style="border-left: 3px solid #e76f51">
+      <div class="lifecycle lifecycle-ready">Ready</div>
+      <div class="title">shiki-hook</div>
+      <div class="sub" style="color:var(--muted);font-size:10px;margin-top:2px">Alex</div>
+      <div class="wave"></div>
+      
+    </div></aside>
+</div>
+</div>
+<div class="frame-label">Editorial Broadcast Studio · Live Control Dock · 1440×900</div>
+</body>
+</html>
