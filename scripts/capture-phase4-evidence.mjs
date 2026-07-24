@@ -53,7 +53,7 @@ const manifest = {
   generatedAt: new Date().toISOString(),
   gitHead: HEAD,
   phase: "4-musical-closure",
-  stopLine: "ECHLUB PHASE 4 MUSICAL CLOSURE READY — STOPPED FOR OWNER MUSICAL APPROVAL",
+  stopLine: "ECHLUB PHASE 4 MUSICAL EVIDENCE COMPLETE — STOPPED FOR OWNER FINAL APPROVAL",
   publicPack: {
     id: "shiki-no-uta-cover-public-demo-v1",
     path: packPath,
@@ -107,7 +107,7 @@ writeFileSync(
   `# Phase 4 Closure Observation Log
 
 - Git HEAD: \`${HEAD}\`
-- Stop line: **ECHLUB PHASE 4 MUSICAL CLOSURE READY — STOPPED FOR OWNER MUSICAL APPROVAL**
+- Stop line: **ECHLUB PHASE 4 MUSICAL EVIDENCE COMPLETE — STOPPED FOR OWNER FINAL APPROVAL**
 - Public pack SHA-256: \`${packSha}\`
 - Private pack in docs build: ${distPrivate.length === 0 ? "CLEAN" : distPrivate.join(", ")}
 
