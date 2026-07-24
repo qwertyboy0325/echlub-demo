@@ -10,6 +10,7 @@ import { runPhase4Walkthrough, PHASE4_WALKTHROUGH } from "./shell/presenterWalkt
 import { shellStore } from "./shell/domain/shellStore";
 import { useShellStore } from "./shell/useShellStore";
 import { useViewportMode } from "./shell/useViewportMode";
+import { displayTransportBar, transportPlaybackHint } from "./shell/transportPlaybackHint";
 import { useMusicalDomainReady, useShellAudioReady } from "./shell/useMusicalDraft";
 
 export function App() {
@@ -18,6 +19,7 @@ export function App() {
   const compact = viewport === "compact";
   const musicalReady = useMusicalDomainReady();
   const audioReady = useShellAudioReady();
+  const playbackHint = transportPlaybackHint(state, musicalReady, audioReady);
   const [packError, setPackError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -82,9 +84,10 @@ export function App() {
           {state.transportPlaying ? "Pause" : "Play"}
         </button>
         <span className="tabular-nums">
-          Shared transport · bar {state.transportBar}:{state.transportBeat}
-          {state.activeMasterDraftId ? ` · master: ${state.activeMasterDraftId}` : ""}
-          {!musicalReady ? " · loading pack…" : !audioReady ? " · preparing audio…" : " · audio ready"}
+          Shared transport · bar {displayTransportBar(state.transportBar)}:{state.transportBeat + 1}
+        </span>
+        <span className={`transport-hint${playbackHint.attention ? " transport-hint--attention" : ""}`}>
+          {playbackHint.text}
         </span>
         <button type="button" onClick={() => dispatch({ type: "RESTART_SESSION" })}>
           Restart

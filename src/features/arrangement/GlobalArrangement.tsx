@@ -2,6 +2,7 @@ import interact from "interactjs";
 import { useEffect, useRef } from "react";
 import { Button } from "react-aria-components";
 import type { ShellCommand, ShellState } from "../../shell/domain/shellTypes";
+import { displayTransportBar } from "../../shell/transportPlaybackHint";
 
 interface GlobalArrangementProps {
   state: ShellState;
@@ -50,7 +51,8 @@ export function GlobalArrangement({ state, dispatch }: GlobalArrangementProps) {
       <header className="arrangement-status-bar">
         <span className="arrangement-status-label">Arrangement</span>
         <span className="arrangement-status-readout tabular-nums">
-          bar {state.transportBar} · {activeSlot ? `${activeSlot.label} on Shared Master` : "no active assignment"}
+          bar {displayTransportBar(state.transportBar)} ·{" "}
+          {activeSlot ? `${activeSlot.label} on Shared Master` : "Shared Master unassigned — stage a Ready clip, then Activate"}
           {stagedSlot ? ` · staged: ${stagedSlot.label}` : ""}
         </span>
       </header>
@@ -146,7 +148,7 @@ export function GlobalArrangement({ state, dispatch }: GlobalArrangementProps) {
               <span className="tabular-nums">r{clipForExchange(activeSlot.clipId ?? "")?.revision ?? "—"}</span>
             </>
           ) : (
-            <span className="master-empty">Unassigned</span>
+            <span className="master-empty">Unassigned — Play is silent until Activate</span>
           )}
         </div>
         <div className="master-meter" aria-hidden="true">
