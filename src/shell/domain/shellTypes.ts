@@ -16,6 +16,8 @@ export type DockMode = "preview" | "capture" | "master";
 
 export type ViewportMode = "wide" | "drawer" | "compact";
 
+export type WorkspaceBleed = "low" | "medium" | "high";
+
 export interface ArrangementTrack {
   id: string;
   name: string;
@@ -51,6 +53,7 @@ export interface ExchangeClip {
   thumbnail: "wave" | "steps" | "notes";
   lineageParentId: string | null;
   forkOf: string | null;
+  draftId: string | null;
 }
 
 export interface ArrangementSlot {
@@ -94,6 +97,9 @@ export interface ShellState {
   dockMode: DockMode;
   dockSlots: DockSlot[];
   activityFeed: string[];
+  workspaceDraftId: string | null;
+  workspaceBleed: WorkspaceBleed;
+  activeMasterDraftId: string | null;
 }
 
 export type ShellCommand =
@@ -119,7 +125,15 @@ export type ShellCommand =
   | { type: "SET_DOCK_MODE"; mode: DockMode }
   | { type: "SELECT_EXCHANGE_CLIP"; clipId: string | null }
   | { type: "SELECT_MIXER_CHANNEL"; channelIndex: number }
-  | { type: "TOGGLE_TRANSPORT" };
+  | { type: "TOGGLE_TRANSPORT" }
+  | { type: "SYNC_TRANSPORT"; bar: number; beat: number; sixteenth: number; playing: boolean }
+  | { type: "EDIT_NOTE_STEP"; draftId: string; noteId: string; step: number }
+  | { type: "SET_NOTE_VELOCITY"; draftId: string; noteId: string; velocity: number }
+  | { type: "INSERT_NOTE"; draftId: string; noteIndex?: number }
+  | { type: "TOGGLE_STEP"; draftId: string; step: number }
+  | { type: "SET_DEVICE_PARAM"; deviceId: string; value: number }
+  | { type: "PREVIEW_WORKSPACE"; draftId: string }
+  | { type: "RESTART_SESSION" };
 
 export function viewportModeForSize(width: number, height: number): ViewportMode {
   if (width >= 1360) return "wide";

@@ -64,9 +64,10 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
     case "SET_CREATE_SUBMODE":
       return { ...state, createSubMode: command.mode };
     case "SHARE_CLIP": {
+      const draftId = state.workspaceDraftId ?? "midi-opening-bass";
       const draft: ExchangeClip = {
         id: `c${state.exchangeClips.length + 1}`,
-        title: `draft-${state.exchangeClips.length + 1}`,
+        title: `pulse-r${state.exchangeClips.length + 1}`,
         revision: 1,
         creatorId: state.selectedParticipantId,
         contributorId: null,
@@ -74,6 +75,7 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
         thumbnail: "notes",
         lineageParentId: null,
         forkOf: null,
+        draftId,
       };
       return {
         ...state,
@@ -84,9 +86,10 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
     case "FORK_CLIP": {
       const source = state.exchangeClips.find((c) => c.id === command.clipId);
       if (!source) return state;
+      const forkDraftId = `${source.draftId ?? "draft"}-fork-${state.exchangeClips.length + 1}`;
       const fork: ExchangeClip = {
         id: `c${state.exchangeClips.length + 1}`,
-        title: `${source.title}-fork`,
+        title: `${source.title}-r${source.revision + 1}`,
         revision: source.revision + 1,
         creatorId: source.creatorId,
         contributorId: state.selectedParticipantId,
@@ -94,18 +97,24 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
         thumbnail: source.thumbnail,
         lineageParentId: source.id,
         forkOf: source.id,
+        draftId: forkDraftId,
       };
       return {
         ...state,
         exchangeClips: [...state.exchangeClips, fork],
+        selectedExchangeClipId: fork.id,
+        workspaceDraftId: forkDraftId,
         activityFeed: pushActivity(state, `${participantName(state, fork.contributorId!)} forked ${source.title}`),
       };
     }
     case "CLAIM_CLIP":
-      return updateClip(state, command.clipId, {
-        contributorId: state.selectedParticipantId,
-        lifecycle: "In Progress",
-      });
+      return {
+        ...updateClip(state, command.clipId, {
+          contributorId: state.selectedParticipantId,
+          lifecycle: "In Progress",
+        }),
+        workspaceDraftId: state.exchangeClips.find((c) => c.id === command.clipId)?.draftId ?? state.workspaceDraftId,
+      };
     case "SUBMIT_REVIEW":
       return updateClip(state, command.clipId, { lifecycle: "Review" });
     case "REVISE_CLIP": {
@@ -134,6 +143,7 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
     case "ACTIVATE_SLOT": {
       const slot = state.arrangementSlots.find((s) => s.id === command.slotId);
       if (!slot || slot.state !== "staged" || !slot.clipId) return state;
+      const clip = state.exchangeClips.find((c) => c.id === slot.clipId);
       return {
         ...state,
         arrangementSlots: state.arrangementSlots.map((s) => {
@@ -141,6 +151,7 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
           if (s.state === "active") return { ...s, state: "empty" as const, clipId: null, label: "Empty slot" };
           return s;
         }),
+        activeMasterDraftId: clip?.draftId ?? null,
         activityFeed: pushActivity(state, `Activated ${slot.label} on Shared Master`),
       };
     }
@@ -179,6 +190,27 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
       return { ...state, selectedExchangeClipId: command.clipId };
     case "TOGGLE_TRANSPORT":
       return { ...state, transportPlaying: !state.transportPlaying };
+    case "SYNC_TRANSPORT":
+      return {
+        ...state,
+        transportBar: command.bar,
+        transportBeat: command.beat,
+        transportPlaying: command.playing,
+      };
+    case "EDIT_NOTE_STEP":
+    case "SET_NOTE_VELOCITY":
+    case "INSERT_NOTE":
+    case "TOGGLE_STEP":
+    case "PREVIEW_WORKSPACE":
+      return state;
+    case "SET_DEVICE_PARAM":
+      return state;
+    case "RESTART_SESSION":
+      return {
+        ...createInitialShellState(),
+        room: state.room,
+        exchangeOpen: state.exchangeOpen,
+      };
     case "SELECT_MIXER_CHANNEL":
       return { ...state, selectedMixerChannel: command.channelIndex };
     default:
