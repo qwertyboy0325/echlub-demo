@@ -45,7 +45,7 @@ describe("Live authority convergence guards", () => {
   });
 
   it("normal Live execution has no RuntimeState-to-session repair bridge", () => {
-    const main = readFileSync(join(root, "src/main.ts"), "utf8");
+    const main = readFileSync(join(root, "src/legacy/fourBrainMain.ts"), "utf8");
     const controller = readFileSync(join(root, "src/demo/demoController.ts"), "utf8");
     expect(main).not.toContain("syncRuntimeDraftsToSession");
     expect(controller).not.toContain("syncRuntimeDraftsToSession");

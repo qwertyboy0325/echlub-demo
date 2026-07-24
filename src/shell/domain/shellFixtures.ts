@@ -1,0 +1,49 @@
+import type { ShellState } from "./shellTypes";
+
+export function createInitialShellState(): ShellState {
+  return {
+    room: "global",
+    selectedParticipantId: "p1",
+    followActive: false,
+    followLocked: false,
+    exchangeOpen: false,
+    interactionFrozen: false,
+    participantTab: "Create",
+    createSubMode: "piano",
+    transportPlaying: false,
+    transportBar: 1,
+    transportBeat: 1,
+    participants: [
+      { id: "p1", name: "Alex", color: "#e76f51", taskProfile: "MIDI", active: true, projectedRoom: "participant", projectedTab: "Create" },
+      { id: "p2", name: "Jordan", color: "#2a9d8f", taskProfile: "Devices", active: false, projectedRoom: "participant", projectedTab: "Devices" },
+      { id: "p3", name: "Sam", color: "#e9c46a", taskProfile: "Mix", active: false, projectedRoom: "mixer", projectedTab: "Mix" },
+    ],
+    exchangeClips: [
+      {
+        id: "c1",
+        title: "pulse-r1",
+        revision: 1,
+        creatorId: "p1",
+        contributorId: null,
+        lifecycle: "Available",
+        thumbnail: "steps",
+        lineageParentId: null,
+        forkOf: null,
+      },
+    ],
+    arrangementSlots: [
+      { id: "s1", clipId: null, state: "empty", label: "Lane 1" },
+      { id: "s2", clipId: null, state: "empty", label: "Lane 2" },
+      { id: "s3", clipId: null, state: "empty", label: "Lane 3" },
+    ],
+    dockSlots: Array.from({ length: 8 }, (_, index) => ({
+      index,
+      label: index === 0 ? "Filter" : index === 1 ? "Delay" : `Slot ${index + 1}`,
+      type: index < 2 ? "knob" : index < 4 ? "fader" : index === 4 ? "toggle" : index === 5 ? "momentary" : "knob",
+      value: index === 0 ? 0.42 : index === 1 ? 0.18 : 0.5,
+      badge: index === 0 ? "MASTER" : "PREVIEW",
+      sourceLabel: index < 2 ? "Devices" : null,
+    })),
+    activityFeed: ["Session ready — sparse arrangement"],
+  };
+}

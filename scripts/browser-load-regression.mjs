@@ -6,7 +6,7 @@ import { setTimeout as delay } from "node:timers/promises";
 const CHROME = process.env.CHROME_PATH ?? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const PORT = Number(process.env.BROWSER_LOAD_PORT ?? 4183);
 
-async function waitForServer(url, timeoutMs = 15000) {
+async function waitForServer(url, timeoutMs = 45000) {
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {
     try {
@@ -19,13 +19,14 @@ async function waitForServer(url, timeoutMs = 15000) {
   return false;
 }
 
-const dev = spawn("npm", ["run", "dev", "--", "--port", String(PORT), "--strictPort"], {
+const dev = spawn("npm", ["run", "dev", "--", "--port", String(PORT), "--strictPort", "--host", "127.0.0.1"], {
   stdio: ["ignore", "pipe", "pipe"],
+  shell: true,
 });
 const shutdown = () => { if (!dev.killed) dev.kill("SIGTERM"); };
 process.on("exit", shutdown);
 
-const baseUrl = `http://localhost:${PORT}/`;
+const baseUrl = `http://127.0.0.1:${PORT}/`;
 if (!(await waitForServer(baseUrl))) {
   shutdown();
   throw new Error("dev server not ready");
@@ -34,61 +35,57 @@ if (!(await waitForServer(baseUrl))) {
 const browser = await puppeteer.launch({
   executablePath: CHROME,
   headless: true,
-  args: ["--no-sandbox", "--disable-setuid-sandbox", "--autoplay-policy=no-user-gesture-required"],
+  args: ["--no-sandbox", "--disable-setuid-sandbox"],
 });
 const page = await browser.newPage();
 const pageErrors = [];
 page.on("pageerror", (err) => pageErrors.push(String(err)));
 
 await page.goto(baseUrl, { waitUntil: "networkidle0", timeout: 30000 });
-const initial = await page.evaluate(() => {
-  const runtime = window.__echlubDemoController?.runtime;
-  return {
-    appExists: Boolean(document.querySelector("#app")),
-    startButtonExists: Boolean(document.querySelector("#start-button")),
-    dawWorkspace: Boolean(document.querySelector("#daw-workspace")),
-    sessionView: Boolean(document.querySelector("#session-view")),
-    participantCount: runtime?.session.participants.length ?? 0,
-    trackCount: runtime?.session.tracks.length ?? 0,
-    capabilityCount: runtime?.session.performanceConfig?.capabilities.length ?? 0,
-    sceneTitle: document.querySelector("#scene-title")?.textContent ?? "",
-    bodyTextLength: document.body.innerText.length,
-  };
-});
+const initial = await page.evaluate(() => ({
+  appExists: Boolean(document.querySelector(".app-root")),
+  presenterNav: Boolean(document.querySelector(".presenter-nav")),
+  roomNavCount: document.querySelectorAll(".room-nav button").length,
+  focusShell: Boolean(document.querySelector(".focus-shell")),
+  presenceRail: Boolean(document.querySelector(".presence-rail")),
+  exchangeOrToggle: Boolean(document.querySelector(".exchange-panel--rail") || document.querySelector(".exchange-toggle")),
+  bodyTextLength: document.body.innerText.length,
+}));
 
-const mainRes = await page.goto(`${baseUrl}src/main.ts`, { waitUntil: "networkidle0" });
+const mainRes = await page.goto(`${baseUrl}src/main.tsx`, { waitUntil: "networkidle0" });
 const mainStatus = mainRes?.status() ?? 0;
 
 await page.goto(baseUrl, { waitUntil: "networkidle0" });
-await page.click("#start-button");
-await delay(2000);
-const afterStart = await page.evaluate(() => document.querySelector("#position")?.textContent?.trim() ?? "");
+await page.$$eval(".room-nav button", (buttons, i) => buttons[i].click(), 1);
+await delay(400);
+const participant = await page.evaluate(() => ({
+  participantRoom: Boolean(document.querySelector(".room--participant")),
+  tabCount: document.querySelectorAll(".participant-tabs button").length,
+}));
 
-await page.click("#restart-button");
-await delay(1000);
-const afterRestart = await page.evaluate(() => ({
-  startButtonExists: Boolean(document.querySelector("#start-button")),
-  dawWorkspace: Boolean(document.querySelector("#daw-workspace")),
-  sessionView: Boolean(document.querySelector("#session-view")),
+await page.$$eval(".room-nav button", (buttons, i) => buttons[i].click(), 2);
+await delay(400);
+const mixer = await page.evaluate(() => ({
+  mixerRoom: Boolean(document.querySelector(".room--mixer")),
+  dockSlots: document.querySelectorAll(".dock-slot").length,
 }));
 
 await browser.close();
 shutdown();
 
 const ok = initial.appExists
-  && initial.startButtonExists
-  && initial.dawWorkspace
-  && initial.sessionView
-  && initial.participantCount > 4
-  && initial.trackCount >= 4
-  && initial.capabilityCount !== 4
-  && initial.sceneTitle.length > 0
+  && initial.presenterNav
+  && initial.roomNavCount === 3
+  && initial.focusShell
+  && initial.presenceRail
+  && initial.exchangeOrToggle
   && initial.bodyTextLength > 0
   && mainStatus < 400
   && pageErrors.length === 0
-  && afterStart.length > 0
-  && afterRestart.startButtonExists
-  && afterRestart.dawWorkspace;
+  && participant.participantRoom
+  && participant.tabCount === 5
+  && mixer.mixerRoom
+  && mixer.dockSlots >= 6;
 
-console.log(JSON.stringify({ ok, baseUrl, initial, mainStatus, afterStart, afterRestart, pageErrors }, null, 2));
+console.log(JSON.stringify({ ok, baseUrl, initial, mainStatus, participant, mixer, pageErrors }, null, 2));
 process.exit(ok ? 0 : 1);

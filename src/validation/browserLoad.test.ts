@@ -8,7 +8,7 @@ const script = join(root, "scripts/browser-load-regression.mjs");
 
 describe("browser load regression", () => {
   it(
-    "renders #start-button and survives start/restart without page errors",
+    "renders V2 shell and navigates rooms without page errors",
     () => {
       const out = execFileSync("node", [script], {
         cwd: root,

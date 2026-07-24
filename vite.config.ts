@@ -1,8 +1,8 @@
-import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig(({ command, mode }) => ({
-  // GitHub Pages build uses /echlub-demo/; preview must match built asset paths.
-  // Dev server keeps base / so http://localhost:<port>/ loads /src/main.ts directly.
+  plugins: [react()],
   base: command === "build" || mode === "production" ? "/echlub-demo/" : "/",
   build: {
     outDir: "docs",
@@ -10,4 +10,9 @@ export default defineConfig(({ command, mode }) => ({
   },
   server: { port: 4173 },
   preview: { port: 4173 },
+  test: {
+    include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
+    setupFiles: ["src/validation/vitest.setup.ts"],
+    fileParallelism: false,
+  },
 }));

@@ -147,7 +147,8 @@ describe("live playback isolation", () => {
 describe("bundle hygiene", () => {
   it("does not embed owner-local media paths in application sources", () => {
     const sources = [
-      "src/main.ts",
+      "src/main.tsx",
+      "src/legacy/fourBrainMain.ts",
       "src/offline/canonicalOfflineRenderer.ts",
       "src/offline/exportController.ts",
       "src/audio/masterAudioGraph.ts",

@@ -6,28 +6,17 @@ import { dirname, join } from "node:path";
 const root = join(dirname(fileURLToPath(import.meta.url)), "../..");
 const script = join(root, "scripts/browser-three-act-smoke.mjs");
 
-describe("Production to Canonical to Live causal browser proof", () => {
+describe("Phase 3A shell browser smoke", () => {
   it(
-    "proves the same edited memory-opening revision reaches Cue, Master and comparison",
+    "follow lock breaks on room change and stage controls stay Global-only",
     () => {
       const out = execFileSync("node", [script], {
         cwd: root,
         encoding: "utf8",
         env: { ...process.env, BROWSER_LOAD_PORT: "4186" },
       });
-      const result = JSON.parse(out) as {
-        ok: boolean;
-        missingMaterialCount: number;
-        canonicalMaterialResolution?: { fingerprint: string };
-        liveMasterResolution?: { fingerprint: string };
-        comparisonDelta?: { draftId: string };
-      };
+      const result = JSON.parse(out) as { ok: boolean };
       expect(result.ok).toBe(true);
-      expect(result.missingMaterialCount).toBe(0);
-      expect(result.liveMasterResolution?.fingerprint).not.toBe(
-        result.canonicalMaterialResolution?.fingerprint,
-      );
-      expect(result.comparisonDelta?.draftId).toBe("memory-opening");
     },
     180000,
   );

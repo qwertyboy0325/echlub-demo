@@ -262,7 +262,7 @@ describe("act schedule lifecycle", () => {
 });
 
 describe("canonical playback registration order", () => {
-  const mainSource = readFileSync(join(process.cwd(), "src/main.ts"), "utf8");
+  const mainSource = readFileSync(join(process.cwd(), "src/legacy/fourBrainMain.ts"), "utf8");
   const engineSource = readFileSync(join(process.cwd(), "src/audioEngine.ts"), "utf8");
   const mixSource = readFileSync(join(process.cwd(), "src/audio/mixApplication.ts"), "utf8");
 
