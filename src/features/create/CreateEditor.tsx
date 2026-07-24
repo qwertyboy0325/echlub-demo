@@ -1,3 +1,4 @@
+import { Tab, TabList, Tabs } from "react-aria-components";
 import type { CreateSubMode, ShellCommand, ShellState } from "../../shell/domain/shellTypes";
 import { DevicesPanel } from "../devices/DevicesPanel";
 
@@ -8,24 +9,23 @@ interface CreateEditorProps {
 
 export function CreateEditor({ state, dispatch }: CreateEditorProps) {
   const modes: CreateSubMode[] = ["piano", "step", "clip"];
+  const labels: Record<CreateSubMode, string> = { piano: "Piano Roll", step: "Step", clip: "Clip" };
 
   return (
     <div className="create-editor">
       <div className="create-toolbar">
-        <div className="create-submodes" role="tablist" aria-label="Create sub-mode">
-          {modes.map((mode) => (
-            <button
-              key={mode}
-              type="button"
-              role="tab"
-              aria-selected={state.createSubMode === mode}
-              className={state.createSubMode === mode ? "active" : ""}
-              onClick={() => dispatch({ type: "SET_CREATE_SUBMODE", mode })}
-            >
-              {mode === "piano" ? "Piano Roll" : mode === "step" ? "Step" : "Clip"}
-            </button>
-          ))}
-        </div>
+        <Tabs
+          selectedKey={state.createSubMode}
+          onSelectionChange={(key) => dispatch({ type: "SET_CREATE_SUBMODE", mode: key as CreateSubMode })}
+        >
+          <TabList className="create-submodes" aria-label="Create sub-mode">
+            {modes.map((mode) => (
+              <Tab key={mode} id={mode}>
+                {labels[mode]}
+              </Tab>
+            ))}
+          </TabList>
+        </Tabs>
         <div className="create-floating-devices">
           <DevicesPanel dispatch={dispatch} draggable />
         </div>
@@ -35,6 +35,7 @@ export function CreateEditor({ state, dispatch }: CreateEditorProps) {
           <div className="piano-grid">
             <div className="piano-note" style={{ left: 120, top: 80, width: 72 }} />
             <div className="piano-note" style={{ left: 200, top: 120, width: 48 }} />
+            <div className="playhead" />
           </div>
         </div>
       )}
@@ -49,7 +50,7 @@ export function CreateEditor({ state, dispatch }: CreateEditorProps) {
         <div className="clip-editor-pane">
           <label>
             Clip name
-            <input type="text" defaultValue="pulse-draft" readOnly />
+            <input type="text" defaultValue="pulse-draft" readOnly className="tabular-nums" />
           </label>
         </div>
       )}

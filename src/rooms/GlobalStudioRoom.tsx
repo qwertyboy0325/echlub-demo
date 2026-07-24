@@ -8,7 +8,7 @@ interface GlobalStudioRoomProps {
 
 export function GlobalStudioRoom({ state, dispatch }: GlobalStudioRoomProps) {
   return (
-    <div className="room room--global">
+    <div className="room room--global" data-room="global">
       <GlobalArrangement state={state} dispatch={dispatch} />
     </div>
   );

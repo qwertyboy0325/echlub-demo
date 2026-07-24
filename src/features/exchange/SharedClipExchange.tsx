@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import Sortable from "sortablejs";
+import { Button } from "react-aria-components";
 import type { ExchangeClip, ShellCommand, ShellState } from "../../shell/domain/shellTypes";
 import { ExchangeRow } from "./ExchangeRow";
 
@@ -29,7 +30,7 @@ export function SharedClipExchange({ state, dispatch, variant }: SharedClipExcha
     return () => sortable.destroy();
   }, [dispatch]);
 
-  const colorFor = (id: string) => state.participants.find((p) => p.id === id)?.color ?? "#4a9eff";
+  const colorFor = (id: string) => state.participants.find((p) => p.id === id)?.color ?? "var(--muted)";
 
   return (
     <aside className={`exchange-panel exchange-panel--${variant}`} aria-label="Shared Clip Exchange">
@@ -57,9 +58,9 @@ export function SharedClipExchange({ state, dispatch, variant }: SharedClipExcha
           />
         ))}
       </div>
-      <button type="button" className="primary-btn" onClick={() => dispatch({ type: "SHARE_CLIP" })}>
+      <Button className="primary-btn" onPress={() => dispatch({ type: "SHARE_CLIP" })}>
         Share revision
-      </button>
+      </Button>
     </aside>
   );
 }

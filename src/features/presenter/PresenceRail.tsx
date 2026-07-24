@@ -9,7 +9,7 @@ interface PresenceRailProps {
 export function PresenceRail({ state, dispatch, compact }: PresenceRailProps) {
   return (
     <aside className={`presence-rail${compact ? " presence-rail--compact" : ""}`} aria-label="Participant presence">
-      {!compact && <h2>Presence</h2>}
+      {!compact && <h2 className="section-label">Presence</h2>}
       {state.participants.map((p) => (
         <button
           key={p.id}
@@ -21,7 +21,11 @@ export function PresenceRail({ state, dispatch, compact }: PresenceRailProps) {
           }}
           title={`${p.name} · ${p.taskProfile}`}
         >
-          <span className="avatar" style={{ background: p.color }} aria-hidden="true" />
+          <span
+            className="avatar"
+            style={{ boxShadow: `inset 0 0 0 1px var(--separator), 0 0 0 2px ${p.color}` }}
+            aria-hidden="true"
+          />
           {!compact && (
             <span className="presence-text">
               <strong>{p.name}</strong>

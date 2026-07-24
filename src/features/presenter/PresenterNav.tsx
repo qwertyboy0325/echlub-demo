@@ -1,3 +1,4 @@
+import { Pause, Play } from "lucide-react";
 import type { RoomId, ShellCommand, ShellState } from "../../shell/domain/shellTypes";
 
 interface PresenterNavProps {
@@ -28,9 +29,11 @@ export function PresenterNav({ state, dispatch }: PresenterNavProps) {
       </nav>
       <div className="follow-controls">
         {state.followActive && !state.followLocked && (
-          <span className="follow-banner">Following {state.participants.find((p) => p.active)?.name}</span>
+          <span className="follow-chip follow-chip--active">
+            Following {state.participants.find((p) => p.active)?.name}
+          </span>
         )}
-        {state.followLocked && <span className="follow-banner follow-banner--locked">Follow locked</span>}
+        {state.followLocked && <span className="follow-chip follow-chip--locked">Follow locked</span>}
         <button
           type="button"
           disabled={state.interactionFrozen}
@@ -39,8 +42,11 @@ export function PresenterNav({ state, dispatch }: PresenterNavProps) {
           {state.followLocked ? "Resume Follow" : "Follow Active"}
         </button>
       </div>
-      <div className="transport-readout">
-        {state.transportPlaying ? "▶" : "⏸"} bar {state.transportBar}.{state.transportBeat}.1
+      <div className="transport-readout tabular-nums">
+        {state.transportPlaying ? <Play size={12} aria-hidden /> : <Pause size={12} aria-hidden />}
+        <span>
+          bar {state.transportBar}.{state.transportBeat}.1
+        </span>
       </div>
     </header>
   );

@@ -1,5 +1,6 @@
 import interact from "interactjs";
 import { useEffect, useRef } from "react";
+import { Button } from "react-aria-components";
 import type { ShellCommand, ShellState } from "../../shell/domain/shellTypes";
 
 interface GlobalArrangementProps {
@@ -59,9 +60,9 @@ export function GlobalArrangement({ state, dispatch }: GlobalArrangementProps) {
                 </button>
               )}
               {slot.state === "staged" && (
-                <button type="button" className="primary-btn" onClick={() => dispatch({ type: "ACTIVATE_SLOT", slotId: slot.id })}>
+                <Button className="primary-btn" onPress={() => dispatch({ type: "ACTIVATE_SLOT", slotId: slot.id })}>
                   Activate
-                </button>
+                </Button>
               )}
               {slot.state === "active" && <span className="active-badge">Active on Shared Master</span>}
             </div>
@@ -70,7 +71,9 @@ export function GlobalArrangement({ state, dispatch }: GlobalArrangementProps) {
       </div>
       <div className="master-strip">
         <span>Shared Master</span>
-        <div className="master-meter" aria-hidden="true" />
+        <div className="master-meter" aria-hidden="true">
+          <span className="master-meter-fill" />
+        </div>
       </div>
       <ul className="activity-feed">
         {state.activityFeed.map((line) => (

@@ -1,6 +1,8 @@
+import { GripVertical } from "lucide-react";
 import interact from "interactjs";
 import { useEffect, useRef } from "react";
 import type { ExchangeClip, LifecycleChip, ShellCommand } from "../../shell/domain/shellTypes";
+import { thumbnailStyle } from "../../ui/exchangeThumbnail";
 
 const CHIP_CLASS: Record<LifecycleChip, string> = {
   Available: "chip-available",
@@ -9,12 +11,12 @@ const CHIP_CLASS: Record<LifecycleChip, string> = {
   Ready: "chip-ready",
 };
 
-function Thumbnail({ kind }: { kind: ExchangeClip["thumbnail"] }) {
+function Thumbnail({ clip }: { clip: ExchangeClip }) {
   return (
-    <div className={`exchange-thumb exchange-thumb--${kind}`} aria-hidden="true">
-      {kind === "steps" && <span className="exchange-thumb-steps" />}
-      {kind === "notes" && <span className="exchange-thumb-notes" />}
-      {kind === "wave" && <span className="exchange-thumb-wave" />}
+    <div className={`exchange-thumb exchange-thumb--${clip.thumbnail}`} aria-hidden="true">
+      {clip.thumbnail === "steps" && <span className="exchange-thumb-steps" style={thumbnailStyle(clip)} />}
+      {clip.thumbnail === "notes" && <span className="exchange-thumb-notes" style={thumbnailStyle(clip)} />}
+      {clip.thumbnail === "wave" && <span className="exchange-thumb-wave" style={thumbnailStyle(clip)} />}
     </div>
   );
 }
@@ -31,7 +33,17 @@ interface ExchangeRowProps {
   onReady: () => void;
 }
 
-export function ExchangeRow({ clip, creatorColor, canStageDrag, dispatch, onFork, onClaim, onReview, onRevise, onReady }: ExchangeRowProps) {
+export function ExchangeRow({
+  clip,
+  creatorColor,
+  canStageDrag,
+  dispatch,
+  onFork,
+  onClaim,
+  onReview,
+  onRevise,
+  onReady,
+}: ExchangeRowProps) {
   const rowRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -68,22 +80,32 @@ export function ExchangeRow({ clip, creatorColor, canStageDrag, dispatch, onFork
     >
       <div className="exchange-row-head">
         <button type="button" className="exchange-sort-handle" aria-label="Reorder queue" title="Reorder">
-          ⠿
+          <GripVertical size={12} aria-hidden />
         </button>
         <span className={`lifecycle-chip ${CHIP_CLASS[clip.lifecycle]}`}>{clip.lifecycle}</span>
         <strong>{clip.title}</strong>
         <span className="exchange-meta">r{clip.revision}</span>
       </div>
-      <Thumbnail kind={clip.thumbnail} />
+      <Thumbnail clip={clip} />
       {clip.forkOf && <div className="exchange-lineage">fork of {clip.forkOf}</div>}
       <div className="exchange-actions">
-        <button type="button" onClick={onFork}>Fork</button>
-        <button type="button" onClick={onClaim}>Claim</button>
-        <button type="button" onClick={onReview}>Review</button>
+        <button type="button" onClick={onFork}>
+          Fork
+        </button>
+        <button type="button" onClick={onClaim}>
+          Claim
+        </button>
+        <button type="button" onClick={onReview}>
+          Review
+        </button>
         {clip.lifecycle === "Review" && (
-          <button type="button" onClick={onRevise}>Revise</button>
+          <button type="button" onClick={onRevise}>
+            Revise
+          </button>
         )}
-        <button type="button" onClick={onReady}>Ready</button>
+        <button type="button" onClick={onReady}>
+          Ready
+        </button>
       </div>
     </article>
   );

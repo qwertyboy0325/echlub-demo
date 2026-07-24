@@ -1,5 +1,6 @@
 import { DockviewReact, type DockviewReadyEvent } from "dockview-react";
 import "dockview-react/dist/styles/dockview.css";
+import { Tab, TabList, Tabs } from "react-aria-components";
 import type { ExchangeClip, ParticipantTab, ShellCommand, ShellState } from "../shell/domain/shellTypes";
 import { CreateEditor } from "../features/create/CreateEditor";
 import { DevicesPanel } from "../features/devices/DevicesPanel";
@@ -18,7 +19,15 @@ function workspaceClip(state: ShellState): ExchangeClip | undefined {
   );
 }
 
-function TabPanel({ tab, state, dispatch }: { tab: ParticipantTab; state: ShellState; dispatch: (command: ShellCommand) => void }) {
+function TabPanelContent({
+  tab,
+  state,
+  dispatch,
+}: {
+  tab: ParticipantTab;
+  state: ShellState;
+  dispatch: (command: ShellCommand) => void;
+}) {
   switch (tab) {
     case "Create":
       return <CreateEditor state={state} dispatch={dispatch} />;
@@ -37,30 +46,28 @@ export function ParticipantWorkspaceRoom({ state, dispatch }: ParticipantWorkspa
   const selected = state.participants.find((p) => p.id === state.selectedParticipantId);
   const clip = workspaceClip(state);
   const creator = clip ? state.participants.find((p) => p.id === clip.creatorId) : undefined;
+  const roomScope = state.participantTab === "Devices" ? "devices" : "participant";
 
   return (
-    <div className="room room--participant">
+    <div className="room room--participant" data-room={roomScope}>
       <header className="participant-context">
         <strong>{clip?.title ?? "untitled-draft"}</strong>
         <span>
-          r{clip?.revision ?? 1} · {creator?.name ?? selected?.name} · source:{" "}
-          {clip?.forkOf ? "fork" : "personal"}
+          r{clip?.revision ?? 1} · {creator?.name ?? selected?.name} · source: {clip?.forkOf ? "fork" : "personal"}
         </span>
       </header>
-      <div className="participant-tabs" role="tablist" aria-label="Participant workspace">
-        {TABS.map((tab) => (
-          <button
-            key={tab}
-            type="button"
-            role="tab"
-            aria-selected={state.participantTab === tab}
-            className={state.participantTab === tab ? "active" : ""}
-            onClick={() => dispatch({ type: "SET_PARTICIPANT_TAB", tab })}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
+      <Tabs
+        selectedKey={state.participantTab}
+        onSelectionChange={(key) => dispatch({ type: "SET_PARTICIPANT_TAB", tab: key as ParticipantTab })}
+      >
+        <TabList className="participant-tabs" aria-label="Participant workspace">
+          {TABS.map((tab) => (
+            <Tab key={tab} id={tab}>
+              {tab}
+            </Tab>
+          ))}
+        </TabList>
+      </Tabs>
       <div className="participant-center dockview-theme-echlub">
         <DockviewReact
           className="dockview-theme-echlub"
@@ -70,7 +77,7 @@ export function ParticipantWorkspaceRoom({ state, dispatch }: ParticipantWorkspa
             }
           }}
           components={{
-            editor: () => <TabPanel tab={state.participantTab} state={state} dispatch={dispatch} />,
+            editor: () => <TabPanelContent tab={state.participantTab} state={state} dispatch={dispatch} />,
           }}
         />
       </div>

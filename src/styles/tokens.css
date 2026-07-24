@@ -1,0 +1,94 @@
+/* EchLub V2 — Precision Shell, Console Hands (A global + B scoped controls) */
+
+:root {
+  /* Surface hierarchy (Direction A) */
+  --canvas: #131313;
+  --panel: #1a1a1a;
+  --raised: #222222;
+  --separator: #333333;
+  --shadow: none;
+
+  /* Typography */
+  --text: #e6e6e6;
+  --muted: #8a8a8a;
+  --font: "Inter", system-ui, -apple-system, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+
+  /* Interaction (A — cool blue-gray) */
+  --selection: #3d6a8a;
+  --focus: #4a7fa8;
+  --hover: #2a2a2a;
+
+  /* Workflow semantics */
+  --preview: #5a7a5a;
+  --recording: #a84848;
+  --ready: #6a8a5a;
+  --master: #7a6a4a;
+  --active-shared: #4a7fa8;
+
+  /* Participant identity (fixed fixture — never UI chrome) */
+  --participant-alex: #e76f51;
+  --participant-jordan: #2a9d8f;
+  --participant-sam: #e9c46a;
+
+  /* Layout */
+  --presence-width: 200px;
+  --exchange-width: 320px;
+  --transport-height: 48px;
+  --dock-height: 140px;
+
+  /* Radii (A) */
+  --radius: 2px;
+  --radius-control: 3px;
+
+  /* Control anatomy defaults (A fallback) */
+  --knob-size: 48px;
+  --fader-width: 8px;
+  --knob: #2e2e2e;
+  --knob-ring: #555555;
+  --fader-track: #1e1e1e;
+  --fader-fill: #5a7a8a;
+  --meter: #4a8a5a;
+  --chip-bg: #252525;
+  --grid-line: #2a2a2a;
+
+  /* Motion */
+  --transition: 120ms ease;
+}
+
+/* Direction B — tactile controls (Devices, Mixer, Live Control Dock only) */
+[data-room="devices"],
+[data-room="mixer"],
+[data-surface="live-control-dock"] {
+  --selection: #c4956a;
+  --focus: #d4a574;
+  --hover: #322e2a;
+  --preview: #6a9a7a;
+  --recording: #c45a4a;
+  --ready: #8aaa6a;
+  --master: #c4956a;
+  --active-shared: #d4a574;
+  --radius-control: 6px;
+  --shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+  --knob-size: 64px;
+  --fader-width: 12px;
+  --knob: #3a3530;
+  --knob-ring: #6a6058;
+  --fader-track: #141210;
+  --fader-fill: #8a7a5a;
+  --meter: #6aaa5a;
+  --chip-bg: #2e2a26;
+  --grid-line: #35302c;
+}
+
+[data-room="devices"],
+[data-room="mixer"] {
+  --raised: #2a2623;
+  --panel: #211e1c;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition: none;
+  }
+}
