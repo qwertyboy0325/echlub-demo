@@ -10,10 +10,11 @@ import { shellStore } from "../domain/shellStore";
 type ShellListener = (state: ShellState) => void;
 
 function publicPackUrl(): string {
-  if (typeof document !== "undefined" && document.baseURI) {
-    return new URL("shiki-no-uta.demo.pack.json", document.baseURI).href;
+  const path = `${import.meta.env.BASE_URL}shiki-no-uta.demo.pack.json`;
+  if (typeof window !== "undefined") {
+    return new URL(path, window.location.origin).href;
   }
-  return "/shiki-no-uta.demo.pack.json";
+  return path;
 }
 
 export interface ShellAudioAdapterEvidence {

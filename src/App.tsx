@@ -67,8 +67,9 @@ export function App() {
       {packError && (
         <div className="boot-error-banner" role="alert">
           Public pack failed to load ({packError}). UI stays available, but Play / Preview clip need{" "}
-          <code>shiki-no-uta.demo.pack.json</code> at the app origin. Dev:{" "}
-          <code>http://localhost:4173/</code> · Preview/build: <code>/echlub-demo/</code>
+          <code>shiki-no-uta.demo.pack.json</code>. Dev server: open{" "}
+          <code>http://localhost:4173/</code> (not <code>/echlub-demo/</code>). Preview/build:{" "}
+          <code>/echlub-demo/</code>
         </div>
       )}
       <PresenterNav state={state} dispatch={dispatch} />
