@@ -132,11 +132,12 @@ export class MusicalDomainStore {
     const ref = materialRefForDraft(draft);
     const scene = this.session.scenes.find((s) => s.startBar === startBar) ?? this.session.scenes[0];
     if (!scene) return false;
-    scene.layers.bass = { ...ref };
+    const layer = draft.kind;
+    scene.layers[layer] = { ...ref };
     this.activeMasterDraftId = draftId;
     this.authority = "shared-master";
     this.bleed = "low";
-    this.log("activate-master", `${draftId} r${draft.revision} on Shared Master @ bar ${scene.startBar}`);
+    this.log("activate-master", `${draftId} r${draft.revision} → ${layer} @ bar ${scene.startBar}`);
     return true;
   }
 

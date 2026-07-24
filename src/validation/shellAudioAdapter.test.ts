@@ -1,6 +1,13 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+const toneStart = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+vi.mock("tone", async (importOriginal) => {
+  const tone = await importOriginal<typeof import("tone")>();
+  return { ...tone, start: toneStart };
+});
+
 import { ShellAudioAdapter } from "../shell/audio/shellAudioAdapter";
 import { MusicalDomainStore } from "../shell/domain/musicalDomain";
 import { createInitialShellState } from "../shell/domain/shellFixtures";
@@ -20,7 +27,7 @@ type AdapterInternals = {
   initialized: boolean;
   pendingPreviewDraftId: string | null;
   syncTransportFromStore(): void;
-  handleTransportToggle(playing: boolean): Promise<void>;
+  applyTransportPlaying(playing: boolean): Promise<void>;
 };
 
 describe("ShellAudioAdapter", () => {
@@ -28,6 +35,7 @@ describe("ShellAudioAdapter", () => {
   let domain: MusicalDomainStore;
 
   beforeEach(() => {
+    toneStart.mockClear();
     domain = new MusicalDomainStore();
     domain.loadPackJson(readFileSync(join(process.cwd(), "public/shiki-no-uta.demo.pack.json"), "utf8"));
     adapter = new ShellAudioAdapter(domain);
@@ -50,15 +58,23 @@ describe("ShellAudioAdapter", () => {
   it("syncs pending Play when engine becomes ready", () => {
     shellStore.dispatch({ type: "TOGGLE_TRANSPORT" });
     const internals = adapter as unknown as AdapterInternals;
-    const toggle = vi.spyOn(internals, "handleTransportToggle");
+    const toggle = vi.spyOn(internals, "applyTransportPlaying");
     internals.syncTransportFromStore();
     expect(toggle).toHaveBeenCalledWith(true);
+  });
+
+  it("unlocks AudioContext synchronously on Play click", () => {
+    const before = { ...createInitialShellState(), transportPlaying: false };
+    const after = { ...before, transportPlaying: true };
+    adapter.handleCommand({ type: "TOGGLE_TRANSPORT" }, before, after);
+    expect(toneStart).toHaveBeenCalledTimes(1);
   });
 
   it("queues preview until engine is ready", () => {
     const before = createInitialShellState();
     adapter.handleCommand({ type: "PREVIEW_WORKSPACE", draftId: "midi-opening-bass" }, before, before);
     expect((adapter as unknown as AdapterInternals).pendingPreviewDraftId).toBe("midi-opening-bass");
+    expect(toneStart).toHaveBeenCalledTimes(1);
   });
 
   it("dispose clears engine without leaving initialized state", () => {

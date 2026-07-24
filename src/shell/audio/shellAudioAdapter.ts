@@ -151,8 +151,9 @@ export class ShellAudioAdapter {
   private syncTransportFromStore(): void {
     const { transportPlaying } = shellStore.getState();
     this.lastTransportPlaying = transportPlaying;
+    // Resume engine only — AudioContext must already be unlocked from the Play click.
     if (transportPlaying) {
-      void this.handleTransportToggle(true);
+      void this.applyTransportPlaying(true);
     }
   }
 
@@ -164,7 +165,7 @@ export class ShellAudioAdapter {
     if (!this.engine) return;
     if (state.transportPlaying !== this.lastTransportPlaying) {
       this.lastTransportPlaying = state.transportPlaying;
-      void this.handleTransportToggle(state.transportPlaying);
+      void this.applyTransportPlaying(state.transportPlaying);
     }
     this.evidence.transportState = this.engine.state;
     this.evidence.cueActive = this.engine.isCueActive();
@@ -172,10 +173,8 @@ export class ShellAudioAdapter {
     this.evidence.domainEvents = this.domain.eventLog.length;
   }
 
-  private async handleTransportToggle(playing: boolean): Promise<void> {
+  private async applyTransportPlaying(playing: boolean): Promise<void> {
     if (!this.engine) return;
-    void Tone.start();
-    await Tone.start();
     if (playing) {
       if (this.domain.getAuthority() === "shared-master") {
         this.engine.setCurrentAct("livePerformance");
@@ -188,7 +187,14 @@ export class ShellAudioAdapter {
   }
 
   handleCommand(command: ShellCommand, before: ShellState, after: ShellState): void {
+    if (command.type === "TOGGLE_TRANSPORT") {
+      if (after.transportPlaying && !before.transportPlaying) {
+        void Tone.start();
+      }
+      return;
+    }
     if (command.type === "PREVIEW_WORKSPACE") {
+      void Tone.start();
       if (!this.engine) {
         this.pendingPreviewDraftId = command.draftId;
         return;
