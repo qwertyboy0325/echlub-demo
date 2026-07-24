@@ -40,11 +40,11 @@ Before the rewrite is allowed to **claim musical completion**:
 | Step | Status |
 |------|--------|
 | 1 — archived playback | **Not executed** (requires archive branch run) |
-| 2 — rewrite playback | **Not executed** (Phase 4 integration pending) |
+| 2 — rewrite playback | **Partial** — adapter wired; runtime recording not captured |
 | 3 — comparable evidence | **Not captured** |
 | 4 — all parts present | **Unverified** |
-| 5 — no musical loss | **Partial** — static pack integrity tests pass; runtime A/B not done |
-| 6 — restart/replay | **Unverified** |
-| 7 — public build private exclusion | **Partial** — source/docs/build grep clean; runtime bundle verified 2026-07-24 |
+| 5 — no musical loss | **Partial** — static pack integrity + domain edit tests pass |
+| 6 — restart/replay | **Partial** — RESTART_SESSION implemented; runtime replay not recorded |
+| 7 — public build private exclusion | **Pass** — docs/dist grep clean (2026-07-24 Phase 4 run) |
 
-**Verdict:** Phase 4 musical gate **not met**. Preservation documentation and static integrity tests complete; runtime acceptance evidence still required.
+**Verdict:** Phase 4 musical gate **partially met**. Core integration implemented; archive A/B runtime evidence still required for full pass.

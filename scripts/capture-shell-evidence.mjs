@@ -243,7 +243,25 @@ try {
 
   await clickNav(page, 0);
   await pause(300, 2000);
-  await page.click(".exchange-row[data-clip-id='c4']");
+  // Seed exchange for stage/activate visual evidence (sparse Phase 4 initial state).
+  await clickNav(page, 1);
+  await page.evaluate(() => {
+    const share = [...document.querySelectorAll("button")].find((b) => b.textContent?.includes("Share revision"));
+    share?.click();
+  });
+  await wait(400);
+  await clickNav(page, 0);
+  await page.evaluate(() => {
+    const row = document.querySelector(".exchange-row[data-clip-id='c1']");
+    row?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  });
+  await wait(200);
+  await page.evaluate(() => {
+    const ready = [...document.querySelectorAll(".exchange-row button")].find((b) => b.textContent?.trim() === "Ready");
+    ready?.click();
+  });
+  await wait(200);
+  await page.click(".exchange-row[data-clip-id='c1']");
   await pause(200, 2000);
   const stageBtn = await page.$(".arrangement-drop-target--empty .stage-btn");
   if (stageBtn) await stageBtn.click();
@@ -272,15 +290,21 @@ try {
 
   await clickNav(page, 2);
   await page.click(".dock-mode-btn--capture");
-  await page.$eval(".dock-knob", (el) => {
-    el.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
-    el.dispatchEvent(new PointerEvent("pointerup", { bubbles: true }));
-  });
-  await page.$eval(".dock-fader", (el) => {
-    el.value = "85";
-    el.dispatchEvent(new Event("input", { bubbles: true }));
-    el.dispatchEvent(new Event("change", { bubbles: true }));
-  });
+  const dockKnob = await page.$(".dock-knob");
+  if (dockKnob) {
+    await page.$eval(".dock-knob", (el) => {
+      el.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+      el.dispatchEvent(new PointerEvent("pointerup", { bubbles: true }));
+    });
+  }
+  const dockFader = await page.$(".dock-fader");
+  if (dockFader) {
+    await page.$eval(".dock-fader", (el) => {
+      el.value = "85";
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+      el.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+  }
   await pause(400, 5000);
   await page.screenshot({ path: join(OUT, "source-to-dock-mapping-1440.png") });
 

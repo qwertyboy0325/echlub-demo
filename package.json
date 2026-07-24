@@ -12,6 +12,7 @@
     "test:watch": "vitest",
     "validate:browser": "node scripts/validate-browser-load.mjs",
     "validate:shell": "node scripts/capture-shell-evidence.mjs",
+    "validate:phase4": "node scripts/capture-phase4-evidence.mjs",
     "validate:private-pack": "node scripts/browser-private-pack-smoke.mjs",
     "promote:public-song": "node scripts/promote-public-song-pack.mjs",
     "collect:live-runtime": "node scripts/collect-live-runtime.mjs",
