@@ -18,6 +18,7 @@ import {
 import {
   eventsMatchSourceNotes,
   expectedVerbatimEvents,
+  loopEventsFingerprint,
   loopUnitInventorySummary,
 } from "./liveCollabPackIntegrity";
 
@@ -80,6 +81,37 @@ describe("Shiki live-collab derived pack integrity", () => {
   it("enables desk bus metadata and default desk sends", () => {
     expect(livePack.deskBus).toEqual({ enabled: true, version: 1 });
     expect(livePack.defaultMix.desk?.horns?.delaySend).toBeGreaterThan(livePack.defaultMix.desk?.rhythm?.delaySend ?? 0);
+  });
+
+  it("keeps loop units musically distinct except the known guitar duplicate", () => {
+    // ren-comp-2 and ren-comp-lift-2 are byte-identical because every 8-bar guitar
+    // draft in the source shares one 2-bar comp figure (clusters differ by a single
+    // note at bar 6-7). No honest distinct guitar lift exists; owner decision pending
+    // (drop to 19 units vs keep as a separate launch slot).
+    const byFingerprint = new Map<string, string[]>();
+    for (const unit of livePack.loopUnits) {
+      const key = loopEventsFingerprint(unit.events);
+      byFingerprint.set(key, [...(byFingerprint.get(key) ?? []), unit.id]);
+    }
+    const duplicateGroups = [...byFingerprint.values()].filter((ids) => ids.length > 1);
+    expect(duplicateGroups).toEqual([["ren-comp-2", "ren-comp-lift-2"]]);
+  });
+
+  it("gives the harmony lift unit real material distinct from the pad", () => {
+    const pad = livePack.loopUnits.find((unit) => unit.id === "kai-rh-pad-4")!;
+    const lift = livePack.loopUnits.find((unit) => unit.id === "kai-rh-lift-4")!;
+    expect(loopEventsFingerprint(lift.events)).not.toBe(loopEventsFingerprint(pad.events));
+    expect(lift.provenance.sourceDraftIds).toEqual(["midi-interlude-piano-rh"]);
+    expect(lift.events.length).toBeGreaterThan(pad.events.length);
+  });
+
+  it("places the dense RH lift only in the interlude section, pad elsewhere", () => {
+    for (const entry of livePack.arrangementMap) {
+      const rh = entry.placements["track-piano-rh"];
+      if (!rh) continue;
+      if (entry.sectionId === "interlude") expect(rh).toBe("kai-rh-lift-4");
+      else expect(rh).toBe("kai-rh-pad-4");
+    }
   });
 
   it("does not embed private pack paths", () => {

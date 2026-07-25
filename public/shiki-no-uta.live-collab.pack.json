@@ -2323,10 +2323,57 @@
           "bar": 0,
           "step": 0,
           "notes": [
-            "Gb3",
-            "Bb3",
-            "Db4",
+            "Gb3"
+          ],
+          "duration": "384i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "chord",
+          "bar": 0,
+          "step": 0,
+          "notes": [
+            "Bb3"
+          ],
+          "duration": "364i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "chord",
+          "bar": 0,
+          "step": 0,
+          "notes": [
+            "Db4"
+          ],
+          "duration": "345i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "chord",
+          "bar": 0,
+          "step": 1,
+          "notes": [
             "F4"
+          ],
+          "duration": "325i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "chord",
+          "bar": 0,
+          "step": 8,
+          "notes": [
+            "Ab3"
+          ],
+          "duration": "384i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "chord",
+          "bar": 0,
+          "step": 8,
+          "notes": [
+            "C4"
           ],
           "duration": "364i",
           "velocity": 0.6299
@@ -2336,11 +2383,9 @@
           "bar": 0,
           "step": 8,
           "notes": [
-            "Ab3",
-            "C4",
             "Eb4"
           ],
-          "duration": "364i",
+          "duration": "345i",
           "velocity": 0.6299
         },
         {
@@ -2348,8 +2393,26 @@
           "bar": 1,
           "step": 0,
           "notes": [
-            "Ab3",
-            "Db4",
+            "Ab3"
+          ],
+          "duration": "768i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "chord",
+          "bar": 1,
+          "step": 0,
+          "notes": [
+            "Db4"
+          ],
+          "duration": "748i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "chord",
+          "bar": 1,
+          "step": 0,
+          "notes": [
             "F4"
           ],
           "duration": "729i",
@@ -2360,10 +2423,57 @@
           "bar": 2,
           "step": 0,
           "notes": [
-            "Gb3",
-            "Bb3",
-            "Db4",
             "F4"
+          ],
+          "duration": "384i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "chord",
+          "bar": 2,
+          "step": 0,
+          "notes": [
+            "Db4"
+          ],
+          "duration": "364i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "chord",
+          "bar": 2,
+          "step": 0,
+          "notes": [
+            "Bb3"
+          ],
+          "duration": "345i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "chord",
+          "bar": 2,
+          "step": 1,
+          "notes": [
+            "Gb3"
+          ],
+          "duration": "325i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "chord",
+          "bar": 2,
+          "step": 8,
+          "notes": [
+            "Eb4"
+          ],
+          "duration": "384i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "chord",
+          "bar": 2,
+          "step": 8,
+          "notes": [
+            "C4"
           ],
           "duration": "364i",
           "velocity": 0.6299
@@ -2373,11 +2483,9 @@
           "bar": 2,
           "step": 8,
           "notes": [
-            "Ab3",
-            "C4",
-            "Eb4"
+            "Ab3"
           ],
-          "duration": "364i",
+          "duration": "345i",
           "velocity": 0.6299
         },
         {
@@ -2385,9 +2493,27 @@
           "bar": 3,
           "step": 0,
           "notes": [
-            "Ab3",
-            "Db4",
             "F4"
+          ],
+          "duration": "768i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "chord",
+          "bar": 3,
+          "step": 0,
+          "notes": [
+            "Db4"
+          ],
+          "duration": "748i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "chord",
+          "bar": 3,
+          "step": 0,
+          "notes": [
+            "Ab3"
           ],
           "duration": "729i",
           "velocity": 0.6299
@@ -2395,9 +2521,9 @@
       ],
       "provenance": {
         "sourceDraftIds": [
-          "midi-lead-a-piano-rh"
+          "midi-interlude-piano-rh"
         ],
-        "method": "collapse"
+        "method": "extract"
       },
       "loop": true
     },
@@ -5741,7 +5867,7 @@
         "track-piano-lh": "kai-lh-pulse-2",
         "track-bass": "ryo-bass-2",
         "track-drums": "ryo-groove-4",
-        "track-piano-rh": "kai-rh-lift-4",
+        "track-piano-rh": "kai-rh-pad-4",
         "track-guitar": "ren-comp-2",
         "track-alto": "mei-alto-themeA-8",
         "track-tenor": "mei-tenor-answer-8"
@@ -5753,7 +5879,7 @@
         "track-piano-lh": "kai-lh-walk-4",
         "track-bass": "ryo-bass-2",
         "track-drums": "ryo-groove-4",
-        "track-piano-rh": "kai-rh-lift-4",
+        "track-piano-rh": "kai-rh-pad-4",
         "track-guitar": "ren-comp-lift-2",
         "track-alto": "mei-alto-trade-8",
         "track-tenor": "mei-tenor-answer-8"
@@ -5765,7 +5891,7 @@
         "track-piano-lh": "kai-lh-walk-4",
         "track-bass": "ryo-bass-2",
         "track-drums": "ryo-groove-4",
-        "track-piano-rh": "kai-rh-lift-4",
+        "track-piano-rh": "kai-rh-pad-4",
         "track-guitar": "ren-comp-lift-2",
         "track-alto": "mei-alto-themeB-8",
         "track-tenor": "mei-tenor-answer-8"
@@ -5777,7 +5903,7 @@
         "track-piano-lh": "kai-lh-walk-4",
         "track-bass": "ryo-bass-2",
         "track-drums": "ryo-groove-4",
-        "track-piano-rh": "kai-rh-lift-4",
+        "track-piano-rh": "kai-rh-pad-4",
         "track-guitar": "ren-comp-lift-2",
         "track-alto": "mei-alto-themeA-8",
         "track-tenor": "mei-tenor-answer-8"
@@ -5789,7 +5915,7 @@
         "track-piano-lh": "kai-lh-sparse-4",
         "track-bass": "ryo-bass-sparse-4",
         "track-drums": "ryo-break-4",
-        "track-piano-rh": "kai-rh-pad-4",
+        "track-piano-rh": "kai-rh-lift-4",
         "track-guitar": "ren-open-4",
         "track-alto": "mei-alto-themeA-8"
       }
@@ -5800,7 +5926,7 @@
         "track-piano-lh": "kai-lh-pulse-2",
         "track-bass": "ryo-bass-2",
         "track-drums": "ryo-groove-4",
-        "track-piano-rh": "kai-rh-lift-4",
+        "track-piano-rh": "kai-rh-pad-4",
         "track-guitar": "ren-comp-2",
         "track-alto": "mei-alto-themeB-8",
         "track-tenor": "mei-tenor-answer-8"
@@ -5812,7 +5938,7 @@
         "track-piano-lh": "kai-lh-walk-4",
         "track-bass": "ryo-bass-2",
         "track-drums": "ryo-groove-4",
-        "track-piano-rh": "kai-rh-lift-4",
+        "track-piano-rh": "kai-rh-pad-4",
         "track-guitar": "ren-comp-lift-2",
         "track-alto": "mei-alto-themeA-8",
         "track-tenor": "mei-tenor-answer-8"
@@ -5834,7 +5960,7 @@
         "track-piano-lh": "kai-lh-pulse-2",
         "track-bass": "ryo-bass-2",
         "track-drums": "ryo-groove-4",
-        "track-piano-rh": "kai-rh-lift-4",
+        "track-piano-rh": "kai-rh-pad-4",
         "track-guitar": "ren-comp-2",
         "track-alto": "mei-alto-themeA-8",
         "track-tenor": "mei-tenor-answer-8"
@@ -5846,7 +5972,7 @@
         "track-piano-lh": "kai-lh-walk-4",
         "track-bass": "ryo-bass-2",
         "track-drums": "ryo-groove-4",
-        "track-piano-rh": "kai-rh-lift-4",
+        "track-piano-rh": "kai-rh-pad-4",
         "track-guitar": "ren-fork-alt-2",
         "track-alto": "mei-alto-trade-8",
         "track-tenor": "mei-tenor-answer-8"

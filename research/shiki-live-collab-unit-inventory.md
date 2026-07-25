@@ -13,7 +13,7 @@ Generated from `public/shiki-no-uta.live-collab.pack.json` via `npm run generate
 | kai-lh-pulse-2 | keys | 2 | 14 | collapse | yes |
 | kai-lh-walk-4 | keys | 4 | 28 | collapse | yes |
 | kai-rh-pad-4 | keys | 4 | 6 | extract | yes |
-| kai-rh-lift-4 | keys | 4 | 6 | collapse | yes |
+| kai-rh-lift-4 | keys | 4 | 20 | extract | yes |
 | mei-tenor-entry-8 | horns | 8 | 61 | verbatim | yes |
 | mei-alto-themeA-8 | horns | 8 | 57 | verbatim | yes |
 | mei-alto-themeB-8 | horns | 8 | 61 | verbatim | yes |
@@ -26,6 +26,18 @@ Generated from `public/shiki-no-uta.live-collab.pack.json` via `npm run generate
 | ren-fork-alt-2 | guitar | 2 | 9 | mutate-fork | yes |
 
 **Totals:** 20 loop units · 4 desks (Ryo 5, Kai 5, Mei 6, Ren 4)
+
+Notes (2026-07-25 mid-run review):
+
+- `kai-rh-lift-4` re-sourced to `midi-interlude-piano-rh` (dense broken-chord RH). The
+  original lead-a RH source was byte-identical to `kai-rh-pad-4` in its first 4 bars.
+  Arrangement map now places the lift only in `interlude` (faithful to source) and the
+  pad in all lead/instrumental/return sections.
+- Known duplicate: `ren-comp-lift-2` is byte-identical to `ren-comp-2`. Every 8-bar
+  guitar draft in the source shares one 2-bar comp figure (the two clusters differ by a
+  single note at bars 6–7), so no honest distinct guitar lift exists. Owner decision
+  pending: drop to 19 units, or keep as a separate launch slot whose lift character
+  comes from live drive/presence transform. Guarded by test.
 
 ## Recognizability checklist
 
