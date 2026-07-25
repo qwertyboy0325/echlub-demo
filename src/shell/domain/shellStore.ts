@@ -155,6 +155,19 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
         activityFeed: pushActivity(state, `Activated ${slot.label} on Shared Master`),
       };
     }
+    case "LAUNCH_SLOT": {
+      const slot = state.arrangementSlots.find((s) => s.id === command.slotId);
+      if (!slot) return state;
+      return {
+        ...state,
+        arrangementSlots: state.arrangementSlots.map((s) => {
+          if (s.id === command.slotId) return { ...s, state: "active" as const, label: command.draftId ?? s.label };
+          if (s.state === "active") return { ...s, state: "empty" as const, clipId: null, label: "Empty slot" };
+          return s;
+        }),
+        activityFeed: pushActivity(state, `Launched ${command.slotId}${command.draftId ? ` · ${command.draftId}` : ""}`),
+      };
+    }
     case "REORDER_EXCHANGE": {
       const map = new Map(state.exchangeClips.map((c) => [c.id, c]));
       const ordered = command.clipIds.map((id) => map.get(id)).filter(Boolean) as ExchangeClip[];

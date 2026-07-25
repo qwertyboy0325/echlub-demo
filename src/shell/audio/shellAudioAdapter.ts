@@ -2,6 +2,9 @@ import * as Tone from "tone";
 import { AudioEngine } from "../../audioEngine";
 import { materialRefForDraft } from "../../domain/sessionMaterialBank";
 import { compileSessionMaterialBank } from "../../domain/sessionMaterialBank";
+import { resolveShellPackMode } from "../../domain/liveCollabPack";
+import { LIVE_COLLAB_SLOT_TRACKS } from "../../domain/liveCollabSessionAdapter";
+import type { ShikiSevenTrackId } from "../../domain/shikiSevenTracks";
 import { dockUpdatesFromMix, mixPatchFromDockParam } from "./dockMixSync";
 import { musicalDomain, type MusicalDomainStore } from "../domain/musicalDomain";
 import type { ShellCommand, ShellState } from "../domain/shellTypes";
@@ -9,8 +12,16 @@ import { shellStore } from "../domain/shellStore";
 
 type ShellListener = (state: ShellState) => void;
 
-function publicPackUrl(): string {
-  const path = `${import.meta.env.BASE_URL}shiki-no-uta.demo.pack.json`;
+interface PendingLaneLaunch {
+  trackId: ShikiSevenTrackId;
+  draftId?: string;
+}
+
+function shellPackUrl(): string {
+  const file = resolveShellPackMode() === "live-collab"
+    ? "shiki-no-uta.live-collab.pack.json"
+    : "shiki-no-uta.demo.pack.json";
+  const path = `${import.meta.env.BASE_URL}${file}`;
   if (typeof window !== "undefined") {
     return new URL(path, window.location.origin).href;
   }
@@ -35,6 +46,7 @@ export class ShellAudioAdapter {
   private unsubscribe: (() => void) | null = null;
   private lastTransportPlaying = false;
   private pendingPreviewDraftId: string | null = null;
+  private pendingLaneLaunches: PendingLaneLaunch[] = [];
   private readyListeners = new Set<() => void>();
   readonly evidence: ShellAudioAdapterEvidence = {
     packLoaded: false,
@@ -73,12 +85,19 @@ export class ShellAudioAdapter {
     const token = { cancelled: false };
     if (this.initToken) this.initToken.cancelled = true;
     this.initToken = token;
-    const response = await fetch(publicPackUrl(), { cache: "no-store" });
+    const packMode = resolveShellPackMode();
+    const response = await fetch(shellPackUrl(), { cache: "no-store" });
     if (token.cancelled) return;
-    if (!response.ok) throw new Error(`Failed to load public pack: ${response.status}`);
+    if (!response.ok) throw new Error(`Failed to load shell pack: ${response.status}`);
     const json = await response.text();
     if (token.cancelled) return;
-    const pack = this.domain.loadPackJson(json);
+    if (packMode === "live-collab") {
+      this.domain.loadLiveCollabPackJson(json);
+    } else {
+      this.domain.loadPackJson(json);
+    }
+    const pack = this.domain.getPack();
+    if (!pack) throw new Error("Shell pack failed to load");
     this.evidence.packLoaded = true;
     this.notifyReady();
     const engine = new AudioEngine({
@@ -96,6 +115,9 @@ export class ShellAudioAdapter {
       },
       onBoundary: (bar) => {
         this.evidence.domainEvents += 1;
+        if (this.pendingLaneLaunches.length) {
+          this.commitPendingLaneLaunches();
+        }
         void bar;
       },
     });
@@ -143,6 +165,7 @@ export class ShellAudioAdapter {
     this.initialized = false;
     this.lastTransportPlaying = false;
     this.pendingPreviewDraftId = null;
+    this.pendingLaneLaunches = [];
     this.evidence.packLoaded = false;
     this.evidence.audioReady = false;
     this.notifyReady();
@@ -273,7 +296,14 @@ export class ShellAudioAdapter {
         }
         break;
       }
+      case "LAUNCH_SLOT": {
+        const trackId = LIVE_COLLAB_SLOT_TRACKS[command.slotId];
+        if (!trackId) break;
+        this.scheduleLaneLaunch(trackId, command.draftId, after.transportPlaying);
+        break;
+      }
       case "RESTART_SESSION":
+        this.pendingLaneLaunches = [];
         this.engine.stop();
         this.engine.clearArrangementSceneBoundaries();
         this.engine.clearLaneMutes();
@@ -354,6 +384,24 @@ export class ShellAudioAdapter {
     const updates = dockUpdatesFromMix(state, this.engine.getMix());
     if (!updates.length) return;
     shellStore.dispatch({ type: "SYNC_DOCK_FROM_MIX", updates });
+  }
+
+  private scheduleLaneLaunch(trackId: ShikiSevenTrackId, draftId: string | undefined, transportPlaying: boolean): void {
+    this.pendingLaneLaunches.push({ trackId, draftId });
+    if (!transportPlaying) {
+      this.commitPendingLaneLaunches();
+    }
+  }
+
+  private commitPendingLaneLaunches(): void {
+    if (!this.pendingLaneLaunches.length || !this.engine) return;
+    const launches = [...this.pendingLaneLaunches];
+    this.pendingLaneLaunches = [];
+    for (const { trackId, draftId } of launches) {
+      this.domain.activateLane(trackId, draftId);
+    }
+    this.publishBank("livePerformance");
+    this.engine.setCurrentAct("livePerformance");
   }
 }
 

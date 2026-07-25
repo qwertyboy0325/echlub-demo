@@ -119,6 +119,7 @@ export type ShellCommand =
   | { type: "MARK_READY"; clipId: string }
   | { type: "STAGE_CLIP"; clipId: string; slotId: string }
   | { type: "ACTIVATE_SLOT"; slotId: string }
+  | { type: "LAUNCH_SLOT"; slotId: string; draftId?: string }
   | { type: "REORDER_EXCHANGE"; clipIds: string[] }
   | { type: "PIN_DOCK"; slotIndex: number; label: string; sourceTrack?: string; sourceClip?: string; sourceParam?: string }
   | { type: "SET_DOCK_VALUE"; slotIndex: number; value: number }
