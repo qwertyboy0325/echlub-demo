@@ -83,9 +83,9 @@ export function GlobalArrangement({ state, dispatch }: GlobalArrangementProps) {
   return (
     <section className={`global-arrangement${isLiveCollab ? " global-arrangement--split" : ""}`} aria-label="Arrangement and launcher">
       {isLiveCollab ? (
-        <section className="global-zone global-zone--session" data-global-zone="session" aria-label="Session lanes">
+        <section className="global-zone global-zone--session" data-global-zone="session" aria-label="Shared master lanes">
           <header className="global-zone-header">
-            <span className="global-zone-label">Session</span>
+            <span className="global-zone-label">Shared lanes</span>
             <span
               className={`session-phase-badge session-phase-badge--${state.sessionPhase}`}
               data-demo-target="session-phase-badge"

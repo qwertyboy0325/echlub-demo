@@ -587,6 +587,15 @@ try {
 
   console.log(JSON.stringify(manifest, null, 2));
 
+  if (pageErrors.length) {
+    console.error("Page errors during capture:", pageErrors);
+  }
+  if (!audioStream) {
+    console.error("Missing audio stream in muxed output");
+  }
+  if (durationSec < 20) {
+    console.error(`Capture duration too short: ${durationSec}s`);
+  }
   if (pageErrors.length || !audioStream || durationSec < 20) process.exitCode = 1;
 } finally {
   shutdown();

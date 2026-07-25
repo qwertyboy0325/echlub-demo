@@ -40,7 +40,7 @@ export function FocusShell({
       <PresenceRail state={state} dispatch={dispatch} compact={compact} />
       {inGlobal && (
         <div className="focus-global-zones" aria-label="Global studio zones">
-          <span className="focus-zone-chip focus-zone-chip--session">Session</span>
+          <span className="focus-zone-chip focus-zone-chip--session">Workspaces</span>
           <span className="focus-zone-chip focus-zone-chip--arrangement">Arrangement</span>
           <span
             className={`focus-zone-chip focus-zone-chip--master${deskAuditionActive ? " focus-zone-chip--master-dimmed" : ""}`}

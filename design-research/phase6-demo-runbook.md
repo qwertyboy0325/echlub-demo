@@ -46,6 +46,7 @@ Do **not** mutate `shiki-no-uta.demo.pack.json` (preservation oracle).
 
 Without reading the caption strip, confirm:
 
+- Global zones: **Workspaces** · Arrangement · Shared Master (not a multiplayer session lobby)
 - Create toolbar: **Desk audition** + hint `desk-local · not Shared Master`
 - Participant room: audition banner while cue is active
 - Global zones: **Desk audition · local** chip appears beside dimmed Shared Master during cue

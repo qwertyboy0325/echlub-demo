@@ -233,9 +233,11 @@ export const PHASE5_WALKTHROUGH: WalkthroughStep[] = [
   },
   {
     beat: 20,
-    label: "At Ren · Guitar Desk · drive + share",
+    label: "Ren · Guitar Desk · creating guitar",
     commands: [
-      { type: "SET_PARTICIPANT_PROJECTION", participantId: "p4", room: "participant", tab: "Devices" },
+      { type: "SET_PARTICIPANT_PROJECTION", participantId: "p4", room: "participant", tab: "Create" },
+      { type: "SET_CREATE_SUBMODE", mode: "clip" },
+      { type: "PREVIEW_WORKSPACE", draftId: "ren-comp-2" },
       { type: "SET_DEVICE_PARAM", deviceId: "filter", value: 0.58 },
       { type: "SHARE_CLIP" },
       { type: "SET_EXCHANGE_OPEN", open: true },
@@ -291,7 +293,9 @@ export const PHASE5_WALKTHROUGH: WalkthroughStep[] = [
     label: "Mei · Horns Desk · creating alto",
     commands: [
       { type: "SET_PARTICIPANT_PROJECTION", participantId: "p3", room: "participant", tab: "Create" },
-      { type: "SET_CREATE_SUBMODE", mode: "clip" },
+      { type: "SET_CREATE_SUBMODE", mode: "piano" },
+      { type: "SELECT_PIANO_NOTE", draftId: "mei-alto-themeA-8", noteId: "mei-alto-themeA-8-n0" },
+      { type: "SET_NOTE_VELOCITY", draftId: "mei-alto-themeA-8", noteId: "mei-alto-themeA-8-n0", velocity: 0.72 },
       { type: "PREVIEW_WORKSPACE", draftId: "mei-alto-themeA-8" },
     ],
     afterBar: 1,

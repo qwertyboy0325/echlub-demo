@@ -53,6 +53,10 @@ If the page stays blank for 5+ seconds, you are likely on the wrong URL or base 
 
 Phase 6 owner runbook (presenter, capture, pack SHA, CI smoke): [`design-research/phase6-demo-runbook.md`](design-research/phase6-demo-runbook.md). Light shell smoke: `npm run validate:browser` (not full A/V capture).
 
+**Phase 5 thesis:** seven progressive Shared Master lanes with a full fork → review → revise → compare → accept cycle on bass before the second launch.
+
+**Phase 6 thesis:** branchable participant workspaces — desk-local audition is not Shared Master — scripted through Create → Review → Perform → Fork → Recall → Promote for cold-viewer presenter capture.
+
 ## Build
 
 ```bash

@@ -1,6 +1,7 @@
 import { createShellStateForMode } from "./shellBootstrap";
 import { isLiveCollabLaneSlot } from "./liveCollabShellFixtures";
 import {
+  activeWorkspaceDraftId,
   patchParticipantWorkspace,
   selectParticipantWorkspace,
   syncActiveWorkspaceFields,
@@ -421,8 +422,18 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
         activityFeed: performNote ? pushActivity(state, performNote) : state.activityFeed,
       };
     }
-    case "SET_DEVICE_PARAM":
+    case "SET_DEVICE_PARAM": {
+      if (state.room === "participant" && state.participantTab === "Create") {
+        const draftId = activeWorkspaceDraftId(state);
+        if (draftId) {
+          return {
+            ...patchParticipantWorkspace(state, state.selectedParticipantId, { draftId }),
+            activityFeed: pushActivity(state, deskCreateCaption(draftId, "shaping")),
+          };
+        }
+      }
       return state;
+    }
     case "RESTART_SESSION":
       return {
         ...createShellStateForMode(),

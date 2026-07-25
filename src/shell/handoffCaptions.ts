@@ -60,7 +60,7 @@ export function projectionCaption(state: ShellState): string | null {
       if (lastPlaying?.label) return laneLaunchCaption(lastPlaying.label, playing);
     }
     if (state.followActive) return `${active.name} → Shared Master`;
-    return "Shared Master · sparse";
+    return "Shared Master · branchable";
   }
 
   if (state.room === "mixer") {
