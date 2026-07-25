@@ -1,3 +1,4 @@
+import { createPhase4ParticipantWorkspaces } from "./participantWorkspace";
 import type { ShellState } from "./shellTypes";
 
 /** Sparse Phase 4 initial state — storyboard beat 1. */
@@ -18,8 +19,11 @@ export function createInitialShellState(): ShellState {
     selectedMixerChannel: 0,
     dockMode: "preview",
     workspaceDraftId: "midi-opening-bass",
+    participantWorkspaces: createPhase4ParticipantWorkspaces(),
     workspaceBleed: "low",
     activeMasterDraftId: null,
+    sessionPhase: "building",
+    recallRole: null,
     participants: [
       { id: "p1", name: "Alex", color: "#e76f51", taskProfile: "MIDI", active: true, projectedRoom: "participant", projectedTab: "Create" },
       { id: "p2", name: "Jordan", color: "#2a9d8f", taskProfile: "Devices", active: false, projectedRoom: "participant", projectedTab: "Devices" },
@@ -34,9 +38,9 @@ export function createInitialShellState(): ShellState {
     ],
     timelineClips: [],
     arrangementSlots: [
-      { id: "s1", clipId: null, state: "empty", label: "Master slot A" },
-      { id: "s2", clipId: null, state: "empty", label: "Master slot B" },
-      { id: "s3", clipId: null, state: "empty", label: "Master slot C" },
+      { id: "s1", clipId: null, materialId: null, state: "empty", label: "Master slot A" },
+      { id: "s2", clipId: null, materialId: null, state: "empty", label: "Master slot B" },
+      { id: "s3", clipId: null, materialId: null, state: "empty", label: "Master slot C" },
     ],
     dockSlots: [
       { index: 0, label: "Drop parameter", type: "knob", value: 0, badge: null, sourceTrack: null, sourceClip: null, sourceParam: null, mapped: false },
@@ -116,9 +120,9 @@ export function createFixtureShellState(): ShellState {
       { id: "tc4", exchangeClipId: "c3", trackId: "t-fx", startBar: 9, lengthBars: 2, variant: "staged" },
     ],
     arrangementSlots: [
-      { id: "s1", clipId: null, state: "empty", label: "Master slot A" },
-      { id: "s2", clipId: "c3", state: "staged", label: "shiki-hook" },
-      { id: "s3", clipId: "c4", state: "active", label: "bass-loop" },
+      { id: "s1", clipId: null, materialId: null, state: "empty", label: "Master slot A" },
+      { id: "s2", clipId: "c3", materialId: null, state: "staged", label: "shiki-hook" },
+      { id: "s3", clipId: "c4", materialId: null, state: "active", label: "bass-loop" },
     ],
     dockSlots: [
       { index: 0, label: "Cutoff", type: "knob", value: 0.42, badge: null, sourceTrack: "Bass", sourceClip: "bass-loop", sourceParam: "Filter · Cutoff", mapped: true },

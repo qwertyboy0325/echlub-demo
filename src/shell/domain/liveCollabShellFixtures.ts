@@ -2,7 +2,8 @@ import {
   LIVE_COLLAB_LAUNCH_ORDER,
   LIVE_COLLAB_SLOT_TRACKS,
 } from "../../domain/liveCollabSessionAdapter";
-import { SHIKI_SEVEN_TRACK_INSTRUMENTS } from "../../domain/shikiSevenTracks";
+import { SHIKI_SEVEN_TRACK_INSTRUMENTS, type ShikiSevenTrackId } from "../../domain/shikiSevenTracks";
+import { createLiveCollabParticipantWorkspaces } from "./participantWorkspace";
 import type { ArrangementSlot, ArrangementTrack, ShellState } from "./shellTypes";
 import { createInitialShellState } from "./shellFixtures";
 
@@ -33,13 +34,24 @@ const LIVE_COLLAB_TRACK_OWNERS: Record<string, string> = {
   "track-tenor": "Mei",
 };
 
+/** Preloaded supporting lanes — Drums, RH, Tenor start Loaded. */
+const PRELOADED_LANE_MATERIAL: Partial<Record<ShikiSevenTrackId, { materialId: string; label: string }>> = {
+  "track-drums": { materialId: "ryo-entry-4", label: "ryo-entry-4" },
+  "track-piano-rh": { materialId: "kai-rh-pad-4", label: "kai-rh-pad-4" },
+  "track-tenor": { materialId: "mei-tenor-entry-8", label: "mei-tenor-entry-8" },
+};
+
 export function createLiveCollabArrangementSlots(): ArrangementSlot[] {
-  return LIVE_COLLAB_LAUNCH_ORDER.map((trackId, index) => ({
-    id: `lane-${index + 1}`,
-    clipId: null,
-    state: "empty" as const,
-    label: LIVE_COLLAB_TRACK_LABELS[trackId] ?? trackId,
-  }));
+  return LIVE_COLLAB_LAUNCH_ORDER.map((trackId, index) => {
+    const preload = PRELOADED_LANE_MATERIAL[trackId];
+    return {
+      id: `lane-${index + 1}`,
+      clipId: null,
+      materialId: preload?.materialId ?? null,
+      state: preload ? ("loaded" as const) : ("empty" as const),
+      label: preload?.label ?? LIVE_COLLAB_TRACK_LABELS[trackId] ?? trackId,
+    };
+  });
 }
 
 export function createLiveCollabArrangementTracks(): ArrangementTrack[] {
@@ -50,11 +62,19 @@ export function createLiveCollabArrangementTracks(): ArrangementTrack[] {
   }));
 }
 
-/** Sparse Phase 5 boot — seven empty lanes, four collaborators, silence until Launch. */
+/** Sparse Phase 5 boot — three preloaded lanes, four empty for on-screen authoring. */
 export function createLiveCollabInitialShellState(): ShellState {
+  const preloaded = createLiveCollabArrangementSlots().filter((slot) => slot.state === "loaded").length;
+  const participantWorkspaces = createLiveCollabParticipantWorkspaces();
+  const bootParticipantId = "p1";
+  const bootWorkspace = participantWorkspaces[bootParticipantId]!;
   return {
     ...createInitialShellState(),
-    workspaceDraftId: "kai-lh-sparse-4",
+    selectedParticipantId: bootParticipantId,
+    workspaceDraftId: bootWorkspace.draftId,
+    participantTab: bootWorkspace.tab,
+    createSubMode: bootWorkspace.createSubMode,
+    participantWorkspaces,
     participants: LIVE_COLLAB_PARTICIPANTS.map((p, index) => ({
       ...p,
       active: index === 0,
@@ -62,10 +82,15 @@ export function createLiveCollabInitialShellState(): ShellState {
     arrangementTracks: createLiveCollabArrangementTracks(),
     arrangementSlots: createLiveCollabArrangementSlots(),
     timelineClips: [],
-    activityFeed: ["Session ready · Shiki live-collab derived pack · 0/7 lanes"],
+    activityFeed: [`Session ready · Shiki live-collab derived pack · ${preloaded}/7 lanes loaded`],
   };
 }
 
 export function isLiveCollabLaneSlot(slotId: string): boolean {
   return slotId in LIVE_COLLAB_SLOT_TRACKS;
+}
+
+export function liveCollabSlotForTrack(trackId: ShikiSevenTrackId): string | undefined {
+  const index = LIVE_COLLAB_LAUNCH_ORDER.indexOf(trackId);
+  return index >= 0 ? `lane-${index + 1}` : undefined;
 }

@@ -259,6 +259,16 @@ export class MusicalDomainStore {
     if (!this.pack || !this.session || this.packMode !== "live-collab") return false;
 
     const filtered = filterTrackPlacements(this.trackPlacements, this.activeLanes);
+    if (overrides) {
+      for (const [trackId, overrideDraftId] of Object.entries(overrides)) {
+        if (!overrideDraftId) continue;
+        for (const placements of Object.values(filtered)) {
+          if (placements[trackId as ShikiSevenTrackId]) {
+            placements[trackId as ShikiSevenTrackId] = overrideDraftId;
+          }
+        }
+      }
+    }
     for (const placements of Object.values(filtered)) {
       for (const unitId of Object.values(placements)) {
         if (unitId) this.hydrateDraftFromPack(unitId);
@@ -288,28 +298,6 @@ export class MusicalDomainStore {
           return layerDraft ? [materialRefForDraft(layerDraft)] : [];
         });
         if (refs.length) sessionScene.layerStacks[layer as LayerId] = refs;
-      }
-    }
-
-    if (overrides) {
-      const opening = this.session.scenes.find((scene) => scene.id === "opening") ?? this.session.scenes[0];
-      if (opening) {
-        for (const [trackId, overrideDraftId] of Object.entries(overrides)) {
-          if (!overrideDraftId) continue;
-          const layerDraft = this.session.drafts[overrideDraftId];
-          if (!layerDraft) continue;
-          const layer = this.layerForTrack(trackId as ShikiSevenTrackId);
-          if (layer === "bass" && trackId === "track-piano-lh") {
-            opening.layerStacks ??= {};
-            opening.layerStacks.bass = [materialRefForDraft(layerDraft)];
-          } else if (layer === "melody" && trackId !== "track-tenor") {
-            opening.layerStacks ??= {};
-            const stack = opening.layerStacks.melody ?? [];
-            opening.layerStacks.melody = [...stack.filter((ref) => ref.draftId !== overrideDraftId), materialRefForDraft(layerDraft)];
-          } else {
-            opening.layers[layer] = materialRefForDraft(layerDraft);
-          }
-        }
       }
     }
 
@@ -381,20 +369,6 @@ export class MusicalDomainStore {
       "activate-master",
       `${draftId} r${revision} → @ bar ${scene.startBar} · ${layerCount} layers · ${stackCount} stack refs · tracks ${this.getSevenTrackMasterInventory().filter((t) => t.audibleInPayoff).length}/7`,
     );
-  }
-
-  private layerForTrack(trackId: ShikiSevenTrackId): LayerId {
-    switch (trackId) {
-      case "track-drums":
-        return "drums";
-      case "track-piano-rh":
-        return "harmony";
-      case "track-bass":
-      case "track-piano-lh":
-        return "bass";
-      default:
-        return "melody";
-    }
   }
 
   getSevenTrackMasterInventory(): MasterTrackInventoryEntry[] {

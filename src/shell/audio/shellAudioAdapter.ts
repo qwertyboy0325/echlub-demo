@@ -4,6 +4,7 @@ import { materialRefForDraft } from "../../domain/sessionMaterialBank";
 import { compileSessionMaterialBank } from "../../domain/sessionMaterialBank";
 import { resolveShellPackMode } from "../../domain/liveCollabPack";
 import { LIVE_COLLAB_SLOT_TRACKS } from "../../domain/liveCollabSessionAdapter";
+import { liveCollabSlotForTrack } from "../domain/liveCollabShellFixtures";
 import type { ShikiSevenTrackId } from "../../domain/shikiSevenTracks";
 import { dockUpdatesFromMix, mixPatchFromDockParam } from "./dockMixSync";
 import { musicalDomain, type MusicalDomainStore } from "../domain/musicalDomain";
@@ -47,6 +48,7 @@ export class ShellAudioAdapter {
   private lastTransportPlaying = false;
   private pendingPreviewDraftId: string | null = null;
   private pendingLaneLaunches: PendingLaneLaunch[] = [];
+  private pendingLaneLaunchesDuringTransport = false;
   private readyListeners = new Set<() => void>();
   readonly evidence: ShellAudioAdapterEvidence = {
     packLoaded: false,
@@ -113,11 +115,14 @@ export class ShellAudioAdapter {
       onFinished: () => {
         shellStore.dispatch({ type: "SYNC_TRANSPORT", bar: 0, beat: 0, sixteenth: 0, playing: false });
       },
+      onBeforeBoundary: (bar, time) => {
+        if (this.pendingLaneLaunches.length) {
+          this.commitPendingLaneLaunches(true, time);
+        }
+        void bar;
+      },
       onBoundary: (bar) => {
         this.evidence.domainEvents += 1;
-        if (this.pendingLaneLaunches.length) {
-          this.commitPendingLaneLaunches();
-        }
         void bar;
       },
     });
@@ -166,6 +171,7 @@ export class ShellAudioAdapter {
     this.lastTransportPlaying = false;
     this.pendingPreviewDraftId = null;
     this.pendingLaneLaunches = [];
+    this.pendingLaneLaunchesDuringTransport = false;
     this.evidence.packLoaded = false;
     this.evidence.audioReady = false;
     this.notifyReady();
@@ -218,11 +224,16 @@ export class ShellAudioAdapter {
     }
     if (command.type === "PREVIEW_WORKSPACE") {
       void Tone.start();
+      this.domain.assignDraftToWorkspace(command.draftId);
       if (!this.engine) {
         this.pendingPreviewDraftId = command.draftId;
         return;
       }
       this.previewDraft(command.draftId);
+      return;
+    }
+    if (command.type === "SET_WORKSPACE_DRAFT") {
+      this.domain.assignDraftToWorkspace(command.draftId);
       return;
     }
     if (!this.engine) return;
@@ -304,6 +315,7 @@ export class ShellAudioAdapter {
       }
       case "RESTART_SESSION":
         this.pendingLaneLaunches = [];
+        this.pendingLaneLaunchesDuringTransport = false;
         this.engine.stop();
         this.engine.clearArrangementSceneBoundaries();
         this.engine.clearLaneMutes();
@@ -358,7 +370,10 @@ export class ShellAudioAdapter {
     this.readyListeners.forEach((listener) => listener());
   }
 
-  private publishBank(act: "production" | "livePerformance", options?: { resetMix?: boolean }): void {
+  private publishBank(
+    act: "production" | "livePerformance",
+    options?: { resetMix?: boolean; activateScene?: boolean },
+  ): void {
     const session = this.domain.getSession();
     if (!session || !this.engine) return;
     const bank = compileSessionMaterialBank(session);
@@ -372,8 +387,10 @@ export class ShellAudioAdapter {
         .filter((scene) => session.arrangement.scenes.some((entry) => entry.sceneId === scene.id))
         .map((scene) => ({ startBar: scene.startBar, scene }));
       this.engine.setArrangementSceneBoundaries(boundaries);
-      const opening = session.scenes.find((scene) => scene.id === "opening") ?? session.scenes[0];
-      if (opening) this.engine.activateSceneAtBoundary(opening);
+      if (options?.activateScene !== false) {
+        const opening = session.scenes.find((scene) => scene.id === "opening") ?? session.scenes[0];
+        if (opening) this.engine.activateSceneAtBoundary(opening);
+      }
     } else {
       this.engine.clearArrangementSceneBoundaries();
     }
@@ -388,19 +405,37 @@ export class ShellAudioAdapter {
 
   private scheduleLaneLaunch(trackId: ShikiSevenTrackId, draftId: string | undefined, transportPlaying: boolean): void {
     this.pendingLaneLaunches.push({ trackId, draftId });
-    if (!transportPlaying) {
-      this.commitPendingLaneLaunches();
+    if (transportPlaying) {
+      this.pendingLaneLaunchesDuringTransport = true;
+      return;
     }
+    this.commitPendingLaneLaunches(false);
   }
 
-  private commitPendingLaneLaunches(): void {
+  private commitPendingLaneLaunches(
+    duringTransport = this.pendingLaneLaunchesDuringTransport,
+    boundaryTime?: number,
+  ): void {
     if (!this.pendingLaneLaunches.length || !this.engine) return;
     const launches = [...this.pendingLaneLaunches];
     this.pendingLaneLaunches = [];
+    this.pendingLaneLaunchesDuringTransport = false;
     for (const { trackId, draftId } of launches) {
       this.domain.activateLane(trackId, draftId);
+      const slotId = liveCollabSlotForTrack(trackId);
+      if (slotId) {
+        shellStore.dispatch({ type: "COMMIT_LANE_LAUNCH", slotId, draftId });
+      }
     }
-    this.publishBank("livePerformance");
+    this.publishBank("livePerformance", {
+      resetMix: false,
+      activateScene: !duringTransport,
+    });
+    if (duringTransport) {
+      const bar = shellStore.getState().transportBar;
+      this.engine.refreshPlayingSceneAtBar(bar);
+      this.engine.releaseGuitarVoices(boundaryTime);
+    }
     this.engine.setCurrentAct("livePerformance");
   }
 }
@@ -496,11 +531,11 @@ function exposeShellAudioDiagnostics(adapter: ShellAudioAdapter): void {
       forkOf: clip.forkOf,
     }));
     const stagedSlots = shell.arrangementSlots
-      .filter((slot) => slot.state === "staged")
-      .map((slot) => ({ id: slot.id, clipId: slot.clipId, label: slot.label }));
+      .filter((slot) => slot.state === "staged" || slot.state === "loaded")
+      .map((slot) => ({ id: slot.id, clipId: slot.clipId, label: slot.label, state: slot.state }));
     const activeSlots = shell.arrangementSlots
-      .filter((slot) => slot.state === "active")
-      .map((slot) => ({ id: slot.id, clipId: slot.clipId, label: slot.label }));
+      .filter((slot) => slot.state === "active" || slot.state === "playing" || slot.state === "queued")
+      .map((slot) => ({ id: slot.id, clipId: slot.clipId, label: slot.label, state: slot.state }));
     const dockMappings = shell.dockSlots
       .filter((slot) => slot.mapped)
       .map((slot) => ({

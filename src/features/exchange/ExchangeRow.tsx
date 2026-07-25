@@ -21,14 +21,14 @@ function Thumbnail({ clip }: { clip: ExchangeClip }) {
 
 function primaryAction(
   clip: ExchangeClip,
-): { label: string; action: "fork" | "claim" | "open" | "review" | "preview" } {
+): { label: string; action: "fork" | "claim" | "open" | "review" | "accept" | "preview" } {
   switch (clip.lifecycle) {
     case "Available":
       return clip.contributorId ? { label: "Claim", action: "claim" } : { label: "Fork", action: "fork" };
     case "In Progress":
       return { label: "Open work", action: "open" };
     case "Review":
-      return { label: "Review", action: "review" };
+      return { label: "Accept for Shared Song", action: "accept" };
     case "Ready":
       return { label: "Preview", action: "preview" };
   }
@@ -95,6 +95,7 @@ export function ExchangeRow({
     if (primary.action === "fork") onFork();
     else if (primary.action === "claim") onClaim();
     else if (primary.action === "review") onReview();
+    else if (primary.action === "accept") onReady();
     else if (primary.action === "open") dispatch({ type: "SET_ROOM", room: "participant" });
     else if (primary.action === "preview" && clip.draftId) {
       dispatch({ type: "PREVIEW_WORKSPACE", draftId: clip.draftId });
@@ -127,7 +128,23 @@ export function ExchangeRow({
         </div>
       </div>
       <div className="exchange-actions">
-        <button type="button" className="primary-btn exchange-primary-action" onClick={(e) => { e.stopPropagation(); runPrimary(); }}>
+        <button
+          type="button"
+          className="primary-btn exchange-primary-action"
+          data-demo-target={
+            primary.action === "fork"
+              ? `fork-clip-${clip.id}`
+              : primary.action === "claim"
+                ? `claim-clip-${clip.id}`
+                : primary.action === "accept"
+                  ? `accept-clip-${clip.id}`
+                  : undefined
+          }
+          onClick={(e) => {
+            e.stopPropagation();
+            runPrimary();
+          }}
+        >
           {primary.label}
         </button>
         {clip.lifecycle !== "Ready" && (
@@ -143,7 +160,16 @@ export function ExchangeRow({
             <div className="exchange-overflow-menu" role="menu">
               {clip.lifecycle === "Available" && (
                 <>
-                  <button type="button" onClick={() => { onFork(); setMenuOpen(false); }}>Fork</button>
+                  <button
+                    type="button"
+                    data-demo-target={`fork-clip-${clip.id}`}
+                    onClick={() => {
+                      onFork();
+                      setMenuOpen(false);
+                    }}
+                  >
+                    Fork
+                  </button>
                   <button type="button" onClick={() => { onClaim(); setMenuOpen(false); }}>Claim</button>
                 </>
               )}
@@ -153,7 +179,16 @@ export function ExchangeRow({
               {clip.lifecycle === "Review" && (
                 <>
                   <button type="button" onClick={() => { onRevise(); setMenuOpen(false); }}>Revise</button>
-                  <button type="button" onClick={() => { onReady(); setMenuOpen(false); }}>Mark ready</button>
+                  <button
+                    type="button"
+                    data-demo-target={`accept-clip-${clip.id}`}
+                    onClick={() => {
+                      onReady();
+                      setMenuOpen(false);
+                    }}
+                  >
+                    Accept for Shared Song
+                  </button>
                 </>
               )}
               {clip.lifecycle === "Ready" && (

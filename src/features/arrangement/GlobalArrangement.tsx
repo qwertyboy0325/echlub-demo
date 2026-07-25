@@ -1,9 +1,15 @@
 import interact from "interactjs";
 import { Play } from "lucide-react";
-import { useEffect, useRef } from "react";
+import type { CSSProperties } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "react-aria-components";
 import { resolveShellPackMode } from "../../domain/liveCollabPack";
-import { LIVE_COLLAB_SLOT_TRACKS } from "../../domain/liveCollabSessionAdapter";
+import {
+  countPlayingLanes,
+  isLaneLaunchableState,
+  isLanePlayingState,
+  laneStateLabel,
+} from "../../shell/laneSlotSemantics";
 import type { ShellCommand, ShellState } from "../../shell/domain/shellTypes";
 import { displayTransportBar } from "../../shell/transportPlaybackHint";
 
@@ -15,20 +21,26 @@ interface GlobalArrangementProps {
 const BAR_COUNT = 16;
 const BAR_WIDTH = 48;
 
-function activeLaneCount(state: ShellState): number {
-  return state.arrangementSlots.filter((s) => s.state === "active").length;
-}
+const LIVE_COLLAB_OWNER_META: Record<string, { color: string; initial: string; desk: string }> = {
+  Ryo: { color: "var(--participant-ryo)", initial: "R", desk: "Rhythm Desk" },
+  Kai: { color: "var(--participant-kai)", initial: "K", desk: "Keys Desk" },
+  Mei: { color: "var(--participant-mei)", initial: "M", desk: "Horns Desk" },
+  Ren: { color: "var(--participant-ren)", initial: "R", desk: "Guitar Desk" },
+};
 
 export function GlobalArrangement({ state, dispatch }: GlobalArrangementProps) {
   const lanesRef = useRef<HTMLDivElement>(null);
   const isLiveCollab = resolveShellPackMode() === "live-collab";
+  const [timelineOpen, setTimelineOpen] = useState(isLiveCollab);
   const selectedClip = state.selectedExchangeClipId
     ? state.exchangeClips.find((c) => c.id === state.selectedExchangeClipId)
     : null;
   const canStage = selectedClip?.lifecycle === "Ready";
   const activeSlot = state.arrangementSlots.find((s) => s.state === "active");
   const stagedSlot = state.arrangementSlots.find((s) => s.state === "staged");
-  const launchedCount = activeLaneCount(state);
+  const launchedCount = isLiveCollab ? countPlayingLanes(state.arrangementSlots) : countPlayingLanes(state.arrangementSlots);
+  const queuedSlot = state.arrangementSlots.find((s) => s.state === "queued");
+  const performing = state.sessionPhase === "performing";
 
   useEffect(() => {
     if (isLiveCollab) return;
@@ -58,112 +70,198 @@ export function GlobalArrangement({ state, dispatch }: GlobalArrangementProps) {
 
   const masterReadout = isLiveCollab
     ? launchedCount > 0
-      ? `${launchedCount}/7 lanes on Shared Master`
-      : "Shared Master sparse — Launch a lane to hear it"
+      ? `Shared Master · ${launchedCount}/7 playing`
+      : queuedSlot
+        ? `${queuedSlot.label} queued for bar ${displayTransportBar(state.transportBar + 1)}`
+        : "Shared Master · sparse — Launch a loaded lane to hear it"
     : activeSlot
       ? `${activeSlot.label} on Shared Master`
       : "Shared Master unassigned — stage a Ready clip, then Activate";
 
-  return (
-    <section className="global-arrangement" aria-label="Arrangement and launcher">
-      <header className="arrangement-status-bar">
-        <span className="arrangement-status-label">Arrangement</span>
-        <span className="arrangement-status-readout tabular-nums">
-          bar {displayTransportBar(state.transportBar)} · {masterReadout}
-          {!isLiveCollab && stagedSlot ? ` · staged: ${stagedSlot.label}` : ""}
-        </span>
-      </header>
+  const slotForTrackIndex = (index: number) => state.arrangementSlots[index];
 
-      <div className="arrangement-timeline">
-        <div className="arrangement-ruler" aria-hidden="true">
-          <div className="arrangement-ruler-spacer" />
-          <div className="arrangement-ruler-bars" style={{ width: BAR_COUNT * BAR_WIDTH }}>
-            {Array.from({ length: BAR_COUNT }, (_, i) => (
-              <span key={i} className={`ruler-bar${(i + 1) % 4 === 0 ? " ruler-bar--boundary" : ""}`}>
-                {i + 1}
-              </span>
+  return (
+    <section className={`global-arrangement${isLiveCollab ? " global-arrangement--split" : ""}`} aria-label="Arrangement and launcher">
+      {isLiveCollab ? (
+        <section className="global-zone global-zone--session" data-global-zone="session" aria-label="Session lanes">
+          <header className="global-zone-header">
+            <span className="global-zone-label">Session</span>
+            <span
+              className={`session-phase-badge session-phase-badge--${state.sessionPhase}`}
+              data-demo-target="session-phase-badge"
+            >
+              {state.sessionPhase === "performing" ? "Performing Shared Song" : "Building Shared Song"}
+            </span>
+            <span className="global-zone-readout tabular-nums">bar {displayTransportBar(state.transportBar)}</span>
+          </header>
+          <div className="session-lane-table" aria-label="Shiki session lanes">
+          <div className="session-lane-header" aria-hidden="true">
+            <span />
+            <span>Track</span>
+            <span>Clip</span>
+            <span>State</span>
+            <span>Launch</span>
+          </div>
+          {state.arrangementTracks.map((track, index) => {
+            const slot = slotForTrackIndex(index);
+            if (!slot) return null;
+            const owner = track.identity.split(" · ")[1] ?? "—";
+            const ownerMeta = LIVE_COLLAB_OWNER_META[owner];
+            const canLaunch = !performing && isLaneLaunchableState(slot.state) && slot.state !== "queued";
+            const status = laneStateLabel(slot.state, state.transportBar);
+            const stagedClip = slot.clipId ? clipForExchange(slot.clipId) : null;
+            const lineageParent = stagedClip?.forkOf ? clipForExchange(stagedClip.forkOf) : null;
+            const showLineage = Boolean(lineageParent && stagedClip);
+            const canPromote =
+              stagedClip?.lifecycle === "Ready" && stagedClip.forkOf && isLaneLaunchableState(slot.state);
+            return (
+              <div
+                key={track.id}
+                className={`session-lane-row session-lane-row--${slot.state}${isLanePlayingState(slot.state) && state.transportPlaying ? " session-lane-row--pulse" : ""}`}
+                data-slot-id={slot.id}
+                data-demo-target={`launch-slot-${slot.id}`}
+                style={
+                  ownerMeta
+                    ? ({ "--lane-provenance": ownerMeta.color } as CSSProperties)
+                    : undefined
+                }
+              >
+                <div className="session-lane-provenance" aria-hidden={!ownerMeta}>
+                  {ownerMeta ? (
+                    <>
+                      <span className="session-lane-provenance-initial">{ownerMeta.initial}</span>
+                      <span className="session-lane-provenance-desk">{ownerMeta.desk}</span>
+                    </>
+                  ) : null}
+                </div>
+                <div className="session-lane-track">
+                  <strong>{track.name}</strong>
+                  <span className="session-lane-owner">{owner}</span>
+                </div>
+                <div className="session-lane-clip tabular-nums">
+                  <span>{slot.label}</span>
+                  {showLineage && lineageParent ? (
+                    <span className="session-lane-lineage" data-demo-target={`lane-lineage-${slot.id}`}>
+                      {stagedClip?.draftId ?? stagedClip?.title} ← {lineageParent.draftId ?? lineageParent.title}
+                    </span>
+                  ) : null}
+                  {slot.materialId && slot.materialId !== slot.label ? (
+                    <span className="session-lane-material">{slot.materialId}</span>
+                  ) : null}
+                </div>
+                <div className={`session-lane-state session-lane-state--${slot.state}`}>{status}</div>
+                <div className="session-lane-actions lane-actions">
+                  {isLanePlayingState(slot.state) ? (
+                    <span className="active-badge">Playing</span>
+                  ) : slot.state === "queued" ? (
+                    <span className="queued-badge">Queued</span>
+                  ) : canLaunch ? (
+                    <>
+                      {canPromote && stagedClip ? (
+                        <Button
+                          className="promote-btn"
+                          data-demo-target={`promote-clip-${stagedClip.id}`}
+                          onPress={() => dispatch({ type: "PROMOTE_CLIP", clipId: stagedClip.id, slotId: slot.id })}
+                        >
+                          Promote
+                        </Button>
+                      ) : null}
+                      <Button
+                        className="primary-btn lane-launch-btn"
+                        onPress={() => dispatch({ type: "LAUNCH_SLOT", slotId: slot.id, draftId: slot.materialId ?? undefined })}
+                      >
+                        <Play size={12} aria-hidden />
+                        Launch
+                      </Button>
+                    </>
+                  ) : performing && isLaneLaunchableState(slot.state) ? (
+                    <span className="performing-badge">Performing</span>
+                  ) : (
+                    <span className="lane-empty-badge">No clip</span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+          </div>
+        </section>
+      ) : (
+        <header className="arrangement-status-bar">
+          <span className="arrangement-status-label">Session</span>
+          <span className="arrangement-status-readout tabular-nums">
+            bar {displayTransportBar(state.transportBar)} · {masterReadout}
+            {stagedSlot ? ` · staged: ${stagedSlot.label}` : ""}
+          </span>
+        </header>
+      )}
+
+      <section
+        className={`global-zone global-zone--arrangement${isLiveCollab ? "" : ""}`}
+        data-global-zone="arrangement"
+        aria-label={isLiveCollab ? "Arrangement score map" : "Arrangement timeline"}
+      >
+        {isLiveCollab ? (
+          <header className="global-zone-header">
+            <span className="global-zone-label">Arrangement</span>
+            <span className="global-zone-hint">score map</span>
+          </header>
+        ) : null}
+        <details
+          className="arrangement-timeline-details"
+          open={timelineOpen}
+          onToggle={(event) => setTimelineOpen((event.target as HTMLDetailsElement).open)}
+        >
+          <summary className="arrangement-timeline-summary">
+            {isLiveCollab ? "Score map" : "Arrangement timeline"}
+          </summary>
+        <div className="arrangement-timeline">
+          <div className="arrangement-ruler" aria-hidden="true">
+            <div className="arrangement-ruler-spacer" />
+            <div className="arrangement-ruler-bars" style={{ width: BAR_COUNT * BAR_WIDTH }}>
+              {Array.from({ length: BAR_COUNT }, (_, i) => (
+                <span key={i} className={`ruler-bar${(i + 1) % 4 === 0 ? " ruler-bar--boundary" : ""}`}>
+                  {i + 1}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="arrangement-tracks" ref={lanesRef}>
+            {state.arrangementTracks.map((track) => (
+              <div key={track.id} className="arrangement-track-row">
+                <div className="track-header">
+                  <strong>{track.name}</strong>
+                  <span>{track.identity}</span>
+                </div>
+                <div className="track-lane" style={{ width: BAR_COUNT * BAR_WIDTH }}>
+                  {state.timelineClips
+                    .filter((tc) => tc.trackId === track.id)
+                    .map((tc) => {
+                      const clip = clipForExchange(tc.exchangeClipId);
+                      return (
+                        <div
+                          key={tc.id}
+                          className={`timeline-clip timeline-clip--${tc.variant}`}
+                          style={{ left: (tc.startBar - 1) * BAR_WIDTH, width: tc.lengthBars * BAR_WIDTH - 4 }}
+                        >
+                          <span className="timeline-clip-title">{clip?.title ?? tc.exchangeClipId}</span>
+                          <span className="timeline-clip-rev tabular-nums">r{clip?.revision ?? 1}</span>
+                        </div>
+                      );
+                    })}
+                  <div
+                    className="playhead arrangement-playhead"
+                    style={{ left: (state.transportBar - 1) * BAR_WIDTH + (state.transportBeat - 1) * (BAR_WIDTH / 4) }}
+                  />
+                </div>
+              </div>
             ))}
           </div>
         </div>
+        </details>
+      </section>
 
-        <div className="arrangement-tracks" ref={lanesRef}>
-          {state.arrangementTracks.map((track) => (
-            <div key={track.id} className="arrangement-track-row">
-              <div className="track-header">
-                <strong>{track.name}</strong>
-                <span>{track.identity}</span>
-              </div>
-              <div className="track-lane" style={{ width: BAR_COUNT * BAR_WIDTH }}>
-                {state.timelineClips
-                  .filter((tc) => tc.trackId === track.id)
-                  .map((tc) => {
-                    const clip = clipForExchange(tc.exchangeClipId);
-                    return (
-                      <div
-                        key={tc.id}
-                        className={`timeline-clip timeline-clip--${tc.variant}`}
-                        style={{ left: (tc.startBar - 1) * BAR_WIDTH, width: tc.lengthBars * BAR_WIDTH - 4 }}
-                      >
-                        <span className="timeline-clip-title">{clip?.title ?? tc.exchangeClipId}</span>
-                        <span className="timeline-clip-rev tabular-nums">r{clip?.revision ?? 1}</span>
-                      </div>
-                    );
-                  })}
-                <div
-                  className="playhead arrangement-playhead"
-                  style={{ left: (state.transportBar - 1) * BAR_WIDTH + (state.transportBeat - 1) * (BAR_WIDTH / 4) }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {isLiveCollab ? (
-        <div className="arrangement-launcher arrangement-launcher--live-collab">
-          <span className="launcher-label">Shiki lanes · Launch</span>
-          <div className="arrangement-launcher-lanes">
-            {state.arrangementSlots.map((slot) => {
-              const trackId = LIVE_COLLAB_SLOT_TRACKS[slot.id];
-              const canLaunch = slot.state !== "active";
-              return (
-                <div
-                  key={slot.id}
-                  className={`lane-launch-slot lane-launch-slot--${slot.state}${state.transportPlaying && slot.state === "active" ? " lane-launch-slot--pulse" : ""}`}
-                  data-slot-id={slot.id}
-                  data-demo-target={`launch-slot-${slot.id}`}
-                >
-                  <div className="lane-launch-meta">
-                    <strong>{slot.label}</strong>
-                    <span className="lane-launch-track tabular-nums">{trackId?.replace("track-", "") ?? slot.id}</span>
-                  </div>
-                  <div className="lane-actions">
-                    {slot.state === "active" ? (
-                      <span className="active-badge">Active</span>
-                    ) : slot.state === "staged" ? (
-                      <Button
-                        className="primary-btn lane-launch-btn"
-                        onPress={() => dispatch({ type: "LAUNCH_SLOT", slotId: slot.id })}
-                      >
-                        <Play size={12} aria-hidden />
-                        Launch
-                      </Button>
-                    ) : canLaunch ? (
-                      <Button
-                        className="primary-btn lane-launch-btn"
-                        onPress={() => dispatch({ type: "LAUNCH_SLOT", slotId: slot.id })}
-                      >
-                        <Play size={12} aria-hidden />
-                        Launch
-                      </Button>
-                    ) : null}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      ) : (
+      {!isLiveCollab ? (
         <div className="arrangement-launcher">
           <span className="launcher-label">Shared Master slots</span>
           <div className="arrangement-launcher-slots">
@@ -183,6 +281,7 @@ export function GlobalArrangement({ state, dispatch }: GlobalArrangementProps) {
                       <button
                         type="button"
                         className="stage-btn"
+                        data-demo-target={`stage-clip-${slot.id}`}
                         onClick={() => dispatch({ type: "STAGE_CLIP", clipId: selectedClip.id, slotId: slot.id })}
                       >
                         Stage {selectedClip.title}
@@ -200,36 +299,43 @@ export function GlobalArrangement({ state, dispatch }: GlobalArrangementProps) {
             })}
           </div>
         </div>
-      )}
+      ) : null}
 
-      <div className="master-strip">
-        <span className="master-label">Shared Master</span>
-        <div className="master-assignment">
+      <section className="global-zone global-zone--master" data-global-zone="master" aria-label="Shared Master readout">
+        <header className="global-zone-header">
+          <span className="global-zone-label">Shared Master</span>
           {isLiveCollab ? (
-            launchedCount > 0 ? (
+            <span className="global-zone-readout tabular-nums">{masterReadout}</span>
+          ) : null}
+        </header>
+        <div className="master-strip">
+          <div className="master-assignment">
+            {isLiveCollab ? (
+              launchedCount > 0 ? (
+                <>
+                  <strong>{launchedCount}/7 lanes playing</strong>
+                  <span className="tabular-nums">live-collab</span>
+                </>
+              ) : (
+                <span className="master-empty">Sparse — Launch loaded lanes to build the master</span>
+              )
+            ) : activeSlot ? (
               <>
-                <strong>{launchedCount}/7 lanes</strong>
-                <span className="tabular-nums">live-collab</span>
+                <strong>{activeSlot.label}</strong>
+                <span className="tabular-nums">r{clipForExchange(activeSlot.clipId ?? "")?.revision ?? "—"}</span>
               </>
             ) : (
-              <span className="master-empty">Sparse — Launch lanes to build the master</span>
-            )
-          ) : activeSlot ? (
-            <>
-              <strong>{activeSlot.label}</strong>
-              <span className="tabular-nums">r{clipForExchange(activeSlot.clipId ?? "")?.revision ?? "—"}</span>
-            </>
-          ) : (
-            <span className="master-empty">Unassigned — Play is silent until Activate</span>
-          )}
+              <span className="master-empty">Unassigned — Play is silent until Activate</span>
+            )}
+          </div>
+          <div className={`master-meter${launchedCount > 0 ? " master-meter--lit" : ""}`} aria-hidden="true">
+            <span
+              className="master-meter-fill"
+              style={isLiveCollab ? { width: `${(launchedCount / 7) * 100}%` } : undefined}
+            />
+          </div>
         </div>
-        <div className={`master-meter${launchedCount > 0 ? " master-meter--lit" : ""}`} aria-hidden="true">
-          <span
-            className="master-meter-fill"
-            style={isLiveCollab ? { width: `${(launchedCount / 7) * 100}%` } : undefined}
-          />
-        </div>
-      </div>
+      </section>
     </section>
   );
 }

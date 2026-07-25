@@ -1,5 +1,12 @@
 import { Tab, TabList, TabPanel, Tabs } from "react-aria-components";
+import type { CSSProperties } from "react";
 import type { ExchangeClip, ParticipantTab, ShellCommand, ShellState } from "../shell/domain/shellTypes";
+import {
+  deskLabelForProfile,
+  fullDeskTitle,
+  participantInitial,
+  workspaceForParticipant,
+} from "../shell/domain/participantWorkspace";
 import { AutomationEditor } from "../features/automation/AutomationEditor";
 import { CreateEditor } from "../features/create/CreateEditor";
 import { DevicesPanel } from "../features/devices/DevicesPanel";
@@ -12,10 +19,23 @@ interface ParticipantWorkspaceRoomProps {
 }
 
 function workspaceClip(state: ShellState): ExchangeClip | undefined {
+  const draftId = workspaceForParticipant(state, state.selectedParticipantId).draftId;
+  if (draftId) {
+    const byDraft = state.exchangeClips.find((c) => c.draftId === draftId);
+    if (byDraft) return byDraft;
+  }
   return (
     state.exchangeClips.find((c) => c.contributorId === state.selectedParticipantId) ??
     state.exchangeClips.find((c) => c.creatorId === state.selectedParticipantId)
   );
+}
+
+function ownedTrackLabels(state: ShellState, participantId: string): string[] {
+  const ws = workspaceForParticipant(state, participantId);
+  return ws.ownedTrackIds.map((trackId) => {
+    const track = state.arrangementTracks.find((entry) => entry.id === trackId);
+    return track?.name ?? trackId.replace(/^track-/, "").replace(/-/g, " ");
+  });
 }
 
 function TabPanelContent({
@@ -31,7 +51,7 @@ function TabPanelContent({
     case "Create":
       return <CreateEditor state={state} dispatch={dispatch} />;
     case "Devices":
-      return <DevicesPanel dispatch={dispatch} draggable />;
+      return <DevicesPanel state={state} dispatch={dispatch} draggable />;
     case "Automation":
       return <AutomationEditor />;
     case "Mix":
@@ -64,16 +84,52 @@ function TabPanelContent({
 export function ParticipantWorkspaceRoom({ state, dispatch }: ParticipantWorkspaceRoomProps) {
   const selected = state.participants.find((p) => p.id === state.selectedParticipantId);
   const clip = workspaceClip(state);
-  const creator = clip ? state.participants.find((p) => p.id === clip.creatorId) : undefined;
+  const workspace = workspaceForParticipant(state, state.selectedParticipantId);
+  const ownedTracks = ownedTrackLabels(state, state.selectedParticipantId);
   const roomScope = state.participantTab === "Devices" ? "devices" : "participant";
+  const deskTitle = selected ? fullDeskTitle(selected.name, selected.taskProfile) : "Participant Desk";
 
   return (
-    <div className="room room--participant" data-room={roomScope}>
-      <header className="participant-context">
-        <strong>{clip?.title ?? "untitled-draft"}</strong>
-        <span>
-          r{clip?.revision ?? 1} · {creator?.name ?? selected?.name} · source: {clip?.forkOf ? "fork" : "personal"}
-        </span>
+    <div
+      className="room room--participant"
+      data-room={roomScope}
+      data-participant-id={selected?.id}
+      style={selected ? ({ "--desk-accent": selected.color } as CSSProperties) : undefined}
+    >
+      <header className="participant-desk-header">
+        <div className="participant-desk-identity">
+          <span
+            className="participant-desk-avatar"
+            style={{ boxShadow: `inset 0 0 0 1px var(--separator), 0 0 0 2px ${selected?.color ?? "var(--separator)"}` }}
+            aria-hidden="true"
+          >
+            {selected ? participantInitial(selected.name) : "?"}
+          </span>
+          <div className="participant-desk-titles">
+            <strong className="participant-desk-title">{deskTitle}</strong>
+            <span className="participant-desk-subtitle">
+              {clip?.title ?? workspace.draftId ?? "untitled-draft"} · r{clip?.revision ?? 1} ·{" "}
+              {clip?.forkOf ? "fork" : "personal"}
+            </span>
+          </div>
+        </div>
+        {ownedTracks.length > 0 && (
+          <div className="participant-owned-tracks" aria-label="Owned tracks">
+            {ownedTracks.map((label) => (
+              <span key={label} className="participant-owned-chip">
+                {label}
+              </span>
+            ))}
+          </div>
+        )}
+        {selected && (
+          <span className="participant-desk-profile">{deskLabelForProfile(selected.taskProfile)}</span>
+        )}
+        {state.recallRole && state.workspaceDraftId && (
+          <span className="recall-role-chip" data-demo-target="recall-role-chip">
+            Recall · {state.workspaceDraftId} → {state.recallRole}
+          </span>
+        )}
       </header>
       <Tabs
         selectedKey={state.participantTab}

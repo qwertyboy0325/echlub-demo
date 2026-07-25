@@ -1,7 +1,83 @@
 import { describe, expect, it } from "vitest";
-import { createLiveCollabArrangementSlots } from "../shell/domain/liveCollabShellFixtures";
+import { createLiveCollabArrangementSlots, createLiveCollabInitialShellState } from "../shell/domain/liveCollabShellFixtures";
 import { ShellStore } from "../shell/domain/shellStore";
 import { createFixtureShellState, createInitialShellState } from "../shell/domain/shellFixtures";
+
+describe("participant workspace state", () => {
+  it("loads each participant draft/tab/submode on SELECT_PARTICIPANT", () => {
+    const store = new ShellStore(createLiveCollabInitialShellState());
+    store.dispatch({ type: "SELECT_PARTICIPANT", participantId: "p2" });
+    let s = store.getState();
+    expect(s.workspaceDraftId).toBe("kai-lh-sparse-4");
+    expect(s.participantTab).toBe("Create");
+    expect(s.createSubMode).toBe("piano");
+
+    store.dispatch({ type: "SET_PARTICIPANT_TAB", tab: "Devices" });
+    store.dispatch({ type: "SET_CREATE_SUBMODE", mode: "clip" });
+    store.dispatch({ type: "SELECT_PARTICIPANT", participantId: "p4" });
+    s = store.getState();
+    expect(s.workspaceDraftId).toBe("ren-comp-2");
+    expect(s.participantTab).toBe("Devices");
+
+    store.dispatch({ type: "SELECT_PARTICIPANT", participantId: "p2" });
+    s = store.getState();
+    expect(s.workspaceDraftId).toBe("kai-lh-sparse-4");
+    expect(s.participantTab).toBe("Devices");
+    expect(s.createSubMode).toBe("clip");
+  });
+
+  it("persists fork draft to the active participant workspace", () => {
+    const store = new ShellStore({
+      ...createFixtureShellState(),
+      exchangeClips: [
+        {
+          id: "c1",
+          title: "pulse-r1",
+          revision: 1,
+          creatorId: "p2",
+          contributorId: null,
+          lifecycle: "Available",
+          thumbnail: "notes",
+          lineageParentId: null,
+          forkOf: null,
+          draftId: "kai-lh-sparse-4",
+        },
+      ],
+      selectedParticipantId: "p2",
+      participantWorkspaces: {
+        ...createInitialShellState().participantWorkspaces,
+        p2: {
+          draftId: "kai-lh-sparse-4",
+          tab: "Create",
+          createSubMode: "piano",
+          ownedTrackIds: [],
+        },
+      },
+    });
+    store.dispatch({ type: "FORK_CLIP", clipId: "c1" });
+    const s = store.getState();
+    expect(s.workspaceDraftId).toContain("fork");
+    expect(s.participantWorkspaces.p2?.draftId).toContain("fork");
+  });
+
+  it("follow projection restores participant tab from workspace record", () => {
+    const store = new ShellStore({
+      ...createLiveCollabInitialShellState(),
+      followActive: true,
+      followLocked: false,
+    });
+    store.dispatch({
+      type: "SET_PARTICIPANT_PROJECTION",
+      participantId: "p4",
+      room: "participant",
+      tab: "Devices",
+    });
+    const s = store.getState();
+    expect(s.room).toBe("participant");
+    expect(s.participantTab).toBe("Devices");
+    expect(s.workspaceDraftId).toBe("ren-comp-2");
+  });
+});
 
 describe("SET_PARTICIPANT_PROJECTION", () => {
   it("updates projected room/tab without locking follow", () => {
@@ -36,18 +112,82 @@ describe("SET_PARTICIPANT_PROJECTION", () => {
 });
 
 describe("LAUNCH_SLOT lane accumulation", () => {
-  it("keeps prior lane slots active when launching another lane", () => {
+  it("keeps prior lane slots playing when launching another lane", () => {
+    const store = new ShellStore({
+      ...createInitialShellState(),
+      arrangementSlots: createLiveCollabArrangementSlots(),
+    });
+    store.dispatch({ type: "LAUNCH_SLOT", slotId: "lane-3" });
+    store.dispatch({ type: "COMMIT_LANE_LAUNCH", slotId: "lane-3" });
+    store.dispatch({ type: "LAUNCH_SLOT", slotId: "lane-4" });
+    store.dispatch({ type: "COMMIT_LANE_LAUNCH", slotId: "lane-4" });
+    const slots = store.getState().arrangementSlots;
+    expect(slots[2]?.state).toBe("playing");
+    expect(slots[3]?.state).toBe("playing");
+    expect(slots[0]?.state).toBe("empty");
+    expect(store.getState().activeMasterDraftId).toContain("live-collab");
+  });
+
+  it("rejects launch from empty lane slots", () => {
     const store = new ShellStore({
       ...createInitialShellState(),
       arrangementSlots: createLiveCollabArrangementSlots(),
     });
     store.dispatch({ type: "LAUNCH_SLOT", slotId: "lane-1" });
-    store.dispatch({ type: "LAUNCH_SLOT", slotId: "lane-2" });
-    const slots = store.getState().arrangementSlots;
-    expect(slots[0]?.state).toBe("active");
-    expect(slots[1]?.state).toBe("active");
-    expect(slots[2]?.state).toBe("empty");
-    expect(store.getState().activeMasterDraftId).toContain("live-collab");
+    expect(store.getState().arrangementSlots[0]?.state).toBe("empty");
+  });
+});
+
+describe("handoff captions", () => {
+  it("mints authored draft titles on share", () => {
+    const store = new ShellStore(createLiveCollabInitialShellState());
+    store.dispatch({ type: "SELECT_PARTICIPANT", participantId: "p2" });
+    store.dispatch({ type: "SHARE_CLIP" });
+    const s = store.getState();
+    const clip = s.exchangeClips.at(-1);
+    expect(clip?.title).toBe("kai-lh-sparse-4");
+    expect(s.activityFeed[0]).toBe("Exchange: kai-lh-sparse-4 shared");
+    expect(s.exchangeOpen).toBe(true);
+    expect(s.selectedExchangeClipId).toBe(clip?.id ?? null);
+  });
+
+  it("recalls workspace draft with caption", () => {
+    const store = new ShellStore(createLiveCollabInitialShellState());
+    store.dispatch({
+      type: "SET_WORKSPACE_DRAFT",
+      draftId: "kai-lh-sparse-4",
+      recallRole: "closing pad",
+    });
+    const s = store.getState();
+    expect(s.workspaceDraftId).toBe("kai-lh-sparse-4");
+    expect(s.recallRole).toBe("closing pad");
+    expect(s.activityFeed[0]).toBe("Recall · kai-lh-sparse-4 → closing pad");
+  });
+
+  it("promotes fork clips via PROMOTE_CLIP command", () => {
+    const store = new ShellStore(createLiveCollabInitialShellState());
+    store.dispatch({ type: "SELECT_PARTICIPANT", participantId: "p4" });
+    store.dispatch({ type: "SHARE_CLIP" });
+    store.dispatch({ type: "FORK_CLIP", clipId: "c1" });
+    const fork = store.getState().exchangeClips.find((clip) => clip.forkOf === "c1")!;
+    store.dispatch({ type: "MARK_READY", clipId: fork.id });
+    store.dispatch({ type: "PROMOTE_CLIP", clipId: fork.id, slotId: "lane-5" });
+    const slot = store.getState().arrangementSlots.find((entry) => entry.id === "lane-5");
+    expect(slot?.label).toContain("←");
+    expect(store.getState().activityFeed[0]).toContain("Promote ·");
+  });
+
+  it("stages fork clips with promote lineage on lane label", () => {
+    const store = new ShellStore(createLiveCollabInitialShellState());
+    store.dispatch({ type: "SELECT_PARTICIPANT", participantId: "p4" });
+    store.dispatch({ type: "SHARE_CLIP" });
+    store.dispatch({ type: "FORK_CLIP", clipId: "c1" });
+    const fork = store.getState().exchangeClips.find((clip) => clip.forkOf === "c1")!;
+    store.dispatch({ type: "MARK_READY", clipId: fork.id });
+    store.dispatch({ type: "STAGE_CLIP", clipId: fork.id, slotId: "lane-5" });
+    const slot = store.getState().arrangementSlots.find((entry) => entry.id === "lane-5");
+    expect(slot?.label).toContain("←");
+    expect(store.getState().activityFeed[0]).toContain("Promote ·");
   });
 });
 

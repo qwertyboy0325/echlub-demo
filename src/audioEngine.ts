@@ -19,7 +19,7 @@ import {
   transportStartOffsetSeconds,
 } from "./audio/browserAudioProfile";
 import { indexMixAutomationByTick } from "./demo/mixAutomationSchedule";
-import { playLayerOnGraph } from "./audio/voicePlayback";
+import { createGuitarAttackSchedule, playLayerOnGraph, type GuitarAttackSchedule } from "./audio/voicePlayback";
 import type { LayerId, MaterialRef, MixParams, SceneDefinition } from "./types";
 import type { SessionMaterialBank } from "./domain/sessionMaterialBank";
 import { resolveMaterial } from "./domain/sessionMaterialBank";
@@ -105,6 +105,7 @@ export class AudioEngine {
   private currentMix: MixParams = { filter: 1200, delayWet: 0.2, reverbWet: 0.42, masterGain: -3, faders: { groove: 64, harmony: 48, melody: 28, texture: 58 } };
   private launchVelocityScale = 1;
   private readonly mutedLayers = new Set<LayerId>();
+  private readonly guitarAttackSchedule = createGuitarAttackSchedule();
   private playingScene: SceneDefinition = createIdleScene();
   private launchAtBar = new Map<number, string>();
   private sceneAtBar = new Map<number, SceneDefinition>();
@@ -346,6 +347,10 @@ export class AudioEngine {
         if (launchSceneId) this.callbacks.onLaunchAtBar?.(bar, launchSceneId, time);
         const arrangementScene = this.sceneAtBar.get(bar);
         if (arrangementScene) {
+          const priorSceneId = this.playingScene.id;
+          if (this.currentAct === "livePerformance" && priorSceneId !== arrangementScene.id) {
+            this.releaseGuitarVoices(time);
+          }
           this.playingScene = arrangementScene;
           this.applySceneFx(arrangementScene, time, true);
           mixChangedThisTick = true;
@@ -451,6 +456,31 @@ export class AudioEngine {
     if (!this.initialized) return;
     const ramp = time ?? audioNow() + 0.01;
     this.applySceneFx(scene, ramp, true);
+  }
+
+  /** Swap playing scene to match a lane-commit bank refresh without re-applying FX ramps. */
+  refreshPlayingSceneAtBar(bar: number): void {
+    let active: SceneDefinition | undefined;
+    let activeStart = -1;
+    for (const [startBar, scene] of this.sceneAtBar) {
+      if (startBar <= bar && startBar >= activeStart) {
+        activeStart = startBar;
+        active = scene;
+      }
+    }
+    if (active) this.playingScene = active;
+  }
+
+  releaseGuitarVoices(atTime?: number): void {
+    if (!this.initialized) return;
+    const t = clampAudioTime(atTime ?? audioNow() + 0.001);
+    this.guitarString.triggerRelease(t);
+    this.guitarBody.triggerRelease(t);
+    this.guitarFretNoise.triggerRelease(t);
+    this.guitarAttackSchedule.attackTime = t;
+    this.guitarAttackSchedule.bodyTime = t;
+    this.guitarAttackSchedule.fretTime = t;
+    this.guitarAttackSchedule.stringTime = t;
   }
 
   setMixParams(params: Partial<MixParams>, rampTime = 0.18, atTime?: number): void {
@@ -648,6 +678,10 @@ export class AudioEngine {
     this.playbackGeneration += 1;
     this.lastBar = -1;
     this.masterStepCount = 0;
+    this.guitarAttackSchedule.attackTime = -Infinity;
+    this.guitarAttackSchedule.bodyTime = -Infinity;
+    this.guitarAttackSchedule.fretTime = -Infinity;
+    this.guitarAttackSchedule.stringTime = -Infinity;
     this.clearMixAutomationLog();
     this.resetPrivateCue();
     if (this.initialized) {
@@ -693,10 +727,24 @@ export class AudioEngine {
   private playStep(scene: SceneDefinition, bar: number, step: number, time: number): void {
     if (!this.materialBank) return;
     const localBar = Math.max(0, bar - scene.startBar);
+    const layerOptions = {
+      launchVelocityScale: this.launchVelocityScale,
+      mutedLayers: this.mutedLayers,
+      guitarSchedule: this.guitarAttackSchedule,
+    };
     for (const layer of ["drums", "bass", "harmony", "melody", "texture"] as const) {
-      this.playLayer(scene, layer, scene.layers[layer], localBar, step, time, 0);
+      const layerRef = scene.layers[layer];
+      this.playLayer(scene, layer, layerRef, localBar, step, time, 0, layerOptions);
       for (const [index, ref] of (scene.layerStacks?.[layer] ?? []).entries()) {
-        this.playLayer(scene, layer, ref, localBar, step, time, index + 1);
+        if (
+          layerRef
+          && ref.draftId === layerRef.draftId
+          && ref.revision === layerRef.revision
+          && ref.fingerprint === layerRef.fingerprint
+        ) {
+          continue;
+        }
+        this.playLayer(scene, layer, ref, localBar, step, time, index + 1, layerOptions);
       }
     }
   }
@@ -709,6 +757,7 @@ export class AudioEngine {
     globalStep: number,
     time: number,
     voiceIndex: number,
+    options: { launchVelocityScale: number; mutedLayers: ReadonlySet<LayerId>; guitarSchedule: GuitarAttackSchedule },
   ): void {
     if (!ref || !this.materialBank) {
       if (ref) this.emitMissing(this.currentAct === "canonicalPlayback" ? "canonical" : "live", scene.id, layer, ref);
@@ -720,10 +769,7 @@ export class AudioEngine {
       return;
     }
     this.logResolution(this.currentAct === "canonicalPlayback" ? "canonical" : "live", scene.id, layer, ref);
-    playLayerOnGraph(this.graph, this.materialBank, scene, layer, ref, localBar, globalStep, time, voiceIndex, {
-      launchVelocityScale: this.launchVelocityScale,
-      mutedLayers: this.mutedLayers,
-    });
+    playLayerOnGraph(this.graph, this.materialBank, scene, layer, ref, localBar, globalStep, time, voiceIndex, options);
   }
 
   private bindGraphFields(): void {

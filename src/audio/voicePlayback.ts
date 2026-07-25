@@ -4,6 +4,30 @@ import type { SessionMaterialBank } from "../domain/sessionMaterialBank";
 import { resolveMaterial } from "../domain/sessionMaterialBank";
 import type { MasterAudioGraph } from "./masterAudioGraph";
 
+/** Shared monophonic sources require strictly increasing attack times. */
+const MONO_VOICE_STAGGER_SEC = 0.004;
+
+export type GuitarAttackSchedule = {
+  attackTime: number;
+  bodyTime: number;
+  fretTime: number;
+  stringTime: number;
+};
+
+export function createGuitarAttackSchedule(): GuitarAttackSchedule {
+  return { attackTime: -Infinity, bodyTime: -Infinity, fretTime: -Infinity, stringTime: -Infinity };
+}
+
+function scheduleGuitarMonoTime(
+  schedule: GuitarAttackSchedule,
+  key: "fretTime" | "stringTime" | "bodyTime",
+  requested: number,
+): number {
+  const scheduled = Math.max(requested, schedule[key] + MONO_VOICE_STAGGER_SEC);
+  schedule[key] = scheduled;
+  return scheduled;
+}
+
 export function playLayerOnGraph(
   graph: MasterAudioGraph,
   materialBank: SessionMaterialBank,
@@ -14,7 +38,7 @@ export function playLayerOnGraph(
   globalStep: number,
   time: number,
   voiceIndex: number,
-  options: { launchVelocityScale?: number; mutedLayers?: ReadonlySet<LayerId> } = {},
+  options: { launchVelocityScale?: number; mutedLayers?: ReadonlySet<LayerId>; guitarSchedule?: GuitarAttackSchedule } = {},
 ): void {
   void scene;
   if (!ref) return;
@@ -27,9 +51,15 @@ export function playLayerOnGraph(
   const patternStep = (patternBars: number) => (localBar % Math.max(1, patternBars)) * 16 + globalStep;
   if (content.kind === "drums") {
     const currentStep = patternStep(content.patternBars);
+    const drumVoiceTimes: Partial<Record<string, number>> = {};
     for (const hit of content.hits) {
       if (hit.bar * 16 + hit.step !== currentStep) continue;
-      const scheduledTime = time + (hit.timingOffset ?? 0) * Tone.Time("16n").toSeconds();
+      let scheduledTime = time + (hit.timingOffset ?? 0) * Tone.Time("16n").toSeconds();
+      const prior = drumVoiceTimes[hit.voice];
+      if (prior != null) {
+        scheduledTime = Math.max(scheduledTime, prior + MONO_VOICE_STAGGER_SEC);
+      }
+      drumVoiceTimes[hit.voice] = scheduledTime;
       if (hit.voice === "kick") graph.kick.triggerAttackRelease("C1", hit.duration ?? "8n", scheduledTime, hit.velocity * velocityScale);
       else if (hit.voice === "snare") graph.snare.triggerAttackRelease(hit.duration ?? "16n", scheduledTime, hit.velocity * 0.35 * velocityScale);
       else if (hit.voice === "rim") graph.rim.triggerAttackRelease(hit.duration ?? "32n", scheduledTime, hit.velocity * 0.5 * velocityScale);
@@ -56,7 +86,12 @@ export function playLayerOnGraph(
   } else if (content.kind === "melody") {
     const currentStep = patternStep(content.patternBars);
     const notes = content.notes.filter((n) => (n.bar ?? 0) * 16 + n.step === currentStep);
-    for (const note of notes) playExpressiveNoteOnGraph(graph, "melody", note, voiceIndex, time, velocityScale);
+    let guitarVoiceOffset = 0;
+    for (const note of notes) {
+      const voiceAttackOffset = note.instrument === "guitar" ? guitarVoiceOffset : 0;
+      if (note.instrument === "guitar") guitarVoiceOffset += MONO_VOICE_STAGGER_SEC;
+      playExpressiveNoteOnGraph(graph, "melody", note, voiceIndex, time, velocityScale, voiceAttackOffset, options.guitarSchedule);
+    }
   } else if (content.kind === "texture") {
     if (globalStep !== 0) return;
     graph.texture.triggerAttackRelease(content.duration, time, content.level);
@@ -88,15 +123,21 @@ function playExpressiveNoteOnGraph(
   voiceIndex: number,
   time: number,
   launchVelocityScale = 1,
+  voiceAttackOffset = 0,
+  guitarSchedule?: GuitarAttackSchedule,
 ): void {
   const sixteenth = Tone.Time("16n").toSeconds();
-  const scheduledTime = time + (note.timingOffset ?? 0) * sixteenth;
+  let scheduledTime = time + (note.timingOffset ?? 0) * sixteenth + voiceAttackOffset;
+  if (layer === "melody" && note.instrument === "guitar" && guitarSchedule) {
+    scheduledTime = Math.max(scheduledTime, guitarSchedule.stringTime + MONO_VOICE_STAGGER_SEC);
+    guitarSchedule.attackTime = scheduledTime;
+  }
   const durationSeconds = Math.max(0.03, Tone.Time(note.duration).toSeconds());
   const velocityScale = note.articulation === "ghost" ? 0.5 : note.articulation === "accent" ? 1.12 : 1;
   const velocity = Math.max(0.02, Math.min(1, note.velocity * velocityScale * launchVelocityScale));
 
   if (layer === "melody" && note.instrument === "guitar") {
-    playGuitarNoteOnGraph(graph, note, scheduledTime, durationSeconds, velocity);
+    playGuitarNoteOnGraph(graph, note, scheduledTime, durationSeconds, velocity, guitarSchedule);
     return;
   }
 
@@ -167,22 +208,39 @@ function playGuitarNoteOnGraph(
   scheduledTime: number,
   durationSeconds: number,
   velocity: number,
+  guitarSchedule?: GuitarAttackSchedule,
 ): void {
   const releaseAt = scheduledTime + durationSeconds;
   const isMuted = note.articulation === "muted";
   const isSlide = note.articulation === "slide" || note.articulation === "legato";
-  graph.guitarFretNoise.triggerAttackRelease(isSlide ? "16n" : "32n", scheduledTime, velocity * (isSlide ? 0.62 : 0.38));
+  const releaseLead = MONO_VOICE_STAGGER_SEC * 0.25;
+  const fretTime = guitarSchedule
+    ? scheduleGuitarMonoTime(guitarSchedule, "fretTime", scheduledTime)
+    : scheduledTime;
+  const stringTime = guitarSchedule
+    ? scheduleGuitarMonoTime(guitarSchedule, "stringTime", scheduledTime)
+    : scheduledTime;
+  const bodyTime = guitarSchedule
+    ? scheduleGuitarMonoTime(guitarSchedule, "bodyTime", scheduledTime + MONO_VOICE_STAGGER_SEC)
+    : scheduledTime + MONO_VOICE_STAGGER_SEC;
+  if (guitarSchedule) guitarSchedule.attackTime = stringTime;
+
+  graph.guitarFretNoise.triggerRelease(fretTime - releaseLead);
+  graph.guitarFretNoise.triggerAttackRelease(isSlide ? "16n" : "32n", fretTime, velocity * (isSlide ? 0.62 : 0.38));
 
   const stringPitch = note.glideFrom ?? note.note;
-  graph.guitarString.triggerAttack(stringPitch, scheduledTime);
-  graph.guitarString.triggerRelease(scheduledTime + Math.min(durationSeconds, isMuted ? 0.055 : 0.34));
+  graph.guitarString.triggerRelease(stringTime - releaseLead);
+  graph.guitarString.triggerAttack(stringPitch, stringTime);
+  graph.guitarString.triggerRelease(stringTime + Math.min(durationSeconds, isMuted ? 0.055 : 0.34));
   if (isMuted) return;
 
   if (isSlide) {
-    graph.guitarBody.triggerAttack(stringPitch, scheduledTime, velocity);
-    graph.guitarBody.setNote(note.note, scheduledTime + Math.min(0.052, durationSeconds * 0.22));
+    graph.guitarBody.triggerRelease(bodyTime - releaseLead);
+    graph.guitarBody.triggerAttack(stringPitch, bodyTime, velocity);
+    graph.guitarBody.setNote(note.note, bodyTime + Math.min(0.052, durationSeconds * 0.22));
     graph.guitarBody.triggerRelease(releaseAt);
     return;
   }
-  graph.guitarBody.triggerAttackRelease(note.note, durationSeconds, scheduledTime, velocity * 0.72);
+  graph.guitarBody.triggerRelease(bodyTime - releaseLead);
+  graph.guitarBody.triggerAttackRelease(note.note, durationSeconds, bodyTime, velocity * 0.72);
 }

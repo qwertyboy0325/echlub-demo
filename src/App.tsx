@@ -9,11 +9,14 @@ import { ChoreographyOverlay } from "./shell/ChoreographyOverlay";
 import { FocusShell } from "./shell/FocusShell";
 import type { ShellChoreographyEngine } from "./shell/choreographyEngine";
 import {
+  bumpWalkthroughEpoch,
   runPhase4Walkthrough,
   runPhase5Walkthrough,
   runPhase5WalkthroughRange,
+  setWalkthroughPaused as setWalkthroughPausedModule,
   PHASE4_WALKTHROUGH,
 } from "./shell/presenterWalkthrough";
+import { resolvePresenterMode } from "./shell/presenterMode";
 import { shellStore } from "./shell/domain/shellStore";
 import { useShellStore } from "./shell/useShellStore";
 import { useViewportMode } from "./shell/useViewportMode";
@@ -38,6 +41,9 @@ export function App() {
   const [packError, setPackError] = useState<string | null>(null);
   const [presenterCaption, setPresenterCaption] = useState<string | null>(null);
   const [walkthroughRunning, setWalkthroughRunning] = useState(false);
+  const [walkthroughPaused, setWalkthroughPaused] = useState(false);
+  const [walkthroughBeat, setWalkthroughBeat] = useState(0);
+  const presenterMode = resolvePresenterMode();
   const choreographyEngineRef = useRef<ShellChoreographyEngine | null>(null);
   const handleChoreographyReady = useCallback((handle: { engine: ShellChoreographyEngine | null }) => {
     choreographyEngineRef.current = handle.engine;
@@ -78,12 +84,15 @@ export function App() {
       };
       globalWindow.__runPhase5Walkthrough = async () => {
         setWalkthroughRunning(true);
+        setWalkthroughPaused(false);
+        setWalkthroughBeat(0);
         await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
         try {
           return await runPhase5Walkthrough(
             shellStore.dispatch.bind(shellStore),
             (step) => {
               setPresenterCaption(step.label);
+              setWalkthroughBeat(step.beat);
             },
             {
               choreographyEngine: choreographyEngineRef.current,
@@ -94,6 +103,9 @@ export function App() {
           );
         } finally {
           setWalkthroughRunning(false);
+          setWalkthroughPaused(false);
+          setWalkthroughBeat(0);
+          setPresenterCaption(null);
         }
       };
       globalWindow.__runPhase5WalkthroughUntil = async (maxBeat: number) => {
@@ -172,6 +184,31 @@ export function App() {
     void (window as Window & { __runPhase5Walkthrough?: () => Promise<string[]> }).__runPhase5Walkthrough?.();
   };
 
+  const pauseWalkthrough = () => {
+    setWalkthroughPaused((paused) => {
+      const next = !paused;
+      setWalkthroughPausedModule(next);
+      return next;
+    });
+  };
+
+  const stopWalkthrough = () => {
+    bumpWalkthroughEpoch();
+    setWalkthroughPausedModule(false);
+    setWalkthroughRunning(false);
+    setWalkthroughPaused(false);
+    setWalkthroughBeat(0);
+    setPresenterCaption(null);
+  };
+
+  const restartWalkthrough = () => {
+    stopWalkthrough();
+    shellStore.dispatch({ type: "RESTART_SESSION" });
+    if (presenterMode) {
+      window.setTimeout(() => runPhase5Demo(), 120);
+    }
+  };
+
   return (
     <div className={`app-root${packError ? " app-root--boot-error" : ""}`}>
       {packError && (
@@ -185,8 +222,14 @@ export function App() {
       <PresenterNav
         state={state}
         dispatch={dispatch}
+        presenterMode={presenterMode}
         onRunPhase5Demo={packMode === "live-collab" ? runPhase5Demo : undefined}
+        onPauseWalkthrough={pauseWalkthrough}
+        onStopWalkthrough={stopWalkthrough}
+        onRestartWalkthrough={restartWalkthrough}
         walkthroughRunning={walkthroughRunning}
+        walkthroughPaused={walkthroughPaused}
+        walkthroughBeat={walkthroughBeat}
       />
       <FocusShell
         state={state}
@@ -196,6 +239,8 @@ export function App() {
         bottom={bottom}
         bottomVariant={state.room === "mixer" ? "dock" : "transport"}
         presenterCaption={presenterCaption}
+        presenterMode={presenterMode}
+        walkthroughRunning={walkthroughRunning}
       />
       <ChoreographyOverlay
         active={walkthroughRunning}

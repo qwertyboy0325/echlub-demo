@@ -1,10 +1,21 @@
 import { createShellStateForMode } from "./shellBootstrap";
 import { isLiveCollabLaneSlot } from "./liveCollabShellFixtures";
+import {
+  patchParticipantWorkspace,
+  selectParticipantWorkspace,
+  syncActiveWorkspaceFields,
+} from "./participantWorkspace";
+import {
+  exchangeSharedCaption,
+  exchangeTitleForDraft,
+  laneLaunchCaption,
+  performCaption,
+  preloadExchangeCaption,
+  promoteCaption,
+  recallCaption,
+} from "../handoffCaptions";
+import { countPlayingLanes, isLaneLaunchableState } from "../laneSlotSemantics";
 import type { ExchangeClip, ShellCommand, ShellState } from "./shellTypes";
-
-function participantName(state: ShellState, id: string): string {
-  return state.participants.find((p) => p.id === id)?.name ?? id;
-}
 
 function pushActivity(state: ShellState, message: string): string[] {
   return [message, ...state.activityFeed].slice(0, 8);
@@ -13,12 +24,17 @@ function pushActivity(state: ShellState, message: string): string[] {
 function followProjection(state: ShellState): ShellState {
   const active = state.participants.find((p) => p.active);
   if (!active) return state;
-  return {
+  const next = {
     ...state,
     room: active.projectedRoom,
     participantTab: active.projectedTab,
     selectedParticipantId: active.id,
+    participants: state.participants.map((p) => ({ ...p, active: p.id === active.id })),
   };
+  return syncActiveWorkspaceFields(
+    patchParticipantWorkspace(next, active.id, { tab: active.projectedTab }),
+    active.id,
+  );
 }
 
 function updateClip(state: ShellState, clipId: string, patch: Partial<ExchangeClip>): ShellState {
@@ -41,8 +57,7 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
     case "SELECT_PARTICIPANT":
       if (state.interactionFrozen) return state;
       return {
-        ...state,
-        selectedParticipantId: command.participantId,
+        ...selectParticipantWorkspace(state, command.participantId),
         followActive: false,
         followLocked: true,
         participants: state.participants.map((p) => ({
@@ -74,15 +89,24 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
       return { ...state, interactionFrozen: command.frozen };
     case "TOGGLE_EXCHANGE":
       return { ...state, exchangeOpen: !state.exchangeOpen };
+    case "SET_EXCHANGE_OPEN":
+      return { ...state, exchangeOpen: command.open };
+    case "NOTE_PRELOAD_PROVENANCE":
+      return {
+        ...state,
+        exchangeOpen: true,
+        activityFeed: pushActivity(state, preloadExchangeCaption(command.materialId)),
+      };
     case "SET_PARTICIPANT_TAB":
-      return { ...state, participantTab: command.tab };
+      return patchParticipantWorkspace(state, state.selectedParticipantId, { tab: command.tab });
     case "SET_CREATE_SUBMODE":
-      return { ...state, createSubMode: command.mode };
+      return patchParticipantWorkspace(state, state.selectedParticipantId, { createSubMode: command.mode });
     case "SHARE_CLIP": {
       const draftId = state.workspaceDraftId ?? "midi-opening-bass";
+      const title = exchangeTitleForDraft(draftId);
       const draft: ExchangeClip = {
         id: `c${state.exchangeClips.length + 1}`,
-        title: `pulse-r${state.exchangeClips.length + 1}`,
+        title,
         revision: 1,
         creatorId: state.selectedParticipantId,
         contributorId: null,
@@ -94,8 +118,10 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
       };
       return {
         ...state,
+        exchangeOpen: true,
+        selectedExchangeClipId: draft.id,
         exchangeClips: [...state.exchangeClips, draft],
-        activityFeed: pushActivity(state, `${participantName(state, draft.creatorId)} shared ${draft.title}`),
+        activityFeed: pushActivity(state, exchangeSharedCaption(draft.title)),
       };
     }
     case "FORK_CLIP": {
@@ -114,22 +140,26 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
         forkOf: source.id,
         draftId: forkDraftId,
       };
-      return {
+      const forked = {
         ...state,
         exchangeClips: [...state.exchangeClips, fork],
         selectedExchangeClipId: fork.id,
-        workspaceDraftId: forkDraftId,
-        activityFeed: pushActivity(state, `${participantName(state, fork.contributorId!)} forked ${source.title}`),
+        activityFeed: pushActivity(state, `Exchange: ${source.title} forked`),
       };
+      return patchParticipantWorkspace(forked, state.selectedParticipantId, { draftId: forkDraftId });
     }
-    case "CLAIM_CLIP":
-      return {
-        ...updateClip(state, command.clipId, {
+    case "CLAIM_CLIP": {
+      const claimedDraft =
+        state.exchangeClips.find((c) => c.id === command.clipId)?.draftId ?? state.workspaceDraftId;
+      return patchParticipantWorkspace(
+        updateClip(state, command.clipId, {
           contributorId: state.selectedParticipantId,
           lifecycle: "In Progress",
         }),
-        workspaceDraftId: state.exchangeClips.find((c) => c.id === command.clipId)?.draftId ?? state.workspaceDraftId,
-      };
+        state.selectedParticipantId,
+        { draftId: claimedDraft },
+      );
+    }
     case "SUBMIT_REVIEW":
       return updateClip(state, command.clipId, { lifecycle: "Review" });
     case "REVISE_CLIP": {
@@ -142,17 +172,62 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
     }
     case "MARK_READY":
       return updateClip(state, command.clipId, { lifecycle: "Ready" });
-    case "STAGE_CLIP": {
+    case "PROMOTE_CLIP": {
       const clip = state.exchangeClips.find((c) => c.id === command.clipId);
-      if (!clip || clip.lifecycle !== "Ready") return state;
+      if (!clip || clip.lifecycle !== "Ready" || !clip.forkOf) return state;
+      const forkParent = state.exchangeClips.find((c) => c.id === clip.forkOf);
+      const laneSlot = isLiveCollabLaneSlot(command.slotId);
+      const slotLabel = forkParent
+        ? `${clip.draftId ?? clip.title} ← ${forkParent.draftId ?? forkParent.title}`
+        : clip.title;
       return {
         ...state,
         arrangementSlots: state.arrangementSlots.map((slot) =>
           slot.id === command.slotId
-            ? { ...slot, clipId: clip.id, state: "staged", label: clip.title }
+            ? {
+                ...slot,
+                clipId: clip.id,
+                materialId: clip.draftId,
+                state: laneSlot ? ("loaded" as const) : ("staged" as const),
+                label: slotLabel,
+              }
             : slot,
         ),
-        activityFeed: pushActivity(state, `Staged ${clip.title} on ${command.slotId}`),
+        exchangeOpen: true,
+        selectedExchangeClipId: clip.id,
+        activityFeed: pushActivity(
+          state,
+          promoteCaption(clip.draftId ?? clip.title, forkParent?.draftId ?? forkParent?.title ?? "parent"),
+        ),
+      };
+    }
+    case "STAGE_CLIP": {
+      const clip = state.exchangeClips.find((c) => c.id === command.clipId);
+      if (!clip || clip.lifecycle !== "Ready") return state;
+      const laneSlot = isLiveCollabLaneSlot(command.slotId);
+      const forkParent = clip.forkOf ? state.exchangeClips.find((c) => c.id === clip.forkOf) : null;
+      const slotLabel = forkParent
+        ? `${clip.draftId ?? clip.title} ← ${forkParent.draftId ?? forkParent.title}`
+        : clip.title;
+      const stageNote = forkParent
+        ? promoteCaption(clip.draftId ?? clip.title, forkParent.draftId ?? forkParent.title)
+        : `Exchange: ${clip.title} ready for ${command.slotId}`;
+      return {
+        ...state,
+        arrangementSlots: state.arrangementSlots.map((slot) =>
+          slot.id === command.slotId
+            ? {
+                ...slot,
+                clipId: clip.id,
+                materialId: clip.draftId,
+                state: laneSlot ? ("loaded" as const) : ("staged" as const),
+                label: slotLabel,
+              }
+            : slot,
+        ),
+        exchangeOpen: true,
+        selectedExchangeClipId: clip.id,
+        activityFeed: pushActivity(state, stageNote),
       };
     }
     case "ACTIVATE_SLOT": {
@@ -171,28 +246,66 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
       };
     }
     case "LAUNCH_SLOT": {
+      if (state.sessionPhase === "performing") return state;
       const slot = state.arrangementSlots.find((s) => s.id === command.slotId);
       if (!slot) return state;
       const laneSlot = isLiveCollabLaneSlot(command.slotId);
+      if (laneSlot) {
+        if (!isLaneLaunchableState(slot.state)) return state;
+        const launchedLabel = command.draftId ?? slot.label;
+        const materialId = command.draftId ?? slot.materialId;
+        const preloadNote = slot.materialId && !slot.clipId ? preloadExchangeCaption(slot.materialId) : null;
+        const launchNote = preloadNote
+          ? `${preloadNote} · Lane: Launch ${launchedLabel}`
+          : `Lane: Launch ${launchedLabel} · queued`;
+        return {
+          ...state,
+          arrangementSlots: state.arrangementSlots.map((s) =>
+            s.id === command.slotId
+              ? { ...s, state: "queued" as const, label: launchedLabel, materialId }
+              : s,
+          ),
+          exchangeOpen: true,
+          activityFeed: pushActivity(state, launchNote),
+        };
+      }
       const launchedLabel = command.draftId ?? slot.label;
-      const activeCount =
-        state.arrangementSlots.filter((s) => s.state === "active" && s.id !== command.slotId).length + 1;
       return {
         ...state,
         arrangementSlots: state.arrangementSlots.map((s) => {
           if (s.id === command.slotId) return { ...s, state: "active" as const, label: launchedLabel };
-          if (!laneSlot && s.state === "active") {
-            return { ...s, state: "empty" as const, clipId: null, label: "Empty slot" };
+          if (s.state === "active") {
+            return { ...s, state: "empty" as const, clipId: null, materialId: null, label: "Empty slot" };
           }
           return s;
         }),
-        activeMasterDraftId: laneSlot ? `live-collab-${activeCount}-lanes` : state.activeMasterDraftId,
+        activeMasterDraftId: state.activeMasterDraftId,
         activityFeed: pushActivity(
           state,
-          laneSlot
-            ? `Launched ${launchedLabel} · ${activeCount}/7 lanes`
-            : `Launched ${command.slotId}${command.draftId ? ` · ${command.draftId}` : ""}`,
+          `Launched ${command.slotId}${command.draftId ? ` · ${command.draftId}` : ""}`,
         ),
+      };
+    }
+    case "COMMIT_LANE_LAUNCH": {
+      const slot = state.arrangementSlots.find((s) => s.id === command.slotId);
+      if (!slot || !isLiveCollabLaneSlot(command.slotId)) return state;
+      const launchedLabel = command.draftId ?? slot.label;
+      const wasPlaying = slot.state === "playing";
+      const playingCount = wasPlaying
+        ? countPlayingLanes(state.arrangementSlots)
+        : countPlayingLanes(state.arrangementSlots.filter((s) => s.id !== command.slotId)) + 1;
+      const nextPhase = playingCount >= 7 ? ("performing" as const) : state.sessionPhase;
+      return {
+        ...state,
+        sessionPhase: nextPhase,
+        arrangementSlots: state.arrangementSlots.map((s) =>
+          s.id === command.slotId
+            ? { ...s, state: "playing" as const, label: launchedLabel, materialId: command.draftId ?? s.materialId }
+            : s,
+        ),
+        activeMasterDraftId: `live-collab-${playingCount}-lanes`,
+        exchangeOpen: true,
+        activityFeed: pushActivity(state, laneLaunchCaption(launchedLabel, playingCount)),
       };
     }
     case "REORDER_EXCHANGE": {
@@ -253,14 +366,33 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
     case "INSERT_NOTE":
     case "TOGGLE_STEP":
     case "PREVIEW_WORKSPACE":
-      return state;
+      return patchParticipantWorkspace(state, state.selectedParticipantId, { draftId: command.draftId });
+    case "SET_WORKSPACE_DRAFT":
+      return {
+        ...patchParticipantWorkspace(state, state.selectedParticipantId, { draftId: command.draftId }),
+        recallRole: command.recallRole ?? null,
+        activityFeed: pushActivity(state, recallCaption(command.draftId, command.recallRole ?? "new role")),
+      };
+    case "SET_SESSION_PHASE": {
+      const performNote =
+        command.phase === "performing" ? performCaption(countPlayingLanes(state.arrangementSlots)) : null;
+      return {
+        ...state,
+        sessionPhase: command.phase,
+        activityFeed: performNote ? pushActivity(state, performNote) : state.activityFeed,
+      };
+    }
     case "SET_DEVICE_PARAM":
       return state;
     case "RESTART_SESSION":
       return {
         ...createShellStateForMode(),
-        room: state.room,
+        room: "global",
         exchangeOpen: state.exchangeOpen,
+        followActive: false,
+        followLocked: true,
+        sessionPhase: "building",
+        recallRole: null,
       };
     case "SELECT_MIXER_CHANNEL":
       return { ...state, selectedMixerChannel: command.channelIndex };

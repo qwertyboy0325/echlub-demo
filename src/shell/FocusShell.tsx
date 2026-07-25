@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import type { ShellCommand, ShellState, ViewportMode } from "./domain/shellTypes";
 import { SharedClipExchange } from "../features/exchange/SharedClipExchange";
 import { PresenterCaptionStrip } from "../features/presenter/PresenterCaptionStrip";
@@ -12,6 +12,8 @@ interface FocusShellProps {
   bottom: ReactNode | null;
   bottomVariant?: "transport" | "dock";
   presenterCaption?: string | null;
+  presenterMode?: boolean;
+  walkthroughRunning?: boolean;
 }
 
 export function FocusShell({
@@ -22,15 +24,41 @@ export function FocusShell({
   bottom,
   bottomVariant = "transport",
   presenterCaption = null,
+  presenterMode = false,
+  walkthroughRunning = false,
 }: FocusShellProps) {
   const compact = viewport === "compact";
   const showRail = viewport === "wide";
   const showDrawer = viewport === "drawer" || viewport === "compact";
+  const activeParticipant = state.participants.find((p) => p.active) ?? state.participants.find((p) => p.id === state.selectedParticipantId);
+  const launchedLanes = state.arrangementSlots.filter((slot) => slot.state === "playing").length;
+  const inGlobal = state.room === "global";
 
   return (
-    <div className={`focus-shell focus-shell--${viewport}`}>
+    <div className={`focus-shell focus-shell--${viewport}${inGlobal ? " focus-shell--global-zones" : ""}`}>
       <PresenceRail state={state} dispatch={dispatch} compact={compact} />
-      <main className="focus-center">{center}</main>
+      {inGlobal && (
+        <div className="focus-global-zones" aria-label="Global studio zones">
+          <span className="focus-zone-chip focus-zone-chip--session">Session</span>
+          <span className="focus-zone-chip focus-zone-chip--arrangement">Arrangement</span>
+          <span className="focus-zone-chip focus-zone-chip--master">Shared Master</span>
+        </div>
+      )}
+      {state.sessionPhase === "performing" && (
+        <div className="focus-shell-perform-banner" data-demo-target="perform-mode-banner">
+          Perform · Shared Master · {launchedLanes}/7
+        </div>
+      )}
+      <main
+        className={`focus-center${walkthroughRunning && state.followActive ? " focus-center--projection-settle" : ""}`}
+        style={
+          walkthroughRunning && activeParticipant
+            ? ({ "--projection-accent": activeParticipant.color } as CSSProperties)
+            : undefined
+        }
+      >
+        {center}
+      </main>
       {showRail && <SharedClipExchange state={state} dispatch={dispatch} variant="rail" />}
       {showDrawer && state.exchangeOpen && (
         <div className="exchange-drawer-backdrop" onClick={() => dispatch({ type: "TOGGLE_EXCHANGE" })}>
@@ -44,7 +72,12 @@ export function FocusShell({
       )}
       {bottom !== null && (
         <footer className={`focus-bottom focus-bottom--${bottomVariant}`}>
-          <PresenterCaptionStrip state={state} caption={presenterCaption} />
+          <PresenterCaptionStrip
+            state={state}
+            caption={presenterCaption}
+            presenterMode={presenterMode}
+            walkthroughRunning={walkthroughRunning}
+          />
           {bottom}
         </footer>
       )}

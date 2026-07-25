@@ -46,7 +46,7 @@ describe("live-collab derived pack session", () => {
     const session = domain.getSession()!;
 
     expect(domain.getPackMode()).toBe("live-collab");
-    expect(livePack.loopUnits).toHaveLength(20);
+    expect(livePack.loopUnits).toHaveLength(19);
     expect(session.scenes).toHaveLength(13);
     expect(domain.getPack()?.metadata.id).toBe("shiki-no-uta-live-collab-demo-v1");
     expect(domain.workspaceDraft()?.id).toBe("kai-lh-sparse-4");
@@ -130,6 +130,34 @@ describe("progressive lane launch", () => {
     expect(domain.getAuthority()).toBe("clip-preview");
     expect(domain.getActiveMasterDraftId()).toBeNull();
   });
+
+  it("replaces prior guitar draft on fork relaunch instead of stacking", () => {
+    const domain = new MusicalDomainStore();
+    domain.loadLiveCollabPackJson(LIVE_COLLAB_JSON);
+    for (const trackId of LIVE_COLLAB_LAUNCH_ORDER) domain.activateLane(trackId);
+    domain.activateLane("track-guitar", "ren-fork-alt-2");
+
+    const guitarDraftIds = new Set<string>();
+    for (const scene of domain.getSession()!.scenes) {
+      for (const ref of Object.values(scene.layers)) {
+        if (ref?.draftId?.startsWith("ren-")) guitarDraftIds.add(ref.draftId);
+      }
+      for (const refs of Object.values(scene.layerStacks ?? {})) {
+        for (const ref of refs ?? []) {
+          if (ref.draftId.startsWith("ren-")) guitarDraftIds.add(ref.draftId);
+        }
+      }
+    }
+    expect(guitarDraftIds.has("ren-comp-2")).toBe(false);
+    expect(guitarDraftIds.has("ren-fork-alt-2")).toBe(true);
+
+    const leadA = domain.getSession()!.scenes.find((scene) => scene.id === "lead-a")!;
+    const guitarRefs = [
+      leadA.layers.melody?.draftId,
+      ...(leadA.layerStacks?.melody?.map((ref) => ref.draftId) ?? []),
+    ].filter((draftId): draftId is string => Boolean(draftId));
+    expect(guitarRefs.filter((draftId) => draftId.startsWith("ren-"))).toEqual(["ren-fork-alt-2"]);
+  });
 });
 
 describe("shell LAUNCH_SLOT adapter", () => {
@@ -147,6 +175,8 @@ describe("shell LAUNCH_SLOT adapter", () => {
       setArrangementSceneBoundaries: vi.fn(),
       clearArrangementSceneBoundaries: vi.fn(),
       activateSceneAtBoundary: vi.fn(),
+      refreshPlayingSceneAtBar: vi.fn(),
+      releaseGuitarVoices: vi.fn(),
       dispose: vi.fn(),
     };
     (adapter as unknown as { engine: typeof engine }).engine = engine;
@@ -168,19 +198,61 @@ describe("shell LAUNCH_SLOT adapter", () => {
     adapter.handleCommand({ type: "LAUNCH_SLOT", slotId: "lane-3" }, stopped, playing);
     expect(domain.getActiveLanes().size).toBe(0);
 
-    (adapter as unknown as { commitPendingLaneLaunches: () => void }).commitPendingLaneLaunches();
+    (adapter as unknown as { commitPendingLaneLaunches: (duringTransport?: boolean) => void }).commitPendingLaneLaunches(true);
     expect(domain.getActiveLanes()).toEqual(new Set(["track-drums"]));
   });
 
-  it("marks launch slot active in shell reducer", () => {
+  it("commits deferred lane launch on bar boundary before notes play", () => {
+    const releaseGuitarVoices = vi.fn();
+    const refreshPlayingSceneAtBar = vi.fn();
+    (adapter as unknown as { engine: Record<string, unknown> }).engine = {
+      setCurrentAct: vi.fn(),
+      setMaterialBank: vi.fn(),
+      setBaselineMix: vi.fn(),
+      setArrangementSceneBoundaries: vi.fn(),
+      activateSceneAtBoundary: vi.fn(),
+      refreshPlayingSceneAtBar,
+      releaseGuitarVoices,
+      dispose: vi.fn(),
+    };
+    const stopped = createInitialShellState();
+    const playing = { ...stopped, transportPlaying: true };
+    adapter.handleCommand({ type: "LAUNCH_SLOT", slotId: "lane-5", draftId: "ren-fork-alt-2" }, stopped, playing);
+    (adapter as unknown as { commitPendingLaneLaunches: (duringTransport?: boolean, boundaryTime?: number) => void })
+      .commitPendingLaneLaunches(true, 42.5);
+    expect(refreshPlayingSceneAtBar).toHaveBeenCalled();
+    expect(releaseGuitarVoices).toHaveBeenCalledWith(42.5);
+  });
+  it("skips scene FX re-activation when committing lanes during transport", () => {
+    const activateSceneAtBoundary = vi.fn();
+    (adapter as unknown as { engine: Record<string, unknown> }).engine = {
+      setCurrentAct: vi.fn(),
+      setMaterialBank: vi.fn(),
+      setBaselineMix: vi.fn(),
+      setArrangementSceneBoundaries: vi.fn(),
+      activateSceneAtBoundary,
+      refreshPlayingSceneAtBar: vi.fn(),
+      releaseGuitarVoices: vi.fn(),
+      dispose: vi.fn(),
+    };
+    const stopped = createInitialShellState();
+    const playing = { ...stopped, transportPlaying: true };
+    adapter.handleCommand({ type: "LAUNCH_SLOT", slotId: "lane-5", draftId: "ren-fork-alt-2" }, stopped, playing);
+    (adapter as unknown as { commitPendingLaneLaunches: (duringTransport?: boolean) => void }).commitPendingLaneLaunches(true);
+    expect(activateSceneAtBoundary).not.toHaveBeenCalled();
+  });
+
+  it("marks launch slot queued then playing on commit", () => {
     const store = new ShellStore({
       ...createInitialShellState(),
       arrangementSlots: [
-        { id: "lane-1", clipId: null, state: "empty", label: "Piano LH" },
-        { id: "lane-2", clipId: null, state: "empty", label: "Bass" },
+        { id: "lane-1", clipId: null, materialId: "kai-lh-sparse-4", state: "loaded", label: "kai-lh-sparse-4" },
+        { id: "lane-2", clipId: null, materialId: null, state: "empty", label: "Bass" },
       ],
     });
     store.dispatch({ type: "LAUNCH_SLOT", slotId: "lane-1" });
-    expect(store.getState().arrangementSlots[0]?.state).toBe("active");
+    expect(store.getState().arrangementSlots[0]?.state).toBe("queued");
+    store.dispatch({ type: "COMMIT_LANE_LAUNCH", slotId: "lane-1" });
+    expect(store.getState().arrangementSlots[0]?.state).toBe("playing");
   });
 });

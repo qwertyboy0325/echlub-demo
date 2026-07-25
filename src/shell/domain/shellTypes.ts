@@ -2,7 +2,13 @@ export type RoomId = "global" | "participant" | "mixer";
 
 export type LifecycleChip = "Available" | "In Progress" | "Review" | "Ready";
 
-export type ArrangementSlotState = "empty" | "staged" | "active";
+export type ArrangementSlotState =
+  | "empty"
+  | "loaded"
+  | "queued"
+  | "playing"
+  | "staged"
+  | "active";
 
 export type ParticipantTab = "Create" | "Devices" | "Automation" | "Mix" | "Queue";
 
@@ -17,6 +23,15 @@ export type DockMode = "preview" | "capture" | "master";
 export type ViewportMode = "wide" | "drawer" | "compact";
 
 export type WorkspaceBleed = "low" | "medium" | "high";
+
+export type SessionPhase = "building" | "performing";
+
+export interface ParticipantWorkspace {
+  draftId: string | null;
+  tab: ParticipantTab;
+  createSubMode: CreateSubMode;
+  ownedTrackIds: string[];
+}
 
 export interface ArrangementTrack {
   id: string;
@@ -59,6 +74,8 @@ export interface ExchangeClip {
 export interface ArrangementSlot {
   id: string;
   clipId: string | null;
+  /** Live-collab loop unit id when preloaded or staged from Exchange. */
+  materialId: string | null;
   state: ArrangementSlotState;
   label: string;
 }
@@ -97,9 +114,15 @@ export interface ShellState {
   dockMode: DockMode;
   dockSlots: DockSlot[];
   activityFeed: string[];
+  /** Active projection of the selected participant's workspace record. */
   workspaceDraftId: string | null;
+  participantWorkspaces: Record<string, ParticipantWorkspace>;
   workspaceBleed: WorkspaceBleed;
   activeMasterDraftId: string | null;
+  /** Building → Performing after full lane payoff (WP5.7). */
+  sessionPhase: SessionPhase;
+  /** Structural role recall target for closing triad (WP5.7). */
+  recallRole: string | null;
 }
 
 export type ShellCommand =
@@ -110,6 +133,8 @@ export type ShellCommand =
   | { type: "RESUME_FOLLOW" }
   | { type: "SET_INTERACTION_FROZEN"; frozen: boolean }
   | { type: "TOGGLE_EXCHANGE" }
+  | { type: "SET_EXCHANGE_OPEN"; open: boolean }
+  | { type: "NOTE_PRELOAD_PROVENANCE"; materialId: string }
   | { type: "SET_PARTICIPANT_TAB"; tab: ParticipantTab }
   | { type: "SET_CREATE_SUBMODE"; mode: CreateSubMode }
   | { type: "SHARE_CLIP" }
@@ -118,9 +143,12 @@ export type ShellCommand =
   | { type: "SUBMIT_REVIEW"; clipId: string }
   | { type: "REVISE_CLIP"; clipId: string }
   | { type: "MARK_READY"; clipId: string }
+  | { type: "PROMOTE_CLIP"; clipId: string; slotId: string }
   | { type: "STAGE_CLIP"; clipId: string; slotId: string }
+  | { type: "SET_SESSION_PHASE"; phase: SessionPhase }
   | { type: "ACTIVATE_SLOT"; slotId: string }
   | { type: "LAUNCH_SLOT"; slotId: string; draftId?: string }
+  | { type: "COMMIT_LANE_LAUNCH"; slotId: string; draftId?: string }
   | { type: "REORDER_EXCHANGE"; clipIds: string[] }
   | { type: "PIN_DOCK"; slotIndex: number; label: string; sourceTrack?: string; sourceClip?: string; sourceParam?: string }
   | { type: "SET_DOCK_VALUE"; slotIndex: number; value: number }
@@ -139,6 +167,7 @@ export type ShellCommand =
   | { type: "SET_LANE_MUTE"; layer: import("../../types").LayerId; muted: boolean }
   | { type: "SET_DESK_BUS"; desk: import("../../types").DeskBusId; params: import("../../types").DeskBusParams }
   | { type: "PREVIEW_WORKSPACE"; draftId: string }
+  | { type: "SET_WORKSPACE_DRAFT"; draftId: string; recallRole?: string }
   | { type: "RESTART_SESSION" };
 
 export function viewportModeForSize(width: number, height: number): ViewportMode {

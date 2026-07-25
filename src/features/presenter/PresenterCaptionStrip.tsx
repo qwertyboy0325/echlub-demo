@@ -3,9 +3,17 @@ import type { ShellState } from "../../shell/domain/shellTypes";
 interface PresenterCaptionStripProps {
   state: ShellState;
   caption?: string | null;
+  presenterMode?: boolean;
+  walkthroughRunning?: boolean;
 }
 
-export function PresenterCaptionStrip({ state, caption }: PresenterCaptionStripProps) {
+export function PresenterCaptionStrip({
+  state,
+  caption,
+  presenterMode = false,
+  walkthroughRunning = false,
+}: PresenterCaptionStripProps) {
+  if (!presenterMode || !walkthroughRunning) return null;
   const feed = state.activityFeed.slice(0, 4);
   if (!caption && feed.length === 0) return null;
 

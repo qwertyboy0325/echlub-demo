@@ -167,7 +167,11 @@ export function loopUnitToDraft(unit: LoopUnit, trackId: ShikiSevenTrackId): Pat
 
   const notes = unit.events
     .filter((event) => event.type === "note")
-    .map((event, index) => loopEventToNote(event, unit.id, index));
+    .map((event, index) => {
+      const note = loopEventToNote(event, unit.id, index);
+      if (trackId === "track-guitar") note.instrument = "guitar";
+      return note;
+    });
   return { ...base, notes };
 }
 
@@ -202,7 +206,6 @@ export function sectionPlacementsToSceneLayers(
   if (placements["track-piano-lh"]) addStack("bass", placements["track-piano-lh"]!);
   if (placements["track-piano-rh"]) {
     layers.harmony = placements["track-piano-rh"];
-    addStack("harmony", placements["track-piano-rh"]!);
   }
 
   const primary = primaryMelodyTrack(sectionId, placements);

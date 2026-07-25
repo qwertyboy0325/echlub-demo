@@ -1,20 +1,24 @@
 import type { MixParams } from "../../types";
 import type { ShellState } from "../domain/shellTypes";
 
+function deskLabelMatch(label: string, desk: string, param: "delay" | "reverb"): boolean {
+  return label.includes(desk) && label.includes(param);
+}
+
 export function mixPatchFromDockParam(
   sourceParam: string,
   value: number,
 ): Partial<MixParams> | null {
   const label = sourceParam.toLowerCase();
   if (label.includes("cutoff") || label.includes("filter")) return { filter: 200 + value * 7800 };
+  if (deskLabelMatch(label, "rhythm", "delay")) return { desk: { rhythm: { delaySend: value * 0.35 } } };
+  if (deskLabelMatch(label, "keys", "delay")) return { desk: { keys: { delaySend: value * 0.45 } } };
+  if (deskLabelMatch(label, "horns", "delay")) return { desk: { horns: { delaySend: value * 0.65 } } };
+  if (deskLabelMatch(label, "guitar", "delay")) return { desk: { guitar: { delaySend: value * 0.55 } } };
+  if (deskLabelMatch(label, "horns", "reverb")) return { desk: { horns: { reverbSend: value * 0.5 } } };
   if (label.includes("delay") || label.includes("wet")) return { delayWet: value * 0.65 };
   if (label.includes("reverb") || label.includes("send")) return { reverbWet: value * 0.85 };
   if (label.includes("level")) return { masterGain: -24 + value * 18 };
-  if (label.includes("rhythm") && label.includes("delay")) return { desk: { rhythm: { delaySend: value * 0.35 } } };
-  if (label.includes("keys") && label.includes("delay")) return { desk: { keys: { delaySend: value * 0.45 } } };
-  if (label.includes("horns") && label.includes("delay")) return { desk: { horns: { delaySend: value * 0.65 } } };
-  if (label.includes("guitar") && label.includes("delay")) return { desk: { guitar: { delaySend: value * 0.55 } } };
-  if (label.includes("horns") && label.includes("reverb")) return { desk: { horns: { reverbSend: value * 0.5 } } };
   return null;
 }
 
@@ -22,6 +26,21 @@ export function dockValueFromMixParam(sourceParam: string, mix: MixParams): numb
   const label = sourceParam.toLowerCase();
   if (label.includes("cutoff") || label.includes("filter")) {
     return Math.max(0, Math.min(1, (mix.filter - 200) / 7800));
+  }
+  if (deskLabelMatch(label, "rhythm", "delay")) {
+    return Math.max(0, Math.min(1, (mix.desk?.rhythm?.delaySend ?? 0) / 0.35));
+  }
+  if (deskLabelMatch(label, "keys", "delay")) {
+    return Math.max(0, Math.min(1, (mix.desk?.keys?.delaySend ?? 0) / 0.45));
+  }
+  if (deskLabelMatch(label, "horns", "delay")) {
+    return Math.max(0, Math.min(1, (mix.desk?.horns?.delaySend ?? 0) / 0.65));
+  }
+  if (deskLabelMatch(label, "guitar", "delay")) {
+    return Math.max(0, Math.min(1, (mix.desk?.guitar?.delaySend ?? 0) / 0.55));
+  }
+  if (deskLabelMatch(label, "horns", "reverb")) {
+    return Math.max(0, Math.min(1, (mix.desk?.horns?.reverbSend ?? 0) / 0.5));
   }
   if (label.includes("delay") || label.includes("wet")) {
     return Math.max(0, Math.min(1, mix.delayWet / 0.65));
@@ -31,21 +50,6 @@ export function dockValueFromMixParam(sourceParam: string, mix: MixParams): numb
   }
   if (label.includes("level")) {
     return Math.max(0, Math.min(1, (mix.masterGain + 24) / 18));
-  }
-  if (label.includes("rhythm") && label.includes("delay")) {
-    return Math.max(0, Math.min(1, (mix.desk?.rhythm?.delaySend ?? 0) / 0.35));
-  }
-  if (label.includes("keys") && label.includes("delay")) {
-    return Math.max(0, Math.min(1, (mix.desk?.keys?.delaySend ?? 0) / 0.45));
-  }
-  if (label.includes("horns") && label.includes("delay")) {
-    return Math.max(0, Math.min(1, (mix.desk?.horns?.delaySend ?? 0) / 0.65));
-  }
-  if (label.includes("guitar") && label.includes("delay")) {
-    return Math.max(0, Math.min(1, (mix.desk?.guitar?.delaySend ?? 0) / 0.55));
-  }
-  if (label.includes("horns") && label.includes("reverb")) {
-    return Math.max(0, Math.min(1, (mix.desk?.horns?.reverbSend ?? 0) / 0.5));
   }
   return null;
 }

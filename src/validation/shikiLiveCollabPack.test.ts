@@ -40,15 +40,15 @@ describe("Shiki live-collab derived pack integrity", () => {
     });
   });
 
-  it("contains 20 loop units with desk ownership", () => {
-    expect(livePack.loopUnits).toHaveLength(20);
+  it("contains 19 loop units with desk ownership", () => {
+    expect(livePack.loopUnits).toHaveLength(19);
     const byDesk = Object.fromEntries(
       ["rhythm", "keys", "horns", "guitar"].map((desk) => [
         desk,
         livePack.loopUnits.filter((unit) => unit.desk === desk).length,
       ]),
     );
-    expect(byDesk).toEqual({ rhythm: 5, keys: 5, horns: 6, guitar: 4 });
+    expect(byDesk).toEqual({ rhythm: 5, keys: 5, horns: 6, guitar: 3 });
   });
 
   it("maps all 13 arrangement sections", () => {
@@ -83,18 +83,14 @@ describe("Shiki live-collab derived pack integrity", () => {
     expect(livePack.defaultMix.desk?.horns?.delaySend).toBeGreaterThan(livePack.defaultMix.desk?.rhythm?.delaySend ?? 0);
   });
 
-  it("keeps loop units musically distinct except the known guitar duplicate", () => {
-    // ren-comp-2 and ren-comp-lift-2 are byte-identical because every 8-bar guitar
-    // draft in the source shares one 2-bar comp figure (clusters differ by a single
-    // note at bar 6-7). No honest distinct guitar lift exists; owner decision pending
-    // (drop to 19 units vs keep as a separate launch slot).
+  it("keeps loop units musically distinct after removing guitar duplicate", () => {
     const byFingerprint = new Map<string, string[]>();
     for (const unit of livePack.loopUnits) {
       const key = loopEventsFingerprint(unit.events);
       byFingerprint.set(key, [...(byFingerprint.get(key) ?? []), unit.id]);
     }
     const duplicateGroups = [...byFingerprint.values()].filter((ids) => ids.length > 1);
-    expect(duplicateGroups).toEqual([["ren-comp-2", "ren-comp-lift-2"]]);
+    expect(duplicateGroups).toEqual([]);
   });
 
   it("gives the harmony lift unit real material distinct from the pad", () => {
@@ -122,7 +118,7 @@ describe("Shiki live-collab derived pack integrity", () => {
 
   it("exposes unit inventory summary for evidence", () => {
     const summary = loopUnitInventorySummary(livePack);
-    expect(summary).toHaveLength(20);
+    expect(summary).toHaveLength(19);
     expect(summary.every((row) => row.eventCount > 0 || row.method === "extract")).toBe(true);
   });
 });

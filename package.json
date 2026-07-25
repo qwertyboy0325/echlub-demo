@@ -24,7 +24,7 @@
     "collect:live-runtime": "node scripts/collect-live-runtime.mjs",
     "capture:evidence": "node scripts/capture-evidence.mjs",
     "capture:phase5-demo": "node scripts/capture-phase5-demo.mjs",
-    "validate:phase5-demo": "node scripts/capture-phase5-demo.mjs"
+    "validate:phase5-demo": "node scripts/capture-phase5-demo.mjs --validate"
   },
   "dependencies": {
     "@floating-ui/dom": "^1.7.4",

@@ -2,33 +2,81 @@ import { ChevronRight } from "lucide-react";
 import { computePosition, flip, offset } from "@floating-ui/dom";
 import interact from "interactjs";
 import { useEffect, useRef, useState } from "react";
-import type { ShellCommand } from "../../shell/domain/shellTypes";
+import type { DeskBusId } from "../../types";
+import type { ShellCommand, ShellState } from "../../shell/domain/shellTypes";
 
-const DEVICES = [
-  { id: "filter", name: "Filter", param: "Cutoff", value: 42 },
-  { id: "delay", name: "Delay", param: "Wet", value: 28 },
-  { id: "reverb", name: "Reverb", param: "Size", value: 55 },
-];
+interface DeviceDef {
+  id: string;
+  name: string;
+  param: string;
+  value: number;
+}
+
+const DESK_DEVICES: Record<DeskBusId, DeviceDef[]> = {
+  rhythm: [
+    { id: "filter", name: "Drum Filter", param: "Cutoff", value: 48 },
+    { id: "delay", name: "Room", param: "Wet", value: 12 },
+  ],
+  keys: [
+    { id: "filter", name: "Keys Filter", param: "Cutoff", value: 55 },
+    { id: "reverb", name: "Hall", param: "Size", value: 32 },
+  ],
+  horns: [
+    { id: "delay", name: "Horns Delay", param: "Wet", value: 45 },
+    { id: "reverb", name: "Plate", param: "Size", value: 28 },
+  ],
+  guitar: [
+    { id: "filter", name: "Drive Filter", param: "Cutoff", value: 42 },
+    { id: "delay", name: "Slap", param: "Wet", value: 24 },
+  ],
+};
+
+const PARTICIPANT_DESK: Record<string, DeskBusId> = {
+  p1: "rhythm",
+  p2: "keys",
+  p3: "horns",
+  p4: "guitar",
+};
+
+export function deviceCountForParticipant(participantId: string): number {
+  const desk = PARTICIPANT_DESK[participantId] ?? "guitar";
+  return DESK_DEVICES[desk].length;
+}
 
 interface DevicesPanelProps {
+  state?: ShellState;
   dispatch?: (command: ShellCommand) => void;
   draggable?: boolean;
 }
 
-export function DevicesPanel({ dispatch, draggable = false }: DevicesPanelProps) {
-  const [openId, setOpenId] = useState<string>("filter");
-  const [values, setValues] = useState<Record<string, number>>(Object.fromEntries(DEVICES.map((d) => [d.id, d.value])));
+export function DevicesPanel({ state, dispatch, draggable = false }: DevicesPanelProps) {
+  const desk = PARTICIPANT_DESK[state?.selectedParticipantId ?? "p4"] ?? "guitar";
+  const devices = DESK_DEVICES[desk];
+  const [openId, setOpenId] = useState<string>(devices[0]!.id);
+  const [values, setValues] = useState<Record<string, number>>(() =>
+    Object.fromEntries(devices.map((device) => [device.id, device.value])),
+  );
   const anchorRef = useRef<HTMLButtonElement | null>(null);
   const popoverRef = useRef<HTMLDivElement | null>(null);
   const blockRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
-  const setPopoverOpen = (id: string | null) => {
-    setOpenId(id ?? "filter");
-  };
+  useEffect(() => {
+    setOpenId(devices[0]!.id);
+    setValues(Object.fromEntries(devices.map((device) => [device.id, device.value])));
+  }, [desk, devices]);
 
   const setDeviceValue = (deviceId: string, value: number) => {
     setValues((prev) => ({ ...prev, [deviceId]: value }));
     dispatch?.({ type: "SET_DEVICE_PARAM", deviceId, value: value / 100 });
+    if (deviceId === "filter") {
+      dispatch?.({ type: "SET_DESK_BUS", desk, params: { filterHz: 200 + (value / 100) * 7800 } });
+    }
+    if (deviceId === "delay") {
+      dispatch?.({ type: "SET_DESK_BUS", desk, params: { delaySend: value / 100 } });
+    }
+    if (deviceId === "reverb") {
+      dispatch?.({ type: "SET_DESK_BUS", desk, params: { reverbSend: value / 100 } });
+    }
   };
 
   useEffect(() => {
@@ -48,7 +96,7 @@ export function DevicesPanel({ dispatch, draggable = false }: DevicesPanelProps)
   useEffect(() => {
     if (!draggable) return;
     const cleanups: Array<() => void> = [];
-    DEVICES.forEach((_device, index) => {
+    devices.forEach((_device, index) => {
       const el = blockRefs.current[index];
       if (!el) return;
       const instance = interact(el).draggable({
@@ -73,16 +121,19 @@ export function DevicesPanel({ dispatch, draggable = false }: DevicesPanelProps)
       cleanups.push(() => instance.unset());
     });
     return () => cleanups.forEach((c) => c());
-  }, [dispatch, draggable]);
+  }, [dispatch, draggable, devices]);
 
-  const openDevice = DEVICES.find((d) => d.id === openId) ?? DEVICES[0]!;
+  const openDevice = devices.find((device) => device.id === openId) ?? devices[0]!;
   const openValue = values[openDevice.id] ?? openDevice.value;
+  const participantName = state?.participants.find((p) => p.id === state.selectedParticipantId)?.name ?? "Participant";
 
   return (
     <section className="devices-panel" aria-label="Devices and effects">
-      <h2>Devices</h2>
+      <h2>
+        Devices · {participantName} · {desk}
+      </h2>
       <div className="device-rack">
-        {DEVICES.map((device, index) => (
+        {devices.map((device, index) => (
           <span key={device.id} style={{ display: "contents" }}>
             {index > 0 && <ChevronRight size={14} className="device-chain-arrow" aria-hidden />}
             <button
@@ -93,7 +144,7 @@ export function DevicesPanel({ dispatch, draggable = false }: DevicesPanelProps)
                 blockRefs.current[index] = el;
                 if (openId === device.id) anchorRef.current = el;
               }}
-              onClick={() => setPopoverOpen(device.id)}
+              onClick={() => setOpenId(device.id)}
             >
               {device.name}
             </button>

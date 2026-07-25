@@ -13,7 +13,14 @@ export type ShellUiTarget =
   | { kind: "transport-play" }
   | { kind: "transport-restart" }
   | { kind: "share-clip" }
-  | { kind: "stage-clip" }
+  | { kind: "fork-clip"; clipId: string }
+  | { kind: "ready-clip"; clipId: string }
+  | { kind: "accept-clip"; clipId: string }
+  | { kind: "promote-clip"; clipId: string }
+  | { kind: "stage-clip"; slotId?: string }
+  | { kind: "velocity-slider"; noteId: string }
+  | { kind: "desk-delay"; desk: string }
+  | { kind: "desk-mute"; desk: string }
   | { kind: "piano-note"; noteId: string };
 
 export function shellUiTargetId(target: ShellUiTarget): string {
@@ -36,8 +43,22 @@ export function shellUiTargetId(target: ShellUiTarget): string {
       return "transport-restart";
     case "share-clip":
       return "share-clip";
+    case "fork-clip":
+      return `fork-clip-${target.clipId}`;
+    case "ready-clip":
+      return `ready-clip-${target.clipId}`;
+    case "accept-clip":
+      return `accept-clip-${target.clipId}`;
+    case "promote-clip":
+      return `promote-clip-${target.clipId}`;
     case "stage-clip":
-      return "stage-clip";
+      return target.slotId ? `stage-clip-${target.slotId}` : "stage-clip";
+    case "velocity-slider":
+      return `velocity-${target.noteId}`;
+    case "desk-delay":
+      return `desk-delay-${target.desk}`;
+    case "desk-mute":
+      return `desk-mute-${target.desk}`;
     case "piano-note":
       return `piano-note-${target.noteId}`;
   }
@@ -52,7 +73,11 @@ export function resolveShellUiTarget(
   root: ParentNode = typeof document !== "undefined" ? document : (null as unknown as ParentNode),
 ): HTMLElement | null {
   if (!root) return null;
-  return root.querySelector<HTMLElement>(selectorForShellUiTarget(target));
+  const matches = root.querySelectorAll<HTMLElement>(selectorForShellUiTarget(target));
+  for (const element of matches) {
+    if (!element.classList.contains("sr-only")) return element;
+  }
+  return matches[0] ?? null;
 }
 
 /** Lane → default operator when a beat omits SET_PARTICIPANT_PROJECTION. */

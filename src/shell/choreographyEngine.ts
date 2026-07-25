@@ -1,5 +1,6 @@
 import { gsap } from "gsap";
 import { cancelTimeout, registerTimeout } from "../timerRegistry";
+import { parkedCursorLabel } from "./domain/participantWorkspace";
 import { resolveShellUiTarget, selectorForShellUiTarget, type ShellUiTarget } from "./shellUiTargets";
 
 export type ParticipantMotionProfile = "snappy" | "smooth" | "deliberate" | "medium";
@@ -8,6 +9,7 @@ export interface ChoreographyParticipant {
   id: string;
   name: string;
   color: string;
+  taskProfile: string;
   motionProfile: ParticipantMotionProfile;
 }
 
@@ -71,10 +73,10 @@ export class ShellChoreographyEngine {
     this.overlay.replaceChildren();
     for (const participant of this.participants) {
       const element = document.createElement("div");
-      element.className = "virtual-cursor shell-virtual-cursor";
+      element.className = "virtual-cursor shell-virtual-cursor shell-virtual-cursor--parked";
       element.dataset.participantCursor = participant.id;
       element.style.setProperty("--cursor-color", participant.color);
-      element.innerHTML = `<i></i><b>${participantInitial(participant)}</b>`;
+      element.innerHTML = `<i></i><b>${participantInitial(participant)}</b><span class="cursor-status-label">${parkedCursorLabel(participant.name, participant.taskProfile)}</span>`;
       gsap.set(element, { x: 0, y: 0, opacity: 0, scale: 0.9 });
       this.overlay.appendChild(element);
       this.cursors.set(participant.id, { element, x: 0, y: 0, busy: false });
@@ -136,10 +138,12 @@ export class ShellChoreographyEngine {
       return;
     }
     const coords = this.overlayPointFor({ kind: "participant", participantId });
+    state.element.classList.add("shell-virtual-cursor--parked");
+    state.element.classList.remove("shell-virtual-cursor--active");
     gsap.to(state.element, {
       x: coords.x,
       y: coords.y,
-      opacity: 0.25,
+      opacity: 0.42,
       scale: 0.92,
       duration: 0.45,
       ease: "sine.out",
@@ -158,12 +162,16 @@ export class ShellChoreographyEngine {
     participantId: string,
     target: ShellUiTarget,
     gesture: "click" | "hover" = "click",
+    deskLabel?: string,
   ): Promise<{ hit: boolean; missingTarget: string | null }> {
     if (!this.visible) return { hit: false, missingTarget: null };
     const state = this.cursors.get(participantId);
     if (!state) return { hit: false, missingTarget: null };
 
     this.updatePresence(participantId);
+    state.element.classList.remove("shell-virtual-cursor--parked");
+    state.element.classList.add("shell-virtual-cursor--active");
+    if (deskLabel) state.element.dataset.deskContext = deskLabel;
     const coords = this.overlayPointFor(target);
     if (!coords.element) {
       return { hit: false, missingTarget: selectorForShellUiTarget(target) };
@@ -248,7 +256,7 @@ export class ShellChoreographyEngine {
 }
 
 export function participantsToChoreographyCast(
-  participants: Array<{ id: string; name: string; color: string }>,
+  participants: Array<{ id: string; name: string; color: string; taskProfile: string }>,
 ): ChoreographyParticipant[] {
   return participants.map((p) => ({
     ...p,
