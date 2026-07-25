@@ -39,6 +39,14 @@ export function PresentationApp() {
     }
   }, [state.room, state.exchangeOpen, dispatch]);
 
+  useEffect(() => {
+    const fallback = document.getElementById("boot-fallback");
+    if (fallback) {
+      fallback.hidden = true;
+      fallback.setAttribute("aria-hidden", "true");
+    }
+  }, []);
+
   const roomContent =
     state.room === "global" ? (
       <GlobalPerformanceRoom state={state} dispatch={dispatch} viewport={viewport} />
@@ -57,32 +65,30 @@ export function PresentationApp() {
       )}
       <StudioTopBar state={state} dispatch={dispatch} viewport={viewport} />
       <div className={styles.main}>{roomContent}</div>
-      {state.room !== "mixer" && (
-        <footer className={styles.transport}>
-          <button
-            type="button"
-            className={styles.transportBtn}
-            data-demo-target="transport-play"
-            onClick={() => dispatch({ type: "TOGGLE_TRANSPORT" })}
-          >
-            {state.transportPlaying ? "Pause" : "Play"}
-          </button>
-          <span className={styles.transportReadout}>{formatTransportReadout(state)}</span>
-          <span
-            className={`${styles.transportHint}${playbackHint.attention ? ` ${styles.transportHintAttention}` : ""}`}
-          >
-            {playbackHint.text}
-          </span>
-          <button
-            type="button"
-            className={styles.transportBtn}
-            data-demo-target="transport-restart"
-            onClick={() => dispatch({ type: "RESTART_SESSION" })}
-          >
-            Restart
-          </button>
-        </footer>
-      )}
+      <footer className={styles.transport}>
+        <button
+          type="button"
+          className={styles.transportBtn}
+          data-demo-target="transport-play"
+          onClick={() => dispatch({ type: "TOGGLE_TRANSPORT" })}
+        >
+          {state.transportPlaying ? "Pause" : "Play"}
+        </button>
+        <span className={styles.transportReadout}>{formatTransportReadout(state)}</span>
+        <span
+          className={`${styles.transportHint}${playbackHint.attention ? ` ${styles.transportHintAttention}` : ""}`}
+        >
+          {state.room === "mixer" ? `Mixer · ${playbackHint.text}` : playbackHint.text}
+        </span>
+        <button
+          type="button"
+          className={styles.transportBtn}
+          data-demo-target="transport-restart"
+          onClick={() => dispatch({ type: "RESTART_SESSION" })}
+        >
+          Restart
+        </button>
+      </footer>
       <ExchangeOverlay state={state} dispatch={dispatch} />
     </div>
   );

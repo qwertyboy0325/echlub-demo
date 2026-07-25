@@ -21,7 +21,7 @@ export function StudioTopBar({ state, dispatch, viewport }: StudioTopBarProps) {
 
   return (
     <header className={`${styles.bar}${compact ? ` ${styles.compact}` : ""}`}>
-      <span className={styles.brand}>EchLub · Presentation</span>
+      <span className={styles.brand}>EchLub Studio</span>
       <nav className={styles.nav} aria-label="Rooms">
         <button
           type="button"
@@ -46,28 +46,26 @@ export function StudioTopBar({ state, dispatch, viewport }: StudioTopBarProps) {
         </button>
       </nav>
       <div className={styles.spacer} />
-      {state.room !== "mixer" && (
-        <div className={styles.participants} aria-label="Participants">
-          {state.participants.map((p) => (
-            <div key={p.id} className={styles.participantCell}>
-              <button
-                type="button"
-                className={
-                  state.selectedParticipantId === p.id && state.room === "participant"
-                    ? styles.avatarBtnSelected
-                    : styles.avatarBtn
-                }
-                style={{ borderColor: p.color }}
-                title={p.name}
-                onClick={() => selectParticipant(dispatch, p.id)}
-              >
-                {participantInitial(p.name)}
-              </button>
-              {!compact && <span className={styles.avatarName}>{p.name}</span>}
-            </div>
-          ))}
-        </div>
-      )}
+      <div className={styles.participants} aria-label="Participants">
+        {state.participants.map((p) => (
+          <div key={p.id} className={styles.participantCell}>
+            <button
+              type="button"
+              className={
+                state.selectedParticipantId === p.id && state.room === "participant"
+                  ? styles.avatarBtnSelected
+                  : styles.avatarBtn
+              }
+              style={{ borderColor: p.color }}
+              title={p.name}
+              onClick={() => selectParticipant(dispatch, p.id)}
+            >
+              {participantInitial(p.name)}
+            </button>
+            {!compact && <span className={styles.avatarName}>{p.name}</span>}
+          </div>
+        ))}
+      </div>
       <span
         className={
           state.sessionPhase === "performing" ? styles.phasePerforming : styles.phaseChip

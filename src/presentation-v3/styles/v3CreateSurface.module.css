@@ -1,0 +1,197 @@
+.surface {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.clipTitle {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.revision {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--pv3-muted);
+}
+
+.modeTabs {
+  display: flex;
+  gap: 4px;
+}
+
+.modeTab {
+  background: var(--pv3-raised);
+  border: 1px solid var(--pv3-separator);
+  color: var(--pv3-muted);
+  padding: 4px 10px;
+  border-radius: 2px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.modeTabActive {
+  border-color: var(--pv3-accent);
+  color: var(--pv3-text);
+}
+
+.laneChips {
+  display: flex;
+  gap: 4px;
+}
+
+.laneChip {
+  background: var(--pv3-raised);
+  border: 1px solid var(--pv3-separator);
+  color: var(--pv3-muted);
+  padding: 3px 8px;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.laneChipActive {
+  border-color: var(--pv3-focus);
+  color: var(--pv3-text);
+}
+
+.editorPane {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--pv3-canvas);
+  border: 1px solid var(--pv3-separator);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.pianoGrid {
+  flex: 1;
+  min-height: 280px;
+  position: relative;
+  overflow: auto;
+}
+
+.pianoNote {
+  position: absolute;
+  background: var(--pv3-accent);
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  opacity: 0.85;
+}
+
+.pianoNoteSelected {
+  composes: pianoNote;
+  outline: 2px solid var(--pv3-focus);
+  opacity: 1;
+}
+
+.inspector {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-top: 1px solid var(--pv3-separator);
+  font-size: 11px;
+}
+
+.stepGrid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  gap: 4px;
+  padding: 12px;
+  min-height: 120px;
+}
+
+.stepCell {
+  aspect-ratio: 1;
+  background: var(--pv3-raised);
+  border: 1px solid var(--pv3-separator);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.stepCellOn {
+  composes: stepCell;
+  background: var(--pv3-accent);
+  border-color: var(--pv3-accent);
+}
+
+.clipPane {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.driveLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--pv3-muted);
+}
+
+.actions {
+  flex-shrink: 0;
+  display: flex;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.btnPrimary {
+  background: var(--pv3-accent);
+  border: none;
+  color: #0d1117;
+  padding: 8px 14px;
+  border-radius: 2px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btnPrimary:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.btnSecondary {
+  background: var(--pv3-raised);
+  border: 1px solid var(--pv3-separator);
+  color: var(--pv3-text);
+  padding: 8px 14px;
+  border-radius: 2px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.btnSecondary:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.previewActive {
+  composes: btnPrimary;
+  outline: 2px solid #f0b429;
+}
+
+.emptyHint {
+  padding: 12px;
+  font-size: 11px;
+  color: var(--pv3-muted);
+}

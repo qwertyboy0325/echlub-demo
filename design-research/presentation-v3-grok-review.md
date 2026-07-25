@@ -1,65 +1,40 @@
-# Presentation V3 — Grok Review
+# Presentation V3 — Grok cold-viewer review (correction pass)
 
-**Date:** 2026-07-25  
-**Baseline compared:** `cfc8cd5` FocusShell (split lane table + score map, permanent Exchange rail on wide, PresenceRail, zone chip stacks, presenter chrome)  
-**Evidence:** `artifacts/presentation-v3/*.png`, browser MCP walkthrough on `http://localhost:4173/?presentation=v3`
+**Branch:** `presentation/fullscreen-rooms-v3`  
+**Baseline correction:** bounded pass after owner direction approval (`1d13e37`).
 
----
+## Ranked findings (max 5)
 
-## Ranked blockers (max 5)
+### 1. Mixer room now distinct — **ADDRESSED**
+- **Before:** Capture `08-mixer-dock` was Global; transport hidden in Mixer; `defaultValue` sliders.
+- **After:** Four performance-group strips, labeled fixture meters, bound filter/delay/reverb/mute from `engine.getMix()`, shared transport footer with Play/bar/Restart, large Live Control Dock.
+- **Residual:** Dock still uses legacy global CSS classes (scoped wrapper only).
 
-### 1. Participant Create still carries legacy FocusShell chrome (severity: high)
-**Question:** Primary musical action dominant?  
-**Finding:** v3 header is compact, but reused `CreateEditor` still renders duplicate PRIVATE DESK badges, library empty panel, and toolbar bands — editor grid occupies ~45% height, not 70–85%.  
-**vs cfc8cd5:** Better than zone-chip stack + PresenceRail, but not yet “editor-first.”  
-**Fix applied (Phase E):** Hide `create-context-header` and in-editor `desk-library-queue` inside v3 participant `.editor` via scoped CSS module `:global` descendants.
+### 2. Create surface is V3-native — **ADDRESSED**
+- **Before:** Full `CreateEditor` embedded with duplicate library, legends, Devices summary.
+- **After:** `V3CreateSurface` — clip + revision, mode tabs, dominant editor (~70%+ height), Preview / Save / Share only. Library drawer is sole persistent private-library surface.
 
-### 2. Exchange overlay competes with room nav when open (severity: medium)
-**Question:** Cold viewer can follow manual sequence?  
-**Finding:** Drawer backdrop blocked Mixer nav clicks during walkthrough step 8; Close did not always dismiss before next action.  
-**vs cfc8cd5:** Improvement (overlay vs permanent rail), but interaction trap regresses manual flow.  
-**Fix applied (Phase E):** Backdrop uses `SET_EXCHANGE_OPEN false`; auto-close on `mixer` room entry.
+### 3. Exchange overlay is thin projection — **ADDRESSED**
+- **Before:** Full `SharedClipExchange` with Launch lane CTAs and room footers.
+- **After:** `V3ExchangeOverlay` — compact list, empty state, one lifecycle primary action, Stage for Ready (Global-only). No generic Launch lane.
 
-### 3. Global lane surface still reads slightly dashboard-like (severity: medium)
-**Question:** Still dashboard?  
-**Finding:** Integrated rows help, but STATUS / Launch columns + ruler still resemble admin table; score blocks are small relative to metadata columns.  
-**vs cfc8cd5:** Major improvement — single surface replaces split table + collapsible timeline.  
-**Remaining:** Widen score lane % in a future pass (not this bounded correction).
+### 4. Global integrated launcher — **IMPROVED**
+- **Before:** Separate state column + actions column + narrow score lane.
+- **After:** Seven equal-height lanes at 1440×900; state integrated on clip blocks; Launch/Promote on clip; compact 88px track column; master footer visible.
+- **Residual:** Empty lanes still show dashed placeholder — acceptable for sparse opening.
 
-### 4. Three workspaces legible but desk identity weak in Global (severity: low–medium)
-**Question:** Different workspaces per room?  
-**Finding:** Global / Participant / Mixer are visually distinct (yes). Participant strip in top bar is compact; Global rows show owner initials adequately.  
-**vs cfc8cd5:** Clearer room separation; less cast clutter.  
-**Remaining:** No explicit “Private desk vs Shared Master” chip on Global (master meter only).
+### 5. Cold viewer manual path — **READY FOR OWNER**
+Manual sequence (no automation): Global sparse → Participant edit → Preview → Save → Share (overlay) → Global Stage → Launch on lane → Mixer Dock → Restart.
+Owner must eyeball 60–90s A/V and three room screenshots before cursor reconnection.
 
-### 5. Greatest confusion element: dual library surfaces + Share entry points (severity: medium)
-**Question:** Greatest confusion element?  
-**Finding:** Participant had Library drawer toggle, Create “Save to library / Share to Exchange,” and Exchange top-bar — three publish paths without hierarchy.  
-**vs cfc8cd5:** Same underlying model, but v3 promised fewer legends.  
-**Partial fix:** In-editor library panel hidden; drawer remains canonical private library.
+## Dispositions
 
----
+| Finding | Action |
+|---------|--------|
+| Mixer evidence | Re-capture `08-mixer-dock.png` at 1440×900 and 1280×720 after manual verify |
+| Dock global CSS | Defer — presentation-only token pass in future bounded pass |
+| Empty Global lanes | No change — sparse story intentional |
 
-## Acceptance checklist (owner 1–13, inferred)
+## Architecture
 
-| # | Criterion | Status |
-|---|-----------|--------|
-| 1 | Three distinct room layouts | **Pass** (screenshots 01, 02, 08) |
-| 2 | No permanent Exchange rail | **Pass** (overlay only) |
-| 3 | No permanent Presence rail | **Pass** |
-| 4 | One track representation in Global | **Pass** (lane row = launcher + inline score) |
-| 5 | Horizontal participant tabs | **Pass** |
-| 6 | Exchange overlay/drawer only | **Pass** (with Phase E close fix) |
-| 7 | Mixer full-screen performance, no Exchange | **Pass** (toggle hidden) |
-| 8 | No automation / walkthrough wired | **Pass** |
-| 9 | `?presentation=v3` switch, legacy default | **Pass** |
-| 10 | CSS Modules only in presentation-v3 | **Pass** |
-| 11 | shellStore adapter, no new semantics | **Pass** |
-| 12 | Compact 1280×720 behavior defined | **Pass** (contract + viewport hook) |
-| 13 | Manual 60–90s sequence documentable | **Pass** (see `artifacts/presentation-v3/walkthrough.md`) |
-
----
-
-## Verdict
-
-v3 is a **credible parallel presentation layer** vs `cfc8cd5` dashboard shell. Top blocker (#1 editor dominance) partially addressed; #2 overlay trap fixed. Ready for **owner manual approval** with remaining polish scoped to a follow-up package (score-lane proportion, publish-path copy).
+No new architecture proposed. Presentation layer only; domain/audio unchanged.

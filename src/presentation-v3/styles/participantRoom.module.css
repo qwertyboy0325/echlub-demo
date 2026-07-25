@@ -159,11 +159,36 @@
   border-bottom-color: var(--pv3-accent);
 }
 
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.mixPanel {
+  padding: 12px;
+}
+
+.mixRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+}
+
 .editor {
   flex: 1;
   min-height: 0;
-  overflow: auto;
-  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 6px 10px 8px;
 }
 
 .compact .libraryDrawer {
@@ -177,9 +202,4 @@
 
 .compact .body {
   position: relative;
-}
-
-.editor :global(.create-context-header),
-.editor :global(.desk-library-queue) {
-  display: none;
 }

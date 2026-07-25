@@ -29,6 +29,16 @@ interface GlobalPerformanceRoomProps {
   viewport: PresentationViewport;
 }
 
+function stateBadgeClass(
+  playing: boolean,
+  state: string,
+): string {
+  if (playing) return styles.clipBadgePlaying;
+  if (state === "loaded" || state === "staged") return styles.clipBadgeLoaded;
+  if (state === "queued") return styles.clipBadgeQueued;
+  return styles.clipBadge;
+}
+
 export function GlobalPerformanceRoom({ state, dispatch, viewport }: GlobalPerformanceRoomProps) {
   const compact = viewport === "compact";
   const barCount = compact ? COMPACT_BAR_COUNT : BAR_COUNT;
@@ -43,16 +53,23 @@ export function GlobalPerformanceRoom({ state, dispatch, viewport }: GlobalPerfo
 
   const masterReadout =
     launchedCount > 0
-      ? `Shared Master · ${launchedCount}/7 playing`
-      : "Shared Master · sparse — Launch a lane to hear it";
+      ? `${launchedCount}/7 playing`
+      : "sparse — launch a lane";
 
   return (
     <section className={`${styles.room}${compact ? ` ${styles.compact}` : ""}`} aria-label="Global Performance">
       <header className={styles.header}>
         <span className={`${styles.phaseBadge}${performing ? ` ${styles.phasePerforming}` : ""}`}>
-          {performing ? "Performing Shared Song" : "Building Shared Song"}
+          {performing ? "Performing" : "Building"}
         </span>
-        <span className={styles.masterReadout}>{masterReadout}</span>
+        <span className={styles.masterReadout}>Shared Master · {masterReadout}</span>
+        <button
+          type="button"
+          className={styles.exchangeLink}
+          onClick={() => dispatch({ type: "SET_EXCHANGE_OPEN", open: true })}
+        >
+          Open Exchange
+        </button>
       </header>
 
       <div className={styles.surface}>
@@ -65,8 +82,6 @@ export function GlobalPerformanceRoom({ state, dispatch, viewport }: GlobalPerfo
               </span>
             ))}
           </div>
-          <div className={styles.laneState} />
-          <div style={{ width: 100 }} />
         </div>
 
         <div className={styles.lanes}>
@@ -82,6 +97,7 @@ export function GlobalPerformanceRoom({ state, dispatch, viewport }: GlobalPerfo
               stagedClip?.lifecycle === "Ready" && stagedClip.forkOf && isLaneLaunchableState(slot.state);
             const trackClips = timelineClips.filter((tc) => tc.trackId === track.id);
             const scoreWidth = barCount * BAR_WIDTH;
+            const stateLabel = laneStateLabel(slot.state, state.transportBar);
 
             return (
               <div
@@ -98,11 +114,7 @@ export function GlobalPerformanceRoom({ state, dispatch, viewport }: GlobalPerfo
                       {ownerMeta.initial}
                     </span>
                   )}
-                  <div className={styles.trackInfo}>
-                    <span className={styles.trackName}>{track.name}</span>
-                    <span className={styles.trackOwner}>{owner}</span>
-                    <span className={styles.laneClip}>{slot.label || "—"}</span>
-                  </div>
+                  <span className={styles.trackName}>{track.name}</span>
                 </div>
 
                 <div className={styles.scoreLane}>
@@ -124,10 +136,37 @@ export function GlobalPerformanceRoom({ state, dispatch, viewport }: GlobalPerfo
                             width: tc.lengthBars * BAR_WIDTH - 4,
                           }}
                         >
-                          {clip?.title ?? slot.label}
+                          <span className={styles.clipLabel}>{clip?.title ?? slot.label}</span>
+                          <span className={stateBadgeClass(playing, slot.state)}>{stateLabel}</span>
+                          {canLaunch && (
+                            <button
+                              type="button"
+                              className={styles.clipLaunch}
+                              onClick={() => {
+                                if (canPromote && stagedClip) {
+                                  dispatch({ type: "PROMOTE_CLIP", clipId: stagedClip.id, slotId: slot.id });
+                                  return;
+                                }
+                                dispatch({
+                                  type: "LAUNCH_SLOT",
+                                  slotId: slot.id,
+                                  draftId: slot.materialId ?? undefined,
+                                });
+                              }}
+                            >
+                              <Play size={10} aria-hidden />
+                              {canPromote ? "Promote" : "Launch"}
+                            </button>
+                          )}
                         </div>
                       );
                     })}
+                    {!trackClips.length && slot.label && (
+                      <div className={styles.scoreClipEmpty}>
+                        <span className={styles.clipLabel}>{slot.label}</span>
+                        <span className={stateBadgeClass(playing, slot.state)}>{stateLabel}</span>
+                      </div>
+                    )}
                     <div
                       className={styles.playhead}
                       style={{
@@ -137,39 +176,6 @@ export function GlobalPerformanceRoom({ state, dispatch, viewport }: GlobalPerfo
                       }}
                     />
                   </div>
-                </div>
-
-                <div className={playing ? styles.laneStatePlaying : styles.laneState}>
-                  {laneStateLabel(slot.state, state.transportBar)}
-                </div>
-
-                <div className={styles.laneActions}>
-                  {playing ? (
-                    <span className={styles.badge}>Playing</span>
-                  ) : slot.state === "queued" ? (
-                    <span className={styles.badge}>Queued</span>
-                  ) : canLaunch ? (
-                    <button
-                      type="button"
-                      className={styles.launchBtn}
-                      onClick={() => {
-                        if (canPromote && stagedClip) {
-                          dispatch({ type: "PROMOTE_CLIP", clipId: stagedClip.id, slotId: slot.id });
-                          return;
-                        }
-                        dispatch({
-                          type: "LAUNCH_SLOT",
-                          slotId: slot.id,
-                          draftId: slot.materialId ?? undefined,
-                        });
-                      }}
-                    >
-                      <Play size={12} aria-hidden />
-                      {canPromote ? "Promote" : "Launch"}
-                    </button>
-                  ) : (
-                    <span className={styles.laneClip}>—</span>
-                  )}
                 </div>
               </div>
             );

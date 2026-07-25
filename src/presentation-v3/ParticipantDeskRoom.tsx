@@ -1,15 +1,14 @@
 import { useState } from "react";
 import type { ParticipantTab, ShellCommand, ShellState } from "../shell/domain/shellTypes";
 import {
-  deskLabelForProfile,
   instrumentSummaryForProfile,
   participantInitial,
   possessiveDeskTitle,
   workspaceForParticipant,
 } from "../shell/domain/participantWorkspace";
 import { AutomationEditor } from "../features/automation/AutomationEditor";
-import { CreateEditor } from "../features/create/CreateEditor";
 import { DevicesPanel } from "../features/devices/DevicesPanel";
+import { V3CreateSurface } from "./V3CreateSurface";
 import type { PresentationViewport } from "./presentationStateAdapter";
 import styles from "./styles/participantRoom.module.css";
 
@@ -32,60 +31,27 @@ function TabContent({
 }) {
   switch (tab) {
     case "Create":
-      return <CreateEditor state={state} dispatch={dispatch} />;
+      return <V3CreateSurface state={state} dispatch={dispatch} />;
     case "Devices":
       return <DevicesPanel state={state} dispatch={dispatch} draggable />;
     case "Automation":
       return <AutomationEditor />;
     case "Mix":
       return (
-        <div className="mix-panel">
-          <div className="mix-trim-row">
-            <span className="mix-channel-name">Bass</span>
+        <div className={styles.mixPanel}>
+          <div className={styles.mixRow}>
+            <span>Bass trim</span>
             <input type="range" min={0} max={100} defaultValue={58} aria-label="Bass trim" />
-            <span className="tabular-nums mix-value">−4.2 dB</span>
           </div>
         </div>
       );
     case "Queue":
-      return <DeskLibrary state={state} dispatch={dispatch} />;
+      return (
+        <p className={styles.libraryEmpty}>
+          Use the Library drawer for saved clips — Share moves material to Exchange.
+        </p>
+      );
   }
-}
-
-function DeskLibrary({
-  state,
-  dispatch,
-}: {
-  state: ShellState;
-  dispatch: (command: ShellCommand) => void;
-}) {
-  const workspace = workspaceForParticipant(state, state.selectedParticipantId);
-  return (
-    <div className="queue-panel desk-library-queue" aria-label="Private clips library">
-      <h3 className="section-label">Private clips library</h3>
-      {workspace.libraryClips.length === 0 ? (
-        <p className="desk-library-empty">No saved clips yet — shape in Create, then Save to library.</p>
-      ) : (
-        <ul className="queue-list desk-library-list">
-          {workspace.libraryClips.map((clip) => (
-            <li key={clip.id}>
-              <button
-                type="button"
-                className="desk-library-row"
-                onClick={() => {
-                  dispatch({ type: "SET_WORKSPACE_DRAFT", draftId: clip.draftId });
-                  dispatch({ type: "SET_PARTICIPANT_TAB", tab: "Create" });
-                }}
-              >
-                <strong className="tabular-nums">{clip.title}</strong>
-                <span className="desk-library-meta">r{clip.revision}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
 }
 
 export function ParticipantDeskRoom({ state, dispatch, viewport }: ParticipantDeskRoomProps) {
@@ -144,39 +110,18 @@ export function ParticipantDeskRoom({ state, dispatch, viewport }: ParticipantDe
         <div className={styles.main}>
           <header className={styles.header}>
             {selected && (
-              <span
-                className={styles.avatar}
-                style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: "50%",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  border: `2px solid ${selected.color}`,
-                  fontSize: 12,
-                  fontWeight: 600,
-                }}
-              >
+              <span className={styles.avatar} style={{ border: `2px solid ${selected.color}` }}>
                 {participantInitial(selected.name)}
               </span>
             )}
-            <span className={styles.privateBadge}>Private</span>
             <div>
               <div className={styles.deskTitle}>{deskTitle}</div>
               <div className={styles.deskSubtitle}>
-                {instrumentSummary && `${instrumentSummary} · `}
                 {clip?.title ?? workspace.draftId ?? "untitled"} · r{clip?.revision ?? 1}
-                {selected && ` · ${deskLabelForProfile(selected.taskProfile)}`}
+                {instrumentSummary && ` · ${instrumentSummary}`}
               </div>
             </div>
           </header>
-
-          {state.deskAuditionDraftId && (
-            <div className={styles.auditionBanner} role="status">
-              Desk preview · {state.deskAuditionDraftId} · not Shared Master
-            </div>
-          )}
 
           <div className={styles.tabList} role="tablist" aria-label="Workspace tabs">
             {TABS.map((tab) => (

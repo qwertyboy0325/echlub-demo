@@ -2,8 +2,14 @@ import type { CSSProperties } from "react";
 import type { DeskBusId } from "../types";
 import { LiveControlDock } from "../features/dock/LiveControlDock";
 import type { ShellCommand, ShellState } from "../shell/domain/shellTypes";
+import { countPlayingLanes } from "../shell/laneSlotSemantics";
 import { participantInitial } from "../shell/domain/participantWorkspace";
-import type { PresentationViewport } from "./presentationStateAdapter";
+import {
+  deskBusControlValues,
+  sliderToFilterHz,
+  useEngineMix,
+  type PresentationViewport,
+} from "./presentationStateAdapter";
 import styles from "./styles/mixerRoom.module.css";
 
 const PERFORMANCE_GROUPS: Array<{
@@ -13,11 +19,49 @@ const PERFORMANCE_GROUPS: Array<{
   ownerId: string;
   color: string;
   tracks: string;
+  delayScale: number;
+  reverbScale: number;
 }> = [
-  { desk: "rhythm", name: "Rhythm", owner: "Ryo", ownerId: "p1", color: "#f9a8d4", tracks: "Drums · Bass" },
-  { desk: "keys", name: "Keys", owner: "Kai", ownerId: "p2", color: "#67e8f9", tracks: "Piano LH · RH" },
-  { desk: "horns", name: "Horns", owner: "Mei", ownerId: "p3", color: "#86efac", tracks: "Alto · Tenor" },
-  { desk: "guitar", name: "Guitar", owner: "Ren", ownerId: "p4", color: "#c4b5fd", tracks: "Guitar · color" },
+  {
+    desk: "rhythm",
+    name: "Rhythm",
+    owner: "Ryo",
+    ownerId: "p1",
+    color: "#f9a8d4",
+    tracks: "Drums · Bass",
+    delayScale: 0.35,
+    reverbScale: 0.5,
+  },
+  {
+    desk: "keys",
+    name: "Keys",
+    owner: "Kai",
+    ownerId: "p2",
+    color: "#67e8f9",
+    tracks: "Piano LH · RH",
+    delayScale: 0.45,
+    reverbScale: 0.5,
+  },
+  {
+    desk: "horns",
+    name: "Horns",
+    owner: "Mei",
+    ownerId: "p3",
+    color: "#86efac",
+    tracks: "Alto · Tenor",
+    delayScale: 0.65,
+    reverbScale: 0.5,
+  },
+  {
+    desk: "guitar",
+    name: "Guitar",
+    owner: "Ren",
+    ownerId: "p4",
+    color: "#c4b5fd",
+    tracks: "Guitar",
+    delayScale: 0.55,
+    reverbScale: 0.5,
+  },
 ];
 
 interface MixerPerformanceRoomProps {
@@ -28,21 +72,33 @@ interface MixerPerformanceRoomProps {
 
 export function MixerPerformanceRoom({ state, dispatch, viewport }: MixerPerformanceRoomProps) {
   const compact = viewport === "compact";
+  const mix = useEngineMix();
   const activeOwnerId = state.participants.find((p) => p.active)?.id;
+  const launchedCount = countPlayingLanes(state.arrangementSlots);
+  const selectedIndex = state.selectedMixerChannel;
 
   return (
     <section className={`${styles.room}${compact ? ` ${styles.compact}` : ""}`} aria-label="Mixer Performance">
-      <div className={styles.mixerBody}>
-        <header className={styles.mixerHeader}>
-          <span className={styles.mixerTitle}>Performance</span>
-          <span className={styles.mixerMode}>Dock: {state.dockMode}</span>
-        </header>
+      <header className={styles.mixerHeader}>
+        <div>
+          <span className={styles.mixerTitle}>Performance mix</span>
+          <span className={styles.mixerSub}>
+            Shared Master · {launchedCount}/7 · Dock {state.dockMode}
+          </span>
+        </div>
+        {selectedIndex >= 0 && (
+          <span className={styles.selectedReadout}>
+            Selected: {PERFORMANCE_GROUPS[selectedIndex]?.name ?? "—"}
+          </span>
+        )}
+      </header>
 
-        <div className={styles.channels}>
-          {PERFORMANCE_GROUPS.map(({ desk, name, owner, ownerId, color, tracks }, index) => {
-            const selected = state.selectedMixerChannel === index;
+      <div className={styles.mixerBody}>
+        <div className={styles.channels} aria-label="Performance group strips">
+          {PERFORMANCE_GROUPS.map(({ desk, name, owner, ownerId, color, tracks, delayScale, reverbScale }, index) => {
+            const selected = selectedIndex === index;
             const activeDesk = activeOwnerId === ownerId;
-            const level = 52 + index * 8;
+            const controls = deskBusControlValues(mix, desk, index);
             return (
               <div
                 key={desk}
@@ -50,7 +106,10 @@ export function MixerPerformanceRoom({ state, dispatch, viewport }: MixerPerform
                 data-demo-target={`desk-strip-${desk}`}
               >
                 <div className={styles.channelHeader}>
-                  <span className={styles.avatar} style={{ border: `2px solid ${color}` } as CSSProperties}>
+                  <span
+                    className={styles.avatar}
+                    style={{ border: `2px solid ${color}` } as CSSProperties}
+                  >
                     {participantInitial(owner)}
                   </span>
                   <div>
@@ -59,8 +118,12 @@ export function MixerPerformanceRoom({ state, dispatch, viewport }: MixerPerform
                     <div className={styles.channelTracks}>{tracks}</div>
                   </div>
                 </div>
-                <div className={styles.meter} aria-hidden>
-                  <span className={styles.meterFill} style={{ height: `${level}%` }} />
+                <div className={styles.meter} aria-label={`${name} level fixture`}>
+                  <span
+                    className={styles.meterFill}
+                    style={{ height: `${controls.meterLevel}%` }}
+                  />
+                  <span className={styles.meterLabel}>meter</span>
                 </div>
                 <label className={styles.controlLabel}>
                   Filter
@@ -68,13 +131,48 @@ export function MixerPerformanceRoom({ state, dispatch, viewport }: MixerPerform
                     type="range"
                     min={0}
                     max={100}
-                    defaultValue={45 + index * 5}
+                    value={controls.filter}
                     aria-label={`${name} filter`}
                     onChange={(event) =>
                       dispatch({
                         type: "SET_DESK_BUS",
                         desk,
-                        params: { filterHz: 200 + (Number(event.target.value) / 100) * 7800 },
+                        params: { filterHz: sliderToFilterHz(Number(event.target.value)) },
+                      })
+                    }
+                  />
+                </label>
+                <label className={styles.controlLabel}>
+                  Delay
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    value={controls.delay}
+                    aria-label={`${name} delay send`}
+                    data-demo-target={`desk-delay-${desk}`}
+                    onChange={(event) =>
+                      dispatch({
+                        type: "SET_DESK_BUS",
+                        desk,
+                        params: { delaySend: (Number(event.target.value) / 100) * delayScale },
+                      })
+                    }
+                  />
+                </label>
+                <label className={styles.controlLabel}>
+                  Reverb
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    value={controls.reverb}
+                    aria-label={`${name} reverb send`}
+                    onChange={(event) =>
+                      dispatch({
+                        type: "SET_DESK_BUS",
+                        desk,
+                        params: { reverbSend: (Number(event.target.value) / 100) * reverbScale },
                       })
                     }
                   />
@@ -90,12 +188,20 @@ export function MixerPerformanceRoom({ state, dispatch, viewport }: MixerPerform
                   <button
                     type="button"
                     className={styles.channelBtn}
-                    onClick={() => dispatch({ type: "SET_DESK_BUS", desk, params: { mute: true } })}
+                    data-demo-target={`desk-mute-${desk}`}
+                    aria-pressed={controls.muted}
+                    onClick={() =>
+                      dispatch({
+                        type: "SET_DESK_BUS",
+                        desk,
+                        params: { mute: !controls.muted },
+                      })
+                    }
                   >
-                    Mute
+                    {controls.muted ? "Unmute" : "Mute"}
                   </button>
                 </div>
-                {activeDesk && <span className={styles.channelTracks}>Active desk</span>}
+                {activeDesk && <span className={styles.activeDesk}>Active desk</span>}
               </div>
             );
           })}

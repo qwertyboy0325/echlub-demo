@@ -1,6 +1,5 @@
-import { SharedClipExchange } from "../features/exchange/SharedClipExchange";
 import type { ShellCommand, ShellState } from "../shell/domain/shellTypes";
-import styles from "./styles/exchangeOverlay.module.css";
+import { V3ExchangeOverlay } from "./V3ExchangeOverlay";
 
 interface ExchangeOverlayProps {
   state: ShellState;
@@ -8,24 +7,5 @@ interface ExchangeOverlayProps {
 }
 
 export function ExchangeOverlay({ state, dispatch }: ExchangeOverlayProps) {
-  if (!state.exchangeOpen) return null;
-
-  return (
-    <div
-      className={styles.backdrop}
-      role="presentation"
-      onClick={() => dispatch({ type: "SET_EXCHANGE_OPEN", open: false })}
-    >
-      <div
-        className={styles.panel}
-        role="dialog"
-        aria-label="Shared Clip Exchange"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <div className={styles.panelInner}>
-          <SharedClipExchange state={state} dispatch={dispatch} variant="drawer" />
-        </div>
-      </div>
-    </div>
-  );
+  return <V3ExchangeOverlay state={state} dispatch={dispatch} />;
 }
