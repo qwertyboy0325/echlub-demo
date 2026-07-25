@@ -1,6 +1,6 @@
 import * as Tone from "tone";
 import { delayUiToWet, faderUiToDb, filterUiToHz } from "../mixMapping";
-import type { MixParams, SceneDefinition } from "../types";
+import type { DeskBusId, MixParams, SceneDefinition } from "../types";
 import {
   resolveMixDrumDefaults,
   resolveMixSubgroupTrims,
@@ -17,6 +17,78 @@ import {
 
 function resolveStartTime(atTime?: number): number {
   return atTime ?? audioNow();
+}
+
+const DESK_GRAPH: Record<DeskBusId, {
+  gain: keyof MasterAudioGraph;
+  filter: keyof MasterAudioGraph;
+  delaySend: keyof MasterAudioGraph;
+  reverbSend: keyof MasterAudioGraph;
+}> = {
+  rhythm: {
+    gain: "rhythmDeskGain",
+    filter: "rhythmDeskFilter",
+    delaySend: "rhythmDeskDelaySend",
+    reverbSend: "rhythmDeskReverbSend",
+  },
+  keys: {
+    gain: "keysDeskGain",
+    filter: "keysDeskFilter",
+    delaySend: "keysDeskDelaySend",
+    reverbSend: "keysDeskReverbSend",
+  },
+  horns: {
+    gain: "hornsDeskGain",
+    filter: "hornsDeskFilter",
+    delaySend: "hornsDeskDelaySend",
+    reverbSend: "hornsDeskReverbSend",
+  },
+  guitar: {
+    gain: "guitarDeskGain",
+    filter: "guitarDeskFilter",
+    delaySend: "guitarDeskDelaySend",
+    reverbSend: "guitarDeskReverbSend",
+  },
+};
+
+function applyDeskParamsToGraph(
+  graph: MasterAudioGraph,
+  currentMix: MixParams,
+  deskId: DeskBusId,
+  params: NonNullable<MixParams["desk"]>[DeskBusId],
+  startTime: number,
+  rampTime: number,
+): void {
+  if (!params) return;
+  const nodes = DESK_GRAPH[deskId];
+  currentMix.desk ??= {};
+  currentMix.desk[deskId] ??= {};
+  const deskState = currentMix.desk[deskId]!;
+  const gainNode = graph[nodes.gain] as Tone.Volume;
+  const filterNode = graph[nodes.filter] as Tone.Filter;
+  const delayNode = graph[nodes.delaySend] as Tone.Gain;
+  const reverbNode = graph[nodes.reverbSend] as Tone.Gain;
+
+  if (params.gainDb !== undefined) {
+    deskState.gainDb = params.gainDb;
+    if (!deskState.mute) rampLinear(gainNode.volume, params.gainDb, startTime, rampTime);
+  }
+  if (params.mute !== undefined) {
+    deskState.mute = params.mute;
+    rampLinear(gainNode.volume, params.mute ? -100 : (deskState.gainDb ?? 0), startTime, rampTime);
+  }
+  if (params.filterHz !== undefined) {
+    deskState.filterHz = params.filterHz;
+    rampFilterFrequency(filterNode.frequency, params.filterHz, startTime, rampTime);
+  }
+  if (params.delaySend !== undefined) {
+    deskState.delaySend = params.delaySend;
+    rampLinear(delayNode.gain, params.delaySend, startTime, rampTime);
+  }
+  if (params.reverbSend !== undefined) {
+    deskState.reverbSend = params.reverbSend;
+    rampLinear(reverbNode.gain, params.reverbSend, startTime, rampTime);
+  }
 }
 
 export function applyMixParamsToGraph(
@@ -71,6 +143,11 @@ export function applyMixParamsToGraph(
   if (params.bassTrimDb !== undefined) {
     currentMix.bassTrimDb = params.bassTrimDb;
     rampLinear(graph.bassTrim.volume, params.bassTrimDb, startTime, rampTime);
+  }
+  if (params.desk) {
+    for (const [deskId, deskParams] of Object.entries(params.desk) as [DeskBusId, NonNullable<MixParams["desk"]>[DeskBusId]][]) {
+      if (deskParams) applyDeskParamsToGraph(graph, currentMix, deskId, deskParams, startTime, rampTime);
+    }
   }
   return currentMix;
 }

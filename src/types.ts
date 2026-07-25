@@ -112,6 +112,16 @@ export interface SceneDefinition {
   fx: MixParams;
 }
 
+export type DeskBusId = "rhythm" | "keys" | "horns" | "guitar";
+
+export interface DeskBusParams {
+  gainDb?: number;
+  mute?: boolean;
+  filterHz?: number;
+  delaySend?: number;
+  reverbSend?: number;
+}
+
 export interface MixParams {
   filter: number;
   delayWet: number;
@@ -126,6 +136,8 @@ export interface MixParams {
   drumTrimDb?: number;
   /** Post-drive bass subgroup trim in dB; defaults to 0. */
   bassTrimDb?: number;
+  /** Per-desk live-collab bus sends into shared delay/reverb engines. */
+  desk?: Partial<Record<DeskBusId, DeskBusParams>>;
 }
 
 export interface PerformanceScriptEvent {

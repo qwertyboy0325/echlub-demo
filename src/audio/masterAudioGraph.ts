@@ -1,6 +1,6 @@
 import * as Tone from "tone";
 import { delayUiToWet, faderUiToDb, filterUiToHz } from "../mixMapping";
-import type { MixParams } from "../types";
+import type { DeskBusId, MixParams } from "../types";
 import {
   resolveMixDrumDefaults,
   resolveMixSubgroupTrims,
@@ -67,6 +67,22 @@ export interface MasterAudioGraph {
   guitarDrive: Tone.Distortion;
   guitarPresence: Tone.Filter;
   texture: Tone.NoiseSynth;
+  rhythmDeskGain: Tone.Volume;
+  rhythmDeskFilter: Tone.Filter;
+  rhythmDeskDelaySend: Tone.Gain;
+  rhythmDeskReverbSend: Tone.Gain;
+  keysDeskGain: Tone.Volume;
+  keysDeskFilter: Tone.Filter;
+  keysDeskDelaySend: Tone.Gain;
+  keysDeskReverbSend: Tone.Gain;
+  hornsDeskGain: Tone.Volume;
+  hornsDeskFilter: Tone.Filter;
+  hornsDeskDelaySend: Tone.Gain;
+  hornsDeskReverbSend: Tone.Gain;
+  guitarDeskGain: Tone.Volume;
+  guitarDeskFilter: Tone.Filter;
+  guitarDeskDelaySend: Tone.Gain;
+  guitarDeskReverbSend: Tone.Gain;
 }
 
 export interface MasterAudioGraphOptions {
@@ -89,6 +105,29 @@ function createCymbalSynth(
     envelope: { ...options.envelope, sustain: 0 },
     volume: options.volume,
   });
+}
+
+function deskDefaults(deskId: DeskBusId, mix: MixParams): {
+  gainDb: number;
+  mute: boolean;
+  filterHz: number;
+  delaySend: number;
+  reverbSend: number;
+} {
+  const desk = mix.desk?.[deskId];
+  const defaults: Record<DeskBusId, { delaySend: number; reverbSend: number }> = {
+    rhythm: { delaySend: 0, reverbSend: 0.05 },
+    keys: { delaySend: 0.15, reverbSend: 0.2 },
+    horns: { delaySend: 0.45, reverbSend: 0.25 },
+    guitar: { delaySend: 0.3, reverbSend: 0.1 },
+  };
+  return {
+    gainDb: desk?.gainDb ?? 0,
+    mute: desk?.mute ?? false,
+    filterHz: desk?.filterHz ?? 12_000,
+    delaySend: desk?.delaySend ?? defaults[deskId].delaySend,
+    reverbSend: desk?.reverbSend ?? defaults[deskId].reverbSend,
+  };
 }
 
 export function createMasterAudioGraph(options: MasterAudioGraphOptions): MasterAudioGraph {
@@ -337,6 +376,28 @@ export function createMasterAudioGraph(options: MasterAudioGraphOptions): Master
     volume: sound.texture.volume,
   });
 
+  const rhythmDesk = deskDefaults("rhythm", initMix);
+  const keysDesk = deskDefaults("keys", initMix);
+  const hornsDesk = deskDefaults("horns", initMix);
+  const guitarDesk = deskDefaults("guitar", initMix);
+
+  const rhythmDeskGain = new Tone.Volume(rhythmDesk.mute ? -100 : rhythmDesk.gainDb);
+  const rhythmDeskFilter = new Tone.Filter({ frequency: rhythmDesk.filterHz, type: "lowpass", rolloff: -24 });
+  const rhythmDeskDelaySend = new Tone.Gain(rhythmDesk.delaySend);
+  const rhythmDeskReverbSend = new Tone.Gain(rhythmDesk.reverbSend);
+  const keysDeskGain = new Tone.Volume(keysDesk.mute ? -100 : keysDesk.gainDb);
+  const keysDeskFilter = new Tone.Filter({ frequency: keysDesk.filterHz, type: "lowpass", rolloff: -24 });
+  const keysDeskDelaySend = new Tone.Gain(keysDesk.delaySend);
+  const keysDeskReverbSend = new Tone.Gain(keysDesk.reverbSend);
+  const hornsDeskGain = new Tone.Volume(hornsDesk.mute ? -100 : hornsDesk.gainDb);
+  const hornsDeskFilter = new Tone.Filter({ frequency: hornsDesk.filterHz, type: "lowpass", rolloff: -24 });
+  const hornsDeskDelaySend = new Tone.Gain(hornsDesk.delaySend);
+  const hornsDeskReverbSend = new Tone.Gain(hornsDesk.reverbSend);
+  const guitarDeskGain = new Tone.Volume(guitarDesk.mute ? -100 : guitarDesk.gainDb);
+  const guitarDeskFilter = new Tone.Filter({ frequency: guitarDesk.filterHz, type: "lowpass", rolloff: -24 });
+  const guitarDeskDelaySend = new Tone.Gain(guitarDesk.delaySend);
+  const guitarDeskReverbSend = new Tone.Gain(guitarDesk.reverbSend);
+
   kick.connect(drumDrive);
   snare.connect(drumDrive);
   hat.connect(drumDrive);
@@ -349,15 +410,25 @@ export function createMasterAudioGraph(options: MasterAudioGraphOptions): Master
   drumDrive.chain(drumFilter, drumBus);
   drumBus.connect(drumReverbSend);
   drumBus.connect(drumTrim);
-  drumTrim.connect(grooveGain);
   drumReverbSend.chain(reverb, master);
   bass.chain(bassDrive, bassTrim);
   bassAccent.connect(bassDrive);
   bassMute.connect(bassDrive);
-  bassTrim.connect(grooveGain);
+  drumTrim.connect(rhythmDeskFilter);
+  bassTrim.connect(rhythmDeskFilter);
+  rhythmDeskFilter.chain(rhythmDeskGain, grooveGain);
+  rhythmDeskGain.connect(rhythmDeskDelaySend);
+  rhythmDeskGain.connect(rhythmDeskReverbSend);
+  rhythmDeskDelaySend.chain(delay, master);
+  rhythmDeskReverbSend.chain(reverb, master);
   grooveGain.connect(master);
-  harmony.chain(harmonyFilter, harmonyChorus, harmonyGain);
+  harmony.chain(harmonyFilter, harmonyChorus, keysDeskFilter);
   harmonyComp.connect(harmonyFilter);
+  keysDeskFilter.chain(keysDeskGain, harmonyGain);
+  keysDeskGain.connect(keysDeskDelaySend);
+  keysDeskGain.connect(keysDeskReverbSend);
+  keysDeskDelaySend.chain(delay, master);
+  keysDeskReverbSend.chain(reverb, master);
   harmonyGain.connect(master);
   harmonyGain.connect(reverbSend);
   melody.chain(melodyFilter, melodyChorus, melodyGain);
@@ -365,13 +436,23 @@ export function createMasterAudioGraph(options: MasterAudioGraphOptions): Master
   melodyLead.connect(melodyFilter);
   melodyLeadAlt.connect(melodyFilter);
   melodyMute.connect(melodyFilter);
-  reedLead.chain(reedDrive, reedBody, reedPresence, melodyFilter);
+  reedLead.chain(reedDrive, reedBody, reedPresence, hornsDeskFilter);
   reedLeadAlt.connect(reedDrive);
   reedBreath.connect(reedBody);
   reedBreathAlt.connect(reedBody);
-  guitarBody.chain(guitarDrive, guitarPresence, melodyFilter);
+  hornsDeskFilter.chain(hornsDeskGain, melodyFilter);
+  hornsDeskGain.connect(hornsDeskDelaySend);
+  hornsDeskGain.connect(hornsDeskReverbSend);
+  hornsDeskDelaySend.chain(delay, master);
+  hornsDeskReverbSend.chain(reverb, master);
+  guitarBody.chain(guitarDrive, guitarPresence, guitarDeskFilter);
   guitarString.connect(guitarPresence);
   guitarFretNoise.connect(guitarPresence);
+  guitarDeskFilter.chain(guitarDeskGain, melodyFilter);
+  guitarDeskGain.connect(guitarDeskDelaySend);
+  guitarDeskGain.connect(guitarDeskReverbSend);
+  guitarDeskDelaySend.chain(delay, master);
+  guitarDeskReverbSend.chain(reverb, master);
   melodyGain.connect(master);
   melodyGain.connect(delaySend);
   melodyGain.connect(reverbSend);
@@ -437,6 +518,22 @@ export function createMasterAudioGraph(options: MasterAudioGraphOptions): Master
     guitarDrive,
     guitarPresence,
     texture,
+    rhythmDeskGain,
+    rhythmDeskFilter,
+    rhythmDeskDelaySend,
+    rhythmDeskReverbSend,
+    keysDeskGain,
+    keysDeskFilter,
+    keysDeskDelaySend,
+    keysDeskReverbSend,
+    hornsDeskGain,
+    hornsDeskFilter,
+    hornsDeskDelaySend,
+    hornsDeskReverbSend,
+    guitarDeskGain,
+    guitarDeskFilter,
+    guitarDeskDelaySend,
+    guitarDeskReverbSend,
   };
 }
 
@@ -453,6 +550,10 @@ export function disposeMasterAudioGraph(graph: MasterAudioGraph): void {
     graph.masterFilter, graph.masterCompressor, graph.master, graph.limiter, graph.outputFade,
     graph.drumDrive, graph.drumFilter, graph.bassDrive, graph.bassTrim, graph.harmonyFilter, graph.harmonyChorus,
     graph.melodyFilter, graph.melodyChorus, graph.textureFilter,
+    graph.rhythmDeskGain, graph.rhythmDeskFilter, graph.rhythmDeskDelaySend, graph.rhythmDeskReverbSend,
+    graph.keysDeskGain, graph.keysDeskFilter, graph.keysDeskDelaySend, graph.keysDeskReverbSend,
+    graph.hornsDeskGain, graph.hornsDeskFilter, graph.hornsDeskDelaySend, graph.hornsDeskReverbSend,
+    graph.guitarDeskGain, graph.guitarDeskFilter, graph.guitarDeskDelaySend, graph.guitarDeskReverbSend,
   ].forEach((node) => node.dispose());
 }
 

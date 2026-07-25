@@ -71,9 +71,10 @@ describe("AudioEngine subgroup routing", () => {
 
   it("routes drums and bass through independent trims before the shared grooveGain parent", () => {
     expect(graphSource).toContain("drumBus.connect(drumTrim)");
-    expect(graphSource).toContain("drumTrim.connect(grooveGain)");
+    expect(graphSource).toContain("drumTrim.connect(rhythmDeskFilter)");
     expect(graphSource).toContain("bass.chain(bassDrive, bassTrim)");
-    expect(graphSource).toContain("bassTrim.connect(grooveGain)");
+    expect(graphSource).toContain("bassTrim.connect(rhythmDeskFilter)");
+    expect(graphSource).toContain("rhythmDeskFilter.chain(rhythmDeskGain, grooveGain)");
     expect(graphSource).toContain("drumBus.connect(drumReverbSend)");
     expect(graphSource).not.toContain("bassTrim.connect(drum");
     expect(engineSource).toContain("createMasterAudioGraph");
