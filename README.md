@@ -51,6 +51,8 @@ You should see **Global Studio · Participant · Mixer** tabs, a **Play** transp
 
 If the page stays blank for 5+ seconds, you are likely on the wrong URL or base path.
 
+Phase 6 owner runbook (presenter walkthrough, A/V capture, pack SHA oracle): [`design-research/phase6-demo-runbook.md`](design-research/phase6-demo-runbook.md).
+
 ## Build
 
 ```bash

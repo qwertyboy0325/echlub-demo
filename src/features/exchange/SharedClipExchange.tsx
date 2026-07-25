@@ -31,10 +31,21 @@ function stagingSlotForClip(state: ShellState, clip: ExchangeClip, isLiveCollab:
 function ComparePanel({
   pair,
   nameFor,
+  dispatch,
 }: {
   pair: { parent: ExchangeClip; fork: ExchangeClip };
   nameFor: (id: string) => string;
+  dispatch: (command: ShellCommand) => void;
 }) {
+  const previewParent = () => {
+    if (!pair.parent.draftId) return;
+    dispatch({ type: "PREVIEW_WORKSPACE", draftId: pair.parent.draftId });
+  };
+  const previewFork = () => {
+    if (!pair.fork.draftId) return;
+    dispatch({ type: "PREVIEW_WORKSPACE", draftId: pair.fork.draftId });
+  };
+
   return (
     <section className="exchange-compare-panel" aria-label="Compare parent and fork" data-demo-target="exchange-compare">
       <header className="exchange-compare-header">
@@ -55,6 +66,16 @@ function ComparePanel({
           <span className="exchange-creator">{nameFor(pair.fork.contributorId ?? pair.fork.creatorId)}</span>
         </article>
       </div>
+      {pair.parent.draftId && pair.fork.draftId && (
+        <div className="exchange-compare-listen">
+          <button type="button" className="ghost-btn" data-demo-target="compare-listen-parent" onClick={previewParent}>
+            Listen A
+          </button>
+          <button type="button" className="ghost-btn" data-demo-target="compare-listen-fork" onClick={previewFork}>
+            Listen B
+          </button>
+        </div>
+      )}
     </section>
   );
 }
@@ -190,7 +211,7 @@ export function SharedClipExchange({ state, dispatch, variant }: SharedClipExcha
           </button>
         )}
       </header>
-      {comparePair && <ComparePanel pair={comparePair} nameFor={nameFor} />}
+      {comparePair && <ComparePanel pair={comparePair} nameFor={nameFor} dispatch={dispatch} />}
       <div className="exchange-list" ref={listRef}>
         {state.exchangeClips.map((clip: ExchangeClip) => (
           <ExchangeRow

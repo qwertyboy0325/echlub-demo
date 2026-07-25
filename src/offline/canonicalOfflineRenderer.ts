@@ -3,7 +3,7 @@ import { Offline } from "tone";
 import type { ReconstructionPack } from "../domain/reconstructionPack";
 import type { ProductionSession } from "../domain/sessionTypes";
 import type { SessionMaterialBank } from "../domain/sessionMaterialBank";
-import { createMasterAudioGraph } from "../audio/masterAudioGraph";
+import { createMasterAudioGraph, prepareMasterAudioGraph } from "../audio/masterAudioGraph";
 import { bufferPeakAbs } from "./audioAnalysis";
 import { scheduleCanonicalOfflinePlayback } from "./canonicalPlaybackScheduler";
 import { ExportPhaseTimer, type ExportPhaseTimingsMs } from "./exportPhaseTimings";
@@ -172,7 +172,7 @@ async function renderCanonicalChannels(
       baselineMix: plan.session.mix,
       destination: offlineContext.destination,
     });
-    await graph.reverb.ready;
+    await prepareMasterAudioGraph(graph);
     graphInitMs.value = performance.now() - graphInitStart;
 
     const transport = Tone.getTransport();

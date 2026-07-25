@@ -165,10 +165,14 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
     case "REVISE_CLIP": {
       const clip = state.exchangeClips.find((c) => c.id === command.clipId);
       if (!clip || clip.lifecycle !== "Review") return state;
-      return updateClip(state, command.clipId, {
+      const revised = updateClip(state, command.clipId, {
         lifecycle: "In Progress",
         revision: clip.revision + 1,
       });
+      const editorId = clip.contributorId ?? state.selectedParticipantId;
+      return clip.draftId
+        ? patchParticipantWorkspace(revised, editorId, { draftId: clip.draftId })
+        : revised;
     }
     case "MARK_READY":
       return updateClip(state, command.clipId, { lifecycle: "Ready" });

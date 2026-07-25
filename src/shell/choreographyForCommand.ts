@@ -76,10 +76,21 @@ export function choreographyForCommand(
       return operator
         ? actionFor(operator, { kind: "velocity-slider", noteId: command.noteId }, "click", deskFor(operator))
         : null;
-    case "PREVIEW_WORKSPACE":
+    case "PREVIEW_WORKSPACE": {
+      if (operator && step.label.toLowerCase().includes("compare")) {
+        const previews = step.commands.filter((entry) => entry.type === "PREVIEW_WORKSPACE");
+        const previewIndex = previews.findIndex((entry) => entry === command);
+        if (previewIndex === 0) {
+          return actionFor(operator, { kind: "compare-listen-parent" }, "click", deskFor(operator));
+        }
+        if (previewIndex === 1) {
+          return actionFor(operator, { kind: "compare-listen-fork" }, "click", deskFor(operator));
+        }
+      }
       return operator
         ? actionFor(operator, { kind: "preview-clip" }, "click", deskFor(operator))
         : null;
+    }
     case "LAUNCH_SLOT": {
       const participantId = operator ?? LIVE_COLLAB_LAUNCH_OPERATORS[command.slotId] ?? "p1";
       return actionFor(participantId, { kind: "launch-slot", slotId: command.slotId }, "click", deskFor(participantId));
@@ -102,6 +113,10 @@ export function choreographyForCommand(
     case "FORK_CLIP":
       return operator
         ? actionFor(operator, { kind: "fork-clip", clipId: command.clipId }, "click", deskFor(operator))
+        : null;
+    case "REVISE_CLIP":
+      return operator
+        ? actionFor(operator, { kind: "revise-clip", clipId: command.clipId }, "click", deskFor(operator))
         : null;
     case "MARK_READY":
       return operator

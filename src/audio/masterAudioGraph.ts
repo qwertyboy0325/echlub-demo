@@ -31,9 +31,9 @@ export interface MasterAudioGraph {
   bassDrive: Tone.Distortion;
   bassTrim: Tone.Volume;
   harmonyFilter: Tone.Filter;
-  harmonyChorus: Tone.Gain;
+  harmonyChorus: Tone.Chorus;
   melodyFilter: Tone.Filter;
-  melodyChorus: Tone.Gain;
+  melodyChorus: Tone.Chorus;
   textureFilter: Tone.Filter;
   kick: Tone.MembraneSynth;
   snare: Tone.NoiseSynth;
@@ -94,6 +94,22 @@ export interface MasterAudioGraphOptions {
 interface CymbalOptions {
   envelope: { attack: number; decay: number; release: number };
   volume: number;
+}
+
+type SynthChorusDesign = Pick<
+  SoundDesignPreset["harmony"],
+  "chorusFrequency" | "chorusDepth" | "chorusWet"
+>;
+
+function createSynthChorus(design: SynthChorusDesign): Tone.Chorus {
+  return new Tone.Chorus({
+    frequency: design.chorusFrequency,
+    depth: design.chorusDepth,
+    wet: design.chorusWet,
+    delayTime: 3.5,
+    spread: 180,
+    feedback: 0,
+  });
 }
 
 function createCymbalSynth(
@@ -175,9 +191,9 @@ export function createMasterAudioGraph(options: MasterAudioGraphOptions): Master
   const bassDrive = new Tone.Distortion({ distortion: sound.bass.drive, wet: sound.bass.drive > 0 ? 1 : 0 });
   const bassTrim = new Tone.Volume(subgroupTrims.bassTrimDb);
   const harmonyFilter = new Tone.Filter({ frequency: sound.harmony.filterFrequency, type: "lowpass", rolloff: -24 });
-  const harmonyChorus = new Tone.Gain(1);
+  const harmonyChorus = createSynthChorus(sound.harmony);
   const melodyFilter = new Tone.Filter({ frequency: sound.melody.filterFrequency, type: "lowpass", rolloff: -24 });
-  const melodyChorus = new Tone.Gain(1);
+  const melodyChorus = createSynthChorus(sound.melody);
   const textureFilter = new Tone.Filter({ frequency: sound.texture.filterFrequency, type: "lowpass", rolloff: -24 });
 
   master.chain(masterFilter, masterCompressor, limiter, outputFade, destination);
@@ -560,4 +576,6 @@ export function disposeMasterAudioGraph(graph: MasterAudioGraph): void {
 /** Tone.Reverb requires a generated impulse before first use; skipping this causes clicks on Safari. */
 export async function prepareMasterAudioGraph(graph: MasterAudioGraph): Promise<void> {
   await graph.reverb.generate();
+  graph.harmonyChorus.start();
+  graph.melodyChorus.start();
 }

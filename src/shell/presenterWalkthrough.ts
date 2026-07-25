@@ -131,9 +131,23 @@ export const PHASE5_WALKTHROUGH: WalkthroughStep[] = [
   },
   {
     beat: 12,
-    label: "Kai · compare bass fork",
+    label: "Kai · submit bass fork",
     commands: [
       { type: "SET_PARTICIPANT_PROJECTION", participantId: "p2", room: "global", tab: "Create" },
+      { type: "SUBMIT_REVIEW", clipId: "c3" },
+      { type: "SELECT_EXCHANGE_CLIP", clipId: "c3" },
+      { type: "SET_EXCHANGE_OPEN", open: true },
+    ],
+    delayMs: 400,
+  },
+  {
+    beat: 13,
+    label: "Kai · revise bass fork",
+    commands: [
+      { type: "SET_PARTICIPANT_PROJECTION", participantId: "p2", room: "participant", tab: "Create" },
+      { type: "REVISE_CLIP", clipId: "c3" },
+      { type: "SET_CREATE_SUBMODE", mode: "step" },
+      { type: "TOGGLE_STEP", draftId: "ryo-bass-sparse-4-fork-3", step: 4 },
       { type: "SUBMIT_REVIEW", clipId: "c3" },
       { type: "SELECT_EXCHANGE_CLIP", clipId: "c3" },
       { type: "SET_EXCHANGE_OPEN", open: true },
@@ -141,7 +155,19 @@ export const PHASE5_WALKTHROUGH: WalkthroughStep[] = [
     delayMs: 450,
   },
   {
-    beat: 13,
+    beat: 14,
+    label: "Kai · compare bass fork",
+    commands: [
+      { type: "SET_PARTICIPANT_PROJECTION", participantId: "p2", room: "global", tab: "Create" },
+      { type: "SELECT_EXCHANGE_CLIP", clipId: "c3" },
+      { type: "SET_EXCHANGE_OPEN", open: true },
+      { type: "PREVIEW_WORKSPACE", draftId: "ryo-bass-sparse-4" },
+      { type: "PREVIEW_WORKSPACE", draftId: "ryo-bass-sparse-4-fork-3" },
+    ],
+    delayMs: 450,
+  },
+  {
+    beat: 15,
     label: "Kai · accept bass fork",
     commands: [
       { type: "SET_PARTICIPANT_PROJECTION", participantId: "p2", room: "global", tab: "Create" },
@@ -153,7 +179,7 @@ export const PHASE5_WALKTHROUGH: WalkthroughStep[] = [
     delayMs: 400,
   },
   {
-    beat: 14,
+    beat: 16,
     label: "Launch Bass",
     commands: [
       { type: "SET_PARTICIPANT_PROJECTION", participantId: "p2", room: "global", tab: "Create" },
@@ -164,7 +190,7 @@ export const PHASE5_WALKTHROUGH: WalkthroughStep[] = [
     afterBar: 2,
   },
   {
-    beat: 15,
+    beat: 17,
     label: "Exchange: ryo-entry-4 · Launch Drums",
     commands: [
       { type: "SET_PARTICIPANT_PROJECTION", participantId: "p1", room: "global", tab: "Create" },
@@ -175,7 +201,7 @@ export const PHASE5_WALKTHROUGH: WalkthroughStep[] = [
     afterBar: 2,
   },
   {
-    beat: 16,
+    beat: 18,
     label: "At Kai · Keys Desk · RH pad + filter",
     commands: [
       { type: "SET_PARTICIPANT_PROJECTION", participantId: "p2", room: "participant", tab: "Devices" },
@@ -185,7 +211,7 @@ export const PHASE5_WALKTHROUGH: WalkthroughStep[] = [
     delayMs: 500,
   },
   {
-    beat: 17,
+    beat: 19,
     label: "Exchange: kai-rh-pad-4 · Launch Piano RH",
     commands: [
       { type: "SET_PARTICIPANT_PROJECTION", participantId: "p2", room: "global", tab: "Create" },
@@ -195,7 +221,7 @@ export const PHASE5_WALKTHROUGH: WalkthroughStep[] = [
     afterBar: 2,
   },
   {
-    beat: 18,
+    beat: 20,
     label: "At Ren · Guitar Desk · drive + share",
     commands: [
       { type: "SET_PARTICIPANT_PROJECTION", participantId: "p4", room: "participant", tab: "Devices" },
@@ -206,7 +232,7 @@ export const PHASE5_WALKTHROUGH: WalkthroughStep[] = [
     delayMs: 550,
   },
   {
-    beat: 19,
+    beat: 21,
     label: "Ren · fork guitar",
     commands: [
       { type: "SET_PARTICIPANT_PROJECTION", participantId: "p4", room: "participant", tab: "Devices" },
@@ -215,7 +241,7 @@ export const PHASE5_WALKTHROUGH: WalkthroughStep[] = [
     delayMs: 400,
   },
   {
-    beat: 20,
+    beat: 22,
     label: "Ren → Shared Master · stage guitar",
     commands: [
       { type: "SET_PARTICIPANT_PROJECTION", participantId: "p4", room: "global", tab: "Devices" },
@@ -227,7 +253,7 @@ export const PHASE5_WALKTHROUGH: WalkthroughStep[] = [
     delayMs: 450,
   },
   {
-    beat: 21,
+    beat: 23,
     label: "Launch Guitar",
     commands: [
       { type: "SET_PARTICIPANT_PROJECTION", participantId: "p4", room: "global", tab: "Devices" },
@@ -238,7 +264,7 @@ export const PHASE5_WALKTHROUGH: WalkthroughStep[] = [
     afterBar: 2,
   },
   {
-    beat: 22,
+    beat: 24,
     label: "Ren → Shared Master · queue alt guitar",
     commands: [
       { type: "SET_PARTICIPANT_PROJECTION", participantId: "p4", room: "global", tab: "Devices" },
@@ -250,7 +276,7 @@ export const PHASE5_WALKTHROUGH: WalkthroughStep[] = [
     afterBar: 4,
   },
   {
-    beat: 23,
+    beat: 25,
     label: "At Mei · Horns Desk · preview + share alto",
     commands: [
       { type: "SET_PARTICIPANT_PROJECTION", participantId: "p3", room: "participant", tab: "Create" },
@@ -261,7 +287,7 @@ export const PHASE5_WALKTHROUGH: WalkthroughStep[] = [
     delayMs: 550,
   },
   {
-    beat: 24,
+    beat: 26,
     label: "Mei → Shared Master · stage alto",
     commands: [
       { type: "SET_PARTICIPANT_PROJECTION", participantId: "p3", room: "global", tab: "Create" },
@@ -273,7 +299,7 @@ export const PHASE5_WALKTHROUGH: WalkthroughStep[] = [
     delayMs: 450,
   },
   {
-    beat: 25,
+    beat: 27,
     label: "Launch Alto",
     commands: [
       { type: "SET_PARTICIPANT_PROJECTION", participantId: "p3", room: "global", tab: "Create" },
@@ -284,7 +310,7 @@ export const PHASE5_WALKTHROUGH: WalkthroughStep[] = [
     afterBar: 2,
   },
   {
-    beat: 26,
+    beat: 28,
     label: "Exchange: mei-tenor-entry-8 · Launch Tenor",
     commands: [
       { type: "SET_PARTICIPANT_PROJECTION", participantId: "p3", room: "global", tab: "Create" },
@@ -294,7 +320,7 @@ export const PHASE5_WALKTHROUGH: WalkthroughStep[] = [
     afterBar: 2,
   },
   {
-    beat: 27,
+    beat: 29,
     label: "Shared Mixer · Ren at Guitar desk",
     commands: [
       { type: "SET_PARTICIPANT_PROJECTION", participantId: "p4", room: "mixer", tab: "Mix" },
@@ -304,7 +330,7 @@ export const PHASE5_WALKTHROUGH: WalkthroughStep[] = [
     delayMs: 500,
   },
   {
-    beat: 28,
+    beat: 30,
     label: "Mei · Horns desk delay throw",
     commands: [
       { type: "SET_PARTICIPANT_PROJECTION", participantId: "p3", room: "mixer", tab: "Mix" },
@@ -313,21 +339,21 @@ export const PHASE5_WALKTHROUGH: WalkthroughStep[] = [
     afterBar: 2,
   },
   {
-    beat: 29,
+    beat: 31,
     label: "Hold lead-a payoff",
     commands: [],
     waitUntilBar: 12,
-    afterBar: 3,
+    afterBar: 2,
   },
   {
-    beat: 30,
+    beat: 32,
     label: "Hold trade section · 7/7",
     commands: [],
     waitUntilBar: 20,
-    afterBar: 3,
+    afterBar: 2,
   },
   {
-    beat: 31,
+    beat: 33,
     label: "Perform · Shared Master · 7/7",
     commands: [
       { type: "SET_PARTICIPANT_PROJECTION", participantId: "p2", room: "global", tab: "Create" },
@@ -337,7 +363,7 @@ export const PHASE5_WALKTHROUGH: WalkthroughStep[] = [
     afterBar: 3,
   },
   {
-    beat: 32,
+    beat: 34,
     label: "Recall · kai-lh-sparse-4 → closing pad",
     commands: [
       { type: "SET_PARTICIPANT_PROJECTION", participantId: "p2", room: "participant", tab: "Create" },
@@ -347,7 +373,7 @@ export const PHASE5_WALKTHROUGH: WalkthroughStep[] = [
     delayMs: 500,
   },
   {
-    beat: 33,
+    beat: 35,
     label: "Promote · ren-fork-alt-2 ← ren-comp-2",
     commands: [
       { type: "SET_PARTICIPANT_PROJECTION", participantId: "p4", room: "global", tab: "Devices" },
@@ -361,7 +387,7 @@ export const PHASE5_WALKTHROUGH: WalkthroughStep[] = [
     afterBar: 2,
   },
   {
-    beat: 34,
+    beat: 36,
     label: "Restart sparse global",
     commands: [{ type: "RESTART_SESSION" }],
   },

@@ -14,8 +14,8 @@ const PARTICIPANTS = [
 ];
 
 describe("WP5.7 Phase 3-4", () => {
-  it("keeps 34 walkthrough beats unchanged", () => {
-    expect(PHASE5_WALKTHROUGH).toHaveLength(34);
+  it("keeps 36 walkthrough beats unchanged", () => {
+    expect(PHASE5_WALKTHROUGH).toHaveLength(36);
   });
 
   it("maps four desk device counts to two-rack panels", () => {
@@ -31,7 +31,7 @@ describe("WP5.7 Phase 3-4", () => {
   });
 
   it("targets visible handoff controls for share fork accept stage promote", () => {
-    const shareBeat = PHASE5_WALKTHROUGH.find((step) => step.beat === 18)!;
+    const shareBeat = PHASE5_WALKTHROUGH.find((step) => step.beat === 20)!;
     const shareCommand = shareBeat.commands.find((command) => command.type === "SHARE_CLIP")!;
     const shareAction = choreographyForCommand(
       shareCommand,

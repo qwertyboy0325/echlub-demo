@@ -147,6 +147,20 @@ export function ExchangeRow({
         >
           {primary.label}
         </button>
+        {clip.lifecycle === "Review" && (
+          <button
+            type="button"
+            className="exchange-revise-btn"
+            data-demo-target={`revise-clip-${clip.id}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              dispatch({ type: "SELECT_EXCHANGE_CLIP", clipId: clip.id });
+              onRevise();
+            }}
+          >
+            Revise
+          </button>
+        )}
         {clip.lifecycle !== "Ready" && (
           <button type="button" className="exchange-preview-btn" onClick={(e) => { e.stopPropagation(); dispatch({ type: "SELECT_EXCHANGE_CLIP", clipId: clip.id }); }}>
             Preview

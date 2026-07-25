@@ -46,7 +46,7 @@ describe("choreographyForCommand", () => {
   });
 
   it("resolves operator from preceding projection in the same beat", () => {
-    const step = PHASE5_WALKTHROUGH.find((entry) => entry.beat === 17)!;
+    const step = PHASE5_WALKTHROUGH.find((entry) => entry.beat === 19)!;
     const participants = [
       { id: "p1", name: "Ryo", taskProfile: "Rhythm" },
       { id: "p2", name: "Kai", taskProfile: "Keys" },
@@ -78,7 +78,7 @@ describe("choreographyForCommand", () => {
   });
 
   it("covers launch beats without explicit projection", () => {
-    const drums = PHASE5_WALKTHROUGH.find((entry) => entry.beat === 15)!;
+    const drums = PHASE5_WALKTHROUGH.find((entry) => entry.beat === 17)!;
     const action = choreographyForCommand(drums.commands[3]!, drums, 3);
     expect(action?.participantId).toBe("p1");
     expect(action?.target).toEqual({ kind: "launch-slot", slotId: "lane-3" });
@@ -133,8 +133,8 @@ describe("choreographyForCommand", () => {
     });
   });
 
-  it("targets 34 narrative beats with lead-a, trade, and closing triad", () => {
-    expect(PHASE5_WALKTHROUGH).toHaveLength(34);
+  it("targets 36 narrative beats with lead-a, trade, and closing triad", () => {
+    expect(PHASE5_WALKTHROUGH).toHaveLength(36);
     expect(PHASE5_WALKTHROUGH.some((step) => step.waitUntilBar === 12)).toBe(true);
     expect(PHASE5_WALKTHROUGH.some((step) => step.waitUntilBar === 20)).toBe(true);
     expect(PHASE5_WALKTHROUGH.some((step) => step.label.startsWith("Perform ·"))).toBe(true);

@@ -47,22 +47,22 @@ const FRAME_INTERVAL_MS = Number(process.env.PHASE5_FRAME_MS ?? 200);
 const FRAME_FPS = 1000 / FRAME_INTERVAL_MS;
 const HEADLESS = process.env.HEADLESS !== "0";
 
-/** Aligns with PHASE5_WALKTHROUGH in src/shell/presenterWalkthrough.ts (34 beats). */
+/** Aligns with PHASE5_WALKTHROUGH in src/shell/presenterWalkthrough.ts (36 beats). */
 const PHASE5_BEAT = {
   /** Last scripted action before payoff holds (Mei · Horns desk delay throw). */
-  PRE_PAYOFF_MAX: 28,
-  /** Hold lead-a payoff — empty commands, waitUntilBar: 12, afterBar: 3. */
-  PAYOFF_HOLD: 29,
-  /** Seven-lane payoff · 7/7 hold — waitUntilBar: 20, afterBar: 3. */
-  SEVEN_LANE_HOLD: 30,
+  PRE_PAYOFF_MAX: 30,
+  /** Hold lead-a payoff — empty commands, waitUntilBar: 12, afterBar: 2. */
+  PAYOFF_HOLD: 31,
+  /** Seven-lane payoff · 7/7 hold — waitUntilBar: 20, afterBar: 2. */
+  SEVEN_LANE_HOLD: 32,
   /** Perform shared master — transport hold, no new launch. */
-  PERFORM: 31,
+  PERFORM: 33,
   /** Recall prior material into a new structural role. */
-  RECALL: 32,
+  RECALL: 34,
   /** Promote fork lineage to master take before restart. */
-  PROMOTE: 33,
+  PROMOTE: 35,
   /** Restart sparse global — RESTART_SESSION. */
-  RESTART: 34,
+  RESTART: 36,
 };
 
 /** Scripted walkthrough stops before transport-synced payoff holds; external holds substitute beats 28–29. */

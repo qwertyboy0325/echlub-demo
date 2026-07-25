@@ -17,6 +17,9 @@ export type ShellUiTarget =
   | { kind: "ready-clip"; clipId: string }
   | { kind: "accept-clip"; clipId: string }
   | { kind: "promote-clip"; clipId: string }
+  | { kind: "revise-clip"; clipId: string }
+  | { kind: "compare-listen-parent" }
+  | { kind: "compare-listen-fork" }
   | { kind: "stage-clip"; slotId?: string }
   | { kind: "velocity-slider"; noteId: string }
   | { kind: "desk-delay"; desk: string }
@@ -51,6 +54,12 @@ export function shellUiTargetId(target: ShellUiTarget): string {
       return `accept-clip-${target.clipId}`;
     case "promote-clip":
       return `promote-clip-${target.clipId}`;
+    case "revise-clip":
+      return `revise-clip-${target.clipId}`;
+    case "compare-listen-parent":
+      return "compare-listen-parent";
+    case "compare-listen-fork":
+      return "compare-listen-fork";
     case "stage-clip":
       return target.slotId ? `stage-clip-${target.slotId}` : "stage-clip";
     case "velocity-slider":

@@ -153,9 +153,9 @@ export class AudioEngine {
   private bassDrive!: Tone.Distortion;
   private bassTrim!: Tone.Volume;
   private harmonyFilter!: Tone.Filter;
-  private harmonyChorus!: Tone.Gain;
+  private harmonyChorus!: Tone.Chorus;
   private melodyFilter!: Tone.Filter;
-  private melodyChorus!: Tone.Gain;
+  private melodyChorus!: Tone.Chorus;
   private textureFilter!: Tone.Filter;
   private kick!: Tone.MembraneSynth;
   private snare!: Tone.NoiseSynth;
