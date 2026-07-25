@@ -27,7 +27,7 @@ function applyBeatCommands(store: ShellStore, beat: number): void {
 
 describe("WP6 review depth", () => {
   it("walkthrough covers review revise compare accept stage on bass fork", () => {
-    expect(PHASE5_WALKTHROUGH).toHaveLength(37);
+    expect(PHASE5_WALKTHROUGH).toHaveLength(40);
     const reviseBeat = PHASE5_WALKTHROUGH.find((step) => step.commands.some((c) => c.type === "REVISE_CLIP"));
     expect(reviseBeat?.label).toContain("revise");
     expect(reviseBeat?.commands.some((c) => c.type === "TOGGLE_STEP")).toBe(true);
@@ -37,7 +37,7 @@ describe("WP6 review depth", () => {
 
   it("revise reopens fork workspace and bumps revision", () => {
     const store = new ShellStore(createLiveCollabInitialShellState());
-    for (let beat = 1; beat <= 12; beat += 1) applyBeatCommands(store, beat);
+    for (let beat = 1; beat <= 15; beat += 1) applyBeatCommands(store, beat);
     const fork = store.getState().exchangeClips.find((clip) => clip.forkOf === "c2")!;
     expect(fork.lifecycle).toBe("Review");
     store.dispatch({ type: "SELECT_PARTICIPANT", participantId: "p2" });
@@ -64,9 +64,9 @@ describe("WP6 review depth", () => {
     expect([...(domain.draftForId("ryo-bass-sparse-4")?.steps ?? [])]).toEqual(parentSteps);
   });
 
-  it("runs fork review revise compare accept stage launch on beats 11-16", () => {
+  it("runs fork review revise compare accept stage launch on beats 14-19", () => {
     const store = new ShellStore(createLiveCollabInitialShellState());
-    for (let beat = 1; beat <= 16; beat += 1) applyBeatCommands(store, beat);
+    for (let beat = 1; beat <= 19; beat += 1) applyBeatCommands(store, beat);
     const fork = store.getState().exchangeClips.find((clip) => clip.forkOf === "c2");
     expect(fork?.lifecycle).toBe("Ready");
     expect(fork?.revision).toBeGreaterThan(2);

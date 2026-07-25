@@ -13,6 +13,7 @@ import {
   exchangeTitleForDraft,
   combinedSongCaption,
   laneLaunchCaption,
+  librarySavedCaption,
   performCaption,
   preloadExchangeCaption,
   privateDeskHandoffCaption,
@@ -20,7 +21,7 @@ import {
   recallCaption,
 } from "../handoffCaptions";
 import { countPlayingLanes, isLaneLaunchableState } from "../laneSlotSemantics";
-import type { ExchangeClip, ShellCommand, ShellState } from "./shellTypes";
+import type { DeskLibraryClip, ExchangeClip, ShellCommand, ShellState } from "./shellTypes";
 
 function pushActivity(state: ShellState, message: string): string[] {
   return [message, ...state.activityFeed].slice(0, 8);
@@ -136,9 +137,43 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
     }
     case "SET_CREATE_SUBMODE":
       return patchParticipantWorkspace(state, state.selectedParticipantId, { createSubMode: command.mode });
+    case "SAVE_TO_LIBRARY": {
+      const draftId = state.workspaceDraftId;
+      if (!draftId) return state;
+      const title = exchangeTitleForDraft(draftId);
+      const ws = state.participantWorkspaces[state.selectedParticipantId];
+      const existing = (ws?.libraryClips ?? []).find((clip) => clip.draftId === draftId);
+      const saved: DeskLibraryClip = existing
+        ? { ...existing, title, revision: existing.revision + 1 }
+        : {
+            id: `lib-${state.selectedParticipantId}-${(ws?.libraryClips?.length ?? 0) + 1}`,
+            draftId,
+            title,
+            revision: 1,
+          };
+      const libraryClips = existing
+        ? (ws?.libraryClips ?? []).map((clip) => (clip.draftId === draftId ? saved : clip))
+        : [...(ws?.libraryClips ?? []), saved];
+      const next = patchParticipantWorkspace(state, state.selectedParticipantId, { libraryClips });
+      return {
+        ...next,
+        activityFeed: pushActivity(next, librarySavedCaption(title)),
+      };
+    }
     case "SHARE_CLIP": {
       const draftId = state.workspaceDraftId ?? "midi-opening-bass";
       const title = exchangeTitleForDraft(draftId);
+      const already = state.exchangeClips.find(
+        (c) => c.draftId === draftId && c.creatorId === state.selectedParticipantId && !c.forkOf,
+      );
+      if (already) {
+        return {
+          ...state,
+          exchangeOpen: true,
+          selectedExchangeClipId: already.id,
+          activityFeed: pushActivity(state, exchangeSharedCaption(already.title)),
+        };
+      }
       const draft: ExchangeClip = {
         id: `c${state.exchangeClips.length + 1}`,
         title,

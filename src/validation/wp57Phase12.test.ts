@@ -52,9 +52,9 @@ describe("WP5.7 Phase 1-2", () => {
     expect(pair?.fork.id).toBe(fork.id);
   });
 
-  it("runs fork compare accept stage launch lifecycle on beats 11-16", () => {
+  it("runs fork compare accept stage launch lifecycle on beats 14-19", () => {
     const store = new ShellStore(createLiveCollabInitialShellState());
-    for (let beat = 1; beat <= 16; beat += 1) applyBeatCommands(store, beat);
+    for (let beat = 1; beat <= 19; beat += 1) applyBeatCommands(store, beat);
     const fork = store.getState().exchangeClips.find((clip) => clip.forkOf === "c2");
     expect(fork?.lifecycle).toBe("Ready");
     expect(fork?.revision).toBeGreaterThan(2);
@@ -111,7 +111,7 @@ describe("WP5.7 Phase 1-2", () => {
   });
 
   it("covers compare perform recall promote beats in phase 5 arc", () => {
-    expect(PHASE5_WALKTHROUGH).toHaveLength(37);
+    expect(PHASE5_WALKTHROUGH).toHaveLength(40);
     expect(PHASE5_WALKTHROUGH.some((step) => step.label.includes("compare"))).toBe(true);
     expect(PHASE5_WALKTHROUGH.some((step) => step.commands.some((command) => command.type === "REVISE_CLIP"))).toBe(
       true,

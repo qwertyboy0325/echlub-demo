@@ -26,11 +26,21 @@ export type WorkspaceBleed = "low" | "medium" | "high";
 
 export type SessionPhase = "building" | "performing";
 
+/** Desk-local clip saved to the participant's private library (not Exchange yet). */
+export interface DeskLibraryClip {
+  id: string;
+  draftId: string;
+  title: string;
+  revision: number;
+}
+
 export interface ParticipantWorkspace {
   draftId: string | null;
   tab: ParticipantTab;
   createSubMode: CreateSubMode;
   ownedTrackIds: string[];
+  /** Private clips library — desk-local until SHARE_CLIP. */
+  libraryClips: DeskLibraryClip[];
 }
 
 export interface ArrangementTrack {
@@ -141,6 +151,8 @@ export type ShellCommand =
   | { type: "NOTE_PRELOAD_PROVENANCE"; materialId: string }
   | { type: "SET_PARTICIPANT_TAB"; tab: ParticipantTab }
   | { type: "SET_CREATE_SUBMODE"; mode: CreateSubMode }
+  /** Persist current desk draft into the participant's private clips library. */
+  | { type: "SAVE_TO_LIBRARY" }
   | { type: "SHARE_CLIP" }
   | { type: "FORK_CLIP"; clipId: string }
   | { type: "CLAIM_CLIP"; clipId: string }

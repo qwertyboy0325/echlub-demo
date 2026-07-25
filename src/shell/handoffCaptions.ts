@@ -22,8 +22,12 @@ export function privateDeskHandoffCaption(name: string, taskProfile: string, tab
   return `Private desk · ${name}'s ${desk} · ${tab}`;
 }
 
+export function librarySavedCaption(title: string): string {
+  return `Saved to library · ${title}`;
+}
+
 export function exchangeSharedCaption(title: string): string {
-  return `Exchange: ${title} shared`;
+  return `Shared to Exchange · ${title}`;
 }
 
 export function laneLaunchCaption(title: string, playingCount: number, laneTotal = 7): string {

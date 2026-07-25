@@ -111,18 +111,21 @@ export function createPhase4ParticipantWorkspaces(): Record<string, ParticipantW
       tab: "Create",
       createSubMode: "piano",
       ownedTrackIds: ["t-drums", "t-bass"],
+      libraryClips: [],
     },
     p2: {
       draftId: "midi-opening-guitar",
       tab: "Devices",
       createSubMode: "piano",
       ownedTrackIds: ["t-lead"],
+      libraryClips: [],
     },
     p3: {
       draftId: null,
       tab: "Mix",
       createSubMode: "clip",
       ownedTrackIds: ["t-fx"],
+      libraryClips: [],
     },
   };
 }
@@ -134,37 +137,44 @@ export function createLiveCollabParticipantWorkspaces(): Record<string, Particip
       tab: "Create",
       createSubMode: "step",
       ownedTrackIds: ["track-drums", "track-bass"],
+      libraryClips: [],
     },
     p2: {
       draftId: "kai-lh-sparse-4",
       tab: "Create",
       createSubMode: "piano",
       ownedTrackIds: ["track-piano-lh", "track-piano-rh"],
+      libraryClips: [],
     },
     p3: {
       draftId: "mei-alto-themeA-8",
       tab: "Create",
       createSubMode: "clip",
       ownedTrackIds: ["track-alto", "track-tenor"],
+      libraryClips: [],
     },
     p4: {
       draftId: "ren-comp-2",
       tab: "Devices",
       createSubMode: "clip",
       ownedTrackIds: ["track-guitar"],
+      libraryClips: [],
     },
   };
 }
 
 export function workspaceForParticipant(state: ShellState, participantId: string): ParticipantWorkspace {
-  return (
-    state.participantWorkspaces[participantId] ?? {
+  const ws = state.participantWorkspaces[participantId];
+  if (!ws) {
+    return {
       draftId: null,
       tab: "Create",
       createSubMode: "piano",
       ownedTrackIds: [],
-    }
-  );
+      libraryClips: [],
+    };
+  }
+  return { ...ws, libraryClips: ws.libraryClips ?? [] };
 }
 
 function saveActiveToWorkspace(state: ShellState): ShellState {

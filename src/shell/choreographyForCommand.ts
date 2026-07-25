@@ -122,6 +122,10 @@ export function choreographyForCommand(
       return operator
         ? actionFor(operator, { kind: "share-clip" }, "click", deskFor(operator))
         : null;
+    case "SAVE_TO_LIBRARY":
+      return operator
+        ? actionFor(operator, { kind: "save-to-library" }, "click", deskFor(operator))
+        : null;
     case "FORK_CLIP":
       return operator
         ? actionFor(operator, { kind: "fork-clip", clipId: command.clipId }, "click", deskFor(operator))

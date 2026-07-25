@@ -46,7 +46,7 @@ describe("choreographyForCommand", () => {
   });
 
   it("resolves operator from preceding projection in the same beat", () => {
-    const step = PHASE5_WALKTHROUGH.find((entry) => entry.beat === 19)!;
+    const step = PHASE5_WALKTHROUGH.find((entry) => entry.beat === 22)!;
     const participants = [
       { id: "p1", name: "Ryo", taskProfile: "Rhythm" },
       { id: "p2", name: "Kai", taskProfile: "Keys" },
@@ -78,8 +78,9 @@ describe("choreographyForCommand", () => {
   });
 
   it("covers launch beats without explicit projection", () => {
-    const drums = PHASE5_WALKTHROUGH.find((entry) => entry.beat === 17)!;
-    const action = choreographyForCommand(drums.commands[3]!, drums, 3);
+    const drums = PHASE5_WALKTHROUGH.find((entry) => entry.beat === 20)!;
+    const launchIdx = drums.commands.findIndex((command) => command.type === "LAUNCH_SLOT");
+    const action = choreographyForCommand(drums.commands[launchIdx]!, drums, launchIdx);
     expect(action?.participantId).toBe("p1");
     expect(action?.target).toEqual({ kind: "launch-slot", slotId: "lane-3" });
   });
@@ -133,8 +134,8 @@ describe("choreographyForCommand", () => {
     });
   });
 
-  it("targets 36 narrative beats with lead-a, trade, and closing triad", () => {
-    expect(PHASE5_WALKTHROUGH).toHaveLength(37);
+  it("targets 40 narrative beats with lead-a, trade, and closing triad", () => {
+    expect(PHASE5_WALKTHROUGH).toHaveLength(40);
     expect(PHASE5_WALKTHROUGH.some((step) => step.waitUntilBar === 12)).toBe(true);
     expect(PHASE5_WALKTHROUGH.some((step) => step.waitUntilBar === 20)).toBe(true);
     expect(PHASE5_WALKTHROUGH.some((step) => step.label.startsWith("Perform ·"))).toBe(true);
@@ -147,10 +148,22 @@ describe("choreographyForCommand", () => {
       PHASE5_WALKTHROUGH.flatMap((step) => step.commands.map((command) => command.type)),
     );
     expect(commandTypes.has("SHARE_CLIP")).toBe(true);
+    expect(commandTypes.has("SAVE_TO_LIBRARY")).toBe(true);
     expect(commandTypes.has("FORK_CLIP")).toBe(true);
     expect(commandTypes.has("PIN_DOCK")).toBe(true);
     expect(commandTypes.has("MARK_READY")).toBe(true);
     expect(commandTypes.has("STAGE_CLIP")).toBe(true);
     expect(commandTypes.has("SET_DESK_BUS")).toBe(true);
+  });
+
+  it("shows Kai create → library → share before first launch", () => {
+    const save = PHASE5_WALKTHROUGH.find((step) => step.label.includes("save LH to private library"))!;
+    const share = PHASE5_WALKTHROUGH.find((step) => step.label.includes("share LH to Exchange"))!;
+    const launch = PHASE5_WALKTHROUGH.find((entry) =>
+      entry.commands.some((command) => command.type === "LAUNCH_SLOT"),
+    )!;
+    expect(save.beat).toBeLessThan(share.beat);
+    expect(share.beat).toBeLessThan(launch.beat);
+    expect(save.commands.some((c) => c.type === "SAVE_TO_LIBRARY")).toBe(true);
   });
 });

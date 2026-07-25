@@ -2381,6 +2381,111 @@ button:disabled {
   justify-content: flex-end;
 }
 
+.create-library-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.create-save-library-btn {
+  font-weight: 600;
+}
+
+.create-share-btn {
+  font-size: 11px;
+  padding: 6px 10px;
+  border: 1px solid var(--separator);
+  border-radius: var(--radius);
+  background: var(--raised);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.create-share-btn:disabled,
+.create-save-library-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.desk-library {
+  flex: 0 0 auto;
+  max-height: 120px;
+  overflow: auto;
+  margin: 0 12px 8px;
+  padding: 8px 10px;
+  border: 1px solid color-mix(in srgb, var(--desk-create-accent, var(--accent)) 28%, var(--separator));
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--panel) 88%, var(--canvas));
+}
+
+.desk-library-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.desk-library-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.desk-library-count {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.desk-library-empty {
+  margin: 0;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.desk-library-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.desk-library-row {
+  width: 100%;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 8px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background: var(--raised);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.desk-library-row:hover,
+.desk-library-row--active {
+  border-color: color-mix(in srgb, var(--desk-create-accent, var(--accent)) 50%, var(--separator));
+  background: color-mix(in srgb, var(--desk-create-accent, var(--accent)) 10%, var(--raised));
+}
+
+.desk-library-meta {
+  font-size: 10px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.desk-library-queue .desk-library-row {
+  margin-bottom: 4px;
+}
+
 .create-floating-devices .devices-panel {
   padding: 0;
 }

@@ -133,8 +133,60 @@ export function CreateEditor({ state, dispatch }: CreateEditorProps) {
             <span className="create-audition-hint">local only · not Shared Master</span>
           </div>
         )}
+        <div className="create-library-actions">
+          <button
+            type="button"
+            className="primary-btn create-save-library-btn"
+            data-demo-target="save-to-library"
+            disabled={!draftId}
+            onClick={() => dispatch({ type: "SAVE_TO_LIBRARY" })}
+          >
+            Save to library
+          </button>
+          <button
+            type="button"
+            className="create-share-btn"
+            data-demo-target="share-clip"
+            disabled={!draftId}
+            onClick={() => dispatch({ type: "SHARE_CLIP" })}
+          >
+            Share to Exchange
+          </button>
+        </div>
         </div>
       </div>
+      <aside className="desk-library" aria-label="Private clips library" data-demo-target="desk-library">
+        <header className="desk-library-header">
+          <span className="desk-library-label">Private clips library</span>
+          <span className="desk-library-count tabular-nums">{workspace.libraryClips.length}</span>
+        </header>
+        {workspace.libraryClips.length === 0 ? (
+          <p className="desk-library-empty">Empty — save a shaped clip here before sharing to Exchange.</p>
+        ) : (
+          <ul className="desk-library-list">
+            {workspace.libraryClips.map((clip) => {
+              const active = clip.draftId === draftId;
+              const onExchange = state.exchangeClips.some((ex) => ex.draftId === clip.draftId && !ex.forkOf);
+              return (
+                <li key={clip.id}>
+                  <button
+                    type="button"
+                    className={`desk-library-row${active ? " desk-library-row--active" : ""}`}
+                    data-demo-target={`library-clip-${clip.id}`}
+                    onClick={() => dispatch({ type: "SET_WORKSPACE_DRAFT", draftId: clip.draftId })}
+                  >
+                    <strong className="tabular-nums">{clip.title}</strong>
+                    <span className="desk-library-meta tabular-nums">
+                      r{clip.revision}
+                      {onExchange ? " · on Exchange" : " · desk only"}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </aside>
       {state.createSubMode === "piano" && (
         <div className="piano-roll" aria-label="Piano roll editor">
           {(draft?.notes ?? []).length === 0 && (

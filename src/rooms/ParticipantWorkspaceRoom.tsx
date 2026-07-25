@@ -71,15 +71,49 @@ function TabPanelContent({
         </div>
       );
     case "Queue":
-      return (
-        <div className="queue-panel">
-          <ul className="queue-list">
-            <li>melody-draft · r2 · submit for review</li>
-            <li>bass-loop · r3 · ready in Exchange</li>
-          </ul>
-        </div>
-      );
+      return <DeskLibraryQueue state={state} dispatch={dispatch} />;
   }
+}
+
+function DeskLibraryQueue({
+  state,
+  dispatch,
+}: {
+  state: ShellState;
+  dispatch: (command: ShellCommand) => void;
+}) {
+  const workspace = workspaceForParticipant(state, state.selectedParticipantId);
+  return (
+    <div className="queue-panel desk-library-queue" aria-label="Private clips library">
+      <h3 className="section-label">Private clips library</h3>
+      {workspace.libraryClips.length === 0 ? (
+        <p className="desk-library-empty">No saved clips yet — shape in Create, then Save to library.</p>
+      ) : (
+        <ul className="queue-list desk-library-list">
+          {workspace.libraryClips.map((clip) => {
+            const onExchange = state.exchangeClips.some((ex) => ex.draftId === clip.draftId && !ex.forkOf);
+            return (
+              <li key={clip.id}>
+                <button
+                  type="button"
+                  className="desk-library-row"
+                  onClick={() => {
+                    dispatch({ type: "SET_WORKSPACE_DRAFT", draftId: clip.draftId });
+                    dispatch({ type: "SET_PARTICIPANT_TAB", tab: "Create" });
+                  }}
+                >
+                  <strong className="tabular-nums">{clip.title}</strong>
+                  <span className="desk-library-meta">
+                    r{clip.revision} · {onExchange ? "shared" : "private"}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
 }
 
 export function ParticipantWorkspaceRoom({ state, dispatch }: ParticipantWorkspaceRoomProps) {

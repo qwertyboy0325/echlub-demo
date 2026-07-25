@@ -13,6 +13,8 @@ export type ShellUiTarget =
   | { kind: "transport-play" }
   | { kind: "transport-restart" }
   | { kind: "share-clip" }
+  | { kind: "save-to-library" }
+  | { kind: "desk-library" }
   | { kind: "fork-clip"; clipId: string }
   | { kind: "ready-clip"; clipId: string }
   | { kind: "accept-clip"; clipId: string }
@@ -47,6 +49,10 @@ export function shellUiTargetId(target: ShellUiTarget): string {
       return "transport-restart";
     case "share-clip":
       return "share-clip";
+    case "save-to-library":
+      return "save-to-library";
+    case "desk-library":
+      return "desk-library";
     case "fork-clip":
       return `fork-clip-${target.clipId}`;
     case "ready-clip":

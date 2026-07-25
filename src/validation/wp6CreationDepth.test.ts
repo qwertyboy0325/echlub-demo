@@ -20,7 +20,7 @@ function applyBeatCommands(store: ShellStore, beat: number): void {
 
 describe("WP6 creation depth", () => {
   it("shows Ren guitar creation on Create clip desk before share", () => {
-    const renCreate = PHASE5_WALKTHROUGH.find((step) => step.beat === 20)!;
+    const renCreate = PHASE5_WALKTHROUGH.find((step) => step.beat === 23)!;
     expect(renCreate.label.toLowerCase()).toContain("creating guitar");
     const projection = renCreate.commands.find((command) => command.type === "SET_PARTICIPANT_PROJECTION");
     expect(projection).toMatchObject({ participantId: "p4", room: "participant", tab: "Create" });
@@ -33,7 +33,7 @@ describe("WP6 creation depth", () => {
   });
 
   it("shows Mei alto creation with piano note select before share", () => {
-    const meiCreate = PHASE5_WALKTHROUGH.find((step) => step.beat === 25)!;
+    const meiCreate = PHASE5_WALKTHROUGH.find((step) => step.beat === 28)!;
     expect(meiCreate.commands.some((command) => command.type === "SELECT_PIANO_NOTE")).toBe(true);
     expect(meiCreate.commands.some((command) => command.type === "SET_NOTE_VELOCITY")).toBe(true);
     const select = meiCreate.commands.find((command) => command.type === "SELECT_PIANO_NOTE")!;
@@ -45,10 +45,11 @@ describe("WP6 creation depth", () => {
 
   it("records desk create captions through Ren and Mei creation beats", () => {
     const store = new ShellStore(createLiveCollabInitialShellState());
-    for (let beat = 1; beat <= 20; beat += 1) applyBeatCommands(store, beat);
+    for (let beat = 1; beat <= 23; beat += 1) applyBeatCommands(store, beat);
     expect(store.getState().activityFeed.some((entry) => entry.includes("Private desk · shaping ren-comp-2"))).toBe(true);
     expect(store.getState().activityFeed.some((entry) => entry.includes("Desk audition · ren-comp-2"))).toBe(true);
-    for (let beat = 21; beat <= 25; beat += 1) applyBeatCommands(store, beat);
+    expect(store.getState().activityFeed.some((entry) => entry.includes("Saved to library · ren-comp-2"))).toBe(true);
+    for (let beat = 24; beat <= 28; beat += 1) applyBeatCommands(store, beat);
     expect(store.getState().activityFeed.some((entry) => entry.includes("Private desk · shaping mei-alto-themeA-8"))).toBe(true);
     expect(store.getState().activityFeed.some((entry) => entry.includes("Desk audition · mei-alto-themeA-8"))).toBe(true);
   });

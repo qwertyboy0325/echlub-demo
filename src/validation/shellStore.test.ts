@@ -26,6 +26,21 @@ describe("participant workspace state", () => {
     expect(s.createSubMode).toBe("clip");
   });
 
+  it("saves shaped draft into private desk library before share", () => {
+    const store = new ShellStore(createLiveCollabInitialShellState());
+    store.dispatch({ type: "SELECT_PARTICIPANT", participantId: "p2" });
+    expect(store.getState().participantWorkspaces.p2?.libraryClips).toEqual([]);
+    store.dispatch({ type: "SAVE_TO_LIBRARY" });
+    const lib = store.getState().participantWorkspaces.p2?.libraryClips ?? [];
+    expect(lib).toHaveLength(1);
+    expect(lib[0]).toMatchObject({ draftId: "kai-lh-sparse-4", title: "kai-lh-sparse-4", revision: 1 });
+    expect(store.getState().activityFeed[0]).toBe("Saved to library · kai-lh-sparse-4");
+    expect(store.getState().exchangeClips).toHaveLength(0);
+    store.dispatch({ type: "SHARE_CLIP" });
+    expect(store.getState().exchangeClips).toHaveLength(1);
+    expect(store.getState().activityFeed[0]).toBe("Shared to Exchange · kai-lh-sparse-4");
+  });
+
   it("persists fork draft to the active participant workspace", () => {
     const store = new ShellStore({
       ...createFixtureShellState(),
@@ -146,7 +161,7 @@ describe("handoff captions", () => {
     const s = store.getState();
     const clip = s.exchangeClips.at(-1);
     expect(clip?.title).toBe("kai-lh-sparse-4");
-    expect(s.activityFeed[0]).toBe("Exchange: kai-lh-sparse-4 shared");
+    expect(s.activityFeed[0]).toBe("Shared to Exchange · kai-lh-sparse-4");
     expect(s.exchangeOpen).toBe(true);
     expect(s.selectedExchangeClipId).toBe(clip?.id ?? null);
   });
