@@ -12,10 +12,24 @@ export type GuitarAttackSchedule = {
   bodyTime: number;
   fretTime: number;
   stringTime: number;
+  /** Last attack on monophonic MonoSynth / PluckSynth voices (reed, glide leads, guitar string). */
+  monoVoiceTime: number;
 };
 
 export function createGuitarAttackSchedule(): GuitarAttackSchedule {
-  return { attackTime: -Infinity, bodyTime: -Infinity, fretTime: -Infinity, stringTime: -Infinity };
+  return {
+    attackTime: -Infinity,
+    bodyTime: -Infinity,
+    fretTime: -Infinity,
+    stringTime: -Infinity,
+    monoVoiceTime: -Infinity,
+  };
+}
+
+function scheduleMonoVoiceTime(schedule: GuitarAttackSchedule, requested: number): number {
+  const scheduled = Math.max(requested, schedule.monoVoiceTime + MONO_VOICE_STAGGER_SEC);
+  schedule.monoVoiceTime = scheduled;
+  return scheduled;
 }
 
 function scheduleGuitarMonoTime(
@@ -151,7 +165,7 @@ function playExpressiveNoteOnGraph(
     || note.instrument === "reed-alto"
     || note.instrument === "reed-tenor"
   )) {
-    playReedNoteOnGraph(graph, note, voiceIndex, scheduledTime, durationSeconds, velocity);
+    playReedNoteOnGraph(graph, note, voiceIndex, scheduledTime, durationSeconds, velocity, guitarSchedule);
     return;
   }
 
@@ -159,9 +173,12 @@ function playExpressiveNoteOnGraph(
     const voice = layer === "bass"
       ? (voiceIndex > 0 ? graph.bassAccent : graph.bass)
       : (voiceIndex > 0 ? graph.melodyLeadAlt : graph.melodyLead);
-    voice.triggerAttack(note.glideFrom ?? note.note, scheduledTime, velocity);
-    voice.setNote(note.note, scheduledTime + Math.min(sixteenth * 0.55, durationSeconds * 0.4));
-    voice.triggerRelease(scheduledTime + durationSeconds);
+    const attackTime = guitarSchedule
+      ? scheduleMonoVoiceTime(guitarSchedule, scheduledTime)
+      : scheduledTime;
+    voice.triggerAttack(note.glideFrom ?? note.note, attackTime, velocity);
+    voice.setNote(note.note, attackTime + Math.min(sixteenth * 0.55, durationSeconds * 0.4));
+    voice.triggerRelease(attackTime + durationSeconds);
     return;
   }
 
@@ -180,7 +197,9 @@ function playReedNoteOnGraph(
   scheduledTime: number,
   durationSeconds: number,
   velocity: number,
+  guitarSchedule?: GuitarAttackSchedule,
 ): void {
+  if (guitarSchedule) scheduledTime = scheduleMonoVoiceTime(guitarSchedule, scheduledTime);
   const useAltVoice = note.instrument === "reed-tenor"
     || (note.instrument === "reed" && voiceIndex > 0);
   const voice = useAltVoice ? graph.reedLeadAlt : graph.reedLead;
@@ -223,7 +242,10 @@ function playGuitarNoteOnGraph(
   const bodyTime = guitarSchedule
     ? scheduleGuitarMonoTime(guitarSchedule, "bodyTime", scheduledTime + MONO_VOICE_STAGGER_SEC)
     : scheduledTime + MONO_VOICE_STAGGER_SEC;
-  if (guitarSchedule) guitarSchedule.attackTime = stringTime;
+  if (guitarSchedule) {
+    guitarSchedule.attackTime = stringTime;
+    guitarSchedule.monoVoiceTime = Math.max(guitarSchedule.monoVoiceTime, stringTime);
+  }
 
   graph.guitarFretNoise.triggerRelease(fretTime - releaseLead);
   graph.guitarFretNoise.triggerAttackRelease(isSlide ? "16n" : "32n", fretTime, velocity * (isSlide ? 0.62 : 0.38));

@@ -106,6 +106,8 @@ export class AudioEngine {
   private launchVelocityScale = 1;
   private readonly mutedLayers = new Set<LayerId>();
   private readonly guitarAttackSchedule = createGuitarAttackSchedule();
+  /** Monophonic cue synths (PluckSynth / MonoSynth) require strictly increasing attack times. */
+  private cueMonoVoiceTime = Number.NEGATIVE_INFINITY;
   private playingScene: SceneDefinition = createIdleScene();
   private launchAtBar = new Map<number, string>();
   private sceneAtBar = new Map<number, SceneDefinition>();
@@ -481,6 +483,7 @@ export class AudioEngine {
     this.guitarAttackSchedule.bodyTime = t;
     this.guitarAttackSchedule.fretTime = t;
     this.guitarAttackSchedule.stringTime = t;
+    this.guitarAttackSchedule.monoVoiceTime = t;
   }
 
   setMixParams(params: Partial<MixParams>, rampTime = 0.18, atTime?: number): void {
@@ -559,6 +562,7 @@ export class AudioEngine {
     const startPos = atTransportPosition ?? parseTransportPosition(transport.position.toString());
     const stopPos = computeCueStopPosition(startPos, this.cueDurationMeasures);
 
+    this.cueMonoVoiceTime = Number.NEGATIVE_INFINITY;
     this.cueActive = true;
     this.cueDraftId = materialRef.draftId;
     this.cueMaterialRef = materialRef;
@@ -649,8 +653,15 @@ export class AudioEngine {
     }
   }
 
+  private scheduleCueMonoTime(requested: number): number {
+    const scheduled = Math.max(requested, this.cueMonoVoiceTime + 0.004);
+    this.cueMonoVoiceTime = scheduled;
+    return scheduled;
+  }
+
   resetPrivateCue(): void {
     this.stopPrivateCue();
+    this.cueMonoVoiceTime = Number.NEGATIVE_INFINITY;
     this.cueNoteCount = 0;
     this.masterSceneAtCueStart = IDLE_SCENE_ID;
     this.masterStepCountAtCueStart = 0;
@@ -682,6 +693,7 @@ export class AudioEngine {
     this.guitarAttackSchedule.bodyTime = -Infinity;
     this.guitarAttackSchedule.fretTime = -Infinity;
     this.guitarAttackSchedule.stringTime = -Infinity;
+    this.guitarAttackSchedule.monoVoiceTime = -Infinity;
     this.clearMixAutomationLog();
     this.resetPrivateCue();
     if (this.initialized) {
@@ -847,16 +859,17 @@ export class AudioEngine {
       for (const note of content.notes) {
         schedule((note.bar ?? 0) * 16 + note.step - cueOrigin, (t) => {
           if (isCue) {
+            const attackTime = this.scheduleCueMonoTime(t);
             if (note.instrument === "guitar") {
-              this.cueGuitar.triggerAttack(note.note, t);
-              this.cueGuitar.triggerRelease(t + Tone.Time(note.duration ?? "8n").toSeconds());
+              this.cueGuitar.triggerAttack(note.note, attackTime);
+              this.cueGuitar.triggerRelease(attackTime + Tone.Time(note.duration ?? "8n").toSeconds());
             } else {
               const voice = note.instrument === "reed"
                 || note.instrument === "reed-alto"
                 || note.instrument === "reed-tenor"
                 ? this.cueReed
                 : this.cueMelody;
-              voice.triggerAttackRelease(note.note, note.duration ?? "8n", t, (note.velocity ?? 0.6) * velocityScale);
+              voice.triggerAttackRelease(note.note, note.duration ?? "8n", attackTime, (note.velocity ?? 0.6) * velocityScale);
             }
             this.cueNoteCount += 1;
           }
@@ -868,8 +881,9 @@ export class AudioEngine {
         : 0;
       for (const hit of content.hits) {
         schedule(hit.bar * 16 + hit.step - cueOrigin, (t) => {
-          if (hit.voice === "kick") this.cueKick.triggerAttackRelease("C2", "8n", t, hit.velocity * velocityScale);
-          else this.cueHat.triggerAttackRelease("32n", t, hit.velocity * 0.5 * velocityScale);
+          const attackTime = this.scheduleCueMonoTime(t);
+          if (hit.voice === "kick") this.cueKick.triggerAttackRelease("C2", "8n", attackTime, hit.velocity * velocityScale);
+          else this.cueHat.triggerAttackRelease("32n", attackTime, hit.velocity * 0.5 * velocityScale);
           this.cueNoteCount += 1;
         });
       }
@@ -879,7 +893,8 @@ export class AudioEngine {
         : 0;
       for (const chord of content.chords) {
         schedule(chord.bar * 16 + (chord.step ?? 0) - cueOrigin, (t) => {
-          this.cueMelody.triggerAttackRelease(chord.notes[0] ?? "C4", chord.duration ?? "4n", t, (chord.velocity ?? 0.5) * velocityScale);
+          const attackTime = this.scheduleCueMonoTime(t);
+          this.cueMelody.triggerAttackRelease(chord.notes[0] ?? "C4", chord.duration ?? "4n", attackTime, (chord.velocity ?? 0.5) * velocityScale);
           this.cueNoteCount += 1;
         });
       }
