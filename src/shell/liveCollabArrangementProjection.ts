@@ -12,7 +12,7 @@ function timelineVariantForSlot(
   state: ArrangementSlot["state"],
 ): TimelineClip["variant"] {
   if (isLanePlayingState(state)) return "active";
-  if (state === "queued" || state === "staged") return "staged";
+  if (state === "queued" || state === "staged" || state === "loaded") return "staged";
   return "normal";
 }
 

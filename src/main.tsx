@@ -11,3 +11,6 @@ createRoot(root).render(
     <App />
   </StrictMode>,
 );
+
+const fallback = document.getElementById("boot-fallback");
+if (fallback) fallback.hidden = true;

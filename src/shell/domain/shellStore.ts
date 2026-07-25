@@ -8,12 +8,14 @@ import {
 } from "./participantWorkspace";
 import {
   deskCreateCaption,
+  deskEditCaption,
   exchangeSharedCaption,
   exchangeTitleForDraft,
   combinedSongCaption,
   laneLaunchCaption,
   performCaption,
   preloadExchangeCaption,
+  privateDeskHandoffCaption,
   promoteCaption,
   recallCaption,
 } from "../handoffCaptions";
@@ -51,12 +53,23 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
   switch (command.type) {
     case "SET_ROOM":
       if (state.interactionFrozen) return state;
-      return {
-        ...state,
-        room: command.room,
-        followActive: false,
-        followLocked: true,
-      };
+      {
+        const nextRoom = command.room;
+        const active =
+          state.participants.find((p) => p.active) ??
+          state.participants.find((p) => p.id === state.selectedParticipantId);
+        const handoff =
+          nextRoom === "participant" && active
+            ? privateDeskHandoffCaption(active.name, active.taskProfile, state.participantTab)
+            : null;
+        return {
+          ...state,
+          room: nextRoom,
+          followActive: false,
+          followLocked: true,
+          activityFeed: handoff ? pushActivity(state, handoff) : state.activityFeed,
+        };
+      }
     case "SELECT_PARTICIPANT":
       if (state.interactionFrozen) return state;
       return {
@@ -70,6 +83,7 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
       };
     case "SET_PARTICIPANT_PROJECTION": {
       if (state.interactionFrozen) return state;
+      const participant = state.participants.find((p) => p.id === command.participantId);
       const next = {
         ...state,
         selectedParticipantId: command.participantId,
@@ -79,8 +93,16 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
             : { ...p, active: false },
         ),
       };
-      if (next.followActive && !next.followLocked) return followProjection(next);
-      return next;
+      const withFollow =
+        next.followActive && !next.followLocked ? followProjection(next) : next;
+      if (command.room === "participant" && command.tab === "Create" && participant) {
+        const draftId = withFollow.workspaceDraftId;
+        const caption = draftId
+          ? deskEditCaption(draftId, "Create")
+          : privateDeskHandoffCaption(participant.name, participant.taskProfile, "Create");
+        return { ...withFollow, activityFeed: pushActivity(withFollow, caption) };
+      }
+      return withFollow;
     }
     case "ENABLE_FOLLOW":
       if (state.interactionFrozen) return state;
@@ -100,8 +122,18 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
         exchangeOpen: true,
         activityFeed: pushActivity(state, preloadExchangeCaption(command.materialId)),
       };
-    case "SET_PARTICIPANT_TAB":
-      return patchParticipantWorkspace(state, state.selectedParticipantId, { tab: command.tab });
+    case "SET_PARTICIPANT_TAB": {
+      const next = patchParticipantWorkspace(state, state.selectedParticipantId, { tab: command.tab });
+      const active = next.participants.find((p) => p.id === next.selectedParticipantId);
+      if (next.room === "participant" && active && command.tab === "Create") {
+        const draftId = next.workspaceDraftId;
+        const caption = draftId
+          ? deskEditCaption(draftId, "Create")
+          : privateDeskHandoffCaption(active.name, active.taskProfile, "Create");
+        return { ...next, activityFeed: pushActivity(next, caption) };
+      }
+      return next;
+    }
     case "SET_CREATE_SUBMODE":
       return patchParticipantWorkspace(state, state.selectedParticipantId, { createSubMode: command.mode });
     case "SHARE_CLIP": {
@@ -381,7 +413,7 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
           createSubMode: "piano",
         }),
         selectedPianoNoteId: command.noteId,
-        activityFeed: pushActivity(state, deskCreateCaption(command.draftId)),
+        activityFeed: pushActivity(state, deskCreateCaption(command.draftId, "shaping")),
       };
     case "EDIT_NOTE_STEP":
       return {
@@ -402,7 +434,7 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
     case "TOGGLE_STEP":
       return {
         ...patchParticipantWorkspace(state, state.selectedParticipantId, { draftId: command.draftId }),
-        activityFeed: pushActivity(state, deskCreateCaption(command.draftId)),
+        activityFeed: pushActivity(state, deskCreateCaption(command.draftId, "shaping")),
       };
     case "PREVIEW_WORKSPACE":
       return {

@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import type { ShellCommand, ShellState, ViewportMode } from "./domain/shellTypes";
+import { possessiveDeskTitle } from "./domain/participantWorkspace";
 import { SharedClipExchange } from "../features/exchange/SharedClipExchange";
 import { PresenterCaptionStrip } from "../features/presenter/PresenterCaptionStrip";
 import { PresenceRail } from "../features/presenter/PresenceRail";
@@ -33,11 +34,30 @@ export function FocusShell({
   const activeParticipant = state.participants.find((p) => p.active) ?? state.participants.find((p) => p.id === state.selectedParticipantId);
   const launchedLanes = state.arrangementSlots.filter((slot) => slot.state === "playing").length;
   const inGlobal = state.room === "global";
+  const inParticipant = state.room === "participant";
+  const deskParticipant = state.participants.find((p) => p.id === state.selectedParticipantId);
   const deskAuditionActive = Boolean(state.deskAuditionDraftId);
 
   return (
-    <div className={`focus-shell focus-shell--${viewport}${inGlobal ? " focus-shell--global-zones" : ""}${state.sessionPhase === "performing" ? " focus-shell--performing" : ""}`}>
+    <div
+      className={`focus-shell focus-shell--${viewport}${inGlobal ? " focus-shell--global-zones" : ""}${inParticipant ? " focus-shell--participant-desk" : ""}${state.sessionPhase === "performing" ? " focus-shell--performing" : ""}`}
+      style={inParticipant && deskParticipant ? ({ "--desk-accent": deskParticipant.color } as CSSProperties) : undefined}
+    >
       <PresenceRail state={state} dispatch={dispatch} compact={compact} />
+      {inParticipant && deskParticipant && (
+        <div className="focus-participant-zones" aria-label="Private desk context">
+          <span className="focus-zone-chip focus-zone-chip--private-desk">Private workspace</span>
+          <span className="focus-zone-chip focus-zone-chip--desk-name">
+            {possessiveDeskTitle(deskParticipant.name, deskParticipant.taskProfile)}
+          </span>
+          <span className="focus-zone-chip focus-zone-chip--shared-dimmed">
+            Shared Master · not editing here
+          </span>
+          {state.participantTab === "Create" && (
+            <span className="focus-zone-chip focus-zone-chip--create-mode">Create · shaping clip</span>
+          )}
+        </div>
+      )}
       {inGlobal && (
         <div className="focus-global-zones" aria-label="Global studio zones">
           <span className="focus-zone-chip focus-zone-chip--session">Workspaces</span>
@@ -49,7 +69,7 @@ export function FocusShell({
           </span>
           {deskAuditionActive && (
             <span className="focus-zone-chip focus-zone-chip--desk-audition" data-demo-target="desk-audition-chip">
-              Desk audition · local
+              Desk preview · local
             </span>
           )}
         </div>
@@ -65,11 +85,13 @@ export function FocusShell({
         </div>
       )}
       <main
-        className={`focus-center${walkthroughRunning && state.followActive ? " focus-center--projection-settle" : ""}`}
+        className={`focus-center${inParticipant ? " focus-center--participant-desk" : ""}${walkthroughRunning && state.followActive ? " focus-center--projection-settle" : ""}`}
         style={
           walkthroughRunning && activeParticipant
             ? ({ "--projection-accent": activeParticipant.color } as CSSProperties)
-            : undefined
+            : inParticipant && deskParticipant
+              ? ({ "--desk-accent": deskParticipant.color } as CSSProperties)
+              : undefined
         }
       >
         {center}

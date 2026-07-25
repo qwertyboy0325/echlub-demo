@@ -3,8 +3,9 @@ import type { CSSProperties } from "react";
 import type { ExchangeClip, ParticipantTab, ShellCommand, ShellState } from "../shell/domain/shellTypes";
 import {
   deskLabelForProfile,
-  fullDeskTitle,
+  instrumentSummaryForProfile,
   participantInitial,
+  possessiveDeskTitle,
   workspaceForParticipant,
 } from "../shell/domain/participantWorkspace";
 import { AutomationEditor } from "../features/automation/AutomationEditor";
@@ -87,16 +88,20 @@ export function ParticipantWorkspaceRoom({ state, dispatch }: ParticipantWorkspa
   const workspace = workspaceForParticipant(state, state.selectedParticipantId);
   const ownedTracks = ownedTrackLabels(state, state.selectedParticipantId);
   const roomScope = state.participantTab === "Devices" ? "devices" : "participant";
-  const deskTitle = selected ? fullDeskTitle(selected.name, selected.taskProfile) : "Participant Desk";
+  const deskTitle = selected ? possessiveDeskTitle(selected.name, selected.taskProfile) : "Participant Desk";
+  const instrumentSummary = selected ? instrumentSummaryForProfile(selected.taskProfile) : "";
 
   return (
     <div
       className="room room--participant"
       data-room={roomScope}
       data-participant-id={selected?.id}
+      data-desk-profile={selected?.taskProfile}
       style={selected ? ({ "--desk-accent": selected.color } as CSSProperties) : undefined}
     >
+      <div className="participant-desk-zone" aria-label={`${deskTitle} private workspace`}>
       <header className="participant-desk-header">
+        <span className="participant-desk-private-badge">Private workspace</span>
         <div className="participant-desk-identity">
           <span
             className="participant-desk-avatar"
@@ -108,8 +113,9 @@ export function ParticipantWorkspaceRoom({ state, dispatch }: ParticipantWorkspa
           <div className="participant-desk-titles">
             <strong className="participant-desk-title">{deskTitle}</strong>
             <span className="participant-desk-subtitle">
+              {instrumentSummary && <span className="participant-desk-instrument">{instrumentSummary} · </span>}
               {clip?.title ?? workspace.draftId ?? "untitled-draft"} · r{clip?.revision ?? 1} ·{" "}
-              {clip?.forkOf ? "fork" : "personal"}
+              {clip?.forkOf ? "fork" : "personal"} · not Shared Master
             </span>
           </div>
         </div>
@@ -148,6 +154,7 @@ export function ParticipantWorkspaceRoom({ state, dispatch }: ParticipantWorkspa
           </TabPanel>
         ))}
       </Tabs>
+      </div>
     </div>
   );
 }

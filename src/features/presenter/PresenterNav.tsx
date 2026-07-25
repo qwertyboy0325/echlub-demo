@@ -1,6 +1,6 @@
 import { Pause, Play } from "lucide-react";
 import type { RoomId, ShellCommand, ShellState } from "../../shell/domain/shellTypes";
-import { followBannerText, participantDeskShortLabel } from "../../shell/participantProjection";
+import { followBannerText, participantDeskShortLabel, possessiveDeskShortLabel } from "../../shell/participantProjection";
 import { PHASE5_WALKTHROUGH } from "../../shell/presenterWalkthrough";
 
 interface PresenterNavProps {
@@ -18,7 +18,7 @@ interface PresenterNavProps {
 
 function participantNavLabel(state: ShellState, presenterMode: boolean, walkthroughRunning: boolean): string {
   if (presenterMode && walkthroughRunning) return "Participant";
-  const desk = participantDeskShortLabel(state);
+  const desk = possessiveDeskShortLabel(state) ?? participantDeskShortLabel(state);
   return desk ?? "Participant";
 }
 

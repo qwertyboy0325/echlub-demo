@@ -7,12 +7,19 @@ export function exchangeTitleForDraft(draftId: string): string {
   return draftId;
 }
 
-export function deskEditCaption(draftId: string): string {
-  return `Desk: edit ${draftId}`;
+export function deskEditCaption(draftId: string, tab = "Create"): string {
+  if (tab === "Create") return `Private desk · shaping ${draftId}`;
+  return `Private desk · ${draftId}`;
 }
 
-export function deskCreateCaption(draftId: string, verb = "creating"): string {
-  return `Desk: ${verb} ${draftId}`;
+export function deskCreateCaption(draftId: string, verb = "shaping"): string {
+  return `Private desk · ${verb} ${draftId}`;
+}
+
+export function privateDeskHandoffCaption(name: string, taskProfile: string, tab: string): string {
+  const desk = taskProfile === "Rhythm" ? "Rhythm" : taskProfile === "Keys" ? "Keys" : taskProfile === "Horns" ? "Horns" : taskProfile === "Guitar" ? "Guitar" : taskProfile;
+  if (tab === "Create") return `Private desk · ${name}'s ${desk} · shaping clip`;
+  return `Private desk · ${name}'s ${desk} · ${tab}`;
 }
 
 export function exchangeSharedCaption(title: string): string {
@@ -52,8 +59,12 @@ export function projectionCaption(state: ShellState): string | null {
 
   if (state.room === "participant") {
     const draftId = state.workspaceDraftId;
-    if (draftId) return deskEditCaption(draftId);
-    return `At ${active.name} Desk / ${state.participantTab}`;
+    if (state.participantTab === "Create") {
+      if (draftId) return deskEditCaption(draftId, "Create");
+      return privateDeskHandoffCaption(active.name, active.taskProfile, "Create");
+    }
+    if (draftId) return deskEditCaption(draftId, state.participantTab);
+    return privateDeskHandoffCaption(active.name, active.taskProfile, state.participantTab);
   }
 
   if (state.room === "global") {

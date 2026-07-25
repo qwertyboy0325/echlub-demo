@@ -46,10 +46,10 @@ describe("WP6 creation depth", () => {
   it("records desk create captions through Ren and Mei creation beats", () => {
     const store = new ShellStore(createLiveCollabInitialShellState());
     for (let beat = 1; beat <= 20; beat += 1) applyBeatCommands(store, beat);
-    expect(store.getState().activityFeed.some((entry) => entry.includes("Desk: shaping ren-comp-2"))).toBe(true);
+    expect(store.getState().activityFeed.some((entry) => entry.includes("Private desk · shaping ren-comp-2"))).toBe(true);
     expect(store.getState().activityFeed.some((entry) => entry.includes("Desk audition · ren-comp-2"))).toBe(true);
     for (let beat = 21; beat <= 25; beat += 1) applyBeatCommands(store, beat);
-    expect(store.getState().activityFeed.some((entry) => entry.includes("Desk: creating mei-alto-themeA-8"))).toBe(true);
+    expect(store.getState().activityFeed.some((entry) => entry.includes("Private desk · shaping mei-alto-themeA-8"))).toBe(true);
     expect(store.getState().activityFeed.some((entry) => entry.includes("Desk audition · mei-alto-themeA-8"))).toBe(true);
   });
 });

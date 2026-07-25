@@ -2,7 +2,7 @@ import { Tab, TabList, Tabs } from "react-aria-components";
 import { useEffect, useMemo, useState } from "react";
 import type { NoteEvent } from "../../types";
 import type { CreateSubMode, ShellCommand, ShellState } from "../../shell/domain/shellTypes";
-import { workspaceForParticipant } from "../../shell/domain/participantWorkspace";
+import { workspaceForParticipant, createModeLegend } from "../../shell/domain/participantWorkspace";
 import { deviceCountForParticipant } from "../../features/devices/DevicesPanel";
 import { computePianoRollProjection, pitchToDisplayRow } from "../../ui/pianoRollProjection";
 import { useMusicalDraft } from "../../shell/useMusicalDraft";
@@ -37,6 +37,9 @@ export function CreateEditor({ state, dispatch }: CreateEditorProps) {
   const selectedNote = draft?.notes?.find((n) => n.id === selectedNoteId);
   const deviceCount = deviceCountForParticipant(state.selectedParticipantId);
   const deskProfile = selected?.taskProfile ?? "generic";
+  const modeLegend = createModeLegend(state.createSubMode, deskProfile);
+  const modeLabel = labels[state.createSubMode];
+  const clipTitle = draft?.title ?? draftId ?? "untitled-draft";
 
   useEffect(() => {
     setTrackTarget(deskDefaults.trackTargets?.[0] ?? "Track");
@@ -47,25 +50,40 @@ export function CreateEditor({ state, dispatch }: CreateEditorProps) {
   }, [state.selectedPianoNoteId]);
 
   return (
-    <div className="create-editor" data-desk-profile={deskProfile}>
+    <div className="create-editor" data-desk-profile={deskProfile} data-create-mode={state.createSubMode}>
+      <header className="create-context-header">
+        <div className="create-clip-identity">
+          <span className="create-scope-badge">Private desk</span>
+          <span className="create-clip-label">Clip</span>
+          <strong className="create-clip-name tabular-nums">{clipTitle}</strong>
+          <span className="create-clip-rev tabular-nums">r{draft?.revision ?? 1}</span>
+        </div>
+        <p className="create-mode-legend">
+          <span className="create-mode-label">{modeLabel}</span>
+          <span className="create-mode-legend-text">{modeLegend}</span>
+        </p>
+      </header>
       <div className="create-toolbar">
-        <span className="create-desk-banner">{deskDefaults.banner}</span>
-        <Tabs
-          selectedKey={state.createSubMode}
-          onSelectionChange={(key) => dispatch({ type: "SET_CREATE_SUBMODE", mode: key as CreateSubMode })}
-        >
-          <TabList className="create-submodes" aria-label="Create sub-mode">
-            {modes.map((mode) => (
-              <Tab
-                key={mode}
-                id={mode}
-                className={`create-submode-tab${mode === deskDefaults.emphasis ? " create-submode-tab--desk-default" : ""}`}
-              >
-                {labels[mode]}
-              </Tab>
-            ))}
-          </TabList>
-        </Tabs>
+        <div className="create-toolbar-primary">
+          <span className="create-desk-banner">{deskDefaults.banner}</span>
+          <Tabs
+            selectedKey={state.createSubMode}
+            onSelectionChange={(key) => dispatch({ type: "SET_CREATE_SUBMODE", mode: key as CreateSubMode })}
+          >
+            <TabList className="create-submodes" aria-label="Editor mode">
+              {modes.map((mode) => (
+                <Tab
+                  key={mode}
+                  id={mode}
+                  className={`create-submode-tab${mode === deskDefaults.emphasis ? " create-submode-tab--desk-default" : ""}`}
+                >
+                  {labels[mode]}
+                </Tab>
+              ))}
+            </TabList>
+          </Tabs>
+        </div>
+        <div className="create-toolbar-secondary">
         {deskDefaults.trackTargets && deskDefaults.trackTargets.length > 1 && deskProfile === "Keys" && (
           <div className="create-lane-chips" role="group" aria-label="Piano lanes">
             {deskDefaults.trackTargets.map((target) => (
@@ -110,14 +128,18 @@ export function CreateEditor({ state, dispatch }: CreateEditorProps) {
               data-demo-target="preview-clip"
               onClick={() => dispatch({ type: "PREVIEW_WORKSPACE", draftId })}
             >
-              Desk audition
+              Desk preview
             </button>
-            <span className="create-audition-hint">desk-local · not Shared Master</span>
+            <span className="create-audition-hint">local only · not Shared Master</span>
           </div>
         )}
+        </div>
       </div>
       {state.createSubMode === "piano" && (
         <div className="piano-roll" aria-label="Piano roll editor">
+          {(draft?.notes ?? []).length === 0 && (
+            <p className="create-empty-hint">No notes yet — double-click a note to nudge steps, or follow the walkthrough to add material.</p>
+          )}
           <div className="piano-grid">
             {(draft?.notes ?? []).map((note: NoteEvent) => {
               const row = pitchToDisplayRow(note.pitch, projection);
@@ -197,7 +219,7 @@ export function CreateEditor({ state, dispatch }: CreateEditorProps) {
       {state.createSubMode === "step" && (
         <div className="step-editor-pane">
           {deskProfile === "Rhythm" && (
-            <p className="step-forward-hint">Step-forward · {trackTarget}</p>
+            <p className="step-forward-hint">Editing {trackTarget} — click steps to toggle hits</p>
           )}
           <div className="step-grid" aria-label="Step sequencer">
             {Array.from({ length: 16 }, (_, i) => {

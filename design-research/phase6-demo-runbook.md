@@ -47,9 +47,11 @@ Do **not** mutate `shiki-no-uta.demo.pack.json` (preservation oracle).
 Without reading the caption strip, confirm:
 
 - Global zones: **Workspaces** · Arrangement · Shared Master (not a multiplayer session lobby)
-- Create toolbar: **Desk audition** + hint `desk-local · not Shared Master`
+- Participant zones: **Private workspace** · possessive desk name · Shared Master dimmed
+- Create header: **Private desk** badge + clip name + mode legend
+- Create toolbar: **Desk preview** + hint `local only · not Shared Master`
 - Participant room: audition banner while cue is active
-- Global zones: **Desk audition · local** chip appears beside dimmed Shared Master during cue
+- Global zones: **Desk preview · local** chip appears beside dimmed Shared Master during cue
 - Presence: live task e.g. `Kai · editing LH` (not only desk name)
 
 ## Capture (A/V artifact)

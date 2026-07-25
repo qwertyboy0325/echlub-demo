@@ -25,6 +25,46 @@ export function fullDeskTitle(name: string, taskProfile: string): string {
   return `${name} · ${deskLabelForProfile(taskProfile)}`;
 }
 
+/** Viewer-facing possessive desk label — e.g. "Kai's Keys Desk". */
+export function possessiveDeskTitle(name: string, taskProfile: string): string {
+  const desk = deskLabelForProfile(taskProfile);
+  const short = desk.replace(/ Desk$/, "");
+  return `${name}'s ${short} Desk`;
+}
+
+export function instrumentSummaryForProfile(taskProfile: string): string {
+  switch (taskProfile) {
+    case "Rhythm":
+      return "Drums · Bass";
+    case "Keys":
+      return "Piano LH · RH";
+    case "Horns":
+      return "Alto · Tenor";
+    case "Guitar":
+      return "Guitar · FX";
+    default:
+      return taskProfile;
+  }
+}
+
+export function createModeLegend(subMode: string, taskProfile: string): string {
+  switch (subMode) {
+    case "step":
+      return taskProfile === "Rhythm"
+        ? "Step grid — toggle drum/bass hits. Stays on your private desk until shared to Exchange."
+        : "Step grid — toggle pattern steps on your private desk.";
+    case "clip":
+      return taskProfile === "Horns"
+        ? "Clip view — phrase lanes for horn parts. Not on Shared Master until launched."
+        : "Clip view — name and shape your take. Desk-local until Exchange.";
+    case "piano":
+    default:
+      return taskProfile === "Keys"
+        ? "Piano roll — edit LH/RH notes. Preview with Desk audition; Shared Master is separate."
+        : "Piano roll — edit note timing. Desk-local until you share to Exchange.";
+  }
+}
+
 export function parkedCursorLabel(name: string, taskProfile: string): string {
   return `${name} at ${deskLabelForProfile(taskProfile)}`;
 }

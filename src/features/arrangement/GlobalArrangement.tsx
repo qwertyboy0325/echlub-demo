@@ -249,7 +249,13 @@ export function GlobalArrangement({ state, dispatch }: GlobalArrangementProps) {
                     .filter((tc) => tc.trackId === track.id)
                     .map((tc) => {
                       const clip = clipForExchange(tc.exchangeClipId);
-                      const title = clip?.title ?? clip?.draftId ?? tc.exchangeClipId;
+                      const slot = slotForTrackIndex(state.arrangementTracks.findIndex((t) => t.id === track.id));
+                      const title =
+                        clip?.title ??
+                        clip?.draftId ??
+                        slot?.label ??
+                        slot?.materialId ??
+                        tc.exchangeClipId;
                       return (
                         <div
                           key={tc.id}
