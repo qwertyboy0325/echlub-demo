@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { PresentationApp } from "./presentation-v3/PresentationApp";
 import { PresenterNav } from "./features/presenter/PresenterNav";
 import { LiveControlDock } from "./features/dock/LiveControlDock";
 import { GlobalStudioRoom } from "./rooms/GlobalStudioRoom";
@@ -23,7 +24,16 @@ import { useViewportMode } from "./shell/useViewportMode";
 import { displayTransportBar, resolveTransportPackMode, transportPlaybackHint } from "./shell/transportPlaybackHint";
 import { useActiveLaneCount, useMusicalDomainReady, usePackMode, useShellAudioReady } from "./shell/useMusicalDraft";
 
+function resolvePresentationV3(): boolean {
+  if (typeof window === "undefined") return false;
+  return new URLSearchParams(window.location.search).get("presentation") === "v3";
+}
+
 export function App() {
+  if (resolvePresentationV3()) {
+    return <PresentationApp />;
+  }
+
   const [state, dispatch] = useShellStore();
   const viewport = useViewportMode();
   const compact = viewport === "compact";

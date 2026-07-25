@@ -1,0 +1,185 @@
+.room {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+}
+
+.libraryToggle {
+  flex-shrink: 0;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  background: var(--pv3-raised);
+  border: none;
+  border-right: 1px solid var(--pv3-separator);
+  color: var(--pv3-muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 12px 6px;
+  cursor: pointer;
+}
+
+.libraryDrawer {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--pv3-panel);
+  border-right: 1px solid var(--pv3-separator);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.libraryDrawerCollapsed {
+  display: none;
+}
+
+.libraryHeader {
+  padding: 10px 12px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--pv3-muted);
+  border-bottom: 1px solid var(--pv3-separator);
+}
+
+.libraryList {
+  list-style: none;
+  margin: 0;
+  padding: 8px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.libraryItem {
+  width: 100%;
+  text-align: left;
+  background: var(--pv3-raised);
+  border: 1px solid var(--pv3-separator);
+  border-radius: 2px;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  color: var(--pv3-text);
+}
+
+.libraryItem:hover {
+  border-color: var(--pv3-accent);
+}
+
+.libraryMeta {
+  display: block;
+  font-size: 10px;
+  color: var(--pv3-muted);
+  margin-top: 4px;
+}
+
+.libraryEmpty {
+  padding: 12px;
+  font-size: 11px;
+  color: var(--pv3-muted);
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: var(--pv3-panel);
+  border-bottom: 1px solid var(--pv3-separator);
+}
+
+.privateBadge {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 3px 8px;
+  border-radius: 2px;
+  background: rgba(88, 166, 255, 0.15);
+  color: var(--pv3-accent);
+}
+
+.deskTitle {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.deskSubtitle {
+  font-size: 11px;
+  color: var(--pv3-muted);
+}
+
+.auditionBanner {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  background: rgba(240, 180, 41, 0.12);
+  color: #f0b429;
+  font-size: 11px;
+}
+
+.tabList {
+  display: flex;
+  gap: 2px;
+  padding: 6px 14px 0;
+  background: var(--pv3-panel);
+  border-bottom: 1px solid var(--pv3-separator);
+  flex-shrink: 0;
+}
+
+.tab {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--pv3-muted);
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.tabSelected {
+  composes: tab;
+  color: var(--pv3-text);
+  border-bottom-color: var(--pv3-accent);
+}
+
+.editor {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 8px 12px;
+}
+
+.compact .libraryDrawer {
+  position: absolute;
+  left: 0;
+  top: var(--pv3-topbar-h, 48px);
+  bottom: var(--pv3-transport-h, 52px);
+  z-index: 10;
+  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.4);
+}
+
+.compact .body {
+  position: relative;
+}
+
+.editor :global(.create-context-header),
+.editor :global(.desk-library-queue) {
+  display: none;
+}

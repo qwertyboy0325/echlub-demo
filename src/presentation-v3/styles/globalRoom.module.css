@@ -1,0 +1,288 @@
+.room {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 16px;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.phaseBadge {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 4px 10px;
+  border-radius: 2px;
+  background: var(--pv3-raised);
+}
+
+.phasePerforming {
+  color: #3fb950;
+}
+
+.masterReadout {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11px;
+  color: var(--pv3-muted);
+  margin-left: auto;
+}
+
+.surface {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--pv3-panel);
+  border: 1px solid var(--pv3-separator);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.ruler {
+  display: flex;
+  flex-shrink: 0;
+  height: 20px;
+  border-bottom: 1px solid var(--pv3-separator);
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 9px;
+  color: var(--pv3-muted);
+}
+
+.rulerSpacer {
+  width: 200px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--pv3-separator);
+}
+
+.rulerBars {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.rulerBar {
+  flex: 0 0 40px;
+  text-align: center;
+  line-height: 20px;
+}
+
+.rulerBarBoundary {
+  composes: rulerBar;
+  color: var(--pv3-text);
+}
+
+.lanes {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.laneRow {
+  display: flex;
+  align-items: stretch;
+  min-height: 52px;
+  border-bottom: 1px solid var(--pv3-separator);
+}
+
+.laneRowPlaying {
+  composes: laneRow;
+  background: rgba(63, 185, 80, 0.06);
+}
+
+.laneMeta {
+  width: 200px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-right: 1px solid var(--pv3-separator);
+}
+
+.provenance {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.trackInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.trackName {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.trackOwner {
+  font-size: 10px;
+  color: var(--pv3-muted);
+}
+
+.laneClip {
+  font-size: 10px;
+  color: var(--pv3-muted);
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+.laneState {
+  width: 88px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--pv3-muted);
+  border-right: 1px solid var(--pv3-separator);
+}
+
+.laneStatePlaying {
+  composes: laneState;
+  color: #3fb950;
+}
+
+.scoreLane {
+  flex: 1;
+  position: relative;
+  min-width: 0;
+  overflow-x: auto;
+  background: var(--pv3-canvas);
+}
+
+.scoreInner {
+  position: relative;
+  height: 100%;
+  min-height: 44px;
+}
+
+.scoreClip {
+  position: absolute;
+  top: 8px;
+  height: 28px;
+  background: var(--pv3-raised);
+  border: 1px solid var(--pv3-separator);
+  border-radius: 2px;
+  padding: 4px 6px;
+  font-size: 9px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.scoreClipActive {
+  composes: scoreClip;
+  border-color: #3fb950;
+  background: rgba(63, 185, 80, 0.12);
+}
+
+.scoreClipStaged {
+  composes: scoreClip;
+  border-color: var(--pv3-accent);
+}
+
+.playhead {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #f85149;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.laneActions {
+  width: 100px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+.launchBtn {
+  background: var(--pv3-accent);
+  border: none;
+  color: #0d1117;
+  padding: 6px 10px;
+  border-radius: 2px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.launchBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.badge {
+  font-size: 10px;
+  color: #3fb950;
+  font-weight: 600;
+}
+
+.masterFooter {
+  flex-shrink: 0;
+  padding: 10px 14px;
+  background: var(--pv3-raised);
+  border-top: 1px solid var(--pv3-separator);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.masterLabel {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--pv3-muted);
+}
+
+.masterMeter {
+  flex: 1;
+  height: 6px;
+  background: var(--pv3-canvas);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.masterMeterFill {
+  height: 100%;
+  background: linear-gradient(90deg, #238636, #3fb950);
+  transition: width 0.3s ease;
+}
+
+.compact .rulerSpacer,
+.compact .laneMeta {
+  width: 140px;
+}
+
+.compact .scoreInner {
+  min-width: 160px;
+}
+
+.compact .rulerBar {
+  flex: 0 0 32px;
+}

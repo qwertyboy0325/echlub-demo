@@ -66,6 +66,7 @@ describe("participant workspace state", () => {
           tab: "Create",
           createSubMode: "piano",
           ownedTrackIds: [],
+          libraryClips: [],
         },
       },
     });

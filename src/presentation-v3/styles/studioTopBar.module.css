@@ -1,0 +1,125 @@
+.bar {
+  flex-shrink: 0;
+  height: var(--pv3-topbar-h, 48px);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 12px;
+  background: var(--pv3-panel);
+  border-bottom: 1px solid var(--pv3-separator);
+}
+
+.brand {
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.nav {
+  display: flex;
+  gap: 4px;
+}
+
+.navBtn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--pv3-muted);
+  padding: 6px 12px;
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: 12px;
+  min-height: 32px;
+}
+
+.navBtnActive {
+  composes: navBtn;
+  background: var(--pv3-raised);
+  border-color: var(--pv3-separator);
+  color: var(--pv3-text);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.participants {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.avatarBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--pv3-separator);
+  background: var(--pv3-raised);
+  color: var(--pv3-text);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.avatarBtnSelected {
+  composes: avatarBtn;
+  box-shadow: 0 0 0 2px var(--pv3-accent);
+}
+
+.avatarName {
+  font-size: 10px;
+  color: var(--pv3-muted);
+  max-width: 48px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.participantCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.phaseChip {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 4px 8px;
+  border-radius: 2px;
+  background: var(--pv3-raised);
+  color: var(--pv3-muted);
+}
+
+.phasePerforming {
+  composes: phaseChip;
+  color: #3fb950;
+}
+
+.exchangeBtn {
+  background: var(--pv3-raised);
+  border: 1px solid var(--pv3-separator);
+  color: var(--pv3-text);
+  padding: 6px 12px;
+  border-radius: 2px;
+  cursor: pointer;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.exchangeBtnOpen {
+  composes: exchangeBtn;
+  border-color: var(--pv3-accent);
+}
+
+.compact .avatarName {
+  display: none;
+}
+
+.compact .avatarBtn {
+  width: 32px;
+  height: 32px;
+}
