@@ -1,9 +1,9 @@
 import type { CSSProperties } from "react";
 import type { ShellCommand, ShellState } from "../../shell/domain/shellTypes";
 import {
-  deskLabelForProfile,
   participantInitial,
   presenceActivityLabel,
+  presenceActivityVerb,
   workspaceForParticipant,
 } from "../../shell/domain/participantWorkspace";
 import { participantDeskShortLabel } from "../../shell/participantProjection";
@@ -24,7 +24,7 @@ function activityMetaForParticipant(
   const clip = state.exchangeClips.find((c) => c.draftId === ws.draftId);
   const forking = Boolean(clip?.forkOf && (clip.lifecycle === "In Progress" || clip.lifecycle === "Review"));
   const activity = presenceActivityLabel(participant.name, participant.taskProfile, ws.draftId, { forking });
-  const verb = activity.includes(" · ") ? activity.split(" · ")[1] : deskLabelForProfile(participant.taskProfile);
+  const verb = presenceActivityVerb(participant.taskProfile, activity);
   return { activity, verb, editing: Boolean(ws.draftId), forking };
 }
 

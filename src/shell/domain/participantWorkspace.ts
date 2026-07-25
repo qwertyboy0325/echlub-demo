@@ -59,6 +59,11 @@ export function presenceActivityLabel(
   return `${name} · ${editingTaskForDraft(draftId, options)}`;
 }
 
+/** Short verb under participant name — e.g. "editing LH" or "Keys Desk". */
+export function presenceActivityVerb(taskProfile: string, activity: string): string {
+  return activity.includes(" · ") ? activity.split(" · ")[1]! : deskLabelForProfile(taskProfile);
+}
+
 export function createPhase4ParticipantWorkspaces(): Record<string, ParticipantWorkspace> {
   return {
     p1: {

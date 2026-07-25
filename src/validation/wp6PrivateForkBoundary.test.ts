@@ -4,6 +4,7 @@ import { choreographyForCommand } from "../shell/choreographyForCommand";
 import {
   editingTaskForDraft,
   presenceActivityLabel,
+  presenceActivityVerb,
 } from "../shell/domain/participantWorkspace";
 import { createLiveCollabInitialShellState } from "../shell/domain/liveCollabShellFixtures";
 import { ShellStore } from "../shell/domain/shellStore";
@@ -44,6 +45,12 @@ describe("WP6 private boundary", () => {
     expect(presenceActivityLabel("Kai", "Keys", "kai-lh-sparse-4")).toBe("Kai · editing LH");
     expect(editingTaskForDraft("ren-fork-alt-2", { forking: true })).toBe("forking guitar");
     expect(editingTaskForDraft("mei-alto-themeA-8")).toBe("editing alto");
+  });
+
+  it("Presence verb label matches activity tail or desk fallback", () => {
+    const activity = presenceActivityLabel("Kai", "Keys", "kai-lh-sparse-4");
+    expect(presenceActivityVerb("Keys", activity)).toBe("editing LH");
+    expect(presenceActivityVerb("Keys", "Keys Desk")).toBe("Keys Desk");
   });
 });
 
