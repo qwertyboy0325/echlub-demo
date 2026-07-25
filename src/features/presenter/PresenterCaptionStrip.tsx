@@ -19,13 +19,23 @@ export function PresenterCaptionStrip({
 
   return (
     <aside className="presenter-caption-strip" aria-label="Presenter activity">
-      {caption && <p className="presenter-caption-current">{caption}</p>}
+      {caption && (
+        <div className="presenter-caption-head">
+          <span className="presenter-caption-label">Now</span>
+          <p className="presenter-caption-current">{caption}</p>
+        </div>
+      )}
       {feed.length > 0 && (
-        <ul className="presenter-activity-feed">
-          {feed.map((entry, index) => (
-            <li key={`${entry}-${index}`}>{entry}</li>
-          ))}
-        </ul>
+        <div className="presenter-activity-thread">
+          <span className="presenter-caption-label">Thread</span>
+          <ul className="presenter-activity-feed">
+            {feed.map((entry, index) => (
+              <li key={`${entry}-${index}`} className={index === 0 ? "presenter-activity-feed--latest" : undefined}>
+                {entry}
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </aside>
   );

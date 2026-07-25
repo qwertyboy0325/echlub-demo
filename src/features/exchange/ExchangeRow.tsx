@@ -105,7 +105,7 @@ export function ExchangeRow({
   return (
     <article
       ref={rowRef}
-      className={`exchange-row${canStageDrag ? " exchange-row--draggable" : ""}${selected ? " exchange-row--selected" : ""}`}
+      className={`exchange-row${canStageDrag ? " exchange-row--draggable" : ""}${selected ? " exchange-row--selected" : ""}${clip.lifecycle === "Ready" ? " exchange-row--ready" : ""}${clip.lifecycle === "Available" ? " exchange-row--available" : ""}`}
       data-clip-id={clip.id}
       style={{ borderLeftColor: creatorColor }}
       onClick={() => dispatch({ type: "SELECT_EXCHANGE_CLIP", clipId: clip.id })}

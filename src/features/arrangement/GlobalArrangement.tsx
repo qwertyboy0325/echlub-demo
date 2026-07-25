@@ -46,6 +46,7 @@ export function GlobalArrangement({ state, dispatch }: GlobalArrangementProps) {
     ? projectLiveCollabTimelineClips(state.arrangementSlots, state.arrangementTracks)
     : state.timelineClips;
   const allLanesLive = isLiveCollab && launchedCount >= 7;
+  const masterPayoff = isLiveCollab && (allLanesLive || performing);
 
   useEffect(() => {
     if (isLiveCollab) return;
@@ -146,7 +147,7 @@ export function GlobalArrangement({ state, dispatch }: GlobalArrangementProps) {
                   <span className="session-lane-owner">{owner}</span>
                 </div>
                 <div className="session-lane-clip tabular-nums">
-                  <span>{slot.label}</span>
+                  <span className="session-lane-clip-name">{slot.label}</span>
                   {showLineage && lineageParent ? (
                     <span className="session-lane-lineage" data-demo-target={`lane-lineage-${slot.id}`}>
                       {stagedClip?.draftId ?? stagedClip?.title} ← {lineageParent.draftId ?? lineageParent.title}
@@ -314,14 +315,14 @@ export function GlobalArrangement({ state, dispatch }: GlobalArrangementProps) {
         </div>
       ) : null}
 
-      <section className="global-zone global-zone--master" data-global-zone="master" aria-label="Shared Master readout">
+      <section className={`global-zone global-zone--master${masterPayoff ? " global-zone--master-payoff" : ""}`} data-global-zone="master" aria-label="Shared Master readout">
         <header className="global-zone-header">
           <span className="global-zone-label">Shared Master</span>
           {isLiveCollab ? (
             <span className="global-zone-readout tabular-nums">{masterReadout}</span>
           ) : null}
         </header>
-        <div className="master-strip">
+        <div className={`master-strip${masterPayoff ? " master-strip--payoff" : ""}`}>
           <div className="master-assignment">
             {isLiveCollab ? (
               launchedCount > 0 ? (

@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { ShellCommand, ShellState } from "../../shell/domain/shellTypes";
 import {
   deskLabelForProfile,
@@ -13,13 +14,22 @@ interface PresenceRailProps {
   compact: boolean;
 }
 
-function activityForParticipant(state: ShellState, participantId: string): string {
+function activityMetaForParticipant(
+  state: ShellState,
+  participantId: string,
+): { activity: string; verb: string; editing: boolean; forking: boolean } {
   const participant = state.participants.find((p) => p.id === participantId);
-  if (!participant) return "";
+  if (!participant) return { activity: "", verb: "", editing: false, forking: false };
   const ws = workspaceForParticipant(state, participantId);
   const clip = state.exchangeClips.find((c) => c.draftId === ws.draftId);
   const forking = Boolean(clip?.forkOf && (clip.lifecycle === "In Progress" || clip.lifecycle === "Review"));
-  return presenceActivityLabel(participant.name, participant.taskProfile, ws.draftId, { forking });
+  const activity = presenceActivityLabel(participant.name, participant.taskProfile, ws.draftId, { forking });
+  const verb = activity.includes(" · ") ? activity.split(" · ")[1] : deskLabelForProfile(participant.taskProfile);
+  return { activity, verb, editing: Boolean(ws.draftId), forking };
+}
+
+function activityForParticipant(state: ShellState, participantId: string): string {
+  return activityMetaForParticipant(state, participantId).activity;
 }
 
 export function PresenceRail({ state, dispatch, compact }: PresenceRailProps) {
@@ -36,13 +46,14 @@ export function PresenceRail({ state, dispatch, compact }: PresenceRailProps) {
         </span>
       )}
       {state.participants.map((p) => {
-        const activity = activityForParticipant(state, p.id);
+        const { activity, verb, editing, forking } = activityMetaForParticipant(state, p.id);
         return (
           <button
             key={p.id}
             type="button"
-            className={`presence-person${p.active ? " active" : ""}`}
+            className={`presence-person${p.active ? " active" : ""}${editing ? " presence-person--editing" : ""}${forking ? " presence-person--forking" : ""}`}
             data-demo-target={`participant-${p.id}`}
+            style={{ "--presence-accent": p.color } as CSSProperties}
             onClick={() => {
               dispatch({ type: "SELECT_PARTICIPANT", participantId: p.id });
               if (state.room === "global") dispatch({ type: "SET_ROOM", room: "participant" });
@@ -59,7 +70,9 @@ export function PresenceRail({ state, dispatch, compact }: PresenceRailProps) {
             {!compact && (
               <span className="presence-text">
                 <strong>{p.name}</strong>
-                <span data-presence-task={p.id}>{activity.includes(" · ") ? activity.split(" · ")[1] : deskLabelForProfile(p.taskProfile)}</span>
+                <span className="presence-activity-verb" data-presence-task={p.id}>
+                  {verb}
+                </span>
               </span>
             )}
             {compact && <span className="presence-compact-name">{p.name}</span>}

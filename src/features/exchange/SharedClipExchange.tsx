@@ -53,7 +53,7 @@ function ComparePanel({
       : "Parent vs fork before Accept";
 
   return (
-    <section className="exchange-compare-panel" aria-label="Compare parent and fork" data-demo-target="exchange-compare">
+    <section className={`exchange-compare-panel exchange-compare-panel--${mode}`} aria-label="Compare parent and fork" data-demo-target="exchange-compare">
       <header className="exchange-compare-header">
         <h3>{mode === "promote" ? "Fork audition" : "Compare"}</h3>
         <span className="exchange-compare-hint">{hint}</span>

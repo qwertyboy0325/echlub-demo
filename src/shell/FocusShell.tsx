@@ -36,16 +36,16 @@ export function FocusShell({
   const deskAuditionActive = Boolean(state.deskAuditionDraftId);
 
   return (
-    <div className={`focus-shell focus-shell--${viewport}${inGlobal ? " focus-shell--global-zones" : ""}`}>
+    <div className={`focus-shell focus-shell--${viewport}${inGlobal ? " focus-shell--global-zones" : ""}${state.sessionPhase === "performing" ? " focus-shell--performing" : ""}`}>
       <PresenceRail state={state} dispatch={dispatch} compact={compact} />
       {inGlobal && (
         <div className="focus-global-zones" aria-label="Global studio zones">
           <span className="focus-zone-chip focus-zone-chip--session">Workspaces</span>
           <span className="focus-zone-chip focus-zone-chip--arrangement">Arrangement</span>
           <span
-            className={`focus-zone-chip focus-zone-chip--master${deskAuditionActive ? " focus-zone-chip--master-dimmed" : ""}`}
+            className={`focus-zone-chip focus-zone-chip--master${deskAuditionActive ? " focus-zone-chip--master-dimmed" : ""}${launchedLanes > 0 ? " focus-zone-chip--master-live" : ""}`}
           >
-            Shared Master
+            Shared Master{launchedLanes > 0 ? ` · ${launchedLanes}/7` : ""}
           </span>
           {deskAuditionActive && (
             <span className="focus-zone-chip focus-zone-chip--desk-audition" data-demo-target="desk-audition-chip">
