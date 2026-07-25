@@ -38,7 +38,7 @@ Do **not** mutate `shiki-no-uta.demo.pack.json` (preservation oracle).
 
 3. Click **Play** once to unlock AudioContext.
 
-4. The walkthrough auto-runs (36 beats): fork → review → revise (step edit) → compare (Listen Parent / Listen Fork) → accept → stage → seven-lane payoff → perform → recall → audition then promote → restart.
+4. The walkthrough auto-runs (37 beats): fork → review → revise (step edit) → compare (Listen Parent / Listen Fork) → accept → stage → seven-lane payoff → perform → recall → audition → promote → launch → restart.
 
 5. Optional manual controls: **Pause walkthrough** in presenter chrome; Exchange **Revise** / **Listen Parent·Fork** on the bass fork compare panel; Ready forks show **Fork audition** before Promote.
 
