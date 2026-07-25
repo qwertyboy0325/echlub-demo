@@ -224,6 +224,16 @@ export class ShellAudioAdapter {
         }
         break;
       }
+      case "SET_LAUNCH_VELOCITY_SCALE":
+        this.engine.setLaunchVelocityScale(command.scale);
+        break;
+      case "SET_LANE_MUTE":
+        this.engine.setLaneMute(command.layer, command.muted);
+        break;
+      case "SET_DESK_BUS":
+        this.engine.setMixParams(this.domain.deskBusPatch(command.desk, command.params), 0.18);
+        this.syncDockFromMix(after);
+        break;
       case "SET_DOCK_VALUE": {
         const slot = after.dockSlots[command.slotIndex];
         if (!slot?.mapped || !slot.sourceParam) break;
@@ -266,6 +276,8 @@ export class ShellAudioAdapter {
       case "RESTART_SESSION":
         this.engine.stop();
         this.engine.clearArrangementSceneBoundaries();
+        this.engine.clearLaneMutes();
+        this.engine.setLaunchVelocityScale(1);
         this.domain.restart();
         this.publishBank("production", { resetMix: true });
         break;

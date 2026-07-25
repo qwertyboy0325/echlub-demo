@@ -133,6 +133,9 @@ export type ShellCommand =
   | { type: "INSERT_NOTE"; draftId: string; noteIndex?: number }
   | { type: "TOGGLE_STEP"; draftId: string; step: number }
   | { type: "SET_DEVICE_PARAM"; deviceId: string; value: number }
+  | { type: "SET_LAUNCH_VELOCITY_SCALE"; scale: number }
+  | { type: "SET_LANE_MUTE"; layer: import("../../types").LayerId; muted: boolean }
+  | { type: "SET_DESK_BUS"; desk: import("../../types").DeskBusId; params: import("../../types").DeskBusParams }
   | { type: "PREVIEW_WORKSPACE"; draftId: string }
   | { type: "RESTART_SESSION" };
 

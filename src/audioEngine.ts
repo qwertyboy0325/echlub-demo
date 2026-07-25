@@ -103,6 +103,8 @@ export class AudioEngine {
   private scheduledId: number | null = null;
   private lastBar = -1;
   private currentMix: MixParams = { filter: 1200, delayWet: 0.2, reverbWet: 0.42, masterGain: -3, faders: { groove: 64, harmony: 48, melody: 28, texture: 58 } };
+  private launchVelocityScale = 1;
+  private readonly mutedLayers = new Set<LayerId>();
   private playingScene: SceneDefinition = createIdleScene();
   private launchAtBar = new Map<number, string>();
   private sceneAtBar = new Map<number, SceneDefinition>();
@@ -455,6 +457,27 @@ export class AudioEngine {
     this.currentMix = applyMixParamsToGraph(this.graph, this.currentMix, params, rampTime, atTime);
   }
 
+  setLaunchVelocityScale(scale: number): void {
+    this.launchVelocityScale = Math.max(0.05, Math.min(2, scale));
+  }
+
+  getLaunchVelocityScale(): number {
+    return this.launchVelocityScale;
+  }
+
+  setLaneMute(layer: LayerId, muted: boolean): void {
+    if (muted) this.mutedLayers.add(layer);
+    else this.mutedLayers.delete(layer);
+  }
+
+  isLaneMuted(layer: LayerId): boolean {
+    return this.mutedLayers.has(layer);
+  }
+
+  clearLaneMutes(): void {
+    this.mutedLayers.clear();
+  }
+
   applyMixAutomationEvent(event: MixAutomationEvent, atTime: number): void {
     this.mixDirtyAtCurrentTick = true;
     this.currentMix = applyMixAutomationEventToGraph(this.graph, this.currentMix, event, atTime);
@@ -697,7 +720,10 @@ export class AudioEngine {
       return;
     }
     this.logResolution(this.currentAct === "canonicalPlayback" ? "canonical" : "live", scene.id, layer, ref);
-    playLayerOnGraph(this.graph, this.materialBank, scene, layer, ref, localBar, globalStep, time, voiceIndex);
+    playLayerOnGraph(this.graph, this.materialBank, scene, layer, ref, localBar, globalStep, time, voiceIndex, {
+      launchVelocityScale: this.launchVelocityScale,
+      mutedLayers: this.mutedLayers,
+    });
   }
 
   private bindGraphFields(): void {
@@ -767,6 +793,7 @@ export class AudioEngine {
     isCue: boolean,
   ): void {
     const content = material.content;
+    const velocityScale = this.launchVelocityScale;
     if (content.kind === "melody" || content.kind === "bass") {
       const cueOrigin = isCue && content.notes.length
         ? Math.min(...content.notes.map((note) => (note.bar ?? 0) * 16 + note.step))
@@ -783,7 +810,7 @@ export class AudioEngine {
                 || note.instrument === "reed-tenor"
                 ? this.cueReed
                 : this.cueMelody;
-              voice.triggerAttackRelease(note.note, note.duration ?? "8n", t, note.velocity ?? 0.6);
+              voice.triggerAttackRelease(note.note, note.duration ?? "8n", t, (note.velocity ?? 0.6) * velocityScale);
             }
             this.cueNoteCount += 1;
           }
@@ -795,8 +822,8 @@ export class AudioEngine {
         : 0;
       for (const hit of content.hits) {
         schedule(hit.bar * 16 + hit.step - cueOrigin, (t) => {
-          if (hit.voice === "kick") this.cueKick.triggerAttackRelease("C2", "8n", t, hit.velocity);
-          else this.cueHat.triggerAttackRelease("32n", t, hit.velocity * 0.5);
+          if (hit.voice === "kick") this.cueKick.triggerAttackRelease("C2", "8n", t, hit.velocity * velocityScale);
+          else this.cueHat.triggerAttackRelease("32n", t, hit.velocity * 0.5 * velocityScale);
           this.cueNoteCount += 1;
         });
       }
@@ -806,7 +833,7 @@ export class AudioEngine {
         : 0;
       for (const chord of content.chords) {
         schedule(chord.bar * 16 + (chord.step ?? 0) - cueOrigin, (t) => {
-          this.cueMelody.triggerAttackRelease(chord.notes[0] ?? "C4", chord.duration ?? "4n", t, chord.velocity ?? 0.5);
+          this.cueMelody.triggerAttackRelease(chord.notes[0] ?? "C4", chord.duration ?? "4n", t, (chord.velocity ?? 0.5) * velocityScale);
           this.cueNoteCount += 1;
         });
       }

@@ -397,7 +397,19 @@ export class MusicalDomainStore {
     if (deviceId === "filter") return { filter: 200 + normalized * 7800 };
     if (deviceId === "delay") return { delayWet: normalized * 0.65 };
     if (deviceId === "reverb") return { reverbWet: normalized * 0.85 };
+    if (deviceId === "desk-rhythm-delay") return { desk: { rhythm: { delaySend: normalized * 0.35 } } };
+    if (deviceId === "desk-keys-delay") return { desk: { keys: { delaySend: normalized * 0.45 } } };
+    if (deviceId === "desk-horns-delay") return { desk: { horns: { delaySend: normalized * 0.65 } } };
+    if (deviceId === "desk-guitar-delay") return { desk: { guitar: { delaySend: normalized * 0.55 } } };
+    if (deviceId === "desk-horns-reverb") return { desk: { horns: { reverbSend: normalized * 0.5 } } };
     return null;
+  }
+
+  deskBusPatch(
+    desk: import("../../types").DeskBusId,
+    params: import("../../types").DeskBusParams,
+  ): Partial<import("../../types").MixParams> {
+    return { desk: { [desk]: params } };
   }
 
   subscribe(listener: () => void): () => void {

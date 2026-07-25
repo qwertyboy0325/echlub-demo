@@ -14,10 +14,12 @@ export function playLayerOnGraph(
   globalStep: number,
   time: number,
   voiceIndex: number,
+  options: { launchVelocityScale?: number; mutedLayers?: ReadonlySet<LayerId> } = {},
 ): void {
   void scene;
-  void layer;
   if (!ref) return;
+  if (options.mutedLayers?.has(layer)) return;
+  const velocityScale = options.launchVelocityScale ?? 1;
   const material = resolveMaterial(materialBank, ref);
   if (!material) return;
 
@@ -28,20 +30,20 @@ export function playLayerOnGraph(
     for (const hit of content.hits) {
       if (hit.bar * 16 + hit.step !== currentStep) continue;
       const scheduledTime = time + (hit.timingOffset ?? 0) * Tone.Time("16n").toSeconds();
-      if (hit.voice === "kick") graph.kick.triggerAttackRelease("C1", hit.duration ?? "8n", scheduledTime, hit.velocity);
-      else if (hit.voice === "snare") graph.snare.triggerAttackRelease(hit.duration ?? "16n", scheduledTime, hit.velocity * 0.35);
-      else if (hit.voice === "rim") graph.rim.triggerAttackRelease(hit.duration ?? "32n", scheduledTime, hit.velocity * 0.5);
-      else if (hit.voice === "tomLow") graph.tomLow.triggerAttackRelease("D2", hit.duration ?? "8n", scheduledTime, hit.velocity * 0.7);
-      else if (hit.voice === "tomMid") graph.tomMid.triggerAttackRelease("G2", hit.duration ?? "8n", scheduledTime, hit.velocity * 0.65);
-      else if (hit.voice === "tomHigh") graph.tomHigh.triggerAttackRelease("C3", hit.duration ?? "8n", scheduledTime, hit.velocity * 0.6);
-      else if (hit.voice === "crash") graph.crash.triggerAttackRelease("16n", scheduledTime, hit.velocity * 0.45);
-      else if (hit.voice === "ride") graph.ride.triggerAttackRelease("32n", scheduledTime, hit.velocity * 0.42);
-      else graph.hat.triggerAttackRelease(hit.duration ?? "32n", scheduledTime, hit.velocity * 0.5);
+      if (hit.voice === "kick") graph.kick.triggerAttackRelease("C1", hit.duration ?? "8n", scheduledTime, hit.velocity * velocityScale);
+      else if (hit.voice === "snare") graph.snare.triggerAttackRelease(hit.duration ?? "16n", scheduledTime, hit.velocity * 0.35 * velocityScale);
+      else if (hit.voice === "rim") graph.rim.triggerAttackRelease(hit.duration ?? "32n", scheduledTime, hit.velocity * 0.5 * velocityScale);
+      else if (hit.voice === "tomLow") graph.tomLow.triggerAttackRelease("D2", hit.duration ?? "8n", scheduledTime, hit.velocity * 0.7 * velocityScale);
+      else if (hit.voice === "tomMid") graph.tomMid.triggerAttackRelease("G2", hit.duration ?? "8n", scheduledTime, hit.velocity * 0.65 * velocityScale);
+      else if (hit.voice === "tomHigh") graph.tomHigh.triggerAttackRelease("C3", hit.duration ?? "8n", scheduledTime, hit.velocity * 0.6 * velocityScale);
+      else if (hit.voice === "crash") graph.crash.triggerAttackRelease("16n", scheduledTime, hit.velocity * 0.45 * velocityScale);
+      else if (hit.voice === "ride") graph.ride.triggerAttackRelease("32n", scheduledTime, hit.velocity * 0.42 * velocityScale);
+      else graph.hat.triggerAttackRelease(hit.duration ?? "32n", scheduledTime, hit.velocity * 0.5 * velocityScale);
     }
   } else if (content.kind === "bass") {
     const currentStep = patternStep(content.patternBars);
     const notes = content.notes.filter((n) => (n.bar ?? 0) * 16 + n.step === currentStep);
-    for (const note of notes) playExpressiveNoteOnGraph(graph, "bass", note, voiceIndex, time);
+    for (const note of notes) playExpressiveNoteOnGraph(graph, "bass", note, voiceIndex, time, velocityScale);
   } else if (content.kind === "harmony") {
     const currentStep = patternStep(content.patternBars);
     const chords = content.chords.filter((chord) => chord.bar * 16 + (chord.step ?? 0) === currentStep);
@@ -49,12 +51,12 @@ export function playLayerOnGraph(
       const durationSeconds = Math.max(0.03, Tone.Time(chord.duration ?? "1m").toSeconds() - 0.012);
       const scheduledTime = time + (chord.timingOffset ?? 0) * Tone.Time("16n").toSeconds();
       (voiceIndex > 0 ? graph.harmonyComp : graph.harmony)
-        .triggerAttackRelease(chord.notes, durationSeconds, scheduledTime, chord.velocity ?? 0.3);
+        .triggerAttackRelease(chord.notes, durationSeconds, scheduledTime, (chord.velocity ?? 0.3) * velocityScale);
     }
   } else if (content.kind === "melody") {
     const currentStep = patternStep(content.patternBars);
     const notes = content.notes.filter((n) => (n.bar ?? 0) * 16 + n.step === currentStep);
-    for (const note of notes) playExpressiveNoteOnGraph(graph, "melody", note, voiceIndex, time);
+    for (const note of notes) playExpressiveNoteOnGraph(graph, "melody", note, voiceIndex, time, velocityScale);
   } else if (content.kind === "texture") {
     if (globalStep !== 0) return;
     graph.texture.triggerAttackRelease(content.duration, time, content.level);
@@ -68,12 +70,13 @@ export function playStepOnGraph(
   bar: number,
   step: number,
   time: number,
+  options: { launchVelocityScale?: number; mutedLayers?: ReadonlySet<LayerId> } = {},
 ): void {
   const localBar = Math.max(0, bar - scene.startBar);
   for (const layer of ["drums", "bass", "harmony", "melody", "texture"] as const) {
-    playLayerOnGraph(graph, materialBank, scene, layer, scene.layers[layer], localBar, step, time, 0);
+    playLayerOnGraph(graph, materialBank, scene, layer, scene.layers[layer], localBar, step, time, 0, options);
     for (const [index, ref] of (scene.layerStacks?.[layer] ?? []).entries()) {
-      playLayerOnGraph(graph, materialBank, scene, layer, ref, localBar, step, time, index + 1);
+      playLayerOnGraph(graph, materialBank, scene, layer, ref, localBar, step, time, index + 1, options);
     }
   }
 }
@@ -84,12 +87,13 @@ function playExpressiveNoteOnGraph(
   note: NoteEvent,
   voiceIndex: number,
   time: number,
+  launchVelocityScale = 1,
 ): void {
   const sixteenth = Tone.Time("16n").toSeconds();
   const scheduledTime = time + (note.timingOffset ?? 0) * sixteenth;
   const durationSeconds = Math.max(0.03, Tone.Time(note.duration).toSeconds());
   const velocityScale = note.articulation === "ghost" ? 0.5 : note.articulation === "accent" ? 1.12 : 1;
-  const velocity = Math.max(0.02, Math.min(1, note.velocity * velocityScale));
+  const velocity = Math.max(0.02, Math.min(1, note.velocity * velocityScale * launchVelocityScale));
 
   if (layer === "melody" && note.instrument === "guitar") {
     playGuitarNoteOnGraph(graph, note, scheduledTime, durationSeconds, velocity);
