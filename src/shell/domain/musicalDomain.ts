@@ -5,6 +5,13 @@ import { createIncompleteSession } from "../../demo/productionMutations";
 import type { ProductionSession } from "../../domain/sessionTypes";
 import type { LayerId, NoteEvent, PatternDraft } from "../../types";
 import {
+  adaptLiveCollabPack,
+  buildScenePlacementMaps,
+  filterTrackPlacements,
+  type TrackPlacementMap,
+} from "../../domain/liveCollabSessionAdapter";
+import { parseLiveCollabPackJson, type LiveCollabPack, type LiveCollabPackMode } from "../../domain/liveCollabPack";
+import {
   SHIKI_SEVEN_TRACK_IDS,
   SHIKI_SEVEN_TRACK_INSTRUMENTS,
   type ShikiSevenTrackId,
@@ -65,6 +72,10 @@ function countDraftEvents(draft: PatternDraft): number {
 
 const DEMO_WORKSPACE_DRAFT = "midi-opening-bass";
 
+function trackIdsFromActiveLanes(activeLanes: ReadonlySet<ShikiSevenTrackId>): ShikiSevenTrackId[] {
+  return SHIKI_SEVEN_TRACK_IDS.filter((trackId) => activeLanes.has(trackId));
+}
+
 function bumpRevision(draft: PatternDraft): void {
   draft.revision = (draft.revision ?? 0) + 1;
 }
@@ -81,6 +92,10 @@ function cloneDraft(source: PatternDraft, nextId: string, title: string): Patter
 
 export class MusicalDomainStore {
   private pack: ReconstructionPack | null = null;
+  private liveCollabPack: LiveCollabPack | null = null;
+  private packMode: LiveCollabPackMode = "public";
+  private trackPlacements: TrackPlacementMap = {};
+  private activeLanes = new Set<ShikiSevenTrackId>();
   private session: ProductionSession | null = null;
   private bleed: WorkspaceBleed = "low";
   private authority: AudioAuthority = "clip-preview";
@@ -118,16 +133,46 @@ export class MusicalDomainStore {
     return this.workspaceDraftId;
   }
 
+  getPackMode(): LiveCollabPackMode {
+    return this.packMode;
+  }
+
+  getActiveLanes(): ReadonlySet<ShikiSevenTrackId> {
+    return this.activeLanes;
+  }
+
+  getLiveCollabPack(): LiveCollabPack | null {
+    return this.liveCollabPack;
+  }
+
   loadPackJson(json: string): ReconstructionPack {
     const pack = parseReconstructionPackJson(json);
     if (pack.metadata.id !== SHIKI_PUBLIC_PACK_ID) {
       throw new Error(`Expected public pack ${SHIKI_PUBLIC_PACK_ID}, got ${pack.metadata.id}`);
     }
+    this.packMode = "public";
+    this.liveCollabPack = null;
+    this.trackPlacements = {};
+    this.activeLanes.clear();
     this.pack = pack;
     this.session = createIncompleteSession(pack);
     this.seedWorkspaceDraft(DEMO_WORKSPACE_DRAFT);
     this.log("pack-loaded", `Loaded ${pack.metadata.id} · ${pack.drafts.length} drafts`);
     return pack;
+  }
+
+  loadLiveCollabPackJson(json: string): LiveCollabPack {
+    const livePack = parseLiveCollabPackJson(json);
+    const { pack, trackPlacements } = adaptLiveCollabPack(livePack);
+    this.packMode = "live-collab";
+    this.liveCollabPack = livePack;
+    this.trackPlacements = trackPlacements;
+    this.activeLanes.clear();
+    this.pack = pack;
+    this.session = createIncompleteSession(pack);
+    this.seedWorkspaceDraft("kai-lh-sparse-4");
+    this.log("pack-loaded", `Loaded ${livePack.id} · ${livePack.loopUnits.length} loop units`);
+    return livePack;
   }
 
   restart(): void {
@@ -137,7 +182,8 @@ export class MusicalDomainStore {
     this.bleed = "low";
     this.authority = "clip-preview";
     this.activeMasterDraftId = null;
-    this.seedWorkspaceDraft(DEMO_WORKSPACE_DRAFT);
+    this.activeLanes.clear();
+    this.seedWorkspaceDraft(this.packMode === "live-collab" ? "kai-lh-sparse-4" : DEMO_WORKSPACE_DRAFT);
     this.eventLog.length = 0;
     this.log("restart", `Sparse session restored · epoch ${this.restartEpoch}`);
   }
@@ -173,7 +219,13 @@ export class MusicalDomainStore {
   }
 
   activateSharedMaster(draftId: string, startBar = 0): boolean {
-    if (!this.session?.drafts[draftId] || !this.pack) return false;
+    if (!this.session || !this.pack) return false;
+    if (this.packMode === "live-collab") {
+      void draftId;
+      void startBar;
+      return this.activateAllLanes();
+    }
+    if (!this.session.drafts[draftId]) return false;
     const draft = this.session.drafts[draftId];
     const scene = this.session.scenes.find((s) => s.startBar === startBar) ?? this.session.scenes[0];
     if (!scene) return false;
@@ -182,12 +234,118 @@ export class MusicalDomainStore {
       this.hydrateDraftFromPack(id);
     }
 
+    this.applyPackPlacementsToSession(draftId, scene.id, draft.kind);
+    this.finalizeSharedMasterActivation(draftId, draft.revision ?? 0, scene);
+    return true;
+  }
+
+  activateLane(trackId: ShikiSevenTrackId, draftId?: string): boolean {
+    if (this.packMode !== "live-collab" || !this.pack || !this.session) return false;
+    if (!(SHIKI_SEVEN_TRACK_IDS as readonly string[]).includes(trackId)) return false;
+    this.activeLanes.add(trackId);
+    if (draftId) this.hydrateDraftFromPack(draftId);
+    return this.rebuildArrangementFromActiveLanes(draftId ? { [trackId]: draftId } : undefined);
+  }
+
+  activateAllLanes(): boolean {
+    if (this.packMode !== "live-collab" || !this.pack || !this.session) return false;
+    for (const trackId of SHIKI_SEVEN_TRACK_IDS) this.activeLanes.add(trackId);
+    return this.rebuildArrangementFromActiveLanes();
+  }
+
+  private rebuildArrangementFromActiveLanes(
+    overrides?: Partial<Record<ShikiSevenTrackId, string>>,
+  ): boolean {
+    if (!this.pack || !this.session || this.packMode !== "live-collab") return false;
+
+    const filtered = filterTrackPlacements(this.trackPlacements, this.activeLanes);
+    for (const placements of Object.values(filtered)) {
+      for (const unitId of Object.values(placements)) {
+        if (unitId) this.hydrateDraftFromPack(unitId);
+      }
+    }
+    if (overrides) {
+      for (const draftId of Object.values(overrides)) {
+        if (draftId) this.hydrateDraftFromPack(draftId);
+      }
+    }
+
+    const { scenePlacements, sceneLayerStacks } = buildScenePlacementMaps(filtered);
+    for (const sessionScene of this.session.scenes) {
+      sessionScene.layers = { drums: null, bass: null, harmony: null, melody: null, texture: null };
+      sessionScene.layerStacks = {};
+      const hints = scenePlacements[sessionScene.id] ?? {};
+      for (const [layer, placementDraftId] of Object.entries(hints)) {
+        if (!placementDraftId) continue;
+        const layerDraft = this.session.drafts[placementDraftId];
+        if (!layerDraft) continue;
+        sessionScene.layers[layer as LayerId] = materialRefForDraft(layerDraft);
+      }
+      const stackHints = sceneLayerStacks[sessionScene.id] ?? {};
+      for (const [layer, draftIds] of Object.entries(stackHints)) {
+        const refs = draftIds.flatMap((id) => {
+          const layerDraft = this.session!.drafts[id];
+          return layerDraft ? [materialRefForDraft(layerDraft)] : [];
+        });
+        if (refs.length) sessionScene.layerStacks[layer as LayerId] = refs;
+      }
+    }
+
+    if (overrides) {
+      const opening = this.session.scenes.find((scene) => scene.id === "opening") ?? this.session.scenes[0];
+      if (opening) {
+        for (const [trackId, overrideDraftId] of Object.entries(overrides)) {
+          if (!overrideDraftId) continue;
+          const layerDraft = this.session.drafts[overrideDraftId];
+          if (!layerDraft) continue;
+          const layer = this.layerForTrack(trackId as ShikiSevenTrackId);
+          if (layer === "bass" && trackId === "track-piano-lh") {
+            opening.layerStacks ??= {};
+            opening.layerStacks.bass = [materialRefForDraft(layerDraft)];
+          } else if (layer === "melody" && trackId !== "track-tenor") {
+            opening.layerStacks ??= {};
+            const stack = opening.layerStacks.melody ?? [];
+            opening.layerStacks.melody = [...stack.filter((ref) => ref.draftId !== overrideDraftId), materialRefForDraft(layerDraft)];
+          } else {
+            opening.layers[layer] = materialRefForDraft(layerDraft);
+          }
+        }
+      }
+    }
+
+    this.session.arrangement.scenes = this.session.scenes
+      .filter(
+        (s) =>
+          Object.values(s.layers).some((ref) => ref !== null)
+          || Object.values(s.layerStacks ?? {}).some((refs) => refs && refs.length > 0),
+      )
+      .map((s) => ({ sceneId: s.id, startBar: s.startBar }));
+
+    this.activeMasterDraftId = overrides
+      ? Object.values(overrides)[0] ?? `${trackIdsFromActiveLanes(this.activeLanes)[0]}-lane`
+      : `${this.activeLanes.size}-lanes`;
+    this.authority = "shared-master";
+    this.bleed = "low";
+    const audible = this.getSevenTrackMasterInventory().filter((track) => track.audibleInPayoff).length;
+    this.log(
+      "activate-lane",
+      `${[...this.activeLanes].join(", ")} · ${audible}/7 tracks audible`,
+    );
+    return true;
+  }
+
+  private applyPackPlacementsToSession(
+    stagedDraftId: string,
+    stagedSceneId: string,
+    stagedKind: PatternDraft["kind"],
+  ): void {
+    if (!this.pack || !this.session) return;
     for (const sessionScene of this.session.scenes) {
       const hints = this.pack.scenePlacements[sessionScene.id] ?? {};
       for (const [layer, placementDraftId] of Object.entries(hints)) {
         if (!placementDraftId) continue;
         const useDraftId =
-          sessionScene.id === scene.id && layer === draft.kind ? draftId : placementDraftId;
+          sessionScene.id === stagedSceneId && layer === stagedKind ? stagedDraftId : placementDraftId;
         const layerDraft = this.session.drafts[useDraftId];
         if (!layerDraft) continue;
         sessionScene.layers[layer as LayerId] = materialRefForDraft(layerDraft);
@@ -203,8 +361,10 @@ export class MusicalDomainStore {
         if (refs.length) sessionScene.layerStacks[layer as LayerId] = refs;
       }
     }
+  }
 
-    this.session.arrangement.scenes = this.session.scenes
+  private finalizeSharedMasterActivation(draftId: string, revision: number, scene: ProductionSession["scenes"][number]): void {
+    this.session!.arrangement.scenes = this.session!.scenes
       .filter(
         (s) =>
           Object.values(s.layers).some((ref) => ref !== null)
@@ -219,9 +379,22 @@ export class MusicalDomainStore {
     const stackCount = Object.values(scene.layerStacks ?? {}).reduce((n, refs) => n + (refs?.length ?? 0), 0);
     this.log(
       "activate-master",
-      `${draftId} r${draft.revision} → ${draft.kind} @ bar ${scene.startBar} · ${layerCount} layers · ${stackCount} stack refs · tracks ${this.getSevenTrackMasterInventory().filter((t) => t.audibleInPayoff).length}/7`,
+      `${draftId} r${revision} → @ bar ${scene.startBar} · ${layerCount} layers · ${stackCount} stack refs · tracks ${this.getSevenTrackMasterInventory().filter((t) => t.audibleInPayoff).length}/7`,
     );
-    return true;
+  }
+
+  private layerForTrack(trackId: ShikiSevenTrackId): LayerId {
+    switch (trackId) {
+      case "track-drums":
+        return "drums";
+      case "track-piano-rh":
+        return "harmony";
+      case "track-bass":
+      case "track-piano-lh":
+        return "bass";
+      default:
+        return "melody";
+    }
   }
 
   getSevenTrackMasterInventory(): MasterTrackInventoryEntry[] {

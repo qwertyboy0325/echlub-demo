@@ -97,3 +97,10 @@ export function parseLiveCollabPackJson(json: string): LiveCollabPack {
   if (pack.id !== SHIKI_LIVE_COLLAB_PACK_ID) throw new Error(`Unexpected pack id: ${pack.id}`);
   return pack;
 }
+
+export type LiveCollabPackMode = "public" | "live-collab";
+
+export function resolveShellPackMode(): LiveCollabPackMode {
+  const mode = import.meta.env.VITE_SHIKI_PACK_MODE;
+  return mode === "live-collab" ? "live-collab" : "public";
+}
