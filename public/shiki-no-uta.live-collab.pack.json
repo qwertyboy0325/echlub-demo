@@ -1,0 +1,6061 @@
+{
+  "schemaVersion": 1,
+  "id": "shiki-no-uta-live-collab-demo-v1",
+  "derivedFrom": {
+    "packId": "shiki-no-uta-cover-public-demo-v1",
+    "packSha256": "85fafb0a95d81f92e87e26a4941fbdd4dff783bc6c5d0743e1f6019cd7def7af"
+  },
+  "metadata": {
+    "title": "Shiki No Uta · Live-collab demo materials",
+    "bpm": 91.999988,
+    "totalBars": 104,
+    "sectionCount": 13
+  },
+  "deskBus": {
+    "enabled": true,
+    "version": 1
+  },
+  "participants": [
+    {
+      "id": "p1",
+      "name": "Ryo",
+      "desk": "rhythm",
+      "trackIds": [
+        "track-drums",
+        "track-bass"
+      ]
+    },
+    {
+      "id": "p2",
+      "name": "Kai",
+      "desk": "keys",
+      "trackIds": [
+        "track-piano-lh",
+        "track-piano-rh"
+      ]
+    },
+    {
+      "id": "p3",
+      "name": "Mei",
+      "desk": "horns",
+      "trackIds": [
+        "track-alto",
+        "track-tenor"
+      ]
+    },
+    {
+      "id": "p4",
+      "name": "Ren",
+      "desk": "guitar",
+      "trackIds": [
+        "track-guitar"
+      ]
+    }
+  ],
+  "loopUnits": [
+    {
+      "id": "ryo-bass-sparse-4",
+      "desk": "rhythm",
+      "role": "bed",
+      "patternBars": 4,
+      "trackIds": [
+        "track-bass"
+      ],
+      "events": [
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 0,
+          "pitch": 39,
+          "duration": "342i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 7,
+          "pitch": 40,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 8,
+          "pitch": 41,
+          "duration": "384i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 0,
+          "pitch": 34,
+          "duration": "768i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 0,
+          "pitch": 39,
+          "duration": "342i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 7,
+          "pitch": 40,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 8,
+          "pitch": 41,
+          "duration": "384i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 0,
+          "pitch": 34,
+          "duration": "768i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        }
+      ],
+      "provenance": {
+        "sourceDraftIds": [
+          "midi-opening-bass",
+          "midi-entry-bass",
+          "midi-bridge-bass"
+        ],
+        "method": "extract"
+      },
+      "loop": true
+    },
+    {
+      "id": "ryo-bass-2",
+      "desk": "rhythm",
+      "role": "groove",
+      "patternBars": 2,
+      "trackIds": [
+        "track-bass"
+      ],
+      "events": [
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 0,
+          "pitch": 39,
+          "duration": "249i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 5,
+          "pitch": 51,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 6,
+          "pitch": 51,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 7,
+          "pitch": 53,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 8,
+          "pitch": 41,
+          "duration": "249i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 13,
+          "pitch": 44,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 14,
+          "pitch": 44,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 15,
+          "pitch": 46,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 0,
+          "pitch": 34,
+          "duration": "384i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 9,
+          "pitch": 46,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 11,
+          "pitch": 46,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 13,
+          "pitch": 44,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 14,
+          "pitch": 41,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 15,
+          "pitch": 40,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        }
+      ],
+      "provenance": {
+        "sourceDraftIds": [
+          "midi-lead-a-bass",
+          "midi-trade-bass",
+          "midi-lead-c-bass",
+          "midi-lead-d-bass",
+          "midi-return-a-bass",
+          "midi-return-b-bass",
+          "midi-instrumental-a-bass",
+          "midi-instrumental-b-bass"
+        ],
+        "method": "collapse"
+      },
+      "loop": true
+    },
+    {
+      "id": "ryo-entry-4",
+      "desk": "rhythm",
+      "role": "light groove",
+      "patternBars": 4,
+      "trackIds": [
+        "track-drums"
+      ],
+      "events": [
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 0,
+          "voice": "hat",
+          "duration": "342i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 0,
+          "voice": "ride",
+          "duration": "342i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 7,
+          "voice": "ride",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 8,
+          "voice": "ride",
+          "duration": "342i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 15,
+          "voice": "ride",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 0,
+          "voice": "ride",
+          "duration": "342i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 7,
+          "voice": "ride",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 8,
+          "voice": "ride",
+          "duration": "342i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 15,
+          "voice": "ride",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 0,
+          "voice": "hat",
+          "duration": "342i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 0,
+          "voice": "ride",
+          "duration": "342i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 7,
+          "voice": "ride",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 8,
+          "voice": "ride",
+          "duration": "342i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 15,
+          "voice": "ride",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 0,
+          "voice": "ride",
+          "duration": "342i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 7,
+          "voice": "ride",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 9,
+          "voice": "ride",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 11,
+          "voice": "ride",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 13,
+          "voice": "rim",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 13,
+          "voice": "ride",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 14,
+          "voice": "rim",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 14,
+          "voice": "ride",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 15,
+          "voice": "ride",
+          "duration": "38i",
+          "velocity": 0.6299
+        }
+      ],
+      "provenance": {
+        "sourceDraftIds": [
+          "midi-entry-drums"
+        ],
+        "method": "extract"
+      },
+      "loop": true
+    },
+    {
+      "id": "ryo-groove-4",
+      "desk": "rhythm",
+      "role": "main groove",
+      "patternBars": 4,
+      "trackIds": [
+        "track-drums"
+      ],
+      "events": [
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 0,
+          "voice": "kick",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 0,
+          "voice": "crash",
+          "duration": "192i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 2,
+          "voice": "hat",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 4,
+          "voice": "snare",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 4,
+          "voice": "hat",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 6,
+          "voice": "hat",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 8,
+          "voice": "kick",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 8,
+          "voice": "hat",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 10,
+          "voice": "kick",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 10,
+          "voice": "hat",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 12,
+          "voice": "snare",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 12,
+          "voice": "hat",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 14,
+          "voice": "hat",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 0,
+          "voice": "kick",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 0,
+          "voice": "hat",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 2,
+          "voice": "hat",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 4,
+          "voice": "snare",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 4,
+          "voice": "hat",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 6,
+          "voice": "hat",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 8,
+          "voice": "kick",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 9,
+          "voice": "kick",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 9,
+          "voice": "hat",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 10,
+          "voice": "hat",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 11,
+          "voice": "kick",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 11,
+          "voice": "hat",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 12,
+          "voice": "hat",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 13,
+          "voice": "snare",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 14,
+          "voice": "snare",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 15,
+          "voice": "snare",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 0,
+          "voice": "kick",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 0,
+          "voice": "hat",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 2,
+          "voice": "hat",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 4,
+          "voice": "snare",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 4,
+          "voice": "hat",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 6,
+          "voice": "hat",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 8,
+          "voice": "kick",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 8,
+          "voice": "hat",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 10,
+          "voice": "kick",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 10,
+          "voice": "hat",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 12,
+          "voice": "snare",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 12,
+          "voice": "hat",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 14,
+          "voice": "hat",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 0,
+          "voice": "kick",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 0,
+          "voice": "hat",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 2,
+          "voice": "hat",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 4,
+          "voice": "snare",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 4,
+          "voice": "hat",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 6,
+          "voice": "hat",
+          "duration": "96i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 8,
+          "voice": "kick",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 9,
+          "voice": "kick",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 9,
+          "voice": "hat",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 10,
+          "voice": "hat",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 11,
+          "voice": "kick",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 11,
+          "voice": "hat",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 12,
+          "voice": "hat",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 13,
+          "voice": "snare",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 14,
+          "voice": "snare",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 15,
+          "voice": "snare",
+          "duration": "38i",
+          "velocity": 0.6299
+        }
+      ],
+      "provenance": {
+        "sourceDraftIds": [
+          "midi-trade-drums",
+          "midi-lead-c-drums"
+        ],
+        "method": "collapse"
+      },
+      "loop": true
+    },
+    {
+      "id": "ryo-break-4",
+      "desk": "rhythm",
+      "role": "fill",
+      "patternBars": 4,
+      "trackIds": [
+        "track-drums"
+      ],
+      "events": [
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 0,
+          "voice": "kick",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 0,
+          "voice": "hat",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 0,
+          "voice": "ride",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 1,
+          "voice": "snare",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 2,
+          "voice": "snare",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 3,
+          "voice": "kick",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 3,
+          "voice": "ride",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 4,
+          "voice": "snare",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 4,
+          "voice": "hat",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 5,
+          "voice": "snare",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 6,
+          "voice": "kick",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 6,
+          "voice": "ride",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 7,
+          "voice": "snare",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 8,
+          "voice": "snare",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 8,
+          "voice": "hat",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 9,
+          "voice": "kick",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 9,
+          "voice": "ride",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 10,
+          "voice": "snare",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 11,
+          "voice": "snare",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 0,
+          "step": 12,
+          "voice": "hat",
+          "duration": "192i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 0,
+          "voice": "kick",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 0,
+          "voice": "hat",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 0,
+          "voice": "ride",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 1,
+          "voice": "snare",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 2,
+          "voice": "snare",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 3,
+          "voice": "kick",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 3,
+          "voice": "ride",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 4,
+          "voice": "snare",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 4,
+          "voice": "hat",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 5,
+          "voice": "snare",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 6,
+          "voice": "kick",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 6,
+          "voice": "ride",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 7,
+          "voice": "snare",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 8,
+          "voice": "snare",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 8,
+          "voice": "hat",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 9,
+          "voice": "kick",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 9,
+          "voice": "ride",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 10,
+          "voice": "snare",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 11,
+          "voice": "snare",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 12,
+          "voice": "kick",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 12,
+          "voice": "hat",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 1,
+          "step": 13,
+          "voice": "kick",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 0,
+          "voice": "kick",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 0,
+          "voice": "hat",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 0,
+          "voice": "ride",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 1,
+          "voice": "snare",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 2,
+          "voice": "snare",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 3,
+          "voice": "kick",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 3,
+          "voice": "ride",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 4,
+          "voice": "snare",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 4,
+          "voice": "hat",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 5,
+          "voice": "snare",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 6,
+          "voice": "kick",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 6,
+          "voice": "ride",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 7,
+          "voice": "snare",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 8,
+          "voice": "snare",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 8,
+          "voice": "hat",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 9,
+          "voice": "kick",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 9,
+          "voice": "ride",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 10,
+          "voice": "snare",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 11,
+          "voice": "snare",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 12,
+          "voice": "hat",
+          "duration": "32i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 12,
+          "voice": "ride",
+          "duration": "32i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 12,
+          "voice": "ride",
+          "duration": "32i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 13,
+          "voice": "ride",
+          "duration": "32i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 14,
+          "voice": "ride",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 2,
+          "step": 15,
+          "voice": "ride",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 0,
+          "voice": "kick",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 0,
+          "voice": "hat",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 0,
+          "voice": "ride",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 1,
+          "voice": "snare",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 2,
+          "voice": "snare",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 3,
+          "voice": "kick",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 3,
+          "voice": "ride",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 4,
+          "voice": "snare",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 4,
+          "voice": "hat",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 5,
+          "voice": "snare",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 6,
+          "voice": "kick",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 6,
+          "voice": "ride",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 7,
+          "voice": "snare",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 8,
+          "voice": "snare",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 8,
+          "voice": "hat",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 9,
+          "voice": "kick",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 9,
+          "voice": "ride",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 10,
+          "voice": "snare",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 11,
+          "voice": "snare",
+          "duration": "38i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 12,
+          "voice": "kick",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 12,
+          "voice": "hat",
+          "duration": "57i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "drum",
+          "bar": 3,
+          "step": 13,
+          "voice": "kick",
+          "duration": "38i",
+          "velocity": 0.6299
+        }
+      ],
+      "provenance": {
+        "sourceDraftIds": [
+          "midi-interlude-drums"
+        ],
+        "method": "extract"
+      },
+      "loop": false
+    },
+    {
+      "id": "kai-lh-sparse-4",
+      "desk": "keys",
+      "role": "bed",
+      "patternBars": 4,
+      "trackIds": [
+        "track-piano-lh"
+      ],
+      "events": [
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 0,
+          "pitch": 39,
+          "duration": "325i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 7,
+          "pitch": 40,
+          "duration": "36i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 8,
+          "pitch": 41,
+          "duration": "364i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 0,
+          "pitch": 34,
+          "duration": "729i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 0,
+          "pitch": 39,
+          "duration": "325i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 7,
+          "pitch": 40,
+          "duration": "36i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 8,
+          "pitch": 41,
+          "duration": "364i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 0,
+          "pitch": 34,
+          "duration": "729i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        }
+      ],
+      "provenance": {
+        "sourceDraftIds": [
+          "midi-opening-piano-lh"
+        ],
+        "method": "extract"
+      },
+      "loop": true
+    },
+    {
+      "id": "kai-lh-pulse-2",
+      "desk": "keys",
+      "role": "groove",
+      "patternBars": 2,
+      "trackIds": [
+        "track-piano-lh"
+      ],
+      "events": [
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 0,
+          "pitch": 39,
+          "duration": "237i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 5,
+          "pitch": 51,
+          "duration": "36i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 6,
+          "pitch": 51,
+          "duration": "55i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 7,
+          "pitch": 53,
+          "duration": "36i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 8,
+          "pitch": 41,
+          "duration": "237i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 13,
+          "pitch": 44,
+          "duration": "36i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 14,
+          "pitch": 44,
+          "duration": "55i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 15,
+          "pitch": 46,
+          "duration": "36i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 0,
+          "pitch": 34,
+          "duration": "364i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 9,
+          "pitch": 46,
+          "duration": "36i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 11,
+          "pitch": 46,
+          "duration": "36i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 13,
+          "pitch": 44,
+          "duration": "36i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 14,
+          "pitch": 41,
+          "duration": "55i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 15,
+          "pitch": 40,
+          "duration": "36i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        }
+      ],
+      "provenance": {
+        "sourceDraftIds": [
+          "midi-lead-a-piano-lh",
+          "midi-trade-piano-lh"
+        ],
+        "method": "collapse"
+      },
+      "loop": true
+    },
+    {
+      "id": "kai-lh-walk-4",
+      "desk": "keys",
+      "role": "groove",
+      "patternBars": 4,
+      "trackIds": [
+        "track-piano-lh"
+      ],
+      "events": [
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 0,
+          "pitch": 39,
+          "duration": "237i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 5,
+          "pitch": 51,
+          "duration": "36i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 6,
+          "pitch": 51,
+          "duration": "55i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 7,
+          "pitch": 53,
+          "duration": "36i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 8,
+          "pitch": 41,
+          "duration": "237i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 13,
+          "pitch": 44,
+          "duration": "36i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 14,
+          "pitch": 44,
+          "duration": "55i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 15,
+          "pitch": 46,
+          "duration": "36i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 0,
+          "pitch": 34,
+          "duration": "364i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 9,
+          "pitch": 46,
+          "duration": "36i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 11,
+          "pitch": 46,
+          "duration": "36i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 13,
+          "pitch": 44,
+          "duration": "36i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 14,
+          "pitch": 41,
+          "duration": "55i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 15,
+          "pitch": 40,
+          "duration": "36i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 0,
+          "pitch": 39,
+          "duration": "237i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 5,
+          "pitch": 51,
+          "duration": "36i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 6,
+          "pitch": 51,
+          "duration": "55i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 7,
+          "pitch": 53,
+          "duration": "36i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 8,
+          "pitch": 41,
+          "duration": "237i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 13,
+          "pitch": 44,
+          "duration": "36i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 14,
+          "pitch": 44,
+          "duration": "55i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 15,
+          "pitch": 46,
+          "duration": "36i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 0,
+          "pitch": 34,
+          "duration": "364i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 9,
+          "pitch": 46,
+          "duration": "36i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 11,
+          "pitch": 46,
+          "duration": "36i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 13,
+          "pitch": 44,
+          "duration": "36i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 14,
+          "pitch": 41,
+          "duration": "55i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 15,
+          "pitch": 40,
+          "duration": "36i",
+          "velocity": 0.6299,
+          "instrument": "default"
+        }
+      ],
+      "provenance": {
+        "sourceDraftIds": [
+          "midi-lead-c-piano-lh",
+          "midi-return-a-piano-lh"
+        ],
+        "method": "collapse"
+      },
+      "loop": true
+    },
+    {
+      "id": "kai-rh-pad-4",
+      "desk": "keys",
+      "role": "bed",
+      "patternBars": 4,
+      "trackIds": [
+        "track-piano-rh"
+      ],
+      "events": [
+        {
+          "type": "chord",
+          "bar": 0,
+          "step": 0,
+          "notes": [
+            "Gb3",
+            "Bb3",
+            "Db4",
+            "F4"
+          ],
+          "duration": "364i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "chord",
+          "bar": 0,
+          "step": 8,
+          "notes": [
+            "Ab3",
+            "C4",
+            "Eb4"
+          ],
+          "duration": "364i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "chord",
+          "bar": 1,
+          "step": 0,
+          "notes": [
+            "Ab3",
+            "Db4",
+            "F4"
+          ],
+          "duration": "729i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "chord",
+          "bar": 2,
+          "step": 0,
+          "notes": [
+            "Gb3",
+            "Bb3",
+            "Db4",
+            "F4"
+          ],
+          "duration": "364i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "chord",
+          "bar": 2,
+          "step": 8,
+          "notes": [
+            "Ab3",
+            "C4",
+            "Eb4"
+          ],
+          "duration": "364i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "chord",
+          "bar": 3,
+          "step": 0,
+          "notes": [
+            "Ab3",
+            "Db4",
+            "F4"
+          ],
+          "duration": "729i",
+          "velocity": 0.6299
+        }
+      ],
+      "provenance": {
+        "sourceDraftIds": [
+          "midi-entry-piano-rh"
+        ],
+        "method": "extract"
+      },
+      "loop": true
+    },
+    {
+      "id": "kai-rh-lift-4",
+      "desk": "keys",
+      "role": "harmony lift",
+      "patternBars": 4,
+      "trackIds": [
+        "track-piano-rh"
+      ],
+      "events": [
+        {
+          "type": "chord",
+          "bar": 0,
+          "step": 0,
+          "notes": [
+            "Gb3",
+            "Bb3",
+            "Db4",
+            "F4"
+          ],
+          "duration": "364i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "chord",
+          "bar": 0,
+          "step": 8,
+          "notes": [
+            "Ab3",
+            "C4",
+            "Eb4"
+          ],
+          "duration": "364i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "chord",
+          "bar": 1,
+          "step": 0,
+          "notes": [
+            "Ab3",
+            "Db4",
+            "F4"
+          ],
+          "duration": "729i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "chord",
+          "bar": 2,
+          "step": 0,
+          "notes": [
+            "Gb3",
+            "Bb3",
+            "Db4",
+            "F4"
+          ],
+          "duration": "364i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "chord",
+          "bar": 2,
+          "step": 8,
+          "notes": [
+            "Ab3",
+            "C4",
+            "Eb4"
+          ],
+          "duration": "364i",
+          "velocity": 0.6299
+        },
+        {
+          "type": "chord",
+          "bar": 3,
+          "step": 0,
+          "notes": [
+            "Ab3",
+            "Db4",
+            "F4"
+          ],
+          "duration": "729i",
+          "velocity": 0.6299
+        }
+      ],
+      "provenance": {
+        "sourceDraftIds": [
+          "midi-lead-a-piano-rh"
+        ],
+        "method": "collapse"
+      },
+      "loop": true
+    },
+    {
+      "id": "mei-tenor-entry-8",
+      "desk": "horns",
+      "role": "identity",
+      "patternBars": 8,
+      "trackIds": [
+        "track-tenor"
+      ],
+      "events": [
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 0,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 2,
+          "pitch": 65,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 4,
+          "pitch": 58,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 6,
+          "pitch": 61,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 8,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 10,
+          "pitch": 65,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 12,
+          "pitch": 68,
+          "duration": "152i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 15,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 0,
+          "pitch": 68,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 1,
+          "pitch": 70,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 4,
+          "pitch": 68,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 6,
+          "pitch": 70,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 8,
+          "pitch": 73,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 10,
+          "pitch": 72,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 12,
+          "pitch": 68,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 14,
+          "pitch": 65,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 0,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 2,
+          "pitch": 65,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 4,
+          "pitch": 58,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 6,
+          "pitch": 61,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 8,
+          "pitch": 68,
+          "duration": "288i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 14,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 0,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 2,
+          "pitch": 65,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 4,
+          "pitch": 58,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 6,
+          "pitch": 61,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 8,
+          "pitch": 68,
+          "duration": "18i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 8,
+          "pitch": 70,
+          "duration": "76i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 10,
+          "pitch": 68,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 12,
+          "pitch": 65,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 14,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 0,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 2,
+          "pitch": 65,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 4,
+          "pitch": 58,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 6,
+          "pitch": 61,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 8,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 10,
+          "pitch": 65,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 12,
+          "pitch": 68,
+          "duration": "152i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 15,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 0,
+          "pitch": 68,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 1,
+          "pitch": 70,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 4,
+          "pitch": 68,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 6,
+          "pitch": 70,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 8,
+          "pitch": 73,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 10,
+          "pitch": 72,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 12,
+          "pitch": 68,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 14,
+          "pitch": 65,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 0,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 2,
+          "pitch": 65,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 4,
+          "pitch": 58,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 6,
+          "pitch": 61,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 8,
+          "pitch": 68,
+          "duration": "192i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 14,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 0,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 2,
+          "pitch": 65,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 4,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 6,
+          "pitch": 65,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 8,
+          "pitch": 70,
+          "duration": "192i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 13,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 14,
+          "pitch": 65,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 15,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        }
+      ],
+      "provenance": {
+        "sourceDraftIds": [
+          "midi-entry-tenor"
+        ],
+        "method": "verbatim"
+      },
+      "loop": true
+    },
+    {
+      "id": "mei-alto-themeA-8",
+      "desk": "horns",
+      "role": "hook",
+      "patternBars": 8,
+      "trackIds": [
+        "track-alto"
+      ],
+      "events": [
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 0,
+          "pitch": 68,
+          "duration": "152i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 3,
+          "pitch": 70,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 7,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 9,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 11,
+          "pitch": 63,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 13,
+          "pitch": 61,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 15,
+          "pitch": 63,
+          "duration": "190i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 3,
+          "pitch": 61,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 4,
+          "pitch": 60,
+          "duration": "384i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 13,
+          "pitch": 70,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 14,
+          "pitch": 70,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 15,
+          "pitch": 70,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 0,
+          "pitch": 68,
+          "duration": "152i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 3,
+          "pitch": 70,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 7,
+          "pitch": 61,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 8,
+          "pitch": 65,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 9,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 10,
+          "pitch": 65,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 11,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 13,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 14,
+          "pitch": 65,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 15,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 0,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 2,
+          "pitch": 65,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 3,
+          "pitch": 66,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 5,
+          "pitch": 65,
+          "duration": "326i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 13,
+          "pitch": 70,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 14,
+          "pitch": 70,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 15,
+          "pitch": 70,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 0,
+          "pitch": 68,
+          "duration": "152i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 3,
+          "pitch": 70,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 5,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 7,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 9,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 11,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 13,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 15,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 1,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 3,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 5,
+          "pitch": 61,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 7,
+          "pitch": 63,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 9,
+          "pitch": 61,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 11,
+          "pitch": 58,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 13,
+          "pitch": 70,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 14,
+          "pitch": 70,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 15,
+          "pitch": 70,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 0,
+          "pitch": 72,
+          "duration": "152i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 3,
+          "pitch": 65,
+          "duration": "134i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 6,
+          "pitch": 65,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 9,
+          "pitch": 63,
+          "duration": "134i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 12,
+          "pitch": 60,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 14,
+          "pitch": 61,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 0,
+          "pitch": 60,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 2,
+          "pitch": 58,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 3,
+          "pitch": 60,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 5,
+          "pitch": 61,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 6,
+          "pitch": 60,
+          "duration": "480i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        }
+      ],
+      "provenance": {
+        "sourceDraftIds": [
+          "midi-lead-a-alto"
+        ],
+        "method": "verbatim"
+      },
+      "loop": true
+    },
+    {
+      "id": "mei-alto-themeB-8",
+      "desk": "horns",
+      "role": "hook",
+      "patternBars": 8,
+      "trackIds": [
+        "track-alto"
+      ],
+      "events": [
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 0,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 2,
+          "pitch": 65,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 4,
+          "pitch": 58,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 6,
+          "pitch": 61,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 8,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 10,
+          "pitch": 65,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 12,
+          "pitch": 68,
+          "duration": "152i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 15,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 0,
+          "pitch": 68,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 1,
+          "pitch": 70,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 4,
+          "pitch": 68,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 6,
+          "pitch": 70,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 8,
+          "pitch": 73,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 10,
+          "pitch": 72,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 12,
+          "pitch": 68,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 14,
+          "pitch": 65,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 0,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 2,
+          "pitch": 65,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 4,
+          "pitch": 58,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 6,
+          "pitch": 61,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 8,
+          "pitch": 68,
+          "duration": "288i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 14,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 0,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 2,
+          "pitch": 65,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 4,
+          "pitch": 58,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 6,
+          "pitch": 61,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 8,
+          "pitch": 68,
+          "duration": "18i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 8,
+          "pitch": 70,
+          "duration": "76i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 10,
+          "pitch": 68,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 12,
+          "pitch": 65,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 14,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 0,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 2,
+          "pitch": 65,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 4,
+          "pitch": 58,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 6,
+          "pitch": 61,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 8,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 10,
+          "pitch": 65,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 12,
+          "pitch": 68,
+          "duration": "152i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 15,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 0,
+          "pitch": 68,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 1,
+          "pitch": 70,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 4,
+          "pitch": 68,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 6,
+          "pitch": 70,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 8,
+          "pitch": 73,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 10,
+          "pitch": 72,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 12,
+          "pitch": 68,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 14,
+          "pitch": 65,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 0,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 2,
+          "pitch": 65,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 4,
+          "pitch": 58,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 6,
+          "pitch": 61,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 8,
+          "pitch": 68,
+          "duration": "192i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 14,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 0,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 2,
+          "pitch": 65,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 4,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 6,
+          "pitch": 65,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 8,
+          "pitch": 70,
+          "duration": "192i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 13,
+          "pitch": 70,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 14,
+          "pitch": 70,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 15,
+          "pitch": 70,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        }
+      ],
+      "provenance": {
+        "sourceDraftIds": [
+          "midi-lead-c-alto"
+        ],
+        "method": "verbatim"
+      },
+      "loop": true
+    },
+    {
+      "id": "mei-alto-trade-8",
+      "desk": "horns",
+      "role": "hook",
+      "patternBars": 8,
+      "trackIds": [
+        "track-alto"
+      ],
+      "events": [
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 9,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 10,
+          "pitch": 63,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 11,
+          "pitch": 61,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 12,
+          "pitch": 58,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 13,
+          "pitch": 56,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 14,
+          "pitch": 53,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 15,
+          "pitch": 52,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 1,
+          "pitch": 51,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 2,
+          "pitch": 53,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 3,
+          "pitch": 54,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 4,
+          "pitch": 56,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 5,
+          "pitch": 61,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 6,
+          "pitch": 60,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 7,
+          "pitch": 56,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 8,
+          "pitch": 60,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 9,
+          "pitch": 56,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 10,
+          "pitch": 58,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 11,
+          "pitch": 60,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 12,
+          "pitch": 61,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 13,
+          "pitch": 68,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 14,
+          "pitch": 64,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 15,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 0,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 2,
+          "pitch": 61,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 3,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 5,
+          "pitch": 61,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 6,
+          "pitch": 65,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 1,
+          "pitch": 63,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 2,
+          "pitch": 65,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 3,
+          "pitch": 66,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 4,
+          "pitch": 68,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 5,
+          "pitch": 73,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 6,
+          "pitch": 72,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 7,
+          "pitch": 68,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 8,
+          "pitch": 72,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 9,
+          "pitch": 68,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 10,
+          "pitch": 70,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 11,
+          "pitch": 72,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 12,
+          "pitch": 73,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 13,
+          "pitch": 80,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 14,
+          "pitch": 76,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 15,
+          "pitch": 77,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 0,
+          "pitch": 75,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 2,
+          "pitch": 73,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 3,
+          "pitch": 75,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 5,
+          "pitch": 73,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 6,
+          "pitch": 77,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 1,
+          "pitch": 73,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 2,
+          "pitch": 72,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 3,
+          "pitch": 75,
+          "duration": "486i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 13,
+          "pitch": 72,
+          "duration": "64i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 14,
+          "pitch": 68,
+          "duration": "64i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 0,
+          "pitch": 72,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 2,
+          "pitch": 73,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 3,
+          "pitch": 70,
+          "duration": "230i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 10,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 12,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 14,
+          "pitch": 65,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        }
+      ],
+      "provenance": {
+        "sourceDraftIds": [
+          "midi-trade-alto"
+        ],
+        "method": "verbatim"
+      },
+      "loop": false
+    },
+    {
+      "id": "mei-tenor-answer-8",
+      "desk": "horns",
+      "role": "answer",
+      "patternBars": 8,
+      "trackIds": [
+        "track-tenor"
+      ],
+      "events": [
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 0,
+          "pitch": 63,
+          "duration": "152i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 3,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 7,
+          "pitch": 61,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 9,
+          "pitch": 61,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 11,
+          "pitch": 60,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 13,
+          "pitch": 58,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 15,
+          "pitch": 60,
+          "duration": "190i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 3,
+          "pitch": 58,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 4,
+          "pitch": 53,
+          "duration": "384i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 13,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 14,
+          "pitch": 65,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 15,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 0,
+          "pitch": 63,
+          "duration": "152i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 3,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 7,
+          "pitch": 58,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 8,
+          "pitch": 61,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 9,
+          "pitch": 61,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 10,
+          "pitch": 61,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 11,
+          "pitch": 61,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 13,
+          "pitch": 61,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 14,
+          "pitch": 61,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 15,
+          "pitch": 61,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 0,
+          "pitch": 60,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 2,
+          "pitch": 61,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 3,
+          "pitch": 63,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 5,
+          "pitch": 61,
+          "duration": "326i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 13,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 14,
+          "pitch": 65,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 15,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 0,
+          "pitch": 63,
+          "duration": "152i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 3,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 5,
+          "pitch": 58,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 7,
+          "pitch": 58,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 9,
+          "pitch": 58,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 11,
+          "pitch": 60,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 13,
+          "pitch": 60,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 4,
+          "step": 15,
+          "pitch": 61,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 1,
+          "pitch": 61,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 3,
+          "pitch": 61,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 5,
+          "pitch": 58,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 7,
+          "pitch": 60,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 9,
+          "pitch": 60,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 11,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 13,
+          "pitch": 63,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 14,
+          "pitch": 63,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 5,
+          "step": 15,
+          "pitch": 63,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 0,
+          "pitch": 65,
+          "duration": "152i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 3,
+          "pitch": 61,
+          "duration": "134i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 6,
+          "pitch": 61,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 9,
+          "pitch": 60,
+          "duration": "134i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 12,
+          "pitch": 56,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 6,
+          "step": 14,
+          "pitch": 53,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 0,
+          "pitch": 56,
+          "duration": "96i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 2,
+          "pitch": 53,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 3,
+          "pitch": 56,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 5,
+          "pitch": 53,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        },
+        {
+          "type": "note",
+          "bar": 7,
+          "step": 6,
+          "pitch": 56,
+          "duration": "480i",
+          "velocity": 0.6299,
+          "instrument": "reed-tenor"
+        }
+      ],
+      "provenance": {
+        "sourceDraftIds": [
+          "midi-lead-a-tenor",
+          "midi-trade-tenor"
+        ],
+        "method": "collapse"
+      },
+      "loop": true
+    },
+    {
+      "id": "mei-outro-4",
+      "desk": "horns",
+      "role": "cadence",
+      "patternBars": 4,
+      "trackIds": [
+        "track-alto"
+      ],
+      "events": [
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 0,
+          "pitch": 63,
+          "duration": "48i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 9,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 12,
+          "pitch": 65,
+          "duration": "48i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 13,
+          "pitch": 58,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 0,
+          "pitch": 63,
+          "duration": "48i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 9,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 12,
+          "pitch": 65,
+          "duration": "48i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 9,
+          "pitch": 58,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 11,
+          "pitch": 58,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "reed-alto"
+        }
+      ],
+      "provenance": {
+        "sourceDraftIds": [
+          "midi-outro-alto"
+        ],
+        "method": "extract"
+      },
+      "loop": true
+    },
+    {
+      "id": "ren-open-4",
+      "desk": "guitar",
+      "role": "thin color",
+      "patternBars": 4,
+      "trackIds": [
+        "track-guitar"
+      ],
+      "events": [
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 4,
+          "pitch": 60,
+          "duration": "18i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 4,
+          "pitch": 61,
+          "duration": "172i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 11,
+          "pitch": 63,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 12,
+          "pitch": 63,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 13,
+          "pitch": 63,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 15,
+          "pitch": 61,
+          "duration": "230i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 6,
+          "pitch": 63,
+          "duration": "288i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 12,
+          "pitch": 63,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 13,
+          "pitch": 61,
+          "duration": "134i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 4,
+          "pitch": 60,
+          "duration": "18i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 4,
+          "pitch": 61,
+          "duration": "172i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 11,
+          "pitch": 63,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 12,
+          "pitch": 63,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 13,
+          "pitch": 63,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 2,
+          "step": 15,
+          "pitch": 61,
+          "duration": "230i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 6,
+          "pitch": 63,
+          "duration": "288i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 12,
+          "pitch": 63,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 3,
+          "step": 13,
+          "pitch": 61,
+          "duration": "134i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        }
+      ],
+      "provenance": {
+        "sourceDraftIds": [
+          "midi-opening-guitar"
+        ],
+        "method": "extract"
+      },
+      "loop": true
+    },
+    {
+      "id": "ren-comp-2",
+      "desk": "guitar",
+      "role": "bed",
+      "patternBars": 2,
+      "trackIds": [
+        "track-guitar"
+      ],
+      "events": [
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 4,
+          "pitch": 60,
+          "duration": "18i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 4,
+          "pitch": 61,
+          "duration": "172i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 11,
+          "pitch": 63,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 12,
+          "pitch": 63,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 13,
+          "pitch": 63,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 15,
+          "pitch": 61,
+          "duration": "230i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 6,
+          "pitch": 63,
+          "duration": "288i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 12,
+          "pitch": 63,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 13,
+          "pitch": 61,
+          "duration": "134i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        }
+      ],
+      "provenance": {
+        "sourceDraftIds": [
+          "midi-lead-a-guitar"
+        ],
+        "method": "extract"
+      },
+      "loop": true
+    },
+    {
+      "id": "ren-comp-lift-2",
+      "desk": "guitar",
+      "role": "lift variant",
+      "patternBars": 2,
+      "trackIds": [
+        "track-guitar"
+      ],
+      "events": [
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 4,
+          "pitch": 60,
+          "duration": "18i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 4,
+          "pitch": 61,
+          "duration": "172i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 11,
+          "pitch": 63,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 12,
+          "pitch": 63,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 13,
+          "pitch": 63,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 15,
+          "pitch": 61,
+          "duration": "230i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 6,
+          "pitch": 63,
+          "duration": "288i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 12,
+          "pitch": 63,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 13,
+          "pitch": 61,
+          "duration": "134i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        }
+      ],
+      "provenance": {
+        "sourceDraftIds": [
+          "midi-trade-guitar",
+          "midi-lead-c-guitar"
+        ],
+        "method": "collapse"
+      },
+      "loop": true
+    },
+    {
+      "id": "ren-fork-alt-2",
+      "desk": "guitar",
+      "role": "demo fork",
+      "patternBars": 2,
+      "trackIds": [
+        "track-guitar"
+      ],
+      "events": [
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 4,
+          "pitch": 62,
+          "duration": "18i",
+          "velocity": 0.680292,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 4,
+          "pitch": 61,
+          "duration": "172i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 11,
+          "pitch": 63,
+          "duration": "38i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 12,
+          "pitch": 63,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 13,
+          "pitch": 65,
+          "duration": "38i",
+          "velocity": 0.680292,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 0,
+          "step": 15,
+          "pitch": 61,
+          "duration": "230i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 6,
+          "pitch": 63,
+          "duration": "288i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 12,
+          "pitch": 63,
+          "duration": "57i",
+          "velocity": 0.6299,
+          "instrument": "guitar"
+        },
+        {
+          "type": "note",
+          "bar": 1,
+          "step": 13,
+          "pitch": 63,
+          "duration": "134i",
+          "velocity": 0.680292,
+          "instrument": "guitar"
+        }
+      ],
+      "provenance": {
+        "sourceDraftIds": [
+          "midi-trade-guitar"
+        ],
+        "method": "mutate-fork"
+      },
+      "loop": true
+    }
+  ],
+  "arrangementMap": [
+    {
+      "sectionId": "opening",
+      "placements": {
+        "track-piano-lh": "kai-lh-sparse-4",
+        "track-bass": "ryo-bass-sparse-4",
+        "track-guitar": "ren-open-4"
+      }
+    },
+    {
+      "sectionId": "entry",
+      "placements": {
+        "track-piano-lh": "kai-lh-sparse-4",
+        "track-bass": "ryo-bass-sparse-4",
+        "track-drums": "ryo-entry-4",
+        "track-piano-rh": "kai-rh-pad-4",
+        "track-tenor": "mei-tenor-entry-8"
+      }
+    },
+    {
+      "sectionId": "lead-a",
+      "placements": {
+        "track-piano-lh": "kai-lh-pulse-2",
+        "track-bass": "ryo-bass-2",
+        "track-drums": "ryo-groove-4",
+        "track-piano-rh": "kai-rh-lift-4",
+        "track-guitar": "ren-comp-2",
+        "track-alto": "mei-alto-themeA-8",
+        "track-tenor": "mei-tenor-answer-8"
+      }
+    },
+    {
+      "sectionId": "trade",
+      "placements": {
+        "track-piano-lh": "kai-lh-walk-4",
+        "track-bass": "ryo-bass-2",
+        "track-drums": "ryo-groove-4",
+        "track-piano-rh": "kai-rh-lift-4",
+        "track-guitar": "ren-comp-lift-2",
+        "track-alto": "mei-alto-trade-8",
+        "track-tenor": "mei-tenor-answer-8"
+      }
+    },
+    {
+      "sectionId": "lead-c",
+      "placements": {
+        "track-piano-lh": "kai-lh-walk-4",
+        "track-bass": "ryo-bass-2",
+        "track-drums": "ryo-groove-4",
+        "track-piano-rh": "kai-rh-lift-4",
+        "track-guitar": "ren-comp-lift-2",
+        "track-alto": "mei-alto-themeB-8",
+        "track-tenor": "mei-tenor-answer-8"
+      }
+    },
+    {
+      "sectionId": "lead-d",
+      "placements": {
+        "track-piano-lh": "kai-lh-walk-4",
+        "track-bass": "ryo-bass-2",
+        "track-drums": "ryo-groove-4",
+        "track-piano-rh": "kai-rh-lift-4",
+        "track-guitar": "ren-comp-lift-2",
+        "track-alto": "mei-alto-themeA-8",
+        "track-tenor": "mei-tenor-answer-8"
+      }
+    },
+    {
+      "sectionId": "interlude",
+      "placements": {
+        "track-piano-lh": "kai-lh-sparse-4",
+        "track-bass": "ryo-bass-sparse-4",
+        "track-drums": "ryo-break-4",
+        "track-piano-rh": "kai-rh-pad-4",
+        "track-guitar": "ren-open-4",
+        "track-alto": "mei-alto-themeA-8"
+      }
+    },
+    {
+      "sectionId": "instrumental-a",
+      "placements": {
+        "track-piano-lh": "kai-lh-pulse-2",
+        "track-bass": "ryo-bass-2",
+        "track-drums": "ryo-groove-4",
+        "track-piano-rh": "kai-rh-lift-4",
+        "track-guitar": "ren-comp-2",
+        "track-alto": "mei-alto-themeB-8",
+        "track-tenor": "mei-tenor-answer-8"
+      }
+    },
+    {
+      "sectionId": "instrumental-b",
+      "placements": {
+        "track-piano-lh": "kai-lh-walk-4",
+        "track-bass": "ryo-bass-2",
+        "track-drums": "ryo-groove-4",
+        "track-piano-rh": "kai-rh-lift-4",
+        "track-guitar": "ren-comp-lift-2",
+        "track-alto": "mei-alto-themeA-8",
+        "track-tenor": "mei-tenor-answer-8"
+      }
+    },
+    {
+      "sectionId": "bridge",
+      "placements": {
+        "track-piano-lh": "kai-lh-sparse-4",
+        "track-bass": "ryo-bass-sparse-4",
+        "track-drums": "ryo-entry-4",
+        "track-piano-rh": "kai-rh-pad-4",
+        "track-alto": "mei-alto-themeB-8"
+      }
+    },
+    {
+      "sectionId": "return-a",
+      "placements": {
+        "track-piano-lh": "kai-lh-pulse-2",
+        "track-bass": "ryo-bass-2",
+        "track-drums": "ryo-groove-4",
+        "track-piano-rh": "kai-rh-lift-4",
+        "track-guitar": "ren-comp-2",
+        "track-alto": "mei-alto-themeA-8",
+        "track-tenor": "mei-tenor-answer-8"
+      }
+    },
+    {
+      "sectionId": "return-b",
+      "placements": {
+        "track-piano-lh": "kai-lh-walk-4",
+        "track-bass": "ryo-bass-2",
+        "track-drums": "ryo-groove-4",
+        "track-piano-rh": "kai-rh-lift-4",
+        "track-guitar": "ren-fork-alt-2",
+        "track-alto": "mei-alto-trade-8",
+        "track-tenor": "mei-tenor-answer-8"
+      }
+    },
+    {
+      "sectionId": "outro",
+      "placements": {
+        "track-piano-lh": "kai-lh-sparse-4",
+        "track-bass": "ryo-bass-sparse-4",
+        "track-piano-rh": "kai-rh-pad-4",
+        "track-alto": "mei-outro-4",
+        "track-tenor": "mei-tenor-entry-8"
+      }
+    }
+  ],
+  "soundDesign": {
+    "master": {
+      "filterRolloff": -24,
+      "delayTime": "8n",
+      "delayFeedback": 0.2,
+      "reverbDecay": 2.1,
+      "reverbPreDelay": 0.016,
+      "compressorThreshold": -10,
+      "compressorRatio": 1.5
+    },
+    "drums": {
+      "kickPitchDecay": 0.02,
+      "kickOctaves": 3.2,
+      "kickDecay": 0.22,
+      "snareNoise": "pink",
+      "snareDecay": 0.064,
+      "hatDecay": 0.022,
+      "hatResonance": 3300,
+      "drive": 0.02,
+      "filterFrequency": 9600
+    },
+    "bass": {
+      "oscillator": "triangle",
+      "volume": -14,
+      "filterQ": 1.05,
+      "filterBaseFrequency": 110,
+      "filterOctaves": 2.1,
+      "drive": 0.02,
+      "envelope": {
+        "attack": 0.005,
+        "decay": 0.14,
+        "sustain": 0.55,
+        "release": 0.14
+      }
+    },
+    "harmony": {
+      "generator": "synth",
+      "oscillator": "triangle",
+      "volume": -20,
+      "filterFrequency": 4400,
+      "chorusFrequency": 0.28,
+      "chorusDepth": 0.18,
+      "chorusWet": 0.06,
+      "envelope": {
+        "attack": 0.008,
+        "decay": 0.22,
+        "sustain": 0.42,
+        "release": 0.58
+      }
+    },
+    "melody": {
+      "generator": "synth",
+      "oscillator": "triangle",
+      "volume": -15,
+      "filterFrequency": 5100,
+      "chorusFrequency": 0.36,
+      "chorusDepth": 0.12,
+      "chorusWet": 0.05,
+      "envelope": {
+        "attack": 0.006,
+        "decay": 0.16,
+        "sustain": 0.22,
+        "release": 0.26
+      }
+    },
+    "texture": {
+      "noise": "brown",
+      "volume": -29,
+      "filterFrequency": 2300,
+      "envelope": {
+        "attack": 0.4,
+        "decay": 1.1,
+        "sustain": 0.06,
+        "release": 2.2
+      }
+    }
+  },
+  "defaultMix": {
+    "filter": 6400,
+    "delayWet": 0.08,
+    "reverbWet": 0.12,
+    "masterGain": 4,
+    "faders": {
+      "groove": 70,
+      "harmony": 52,
+      "melody": 76,
+      "texture": 0
+    },
+    "desk": {
+      "rhythm": {
+        "gainDb": 0,
+        "mute": false,
+        "delaySend": 0,
+        "reverbSend": 0.05
+      },
+      "keys": {
+        "gainDb": 0,
+        "mute": false,
+        "delaySend": 0.15,
+        "reverbSend": 0.2
+      },
+      "horns": {
+        "gainDb": 0,
+        "mute": false,
+        "delaySend": 0.45,
+        "reverbSend": 0.25
+      },
+      "guitar": {
+        "gainDb": 0,
+        "mute": false,
+        "delaySend": 0.3,
+        "reverbSend": 0.1
+      }
+    }
+  },
+  "sections": [
+    {
+      "id": "opening",
+      "label": "MIDI bars 1–4 · opening",
+      "startBar": 0,
+      "bars": 4
+    },
+    {
+      "id": "entry",
+      "label": "MIDI bars 5–12 · rhythm and tenor entry",
+      "startBar": 4,
+      "bars": 8
+    },
+    {
+      "id": "lead-a",
+      "label": "MIDI bars 13–20 · first lead statement",
+      "startBar": 12,
+      "bars": 8
+    },
+    {
+      "id": "trade",
+      "label": "MIDI bars 21–28 · sax exchange",
+      "startBar": 20,
+      "bars": 8
+    },
+    {
+      "id": "lead-c",
+      "label": "MIDI bars 29–36 · lead variation",
+      "startBar": 28,
+      "bars": 8
+    },
+    {
+      "id": "lead-d",
+      "label": "MIDI bars 37–44 · second lead statement",
+      "startBar": 36,
+      "bars": 8
+    },
+    {
+      "id": "interlude",
+      "label": "MIDI bars 45–52 · drum-led interlude",
+      "startBar": 44,
+      "bars": 8
+    },
+    {
+      "id": "instrumental-a",
+      "label": "MIDI bars 53–60 · instrumental pass one",
+      "startBar": 52,
+      "bars": 8
+    },
+    {
+      "id": "instrumental-b",
+      "label": "MIDI bars 61–68 · instrumental pass two",
+      "startBar": 60,
+      "bars": 8
+    },
+    {
+      "id": "bridge",
+      "label": "MIDI bars 69–72 · sparse bridge",
+      "startBar": 68,
+      "bars": 4
+    },
+    {
+      "id": "return-a",
+      "label": "MIDI bars 73–80 · return one",
+      "startBar": 72,
+      "bars": 8
+    },
+    {
+      "id": "return-b",
+      "label": "MIDI bars 81–88 · return two",
+      "startBar": 80,
+      "bars": 8
+    },
+    {
+      "id": "outro",
+      "label": "MIDI bars 89–104 · stripped outro",
+      "startBar": 88,
+      "bars": 16
+    }
+  ]
+}
