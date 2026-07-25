@@ -22,7 +22,9 @@
     "promote:public-song": "node scripts/promote-public-song-pack.mjs",
     "generate:live-collab-pack": "node scripts/generate-live-collab-pack.mjs",
     "collect:live-runtime": "node scripts/collect-live-runtime.mjs",
-    "capture:evidence": "node scripts/capture-evidence.mjs"
+    "capture:evidence": "node scripts/capture-evidence.mjs",
+    "capture:phase5-demo": "node scripts/capture-phase5-demo.mjs",
+    "validate:phase5-demo": "node scripts/capture-phase5-demo.mjs"
   },
   "dependencies": {
     "@floating-ui/dom": "^1.7.4",
