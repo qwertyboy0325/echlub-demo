@@ -88,6 +88,7 @@ export function DevicesPanel({ dispatch, draggable = false }: DevicesPanelProps)
             <button
               type="button"
               className={`device-block param-chip${draggable ? " device-block--draggable" : ""}${openId === device.id ? " device-block--active" : ""}`}
+              data-demo-target={`device-${device.id}`}
               ref={(el) => {
                 blockRefs.current[index] = el;
                 if (openId === device.id) anchorRef.current = el;
@@ -105,7 +106,7 @@ export function DevicesPanel({ dispatch, draggable = false }: DevicesPanelProps)
           <span className="tabular-nums">{openDevice.param}</span>
         </div>
         <div className="device-inspector-body">
-          <div className="device-knob" aria-hidden>
+          <div className="device-knob" aria-hidden data-demo-target={`device-knob-${openDevice.id}`}>
             <span
               className="device-knob-indicator"
               style={{ transform: `translateX(-50%) rotate(${(openValue / 100) * 270 - 135}deg)` }}

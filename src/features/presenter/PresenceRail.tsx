@@ -15,6 +15,7 @@ export function PresenceRail({ state, dispatch, compact }: PresenceRailProps) {
           key={p.id}
           type="button"
           className={`presence-person${p.active ? " active" : ""}`}
+          data-demo-target={`participant-${p.id}`}
           onClick={() => {
             dispatch({ type: "SELECT_PARTICIPANT", participantId: p.id });
             if (state.room === "global") dispatch({ type: "SET_ROOM", room: "participant" });

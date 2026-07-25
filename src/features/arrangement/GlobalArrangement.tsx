@@ -131,6 +131,7 @@ export function GlobalArrangement({ state, dispatch }: GlobalArrangementProps) {
                   key={slot.id}
                   className={`lane-launch-slot lane-launch-slot--${slot.state}${state.transportPlaying && slot.state === "active" ? " lane-launch-slot--pulse" : ""}`}
                   data-slot-id={slot.id}
+                  data-demo-target={`launch-slot-${slot.id}`}
                 >
                   <div className="lane-launch-meta">
                     <strong>{slot.label}</strong>

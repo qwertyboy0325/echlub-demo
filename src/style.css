@@ -2156,3 +2156,71 @@ button:disabled {
     grid-template-columns: var(--presence-width) 1fr;
   }
 }
+
+/* WP5.3 — presenter cursor choreography overlay (GSAP visual only) */
+.choreography-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 120ms ease;
+}
+
+.choreography-overlay--visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.shell-virtual-cursor {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.45));
+}
+
+.shell-virtual-cursor i {
+  display: block;
+  width: 0;
+  height: 0;
+  border-top: 12px solid var(--cursor-color, var(--focus));
+  border-right: 8px solid transparent;
+  transform: rotate(-20deg);
+}
+
+.shell-virtual-cursor b {
+  display: block;
+  margin: -1px 0 0 7px;
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  text-align: center;
+  line-height: 18px;
+  font-size: 8px;
+  font-weight: 700;
+  color: #071017;
+  background: var(--cursor-color, var(--focus));
+}
+
+.click-ripple {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  border-radius: 50%;
+  border: 2px solid var(--ripple-color, var(--focus));
+  pointer-events: none;
+  transform-origin: center;
+}
+
+[data-demo-target].cursor-clicked {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+[data-demo-target].cursor-hover {
+  background: var(--hover);
+}

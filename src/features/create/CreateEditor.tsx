@@ -49,6 +49,7 @@ export function CreateEditor({ state, dispatch }: CreateEditorProps) {
           <button
             type="button"
             className="primary-btn"
+            data-demo-target="preview-clip"
             onClick={() => dispatch({ type: "PREVIEW_WORKSPACE", draftId })}
           >
             Preview clip
@@ -67,6 +68,7 @@ export function CreateEditor({ state, dispatch }: CreateEditorProps) {
                   key={note.id}
                   type="button"
                   className={`piano-note${selectedNoteId === note.id ? " piano-note--accent" : ""}`}
+                  data-demo-target={`piano-note-${note.id}`}
                   style={{ left, top: row * ROW_HEIGHT + 2, width, height: ROW_HEIGHT - 4 }}
                   aria-label={`${note.note} step ${note.step}`}
                   onClick={() => setSelectedNoteId(note.id)}
@@ -138,6 +140,7 @@ export function CreateEditor({ state, dispatch }: CreateEditorProps) {
                 key={i}
                 type="button"
                 className={`step-cell${on ? " on" : ""}`}
+                data-demo-target={`step-cell-${i}`}
                 aria-label={`Step ${i + 1}`}
                 onClick={() => draftId && dispatch({ type: "TOGGLE_STEP", draftId, step: i })}
               />

@@ -79,6 +79,7 @@ export function LiveControlDock({ state, dispatch, compact }: LiveControlDockPro
             }}
             className={`dock-slot dock-slot--${slot.type} ${slotModeClass(state.dockMode, slot.mapped)}`}
             data-slot-index={slot.index}
+            data-demo-target={`dock-slot-${slot.index}`}
             data-mapped={slot.mapped ? "true" : "false"}
           >
             <span className="dock-slot-state-line" aria-hidden />

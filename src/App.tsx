@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { PresenterNav } from "./features/presenter/PresenterNav";
 import { LiveControlDock } from "./features/dock/LiveControlDock";
 import { GlobalStudioRoom } from "./rooms/GlobalStudioRoom";
 import { MixerPerformanceRoom } from "./rooms/MixerPerformanceRoom";
 import { ParticipantWorkspaceRoom } from "./rooms/ParticipantWorkspaceRoom";
 import { shellAudioAdapter } from "./shell/audio/shellAudioAdapter";
+import { ChoreographyOverlay } from "./shell/ChoreographyOverlay";
 import { FocusShell } from "./shell/FocusShell";
+import type { ShellChoreographyEngine } from "./shell/choreographyEngine";
 import {
   runPhase4Walkthrough,
   runPhase5Walkthrough,
@@ -36,6 +38,10 @@ export function App() {
   const [packError, setPackError] = useState<string | null>(null);
   const [presenterCaption, setPresenterCaption] = useState<string | null>(null);
   const [walkthroughRunning, setWalkthroughRunning] = useState(false);
+  const choreographyEngineRef = useRef<ShellChoreographyEngine | null>(null);
+  const handleChoreographyReady = useCallback((handle: { engine: ShellChoreographyEngine | null }) => {
+    choreographyEngineRef.current = handle.engine;
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -71,10 +77,20 @@ export function App() {
       };
       globalWindow.__runPhase5Walkthrough = async () => {
         setWalkthroughRunning(true);
+        await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
         try {
-          return await runPhase5Walkthrough(shellStore.dispatch.bind(shellStore), (step) => {
-            setPresenterCaption(step.label);
-          });
+          return await runPhase5Walkthrough(
+            shellStore.dispatch.bind(shellStore),
+            (step) => {
+              setPresenterCaption(step.label);
+            },
+            {
+              choreographyEngine: choreographyEngineRef.current,
+              onMissingTarget: (selector, step) => {
+                console.warn(`[choreography] missing target ${selector} at beat "${step.label}"`);
+              },
+            },
+          );
         } finally {
           setWalkthroughRunning(false);
         }
@@ -115,7 +131,7 @@ export function App() {
       <LiveControlDock state={state} dispatch={dispatch} compact={compact} />
     ) : (
       <div className="transport-bar">
-        <button type="button" onClick={() => dispatch({ type: "TOGGLE_TRANSPORT" })}>
+        <button type="button" data-demo-target="transport-play" onClick={() => dispatch({ type: "TOGGLE_TRANSPORT" })}>
           {state.transportPlaying ? "Pause" : "Play"}
         </button>
         <span className="tabular-nums">
@@ -124,7 +140,7 @@ export function App() {
         <span className={`transport-hint${playbackHint.attention ? " transport-hint--attention" : ""}`}>
           {playbackHint.text}
         </span>
-        <button type="button" onClick={() => dispatch({ type: "RESTART_SESSION" })}>
+        <button type="button" data-demo-target="transport-restart" onClick={() => dispatch({ type: "RESTART_SESSION" })}>
           Restart
         </button>
       </div>
@@ -158,6 +174,11 @@ export function App() {
         bottom={bottom}
         bottomVariant={state.room === "mixer" ? "dock" : "transport"}
         presenterCaption={presenterCaption}
+      />
+      <ChoreographyOverlay
+        active={walkthroughRunning}
+        participants={state.participants}
+        onReady={handleChoreographyReady}
       />
     </div>
   );

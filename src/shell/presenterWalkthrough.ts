@@ -4,6 +4,9 @@
  */
 import type { ShellCommand } from "./domain/shellTypes";
 import { shellStore } from "./domain/shellStore";
+import type { ShellChoreographyEngine } from "./choreographyEngine";
+import { dispatchNavigationCommand, runCommandChoreography } from "./choreographyRunner";
+import { isNavigationCommand } from "./choreographyForCommand";
 
 export interface WalkthroughStep {
   beat: number;
@@ -169,27 +172,50 @@ export async function runPhase4Walkthrough(
   }
 }
 
+export interface Phase5WalkthroughOptions {
+  choreographyEngine?: ShellChoreographyEngine | null;
+  onMissingTarget?: (selector: string, step: WalkthroughStep) => void;
+}
+
 export async function runPhase5Walkthrough(
   dispatch: (command: ShellCommand) => void = shellStore.dispatch.bind(shellStore),
   onStep?: (step: WalkthroughStep) => void,
+  options: Phase5WalkthroughOptions = {},
 ): Promise<string[]> {
   if (walkthroughFlight) return walkthroughFlight;
   const epoch = walkthroughEpoch;
+  const { choreographyEngine = null, onMissingTarget } = options;
   walkthroughFlight = (async () => {
     const labels: string[] = [];
     try {
+      choreographyEngine?.show();
       for (const step of PHASE5_WALKTHROUGH) {
         if (epoch !== walkthroughEpoch) break;
         labels.push(step.label);
         onStep?.(step);
-        for (const command of step.commands) {
+        for (let commandIndex = 0; commandIndex < step.commands.length; commandIndex += 1) {
+          const command = step.commands[commandIndex]!;
           if (epoch !== walkthroughEpoch) break;
+          if (isNavigationCommand(command)) {
+            await dispatchNavigationCommand(command, dispatch);
+            continue;
+          }
+          const { missingTargets } = await runCommandChoreography(
+            command,
+            step,
+            commandIndex,
+            choreographyEngine,
+          );
+          for (const selector of missingTargets) {
+            onMissingTarget?.(selector, step);
+          }
           dispatch(command);
           if (command.type === "RESTART_SESSION") bumpWalkthroughEpoch();
         }
         if (step.delayMs) await new Promise((r) => setTimeout(r, step.delayMs));
       }
     } finally {
+      choreographyEngine?.hide();
       walkthroughFlight = null;
     }
     return labels;
