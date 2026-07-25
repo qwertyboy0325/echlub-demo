@@ -51,6 +51,7 @@ export function App() {
         __runPhase4WalkthroughUntil?: (maxBeat: number) => Promise<string[]>;
         __runPhase4WalkthroughRange?: (fromBeat: number, toBeat: number) => Promise<string[]>;
         __runPhase5Walkthrough?: () => Promise<string[]>;
+        __runPhase5WalkthroughUntil?: (maxBeat: number) => Promise<string[]>;
         __runPhase5WalkthroughRange?: (fromBeat: number, toBeat: number) => Promise<string[]>;
         __shellStore?: typeof shellStore;
       };
@@ -89,6 +90,27 @@ export function App() {
               onMissingTarget: (selector, step) => {
                 console.warn(`[choreography] missing target ${selector} at beat "${step.label}"`);
               },
+            },
+          );
+        } finally {
+          setWalkthroughRunning(false);
+        }
+      };
+      globalWindow.__runPhase5WalkthroughUntil = async (maxBeat: number) => {
+        setWalkthroughRunning(true);
+        await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+        try {
+          return await runPhase5Walkthrough(
+            shellStore.dispatch.bind(shellStore),
+            (step) => {
+              setPresenterCaption(step.label);
+            },
+            {
+              choreographyEngine: choreographyEngineRef.current,
+              onMissingTarget: (selector, step) => {
+                console.warn(`[choreography] missing target ${selector} at beat "${step.label}"`);
+              },
+              maxBeat,
             },
           );
         } finally {

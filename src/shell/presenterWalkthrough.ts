@@ -175,6 +175,8 @@ export async function runPhase4Walkthrough(
 export interface Phase5WalkthroughOptions {
   choreographyEngine?: ShellChoreographyEngine | null;
   onMissingTarget?: (selector: string, step: WalkthroughStep) => void;
+  /** Capture-only: stop after this beat (default runs all 15). */
+  maxBeat?: number;
 }
 
 export async function runPhase5Walkthrough(
@@ -184,12 +186,13 @@ export async function runPhase5Walkthrough(
 ): Promise<string[]> {
   if (walkthroughFlight) return walkthroughFlight;
   const epoch = walkthroughEpoch;
-  const { choreographyEngine = null, onMissingTarget } = options;
+  const { choreographyEngine = null, onMissingTarget, maxBeat } = options;
   walkthroughFlight = (async () => {
     const labels: string[] = [];
     try {
       choreographyEngine?.show();
       for (const step of PHASE5_WALKTHROUGH) {
+        if (maxBeat != null && step.beat > maxBeat) break;
         if (epoch !== walkthroughEpoch) break;
         labels.push(step.label);
         onStep?.(step);
