@@ -99,14 +99,17 @@ export function CreateEditor({ state, dispatch }: CreateEditorProps) {
           <span className="devices-summary-action">Open Devices</span>
         </button>
         {draftId && (
-          <button
-            type="button"
-            className="primary-btn"
-            data-demo-target="preview-clip"
-            onClick={() => dispatch({ type: "PREVIEW_WORKSPACE", draftId })}
-          >
-            Preview clip
-          </button>
+          <div className="create-audition-group">
+            <button
+              type="button"
+              className={`primary-btn create-audition-btn${state.deskAuditionDraftId === draftId ? " create-audition-btn--active" : ""}`}
+              data-demo-target="preview-clip"
+              onClick={() => dispatch({ type: "PREVIEW_WORKSPACE", draftId })}
+            >
+              Desk audition
+            </button>
+            <span className="create-audition-hint">desk-local · not Shared Master</span>
+          </div>
         )}
       </div>
       {state.createSubMode === "piano" && (

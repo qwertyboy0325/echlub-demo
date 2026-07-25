@@ -15,7 +15,7 @@ const PARTICIPANTS = [
 
 describe("WP5.7 Phase 3-4", () => {
   it("keeps 36 walkthrough beats unchanged", () => {
-    expect(PHASE5_WALKTHROUGH).toHaveLength(36);
+    expect(PHASE5_WALKTHROUGH).toHaveLength(37);
   });
 
   it("maps four desk device counts to two-rack panels", () => {

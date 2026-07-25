@@ -47,11 +47,11 @@ npm run dev:live-collab
 # or: VITE_SHIKI_PACK_MODE=live-collab npm run dev
 ```
 
-You should see **Global Studio · Participant · Mixer** tabs, a **Play** transport bar, and arrangement lanes. Audio requires a user click (**Play** or **Preview clip** in Participant → Create) to unlock the browser AudioContext.
+You should see **Global Studio · Participant · Mixer** tabs, a **Play** transport bar, and arrangement lanes. Audio requires a user click (**Play** or **Desk audition** in Participant → Create) to unlock the browser AudioContext.
 
 If the page stays blank for 5+ seconds, you are likely on the wrong URL or base path.
 
-Phase 6 owner runbook (presenter walkthrough, A/V capture, pack SHA oracle): [`design-research/phase6-demo-runbook.md`](design-research/phase6-demo-runbook.md).
+Phase 6 owner runbook (presenter, capture, pack SHA, CI smoke): [`design-research/phase6-demo-runbook.md`](design-research/phase6-demo-runbook.md). Light shell smoke: `npm run validate:browser` (not full A/V capture).
 
 ## Build
 

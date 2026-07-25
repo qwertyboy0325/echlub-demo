@@ -32,10 +32,12 @@ function ComparePanel({
   pair,
   nameFor,
   dispatch,
+  mode,
 }: {
   pair: { parent: ExchangeClip; fork: ExchangeClip };
   nameFor: (id: string) => string;
   dispatch: (command: ShellCommand) => void;
+  mode: "review" | "promote";
 }) {
   const previewParent = () => {
     if (!pair.parent.draftId) return;
@@ -45,12 +47,16 @@ function ComparePanel({
     if (!pair.fork.draftId) return;
     dispatch({ type: "PREVIEW_WORKSPACE", draftId: pair.fork.draftId });
   };
+  const hint =
+    mode === "promote"
+      ? "Listen Parent / Fork before Promote — Shared Master stays"
+      : "Parent vs fork before Accept";
 
   return (
     <section className="exchange-compare-panel" aria-label="Compare parent and fork" data-demo-target="exchange-compare">
       <header className="exchange-compare-header">
-        <h3>Compare</h3>
-        <span className="exchange-compare-hint">Parent vs fork before Accept</span>
+        <h3>{mode === "promote" ? "Fork audition" : "Compare"}</h3>
+        <span className="exchange-compare-hint">{hint}</span>
       </header>
       <div className="exchange-compare-grid">
         <article className="exchange-compare-card exchange-compare-card--parent">
@@ -69,10 +75,10 @@ function ComparePanel({
       {pair.parent.draftId && pair.fork.draftId && (
         <div className="exchange-compare-listen">
           <button type="button" className="ghost-btn" data-demo-target="compare-listen-parent" onClick={previewParent}>
-            Listen A
+            Listen Parent
           </button>
           <button type="button" className="ghost-btn" data-demo-target="compare-listen-fork" onClick={previewFork}>
-            Listen B
+            Listen Fork
           </button>
         </div>
       )}
@@ -149,8 +155,15 @@ function RoomCta({ room, state, dispatch }: { room: RoomId; state: ShellState; d
     case "participant":
       return (
         <div className="exchange-room-cta">
-          <Button className="ghost-btn" isDisabled={!clipId} onPress={() => clipId && dispatch({ type: "SELECT_EXCHANGE_CLIP", clipId })}>
-            Preview
+          <Button
+            className="ghost-btn"
+            isDisabled={!clipId}
+            onPress={() => {
+              const clip = clipId ? state.exchangeClips.find((c) => c.id === clipId) : null;
+              if (clip?.draftId) dispatch({ type: "PREVIEW_WORKSPACE", draftId: clip.draftId });
+            }}
+          >
+            Desk audition
           </Button>
           <Button className="primary-btn" data-demo-target="share-clip" onPress={() => dispatch({ type: "SHARE_CLIP" })}>
             Share revision
@@ -200,6 +213,8 @@ export function SharedClipExchange({ state, dispatch, variant }: SharedClipExcha
   const colorFor = (id: string) => state.participants.find((p) => p.id === id)?.color ?? "var(--muted)";
   const nameFor = (id: string) => state.participants.find((p) => p.id === id)?.name ?? id;
   const comparePair = resolveExchangeComparePair(state);
+  const compareMode =
+    comparePair?.fork.lifecycle === "Ready" && comparePair.fork.forkOf ? ("promote" as const) : ("review" as const);
 
   return (
     <aside className={`exchange-panel exchange-panel--${variant}`} aria-label="Shared Clip Exchange">
@@ -211,7 +226,7 @@ export function SharedClipExchange({ state, dispatch, variant }: SharedClipExcha
           </button>
         )}
       </header>
-      {comparePair && <ComparePanel pair={comparePair} nameFor={nameFor} dispatch={dispatch} />}
+      {comparePair && <ComparePanel pair={comparePair} nameFor={nameFor} dispatch={dispatch} mode={compareMode} />}
       <div className="exchange-list" ref={listRef}>
         {state.exchangeClips.map((clip: ExchangeClip) => (
           <ExchangeRow

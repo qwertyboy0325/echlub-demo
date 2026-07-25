@@ -119,6 +119,8 @@ export interface ShellState {
   participantWorkspaces: Record<string, ParticipantWorkspace>;
   workspaceBleed: WorkspaceBleed;
   activeMasterDraftId: string | null;
+  /** Desk-local private cue draft — not Shared Master (WP6-PRIVATE-BOUNDARY). */
+  deskAuditionDraftId: string | null;
   /** Building → Performing after full lane payoff (WP5.7). */
   sessionPhase: SessionPhase;
   /** Structural role recall target for closing triad (WP5.7). */

@@ -33,6 +33,7 @@ export function FocusShell({
   const activeParticipant = state.participants.find((p) => p.active) ?? state.participants.find((p) => p.id === state.selectedParticipantId);
   const launchedLanes = state.arrangementSlots.filter((slot) => slot.state === "playing").length;
   const inGlobal = state.room === "global";
+  const deskAuditionActive = Boolean(state.deskAuditionDraftId);
 
   return (
     <div className={`focus-shell focus-shell--${viewport}${inGlobal ? " focus-shell--global-zones" : ""}`}>
@@ -41,7 +42,21 @@ export function FocusShell({
         <div className="focus-global-zones" aria-label="Global studio zones">
           <span className="focus-zone-chip focus-zone-chip--session">Session</span>
           <span className="focus-zone-chip focus-zone-chip--arrangement">Arrangement</span>
-          <span className="focus-zone-chip focus-zone-chip--master">Shared Master</span>
+          <span
+            className={`focus-zone-chip focus-zone-chip--master${deskAuditionActive ? " focus-zone-chip--master-dimmed" : ""}`}
+          >
+            Shared Master
+          </span>
+          {deskAuditionActive && (
+            <span className="focus-zone-chip focus-zone-chip--desk-audition" data-demo-target="desk-audition-chip">
+              Desk audition · local
+            </span>
+          )}
+        </div>
+      )}
+      {!inGlobal && deskAuditionActive && (
+        <div className="focus-shell-audition-banner" data-demo-target="desk-audition-banner" role="status">
+          Desk audition · {state.deskAuditionDraftId} · not Shared Master
         </div>
       )}
       {state.sessionPhase === "performing" && (

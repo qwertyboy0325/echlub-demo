@@ -134,12 +134,12 @@ describe("choreographyForCommand", () => {
   });
 
   it("targets 36 narrative beats with lead-a, trade, and closing triad", () => {
-    expect(PHASE5_WALKTHROUGH).toHaveLength(36);
+    expect(PHASE5_WALKTHROUGH).toHaveLength(37);
     expect(PHASE5_WALKTHROUGH.some((step) => step.waitUntilBar === 12)).toBe(true);
     expect(PHASE5_WALKTHROUGH.some((step) => step.waitUntilBar === 20)).toBe(true);
     expect(PHASE5_WALKTHROUGH.some((step) => step.label.startsWith("Perform ·"))).toBe(true);
     expect(PHASE5_WALKTHROUGH.some((step) => step.label.startsWith("Recall ·"))).toBe(true);
-    expect(PHASE5_WALKTHROUGH.some((step) => step.label.startsWith("Promote ·"))).toBe(true);
+    expect(PHASE5_WALKTHROUGH.some((step) => step.label.includes("Promote"))).toBe(true);
   });
 
   it("includes collaboration and live-fx narrative beats", () => {

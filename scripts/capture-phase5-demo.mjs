@@ -47,7 +47,7 @@ const FRAME_INTERVAL_MS = Number(process.env.PHASE5_FRAME_MS ?? 200);
 const FRAME_FPS = 1000 / FRAME_INTERVAL_MS;
 const HEADLESS = process.env.HEADLESS !== "0";
 
-/** Aligns with PHASE5_WALKTHROUGH in src/shell/presenterWalkthrough.ts (36 beats). */
+/** Aligns with PHASE5_WALKTHROUGH in src/shell/presenterWalkthrough.ts (37 beats). */
 const PHASE5_BEAT = {
   /** Last scripted action before payoff holds (Mei · Horns desk delay throw). */
   PRE_PAYOFF_MAX: 30,
@@ -59,10 +59,12 @@ const PHASE5_BEAT = {
   PERFORM: 33,
   /** Recall prior material into a new structural role. */
   RECALL: 34,
-  /** Promote fork lineage to master take before restart. */
+  /** Audition then promote fork lineage to master take. */
   PROMOTE: 35,
+  /** Launch promoted fork onto Shared Master lane. */
+  LAUNCH_PROMOTED: 36,
   /** Restart sparse global — RESTART_SESSION. */
-  RESTART: 36,
+  RESTART: 37,
 };
 
 /** Scripted walkthrough stops before transport-synced payoff holds; external holds substitute beats 28–29. */
@@ -501,7 +503,7 @@ try {
     await delay(4000);
   }
 
-  const closingLabels = await runWalkthroughRange(page, PHASE5_BEAT.PERFORM, PHASE5_BEAT.PROMOTE);
+  const closingLabels = await runWalkthroughRange(page, PHASE5_BEAT.PERFORM, PHASE5_BEAT.LAUNCH_PROMOTED);
   const restartLabels = await runWalkthroughRange(page, RESTART_BEAT, RESTART_BEAT);
   laneTrace.push(summarizeEvidence(await shellEvidence(page), "post-restart-sparse"));
   await delay(POST_RESTART_HOLD_MS);

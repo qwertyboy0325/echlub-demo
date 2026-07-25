@@ -77,7 +77,11 @@ export function choreographyForCommand(
         ? actionFor(operator, { kind: "velocity-slider", noteId: command.noteId }, "click", deskFor(operator))
         : null;
     case "PREVIEW_WORKSPACE": {
-      if (operator && step.label.toLowerCase().includes("compare")) {
+      const listenBeat =
+        step.label.toLowerCase().includes("compare") ||
+        step.label.toLowerCase().includes("audition") ||
+        step.label.toLowerCase().includes("promote");
+      if (operator && listenBeat) {
         const previews = step.commands.filter((entry) => entry.type === "PREVIEW_WORKSPACE");
         const previewIndex = previews.findIndex((entry) => entry === command);
         if (previewIndex === 0) {

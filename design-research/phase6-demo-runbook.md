@@ -38,9 +38,18 @@ Do **not** mutate `shiki-no-uta.demo.pack.json` (preservation oracle).
 
 3. Click **Play** once to unlock AudioContext.
 
-4. The walkthrough auto-runs (36 beats): fork → review → revise (step edit) → compare (Listen A/B) → accept → stage → seven-lane payoff → perform → recall → promote → restart.
+4. The walkthrough auto-runs (36 beats): fork → review → revise (step edit) → compare (Listen Parent / Listen Fork) → accept → stage → seven-lane payoff → perform → recall → audition then promote → restart.
 
-5. Optional manual controls: **Pause walkthrough** in presenter chrome; Exchange **Revise** / **Listen A·B** on the bass fork compare panel.
+5. Optional manual controls: **Pause walkthrough** in presenter chrome; Exchange **Revise** / **Listen Parent·Fork** on the bass fork compare panel; Ready forks show **Fork audition** before Promote.
+
+## Private vs Shared (cold-viewer check)
+
+Without reading the caption strip, confirm:
+
+- Create toolbar: **Desk audition** + hint `desk-local · not Shared Master`
+- Participant room: audition banner while cue is active
+- Global zones: **Desk audition · local** chip appears beside dimmed Shared Master during cue
+- Presence: live task e.g. `Kai · editing LH` (not only desk name)
 
 ## Capture (A/V artifact)
 
@@ -68,6 +77,8 @@ Foreground Chrome (debug timing):
 HEADLESS=0 npm run capture:phase5-demo
 ```
 
+**Not a CI gate.** Full A/V capture (~2–4 min) is owner/local only.
+
 ## Validate capture (no re-record)
 
 ```bash
@@ -75,6 +86,18 @@ npm run validate:phase5-demo
 ```
 
 Checks manifest, lane trace, and artifact presence. Does not run full vitest.
+
+## CI / light smoke (no full capture)
+
+```bash
+npm run validate:browser
+```
+
+Spawns a short-lived Vite server, loads the shell, clicks through Three Rooms, asserts FocusShell / Presence / Exchange mount with `pageErrors=0`. Explicitly **excludes** the ~134s Phase 5 A/V capture.
+
+`npm test` (vitest) also **excludes** browser smoke wrappers (`browserLoad.test.ts`, `r3BrowserSmoke.test.ts`); run those only via `validate:browser` / the smoke scripts.
+
+Legacy HTML `#start-button` probe lives at `scripts/validate-browser-load.mjs` (Four-Brain path only; not wired as `validate:browser`).
 
 ## Tests (before capture)
 
@@ -85,7 +108,7 @@ npm test
 Excludes browser smoke by default. Targeted:
 
 ```bash
-npx vitest run src/validation/wp6ReviewDepth.test.ts
+npx vitest run src/validation/wp6ReviewDepth.test.ts src/validation/wp6PrivateForkBoundary.test.ts
 ```
 
 ## Troubleshooting
@@ -93,6 +116,7 @@ npx vitest run src/validation/wp6ReviewDepth.test.ts
 | Symptom | Fix |
 |---------|-----|
 | Blank page | Use exact Vite URL; for preview use `/present` path |
-| No audio | Click Play or Preview clip first |
+| No audio | Click Play or Desk audition first |
 | Capture attach fails | `PHASE5_ATTACH_ONLY=1` requires server already up on `PHASE5_PORT` |
 | Port clash | `PHASE5_PORT=4174 npm run dev:live-collab` then capture with same port |
+| CI smoke port clash | `BROWSER_LOAD_PORT=4184 npm run validate:browser` |

@@ -78,15 +78,7 @@ async function seedReadyClipViaUi(page) {
   }
 
   if (await page.$(".exchange-row .chip-review")) {
-    await clickRowWithChip(page, "chip-review", ".exchange-overflow-trigger");
-    await delay(100);
-    await page.evaluate(() => {
-      const row = [...document.querySelectorAll(".exchange-row")].find((r) => r.querySelector(".chip-review"));
-      [...(row?.querySelectorAll(".exchange-overflow-menu button") ?? [])]
-        .find((b) => b.textContent?.includes("Mark ready"))
-        ?.click();
-    });
-    await delay(200);
+    await clickRowWithChip(page, "chip-review", ".exchange-primary-action");
   }
 
   if (!(await page.$(".exchange-row .chip-ready"))) {

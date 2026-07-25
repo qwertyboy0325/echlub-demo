@@ -1,4 +1,4 @@
-import type { CreateSubMode, ParticipantTab, ParticipantWorkspace, ShellState } from "./shellTypes";
+import type { ParticipantWorkspace, ShellState } from "./shellTypes";
 
 export type { ParticipantWorkspace };
 
@@ -27,6 +27,36 @@ export function fullDeskTitle(name: string, taskProfile: string): string {
 
 export function parkedCursorLabel(name: string, taskProfile: string): string {
   return `${name} at ${deskLabelForProfile(taskProfile)}`;
+}
+
+/** Short craft verb for Presence — e.g. "editing LH", "forking guitar". */
+export function editingTaskForDraft(draftId: string | null, options?: { forking?: boolean }): string {
+  if (!draftId) return "at desk";
+  const id = draftId.toLowerCase();
+  if (options?.forking || id.includes("fork")) {
+    if (id.includes("guitar") || id.includes("comp") || id.includes("ren-")) return "forking guitar";
+    if (id.includes("bass")) return "editing bass fork";
+    return "editing fork";
+  }
+  if (id.includes("-lh-") || id.includes("lh-") || /piano-lh|lh-sparse/.test(id)) return "editing LH";
+  if (id.includes("-rh-") || id.includes("rh-") || /piano-rh|rh-pad/.test(id)) return "editing RH";
+  if (id.includes("bass")) return "editing bass";
+  if (id.includes("drum") || id.includes("entry-4") && id.includes("ryo")) return "editing drums";
+  if (id.includes("alto")) return "editing alto";
+  if (id.includes("tenor")) return "editing tenor";
+  if (id.includes("guitar") || id.includes("comp")) return "editing guitar";
+  return "editing draft";
+}
+
+/** Presence line: "Kai · editing LH" when draft known; else desk label. */
+export function presenceActivityLabel(
+  name: string,
+  taskProfile: string,
+  draftId: string | null,
+  options?: { forking?: boolean },
+): string {
+  if (!draftId) return deskLabelForProfile(taskProfile);
+  return `${name} · ${editingTaskForDraft(draftId, options)}`;
 }
 
 export function createPhase4ParticipantWorkspaces(): Record<string, ParticipantWorkspace> {

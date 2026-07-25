@@ -213,7 +213,10 @@ export class MusicalDomainStore {
   assignDraftToWorkspace(draftId: string): boolean {
     if (!this.session?.drafts[draftId]) return false;
     this.workspaceDraftId = draftId;
-    this.authority = "workspace-preview";
+    // Desk audition must not demote Shared Master — cue bus only (WP6-FORK-AUDITION).
+    if (this.authority !== "shared-master") {
+      this.authority = "workspace-preview";
+    }
     this.log("workspace-assign", `Editing ${draftId}`);
     return true;
   }

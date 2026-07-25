@@ -27,7 +27,7 @@ function applyBeatCommands(store: ShellStore, beat: number): void {
 
 describe("WP6 review depth", () => {
   it("walkthrough covers review revise compare accept stage on bass fork", () => {
-    expect(PHASE5_WALKTHROUGH).toHaveLength(36);
+    expect(PHASE5_WALKTHROUGH).toHaveLength(37);
     const reviseBeat = PHASE5_WALKTHROUGH.find((step) => step.commands.some((c) => c.type === "REVISE_CLIP"));
     expect(reviseBeat?.label).toContain("revise");
     expect(reviseBeat?.commands.some((c) => c.type === "TOGGLE_STEP")).toBe(true);

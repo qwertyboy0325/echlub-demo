@@ -362,7 +362,13 @@ export class ShellAudioAdapter {
     }
     const draft = this.domain.draftForId(draftId);
     if (!draft) return;
-    this.publishBank("production", { resetMix: false });
+    // Cue-bus audition only. Never republish production over a live Shared Master
+    // (would clear livePerformance scene boundaries and destroy lane playback).
+    const masterLive =
+      this.domain.getAuthority() === "shared-master" || Tone.getTransport().state === "started";
+    if (!masterLive) {
+      this.publishBank("production", { resetMix: false });
+    }
     this.engine.startPrivateCue(materialRefForDraft(draft));
   }
 

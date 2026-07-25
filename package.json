@@ -11,7 +11,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "validate:browser": "node scripts/validate-browser-load.mjs",
+    "validate:browser": "node scripts/browser-load-regression.mjs",
     "validate:shell": "node scripts/capture-shell-evidence.mjs",
     "validate:phase4": "node scripts/capture-phase4-evidence.mjs",
     "validate:phase4:browser": "node scripts/browser-phase4-musical-proof.mjs",

@@ -111,7 +111,7 @@ describe("WP5.7 Phase 1-2", () => {
   });
 
   it("covers compare perform recall promote beats in phase 5 arc", () => {
-    expect(PHASE5_WALKTHROUGH).toHaveLength(36);
+    expect(PHASE5_WALKTHROUGH).toHaveLength(37);
     expect(PHASE5_WALKTHROUGH.some((step) => step.label.includes("compare"))).toBe(true);
     expect(PHASE5_WALKTHROUGH.some((step) => step.commands.some((command) => command.type === "REVISE_CLIP"))).toBe(
       true,

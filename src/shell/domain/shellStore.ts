@@ -246,6 +246,7 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
           return s;
         }),
         activeMasterDraftId: clip?.draftId ?? null,
+        deskAuditionDraftId: null,
         activityFeed: pushActivity(state, `Activated ${slot.label} on Shared Master`),
       };
     }
@@ -270,6 +271,7 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
               : s,
           ),
           exchangeOpen: true,
+          deskAuditionDraftId: null,
           activityFeed: pushActivity(state, launchNote),
         };
       }
@@ -284,6 +286,7 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
           return s;
         }),
         activeMasterDraftId: state.activeMasterDraftId,
+        deskAuditionDraftId: null,
         activityFeed: pushActivity(
           state,
           `Launched ${command.slotId}${command.draftId ? ` · ${command.draftId}` : ""}`,
@@ -369,8 +372,13 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
     case "SET_NOTE_VELOCITY":
     case "INSERT_NOTE":
     case "TOGGLE_STEP":
-    case "PREVIEW_WORKSPACE":
       return patchParticipantWorkspace(state, state.selectedParticipantId, { draftId: command.draftId });
+    case "PREVIEW_WORKSPACE":
+      return {
+        ...patchParticipantWorkspace(state, state.selectedParticipantId, { draftId: command.draftId }),
+        deskAuditionDraftId: command.draftId,
+        activityFeed: pushActivity(state, `Desk audition · ${command.draftId} · not Shared Master`),
+      };
     case "SET_WORKSPACE_DRAFT":
       return {
         ...patchParticipantWorkspace(state, state.selectedParticipantId, { draftId: command.draftId }),
@@ -383,6 +391,7 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
       return {
         ...state,
         sessionPhase: command.phase,
+        deskAuditionDraftId: command.phase === "performing" ? null : state.deskAuditionDraftId,
         activityFeed: performNote ? pushActivity(state, performNote) : state.activityFeed,
       };
     }

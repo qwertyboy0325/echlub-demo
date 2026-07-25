@@ -22,6 +22,7 @@ export function createInitialShellState(): ShellState {
     participantWorkspaces: createPhase4ParticipantWorkspaces(),
     workspaceBleed: "low",
     activeMasterDraftId: null,
+    deskAuditionDraftId: null,
     sessionPhase: "building",
     recallRole: null,
     participants: [

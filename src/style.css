@@ -1055,6 +1055,28 @@ button:disabled {
   color: color-mix(in srgb, var(--active-shared) 75%, var(--text));
 }
 
+.focus-zone-chip--master-dimmed {
+  opacity: 0.55;
+}
+
+.focus-zone-chip--desk-audition {
+  border-color: color-mix(in srgb, var(--preview) 45%, var(--separator));
+  color: color-mix(in srgb, var(--preview) 80%, var(--text));
+  background: color-mix(in srgb, var(--preview) 12%, var(--raised));
+}
+
+.focus-shell-audition-banner {
+  grid-column: 1 / -1;
+  padding: 5px 12px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: color-mix(in srgb, var(--preview) 75%, var(--text));
+  background: color-mix(in srgb, var(--preview) 14%, var(--raised));
+  border-bottom: 1px solid color-mix(in srgb, var(--preview) 28%, var(--separator));
+}
+
 .arrangement-status-bar {
   display: flex;
   justify-content: space-between;
@@ -1736,6 +1758,25 @@ button:disabled {
   letter-spacing: 0.06em;
   color: var(--muted);
   white-space: nowrap;
+}
+
+.create-audition-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.create-audition-btn.create-audition-btn--active {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--preview) 55%, transparent);
+}
+
+.create-audition-hint {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--preview) 70%, var(--muted));
 }
 
 .create-editor[data-desk-profile="Rhythm"] {
