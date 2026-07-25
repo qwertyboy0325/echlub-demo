@@ -42,6 +42,10 @@ export function CreateEditor({ state, dispatch }: CreateEditorProps) {
     setTrackTarget(deskDefaults.trackTargets?.[0] ?? "Track");
   }, [state.selectedParticipantId, deskDefaults.trackTargets]);
 
+  useEffect(() => {
+    if (state.selectedPianoNoteId) setSelectedNoteId(state.selectedPianoNoteId);
+  }, [state.selectedPianoNoteId]);
+
   return (
     <div className="create-editor" data-desk-profile={deskProfile}>
       <div className="create-toolbar">
@@ -149,6 +153,7 @@ export function CreateEditor({ state, dispatch }: CreateEditorProps) {
                   min={5}
                   max={100}
                   value={Math.round(selectedNote.velocity * 100)}
+                  data-demo-target={`velocity-${selectedNote.id}`}
                   onChange={(e) =>
                     dispatch({
                       type: "SET_NOTE_VELOCITY",

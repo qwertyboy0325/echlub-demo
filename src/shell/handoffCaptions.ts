@@ -11,6 +11,10 @@ export function deskEditCaption(draftId: string): string {
   return `Desk: edit ${draftId}`;
 }
 
+export function deskCreateCaption(draftId: string, verb = "creating"): string {
+  return `Desk: ${verb} ${draftId}`;
+}
+
 export function exchangeSharedCaption(title: string): string {
   return `Exchange: ${title} shared`;
 }

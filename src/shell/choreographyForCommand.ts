@@ -72,6 +72,14 @@ export function choreographyForCommand(
       return operator
         ? actionFor(operator, { kind: "step-cell", step: command.step }, "click", deskFor(operator))
         : null;
+    case "SELECT_PIANO_NOTE":
+      return operator
+        ? actionFor(operator, { kind: "piano-note", noteId: command.noteId }, "click", deskFor(operator))
+        : null;
+    case "EDIT_NOTE_STEP":
+      return operator
+        ? actionFor(operator, { kind: "piano-note", noteId: command.noteId }, "click", deskFor(operator))
+        : null;
     case "SET_NOTE_VELOCITY":
       return operator
         ? actionFor(operator, { kind: "velocity-slider", noteId: command.noteId }, "click", deskFor(operator))

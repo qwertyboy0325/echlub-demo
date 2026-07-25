@@ -125,6 +125,8 @@ export interface ShellState {
   sessionPhase: SessionPhase;
   /** Structural role recall target for closing triad (WP5.7). */
   recallRole: string | null;
+  /** Presenter / walkthrough piano-roll selection (Create editor inspector). */
+  selectedPianoNoteId: string | null;
 }
 
 export type ShellCommand =
@@ -160,6 +162,7 @@ export type ShellCommand =
   | { type: "SELECT_MIXER_CHANNEL"; channelIndex: number }
   | { type: "TOGGLE_TRANSPORT" }
   | { type: "SYNC_TRANSPORT"; bar: number; beat: number; sixteenth: number; playing: boolean }
+  | { type: "SELECT_PIANO_NOTE"; draftId: string; noteId: string }
   | { type: "EDIT_NOTE_STEP"; draftId: string; noteId: string; step: number }
   | { type: "SET_NOTE_VELOCITY"; draftId: string; noteId: string; velocity: number }
   | { type: "INSERT_NOTE"; draftId: string; noteIndex?: number }

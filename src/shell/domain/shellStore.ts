@@ -6,6 +6,7 @@ import {
   syncActiveWorkspaceFields,
 } from "./participantWorkspace";
 import {
+  deskCreateCaption,
   exchangeSharedCaption,
   exchangeTitleForDraft,
   laneLaunchCaption,
@@ -368,11 +369,36 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
         transportBeat: command.beat,
         transportPlaying: command.playing,
       };
+    case "SELECT_PIANO_NOTE":
+      return {
+        ...patchParticipantWorkspace(state, state.selectedParticipantId, {
+          draftId: command.draftId,
+          createSubMode: "piano",
+        }),
+        selectedPianoNoteId: command.noteId,
+        activityFeed: pushActivity(state, deskCreateCaption(command.draftId)),
+      };
     case "EDIT_NOTE_STEP":
+      return {
+        ...patchParticipantWorkspace(state, state.selectedParticipantId, { draftId: command.draftId }),
+        selectedPianoNoteId: command.noteId,
+        activityFeed: pushActivity(state, deskCreateCaption(command.draftId, "shaping")),
+      };
     case "SET_NOTE_VELOCITY":
+      return {
+        ...patchParticipantWorkspace(state, state.selectedParticipantId, { draftId: command.draftId }),
+        selectedPianoNoteId: command.noteId,
+      };
     case "INSERT_NOTE":
+      return {
+        ...patchParticipantWorkspace(state, state.selectedParticipantId, { draftId: command.draftId }),
+        activityFeed: pushActivity(state, deskCreateCaption(command.draftId, "adding note")),
+      };
     case "TOGGLE_STEP":
-      return patchParticipantWorkspace(state, state.selectedParticipantId, { draftId: command.draftId });
+      return {
+        ...patchParticipantWorkspace(state, state.selectedParticipantId, { draftId: command.draftId }),
+        activityFeed: pushActivity(state, deskCreateCaption(command.draftId)),
+      };
     case "PREVIEW_WORKSPACE":
       return {
         ...patchParticipantWorkspace(state, state.selectedParticipantId, { draftId: command.draftId }),
@@ -406,6 +432,7 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
         followLocked: true,
         sessionPhase: "building",
         recallRole: null,
+        selectedPianoNoteId: null,
       };
     case "SELECT_MIXER_CHANNEL":
       return { ...state, selectedMixerChannel: command.channelIndex };

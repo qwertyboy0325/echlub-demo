@@ -25,6 +25,7 @@ export function createInitialShellState(): ShellState {
     deskAuditionDraftId: null,
     sessionPhase: "building",
     recallRole: null,
+    selectedPianoNoteId: null,
     participants: [
       { id: "p1", name: "Alex", color: "#e76f51", taskProfile: "MIDI", active: true, projectedRoom: "participant", projectedTab: "Create" },
       { id: "p2", name: "Jordan", color: "#2a9d8f", taskProfile: "Devices", active: false, projectedRoom: "participant", projectedTab: "Devices" },
