@@ -158,6 +158,12 @@ export function choreographyForCommand(
       return operator
         ? actionFor(operator, { kind: "desk-mute", desk: "rhythm" }, "click", deskFor(operator))
         : null;
+    case "SET_SESSION_PHASE":
+      if (command.phase === "performing") {
+        const participantId = operator ?? "p2";
+        return actionFor(participantId, { kind: "score-map" }, "hover", deskFor(participantId));
+      }
+      return null;
     default:
       return null;
   }

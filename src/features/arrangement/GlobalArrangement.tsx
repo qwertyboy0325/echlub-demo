@@ -11,6 +11,7 @@ import {
   laneStateLabel,
 } from "../../shell/laneSlotSemantics";
 import type { ShellCommand, ShellState } from "../../shell/domain/shellTypes";
+import { projectLiveCollabTimelineClips } from "../../shell/liveCollabArrangementProjection";
 import { displayTransportBar } from "../../shell/transportPlaybackHint";
 
 interface GlobalArrangementProps {
@@ -41,6 +42,10 @@ export function GlobalArrangement({ state, dispatch }: GlobalArrangementProps) {
   const launchedCount = isLiveCollab ? countPlayingLanes(state.arrangementSlots) : countPlayingLanes(state.arrangementSlots);
   const queuedSlot = state.arrangementSlots.find((s) => s.state === "queued");
   const performing = state.sessionPhase === "performing";
+  const timelineClips = isLiveCollab
+    ? projectLiveCollabTimelineClips(state.arrangementSlots, state.arrangementTracks)
+    : state.timelineClips;
+  const allLanesLive = isLiveCollab && launchedCount >= 7;
 
   useEffect(() => {
     if (isLiveCollab) return;
@@ -69,11 +74,13 @@ export function GlobalArrangement({ state, dispatch }: GlobalArrangementProps) {
   const clipForExchange = (exchangeClipId: string) => state.exchangeClips.find((c) => c.id === exchangeClipId);
 
   const masterReadout = isLiveCollab
-    ? launchedCount > 0
-      ? `Shared Master · ${launchedCount}/7 playing`
-      : queuedSlot
-        ? `${queuedSlot.label} queued for bar ${displayTransportBar(state.transportBar + 1)}`
-        : "Shared Master · sparse — Launch a loaded lane to hear it"
+    ? allLanesLive
+      ? "Shared song · all lanes live"
+      : launchedCount > 0
+        ? `Shared Master · ${launchedCount}/7 playing`
+        : queuedSlot
+          ? `${queuedSlot.label} queued for bar ${displayTransportBar(state.transportBar + 1)}`
+          : "Shared Master · sparse — Launch a loaded lane to hear it"
     : activeSlot
       ? `${activeSlot.label} on Shared Master`
       : "Shared Master unassigned — stage a Ready clip, then Activate";
@@ -196,14 +203,17 @@ export function GlobalArrangement({ state, dispatch }: GlobalArrangementProps) {
       )}
 
       <section
-        className={`global-zone global-zone--arrangement${isLiveCollab ? "" : ""}`}
+        className={`global-zone global-zone--arrangement${allLanesLive ? " global-zone--arrangement-combined" : ""}`}
         data-global-zone="arrangement"
+        data-demo-target="arrangement-score-map"
         aria-label={isLiveCollab ? "Arrangement score map" : "Arrangement timeline"}
       >
         {isLiveCollab ? (
           <header className="global-zone-header">
             <span className="global-zone-label">Arrangement</span>
-            <span className="global-zone-hint">score map</span>
+            <span className="global-zone-hint">
+              {allLanesLive ? "Shared song · all lanes live" : "score map"}
+            </span>
           </header>
         ) : null}
         <details
@@ -234,18 +244,21 @@ export function GlobalArrangement({ state, dispatch }: GlobalArrangementProps) {
                   <span>{track.identity}</span>
                 </div>
                 <div className="track-lane" style={{ width: BAR_COUNT * BAR_WIDTH }}>
-                  {state.timelineClips
+                  {timelineClips
                     .filter((tc) => tc.trackId === track.id)
                     .map((tc) => {
                       const clip = clipForExchange(tc.exchangeClipId);
+                      const title = clip?.title ?? clip?.draftId ?? tc.exchangeClipId;
                       return (
                         <div
                           key={tc.id}
                           className={`timeline-clip timeline-clip--${tc.variant}`}
                           style={{ left: (tc.startBar - 1) * BAR_WIDTH, width: tc.lengthBars * BAR_WIDTH - 4 }}
                         >
-                          <span className="timeline-clip-title">{clip?.title ?? tc.exchangeClipId}</span>
-                          <span className="timeline-clip-rev tabular-nums">r{clip?.revision ?? 1}</span>
+                          <span className="timeline-clip-title">{title}</span>
+                          {!isLiveCollab ? (
+                            <span className="timeline-clip-rev tabular-nums">r{clip?.revision ?? 1}</span>
+                          ) : null}
                         </div>
                       );
                     })}

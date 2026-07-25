@@ -28,7 +28,12 @@ export function preloadExchangeCaption(materialId: string): string {
 }
 
 export function performCaption(playingCount: number, laneTotal = 7): string {
+  if (playingCount >= laneTotal) return "Shared song · all lanes live";
   return `Perform · Shared Master · ${playingCount}/${laneTotal}`;
+}
+
+export function combinedSongCaption(): string {
+  return "Shared song · all lanes live";
 }
 
 export function recallCaption(draftId: string, role = "new role"): string {

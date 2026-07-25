@@ -978,6 +978,15 @@ button:disabled {
   min-height: 120px;
 }
 
+.global-zone--arrangement-combined .arrangement-timeline {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--active-shared) 35%, transparent);
+}
+
+.global-zone--arrangement-combined .global-zone-hint {
+  color: var(--active-shared);
+  font-weight: 600;
+}
+
 .global-zone--master {
   flex: 0 0 auto;
 }

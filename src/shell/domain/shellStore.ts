@@ -10,6 +10,7 @@ import {
   deskCreateCaption,
   exchangeSharedCaption,
   exchangeTitleForDraft,
+  combinedSongCaption,
   laneLaunchCaption,
   performCaption,
   preloadExchangeCaption,
@@ -314,7 +315,10 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
         ),
         activeMasterDraftId: `live-collab-${playingCount}-lanes`,
         exchangeOpen: true,
-        activityFeed: pushActivity(state, laneLaunchCaption(launchedLabel, playingCount)),
+        activityFeed: pushActivity(
+          state,
+          playingCount >= 7 ? combinedSongCaption() : laneLaunchCaption(launchedLabel, playingCount),
+        ),
       };
     }
     case "REORDER_EXCHANGE": {

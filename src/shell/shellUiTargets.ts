@@ -24,7 +24,8 @@ export type ShellUiTarget =
   | { kind: "velocity-slider"; noteId: string }
   | { kind: "desk-delay"; desk: string }
   | { kind: "desk-mute"; desk: string }
-  | { kind: "piano-note"; noteId: string };
+  | { kind: "piano-note"; noteId: string }
+  | { kind: "score-map" };
 
 export function shellUiTargetId(target: ShellUiTarget): string {
   switch (target.kind) {
@@ -70,6 +71,8 @@ export function shellUiTargetId(target: ShellUiTarget): string {
       return `desk-mute-${target.desk}`;
     case "piano-note":
       return `piano-note-${target.noteId}`;
+    case "score-map":
+      return "arrangement-score-map";
   }
 }
 
