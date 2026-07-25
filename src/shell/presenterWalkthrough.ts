@@ -1,6 +1,6 @@
 /**
- * Bounded Phase 4 presenter walkthrough — 17 beats from owner storyboard.
- * Dispatches shell commands only; audio handled by shellAudioAdapter.
+ * Phase 5 presenter walkthrough — projection-driven Follow camera, progressive lane launch.
+ * Uses SET_PARTICIPANT_PROJECTION instead of SET_ROOM so Follow stays enabled.
  */
 import type { ShellCommand } from "./domain/shellTypes";
 import { shellStore } from "./domain/shellStore";
@@ -10,6 +10,7 @@ export interface WalkthroughStep {
   label: string;
   commands: ShellCommand[];
   delayMs?: number;
+  afterBar?: number;
 }
 
 export const PHASE4_WALKTHROUGH: WalkthroughStep[] = [
@@ -32,6 +33,131 @@ export const PHASE4_WALKTHROUGH: WalkthroughStep[] = [
   { beat: 17, label: "Restart clean idle", commands: [{ type: "SET_ROOM", room: "global" }, { type: "RESTART_SESSION" }] },
 ];
 
+/** Bounded Phase 5 arc — sparse → seven lanes → restart. Full cursor beats deferred to WP5.3. */
+export const PHASE5_WALKTHROUGH: WalkthroughStep[] = [
+  {
+    beat: 1,
+    label: "Sparse global · Follow on",
+    commands: [{ type: "SET_ROOM", room: "global" }, { type: "ENABLE_FOLLOW" }],
+  },
+  {
+    beat: 2,
+    label: "Kai · piano LH edit",
+    commands: [
+      { type: "SET_PARTICIPANT_PROJECTION", participantId: "p2", room: "participant", tab: "Create" },
+      { type: "TOGGLE_STEP", draftId: "kai-lh-sparse-4", step: 2 },
+    ],
+  },
+  {
+    beat: 3,
+    label: "Launch Piano LH",
+    commands: [
+      { type: "SET_PARTICIPANT_PROJECTION", participantId: "p2", room: "global", tab: "Create" },
+      { type: "LAUNCH_SLOT", slotId: "lane-1" },
+    ],
+  },
+  {
+    beat: 4,
+    label: "Ryo · bass sparse",
+    commands: [
+      { type: "SET_PARTICIPANT_PROJECTION", participantId: "p1", room: "participant", tab: "Create" },
+      { type: "PREVIEW_WORKSPACE", draftId: "ryo-bass-sparse-4" },
+    ],
+    delayMs: 400,
+  },
+  {
+    beat: 5,
+    label: "Launch Bass",
+    commands: [
+      { type: "SET_PARTICIPANT_PROJECTION", participantId: "p1", room: "global", tab: "Create" },
+      { type: "LAUNCH_SLOT", slotId: "lane-2" },
+    ],
+  },
+  {
+    beat: 6,
+    label: "Launch Drums",
+    commands: [{ type: "LAUNCH_SLOT", slotId: "lane-3" }],
+  },
+  {
+    beat: 7,
+    label: "Kai · RH pad",
+    commands: [
+      { type: "SET_PARTICIPANT_PROJECTION", participantId: "p2", room: "participant", tab: "Create" },
+      { type: "PREVIEW_WORKSPACE", draftId: "kai-rh-pad-4" },
+    ],
+    delayMs: 400,
+  },
+  {
+    beat: 8,
+    label: "Launch Piano RH",
+    commands: [
+      { type: "SET_PARTICIPANT_PROJECTION", participantId: "p2", room: "global", tab: "Create" },
+      { type: "LAUNCH_SLOT", slotId: "lane-4" },
+    ],
+  },
+  {
+    beat: 9,
+    label: "Ren · guitar comp",
+    commands: [
+      { type: "SET_PARTICIPANT_PROJECTION", participantId: "p4", room: "participant", tab: "Devices" },
+      { type: "SET_DEVICE_PARAM", deviceId: "filter", value: 0.48 },
+    ],
+    delayMs: 400,
+  },
+  {
+    beat: 10,
+    label: "Launch Guitar",
+    commands: [
+      { type: "SET_PARTICIPANT_PROJECTION", participantId: "p4", room: "global", tab: "Devices" },
+      { type: "LAUNCH_SLOT", slotId: "lane-5" },
+    ],
+  },
+  {
+    beat: 11,
+    label: "Mei · alto theme",
+    commands: [
+      { type: "SET_PARTICIPANT_PROJECTION", participantId: "p3", room: "participant", tab: "Create" },
+      { type: "PREVIEW_WORKSPACE", draftId: "mei-alto-themeA-8" },
+    ],
+    delayMs: 400,
+  },
+  {
+    beat: 12,
+    label: "Launch Alto",
+    commands: [
+      { type: "SET_PARTICIPANT_PROJECTION", participantId: "p3", room: "global", tab: "Create" },
+      { type: "LAUNCH_SLOT", slotId: "lane-6" },
+    ],
+  },
+  {
+    beat: 13,
+    label: "Launch Tenor",
+    commands: [{ type: "LAUNCH_SLOT", slotId: "lane-7" }],
+  },
+  {
+    beat: 14,
+    label: "Seven-lane payoff · transport on",
+    commands: [{ type: "TOGGLE_TRANSPORT" }],
+    delayMs: 800,
+  },
+  {
+    beat: 15,
+    label: "Restart sparse",
+    commands: [
+      { type: "SET_PARTICIPANT_PROJECTION", participantId: "p1", room: "participant", tab: "Create" },
+      { type: "RESTART_SESSION" },
+      { type: "ENABLE_FOLLOW" },
+    ],
+  },
+];
+
+let walkthroughFlight: Promise<string[]> | null = null;
+let walkthroughEpoch = 0;
+
+export function bumpWalkthroughEpoch(): void {
+  walkthroughEpoch += 1;
+}
+
 export async function runPhase4Walkthrough(
   dispatch: (command: ShellCommand) => void = shellStore.dispatch.bind(shellStore),
   onStep?: (step: WalkthroughStep) => void,
@@ -41,4 +167,46 @@ export async function runPhase4Walkthrough(
     for (const command of step.commands) dispatch(command);
     if (step.delayMs) await new Promise((r) => setTimeout(r, step.delayMs));
   }
+}
+
+export async function runPhase5Walkthrough(
+  dispatch: (command: ShellCommand) => void = shellStore.dispatch.bind(shellStore),
+  onStep?: (step: WalkthroughStep) => void,
+): Promise<string[]> {
+  if (walkthroughFlight) return walkthroughFlight;
+  const epoch = walkthroughEpoch;
+  walkthroughFlight = (async () => {
+    const labels: string[] = [];
+    try {
+      for (const step of PHASE5_WALKTHROUGH) {
+        if (epoch !== walkthroughEpoch) break;
+        labels.push(step.label);
+        onStep?.(step);
+        for (const command of step.commands) {
+          if (epoch !== walkthroughEpoch) break;
+          dispatch(command);
+          if (command.type === "RESTART_SESSION") bumpWalkthroughEpoch();
+        }
+        if (step.delayMs) await new Promise((r) => setTimeout(r, step.delayMs));
+      }
+    } finally {
+      walkthroughFlight = null;
+    }
+    return labels;
+  })();
+  return walkthroughFlight;
+}
+
+export async function runPhase5WalkthroughRange(
+  fromBeat: number,
+  toBeat: number,
+  dispatch: (command: ShellCommand) => void = shellStore.dispatch.bind(shellStore),
+): Promise<string[]> {
+  const labels: string[] = [];
+  for (const step of PHASE5_WALKTHROUGH.filter((entry) => entry.beat >= fromBeat && entry.beat <= toBeat)) {
+    labels.push(step.label);
+    for (const command of step.commands) dispatch(command);
+    if (step.delayMs) await new Promise((r) => setTimeout(r, step.delayMs));
+  }
+  return labels;
 }

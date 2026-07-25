@@ -1,6 +1,55 @@
 import { describe, expect, it } from "vitest";
+import { createLiveCollabArrangementSlots } from "../shell/domain/liveCollabShellFixtures";
 import { ShellStore } from "../shell/domain/shellStore";
 import { createFixtureShellState, createInitialShellState } from "../shell/domain/shellFixtures";
+
+describe("SET_PARTICIPANT_PROJECTION", () => {
+  it("updates projected room/tab without locking follow", () => {
+    const store = new ShellStore({ ...createInitialShellState(), followActive: true, followLocked: false });
+    store.dispatch({
+      type: "SET_PARTICIPANT_PROJECTION",
+      participantId: "p2",
+      room: "mixer",
+      tab: "Mix",
+    });
+    const s = store.getState();
+    expect(s.followActive).toBe(true);
+    expect(s.followLocked).toBe(false);
+    expect(s.room).toBe("mixer");
+    expect(s.participantTab).toBe("Mix");
+    expect(s.participants.find((p) => p.id === "p2")?.projectedRoom).toBe("mixer");
+    expect(s.participants.find((p) => p.id === "p2")?.active).toBe(true);
+  });
+
+  it("stores projection without moving camera when follow is off", () => {
+    const store = new ShellStore(createInitialShellState());
+    store.dispatch({
+      type: "SET_PARTICIPANT_PROJECTION",
+      participantId: "p3",
+      room: "participant",
+      tab: "Automation",
+    });
+    const s = store.getState();
+    expect(s.room).toBe("global");
+    expect(s.participants.find((p) => p.id === "p3")?.projectedTab).toBe("Automation");
+  });
+});
+
+describe("LAUNCH_SLOT lane accumulation", () => {
+  it("keeps prior lane slots active when launching another lane", () => {
+    const store = new ShellStore({
+      ...createInitialShellState(),
+      arrangementSlots: createLiveCollabArrangementSlots(),
+    });
+    store.dispatch({ type: "LAUNCH_SLOT", slotId: "lane-1" });
+    store.dispatch({ type: "LAUNCH_SLOT", slotId: "lane-2" });
+    const slots = store.getState().arrangementSlots;
+    expect(slots[0]?.state).toBe("active");
+    expect(slots[1]?.state).toBe("active");
+    expect(slots[2]?.state).toBe("empty");
+    expect(store.getState().activeMasterDraftId).toContain("live-collab");
+  });
+});
 
 describe("shellStore", () => {
   it("breaks follow on manual room change", () => {

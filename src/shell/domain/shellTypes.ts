@@ -105,6 +105,7 @@ export interface ShellState {
 export type ShellCommand =
   | { type: "SET_ROOM"; room: RoomId }
   | { type: "SELECT_PARTICIPANT"; participantId: string }
+  | { type: "SET_PARTICIPANT_PROJECTION"; participantId: string; room: RoomId; tab: ParticipantTab }
   | { type: "ENABLE_FOLLOW" }
   | { type: "RESUME_FOLLOW" }
   | { type: "SET_INTERACTION_FROZEN"; frozen: boolean }

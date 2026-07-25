@@ -4,9 +4,11 @@ import type { RoomId, ShellCommand, ShellState } from "../../shell/domain/shellT
 interface PresenterNavProps {
   state: ShellState;
   dispatch: (command: ShellCommand) => void;
+  onRunPhase5Demo?: () => void;
+  walkthroughRunning?: boolean;
 }
 
-export function PresenterNav({ state, dispatch }: PresenterNavProps) {
+export function PresenterNav({ state, dispatch, onRunPhase5Demo, walkthroughRunning = false }: PresenterNavProps) {
   const setRoom = (room: RoomId) => dispatch({ type: "SET_ROOM", room });
 
   return (
@@ -41,6 +43,16 @@ export function PresenterNav({ state, dispatch }: PresenterNavProps) {
         >
           {state.followLocked ? "Resume Follow" : "Follow Active"}
         </button>
+        {import.meta.env.DEV && onRunPhase5Demo && (
+          <button
+            type="button"
+            className="presenter-run-demo-btn"
+            disabled={walkthroughRunning}
+            onClick={onRunPhase5Demo}
+          >
+            {walkthroughRunning ? "Running…" : "Run demo"}
+          </button>
+        )}
       </div>
       <div className="transport-readout tabular-nums">
         {state.transportPlaying ? <Play size={12} aria-hidden /> : <Pause size={12} aria-hidden />}

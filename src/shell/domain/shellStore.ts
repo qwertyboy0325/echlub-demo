@@ -1,4 +1,5 @@
-import { createInitialShellState } from "./shellFixtures";
+import { createShellStateForMode } from "./shellBootstrap";
+import { isLiveCollabLaneSlot } from "./liveCollabShellFixtures";
 import type { ExchangeClip, ShellCommand, ShellState } from "./shellTypes";
 
 function participantName(state: ShellState, id: string): string {
@@ -49,6 +50,20 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
           active: p.id === command.participantId,
         })),
       };
+    case "SET_PARTICIPANT_PROJECTION": {
+      if (state.interactionFrozen) return state;
+      const next = {
+        ...state,
+        selectedParticipantId: command.participantId,
+        participants: state.participants.map((p) =>
+          p.id === command.participantId
+            ? { ...p, active: true, projectedRoom: command.room, projectedTab: command.tab }
+            : { ...p, active: false },
+        ),
+      };
+      if (next.followActive && !next.followLocked) return followProjection(next);
+      return next;
+    }
     case "ENABLE_FOLLOW":
       if (state.interactionFrozen) return state;
       return followProjection({ ...state, followActive: true, followLocked: false });
@@ -158,14 +173,26 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
     case "LAUNCH_SLOT": {
       const slot = state.arrangementSlots.find((s) => s.id === command.slotId);
       if (!slot) return state;
+      const laneSlot = isLiveCollabLaneSlot(command.slotId);
+      const launchedLabel = command.draftId ?? slot.label;
+      const activeCount =
+        state.arrangementSlots.filter((s) => s.state === "active" && s.id !== command.slotId).length + 1;
       return {
         ...state,
         arrangementSlots: state.arrangementSlots.map((s) => {
-          if (s.id === command.slotId) return { ...s, state: "active" as const, label: command.draftId ?? s.label };
-          if (s.state === "active") return { ...s, state: "empty" as const, clipId: null, label: "Empty slot" };
+          if (s.id === command.slotId) return { ...s, state: "active" as const, label: launchedLabel };
+          if (!laneSlot && s.state === "active") {
+            return { ...s, state: "empty" as const, clipId: null, label: "Empty slot" };
+          }
           return s;
         }),
-        activityFeed: pushActivity(state, `Launched ${command.slotId}${command.draftId ? ` · ${command.draftId}` : ""}`),
+        activeMasterDraftId: laneSlot ? `live-collab-${activeCount}-lanes` : state.activeMasterDraftId,
+        activityFeed: pushActivity(
+          state,
+          laneSlot
+            ? `Launched ${launchedLabel} · ${activeCount}/7 lanes`
+            : `Launched ${command.slotId}${command.draftId ? ` · ${command.draftId}` : ""}`,
+        ),
       };
     }
     case "REORDER_EXCHANGE": {
@@ -231,7 +258,7 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
       return state;
     case "RESTART_SESSION":
       return {
-        ...createInitialShellState(),
+        ...createShellStateForMode(),
         room: state.room,
         exchangeOpen: state.exchangeOpen,
       };
@@ -248,7 +275,7 @@ export class ShellStore {
   private state: ShellState;
   private listeners = new Set<ShellListener>();
 
-  constructor(initial = createInitialShellState()) {
+  constructor(initial = createShellStateForMode()) {
     this.state = initial;
   }
 
@@ -267,4 +294,4 @@ export class ShellStore {
   }
 }
 
-export const shellStore = new ShellStore();
+export const shellStore = new ShellStore(createShellStateForMode());
