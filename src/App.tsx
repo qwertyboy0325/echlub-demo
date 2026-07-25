@@ -6,12 +6,17 @@ import { MixerPerformanceRoom } from "./rooms/MixerPerformanceRoom";
 import { ParticipantWorkspaceRoom } from "./rooms/ParticipantWorkspaceRoom";
 import { shellAudioAdapter } from "./shell/audio/shellAudioAdapter";
 import { FocusShell } from "./shell/FocusShell";
-import { runPhase4Walkthrough, PHASE4_WALKTHROUGH } from "./shell/presenterWalkthrough";
+import {
+  runPhase4Walkthrough,
+  runPhase5Walkthrough,
+  runPhase5WalkthroughRange,
+  PHASE4_WALKTHROUGH,
+} from "./shell/presenterWalkthrough";
 import { shellStore } from "./shell/domain/shellStore";
 import { useShellStore } from "./shell/useShellStore";
 import { useViewportMode } from "./shell/useViewportMode";
-import { displayTransportBar, transportPlaybackHint } from "./shell/transportPlaybackHint";
-import { useMusicalDomainReady, useShellAudioReady } from "./shell/useMusicalDraft";
+import { displayTransportBar, resolveTransportPackMode, transportPlaybackHint } from "./shell/transportPlaybackHint";
+import { useActiveLaneCount, useMusicalDomainReady, usePackMode, useShellAudioReady } from "./shell/useMusicalDraft";
 
 export function App() {
   const [state, dispatch] = useShellStore();
@@ -19,8 +24,18 @@ export function App() {
   const compact = viewport === "compact";
   const musicalReady = useMusicalDomainReady();
   const audioReady = useShellAudioReady();
-  const playbackHint = transportPlaybackHint(state, musicalReady, audioReady);
+  const activeLaneCount = useActiveLaneCount();
+  const packMode = usePackMode();
+  const playbackHint = transportPlaybackHint(
+    state,
+    musicalReady,
+    audioReady,
+    activeLaneCount,
+    packMode === "live-collab" ? "live-collab" : resolveTransportPackMode(),
+  );
   const [packError, setPackError] = useState<string | null>(null);
+  const [presenterCaption, setPresenterCaption] = useState<string | null>(null);
+  const [walkthroughRunning, setWalkthroughRunning] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -29,6 +44,8 @@ export function App() {
         __runPhase4Walkthrough?: () => Promise<string[]>;
         __runPhase4WalkthroughUntil?: (maxBeat: number) => Promise<string[]>;
         __runPhase4WalkthroughRange?: (fromBeat: number, toBeat: number) => Promise<string[]>;
+        __runPhase5Walkthrough?: () => Promise<string[]>;
+        __runPhase5WalkthroughRange?: (fromBeat: number, toBeat: number) => Promise<string[]>;
         __shellStore?: typeof shellStore;
       };
       globalWindow.__runPhase4WalkthroughRange = async (fromBeat: number, toBeat: number) => {
@@ -51,6 +68,24 @@ export function App() {
         const labels: string[] = [];
         await runPhase4Walkthrough(undefined, (step) => labels.push(step.label));
         return labels;
+      };
+      globalWindow.__runPhase5Walkthrough = async () => {
+        setWalkthroughRunning(true);
+        try {
+          return await runPhase5Walkthrough(shellStore.dispatch.bind(shellStore), (step) => {
+            setPresenterCaption(step.label);
+          });
+        } finally {
+          setWalkthroughRunning(false);
+        }
+      };
+      globalWindow.__runPhase5WalkthroughRange = async (fromBeat: number, toBeat: number) => {
+        setWalkthroughRunning(true);
+        try {
+          return await runPhase5WalkthroughRange(fromBeat, toBeat, shellStore.dispatch.bind(shellStore));
+        } finally {
+          setWalkthroughRunning(false);
+        }
       };
       globalWindow.__shellStore = shellStore;
     }
@@ -95,6 +130,10 @@ export function App() {
       </div>
     );
 
+  const runPhase5Demo = () => {
+    void (window as Window & { __runPhase5Walkthrough?: () => Promise<string[]> }).__runPhase5Walkthrough?.();
+  };
+
   return (
     <div className={`app-root${packError ? " app-root--boot-error" : ""}`}>
       {packError && (
@@ -105,7 +144,12 @@ export function App() {
           <code>/echlub-demo/</code>
         </div>
       )}
-      <PresenterNav state={state} dispatch={dispatch} />
+      <PresenterNav
+        state={state}
+        dispatch={dispatch}
+        onRunPhase5Demo={packMode === "live-collab" ? runPhase5Demo : undefined}
+        walkthroughRunning={walkthroughRunning}
+      />
       <FocusShell
         state={state}
         dispatch={dispatch}
@@ -113,6 +157,7 @@ export function App() {
         center={center}
         bottom={bottom}
         bottomVariant={state.room === "mixer" ? "dock" : "transport"}
+        presenterCaption={presenterCaption}
       />
     </div>
   );

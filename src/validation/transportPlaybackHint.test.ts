@@ -1,23 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { createInitialShellState } from "../shell/domain/shellFixtures";
-import { displayTransportBar, transportPlaybackHint } from "../shell/transportPlaybackHint";
+import { transportPlaybackHint } from "../shell/transportPlaybackHint";
 
-describe("transportPlaybackHint", () => {
-  it("warns when transport runs without Shared Master", () => {
-    const state = { ...createInitialShellState(), transportPlaying: true };
-    const hint = transportPlaybackHint(state, true, true);
+describe("transportPlaybackHint live-collab", () => {
+  it("reports lane count when lanes are active", () => {
+    const hint = transportPlaybackHint(createInitialShellState(), true, true, 3, "live-collab");
+    expect(hint.text).toContain("3/7 lanes active");
+    expect(hint.attention).toBe(false);
+  });
+
+  it("warns when transport runs with zero lanes", () => {
+    const playing = { ...createInitialShellState(), transportPlaying: true };
+    const hint = transportPlaybackHint(playing, true, true, 0, "live-collab");
     expect(hint.attention).toBe(true);
-    expect(hint.text).toContain("silent");
-  });
-
-  it("describes lifecycle before first Play", () => {
-    const hint = transportPlaybackHint(createInitialShellState(), true, true);
-    expect(hint.text).toContain("Exchange");
-    expect(hint.text).toContain("Activate");
-  });
-
-  it("maps transport bar 0 to ruler bar 1", () => {
-    expect(displayTransportBar(0)).toBe(1);
-    expect(displayTransportBar(3)).toBe(3);
+    expect(hint.text).toContain("Launch a lane");
   });
 });

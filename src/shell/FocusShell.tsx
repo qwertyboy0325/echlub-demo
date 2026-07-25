@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { ShellCommand, ShellState, ViewportMode } from "./domain/shellTypes";
 import { SharedClipExchange } from "../features/exchange/SharedClipExchange";
+import { PresenterCaptionStrip } from "../features/presenter/PresenterCaptionStrip";
 import { PresenceRail } from "../features/presenter/PresenceRail";
 
 interface FocusShellProps {
@@ -10,9 +11,18 @@ interface FocusShellProps {
   center: ReactNode;
   bottom: ReactNode | null;
   bottomVariant?: "transport" | "dock";
+  presenterCaption?: string | null;
 }
 
-export function FocusShell({ state, dispatch, viewport, center, bottom, bottomVariant = "transport" }: FocusShellProps) {
+export function FocusShell({
+  state,
+  dispatch,
+  viewport,
+  center,
+  bottom,
+  bottomVariant = "transport",
+  presenterCaption = null,
+}: FocusShellProps) {
   const compact = viewport === "compact";
   const showRail = viewport === "wide";
   const showDrawer = viewport === "drawer" || viewport === "compact";
@@ -33,7 +43,10 @@ export function FocusShell({ state, dispatch, viewport, center, bottom, bottomVa
         </button>
       )}
       {bottom !== null && (
-        <footer className={`focus-bottom focus-bottom--${bottomVariant}`}>{bottom}</footer>
+        <footer className={`focus-bottom focus-bottom--${bottomVariant}`}>
+          <PresenterCaptionStrip state={state} caption={presenterCaption} />
+          {bottom}
+        </footer>
       )}
     </div>
   );

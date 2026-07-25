@@ -20,3 +20,15 @@ export function useShellAudioReady(): boolean {
   useEffect(() => shellAudioAdapter.subscribeReady(() => bump()), []);
   return shellAudioAdapter.isAudioReady();
 }
+
+export function useActiveLaneCount(): number {
+  const [, bump] = useReducer((n: number) => n + 1, 0);
+  useEffect(() => musicalDomain.subscribe(() => bump()), []);
+  return musicalDomain.getActiveLanes().size;
+}
+
+export function usePackMode() {
+  const [, bump] = useReducer((n: number) => n + 1, 0);
+  useEffect(() => musicalDomain.subscribe(() => bump()), []);
+  return musicalDomain.getPackMode();
+}

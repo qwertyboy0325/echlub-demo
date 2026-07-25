@@ -40,6 +40,13 @@ Open the **exact** local URL printed by Vite (do not guess the port). Normally:
 http://localhost:4173/
 ```
 
+For the Phase 5 live-collab demo (seven progressive lanes, Ryo/Kai/Mei/Ren cast):
+
+```bash
+npm run dev:live-collab
+# or: VITE_SHIKI_PACK_MODE=live-collab npm run dev
+```
+
 You should see **Global Studio · Participant · Mixer** tabs, a **Play** transport bar, and arrangement lanes. Audio requires a user click (**Play** or **Preview clip** in Participant → Create) to unlock the browser AudioContext.
 
 If the page stays blank for 5+ seconds, you are likely on the wrong URL or base path.

@@ -96,6 +96,9 @@ export function ExchangeRow({
     else if (primary.action === "claim") onClaim();
     else if (primary.action === "review") onReview();
     else if (primary.action === "open") dispatch({ type: "SET_ROOM", room: "participant" });
+    else if (primary.action === "preview" && clip.draftId) {
+      dispatch({ type: "PREVIEW_WORKSPACE", draftId: clip.draftId });
+    }
   };
 
   return (
