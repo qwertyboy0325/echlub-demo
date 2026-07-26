@@ -83,6 +83,7 @@ export function V3ExchangeOverlay({ state, dispatch }: V3ExchangeOverlayProps) {
                     <button
                       type="button"
                       className={isSelected ? styles.rowSelected : styles.row}
+                      data-demo-target={`exchange-clip-${clip.id}`}
                       onClick={() => dispatch({ type: "SELECT_EXCHANGE_CLIP", clipId: clip.id })}
                     >
                       <span
@@ -115,10 +116,33 @@ export function V3ExchangeOverlay({ state, dispatch }: V3ExchangeOverlayProps) {
                   <button
                     type="button"
                     className={styles.btnPrimary}
+                    data-demo-target={`exchange-primary-${selected.id}`}
                     onClick={() => runPrimary(selected)}
                   >
                     {primaryExchangeAction(selected).label}
                   </button>
+                  {selected.lifecycle === "Available" &&
+                    selected.creatorId === state.selectedParticipantId && (
+                      <button
+                        type="button"
+                        className={styles.btnSecondary}
+                        data-demo-target={`exchange-ready-${selected.id}`}
+                        onClick={() => dispatch({ type: "MARK_READY", clipId: selected.id })}
+                      >
+                        Mark Ready
+                      </button>
+                    )}
+                  {selected.lifecycle === "In Progress" &&
+                    selected.contributorId === state.selectedParticipantId && (
+                      <button
+                        type="button"
+                        className={styles.btnSecondary}
+                        data-demo-target={`exchange-submit-${selected.id}`}
+                        onClick={() => dispatch({ type: "SUBMIT_REVIEW", clipId: selected.id })}
+                      >
+                        Submit for Review
+                      </button>
+                    )}
                   {selected.lifecycle === "Ready" && stageSlotId && (
                     <button
                       type="button"

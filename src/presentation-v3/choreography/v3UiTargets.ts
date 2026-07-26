@@ -1,0 +1,113 @@
+/**
+ * V3 presenter choreography — semantic target registry.
+ * Maps stable keys to data-demo-target selectors (not CSS module classes).
+ */
+
+export const V3_UI_TARGET_KEYS = [
+  "room-global",
+  "room-participant",
+  "room-mixer",
+  "participant-p1",
+  "participant-p2",
+  "participant-p3",
+  "participant-p4",
+  "tab-create",
+  "tab-devices",
+  "create-mode-piano",
+  "create-mode-step",
+  "preview-clip",
+  "save-library",
+  "share-clip",
+  "exchange-toggle",
+  "transport-play",
+  "transport-restart",
+  "presenter-run",
+  "presenter-pause",
+  "presenter-stop",
+  "presenter-restart",
+  "presenter-resume-follow",
+  "piano-note-kai-lh-sparse-4-n0",
+  "velocity-kai-lh-sparse-4-n0",
+  "step-cell-2",
+  "step-cell-5",
+  "exchange-clip-c1",
+  "exchange-primary-c1",
+  "exchange-ready-c1",
+  "stage-clip-lane-1",
+  "stage-clip-lane-3",
+  "launch-lane-3",
+  "launch-lane-1",
+  "launch-lane-4",
+  "launch-lane-6",
+  "launch-lane-7",
+  "launch-lane-5",
+  "exchange-clip-c2",
+  "exchange-primary-c2",
+  "exchange-submit-c2",
+  "exchange-clip-c5",
+  "stage-clip-lane-5",
+  "mixer-strip-horns",
+  "mixer-pin-horns-delay",
+  "mixer-horns-delay",
+  "dock-slot-0",
+] as const;
+
+export type V3UiTargetKey = (typeof V3_UI_TARGET_KEYS)[number];
+
+/** Semantic key → selector used for resolution and evidence. */
+export const V3_TARGET_SELECTORS: Record<V3UiTargetKey, string> = {
+  "room-global": '[data-demo-target="room-global"]',
+  "room-participant": '[data-demo-target="room-participant"]',
+  "room-mixer": '[data-demo-target="room-mixer"]',
+  "participant-p1": '[data-demo-target="participant-p1"]',
+  "participant-p2": '[data-demo-target="participant-p2"]',
+  "participant-p3": '[data-demo-target="participant-p3"]',
+  "participant-p4": '[data-demo-target="participant-p4"]',
+  "tab-create": '[data-demo-target="tab-create"]',
+  "tab-devices": '[data-demo-target="tab-devices"]',
+  "create-mode-piano": '[data-demo-target="create-mode-piano"]',
+  "create-mode-step": '[data-demo-target="create-mode-step"]',
+  "preview-clip": '[data-demo-target="preview-clip"]',
+  "save-library": '[data-demo-target="save-to-library"]',
+  "share-clip": '[data-demo-target="share-clip"]',
+  "exchange-toggle": '[data-demo-target="exchange-toggle"]',
+  "transport-play": '[data-demo-target="transport-play"]',
+  "transport-restart": '[data-demo-target="transport-restart"]',
+  "presenter-run": '[data-demo-target="presenter-run"]',
+  "presenter-pause": '[data-demo-target="presenter-pause"]',
+  "presenter-stop": '[data-demo-target="presenter-stop"]',
+  "presenter-restart": '[data-demo-target="presenter-restart"]',
+  "presenter-resume-follow": '[data-demo-target="presenter-resume-follow"]',
+  "piano-note-kai-lh-sparse-4-n0": '[data-demo-target="piano-note-kai-lh-sparse-4-n0"]',
+  "velocity-kai-lh-sparse-4-n0": '[data-demo-target="velocity-kai-lh-sparse-4-n0"]',
+  "step-cell-2": '[data-demo-target="step-cell-2"]',
+  "step-cell-5": '[data-demo-target="step-cell-5"]',
+  "exchange-clip-c1": '[data-demo-target="exchange-clip-c1"]',
+  "exchange-primary-c1": '[data-demo-target="exchange-primary-c1"]',
+  "exchange-ready-c1": '[data-demo-target="exchange-ready-c1"]',
+  "stage-clip-lane-1": '[data-demo-target="stage-clip-lane-1"]',
+  "stage-clip-lane-3": '[data-demo-target="stage-clip-lane-3"]',
+  "launch-lane-3": '[data-demo-target="launch-slot-lane-3"]',
+  "launch-lane-1": '[data-demo-target="launch-slot-lane-1"]',
+  "launch-lane-4": '[data-demo-target="launch-slot-lane-4"]',
+  "launch-lane-6": '[data-demo-target="launch-slot-lane-6"]',
+  "launch-lane-7": '[data-demo-target="launch-slot-lane-7"]',
+  "launch-lane-5": '[data-demo-target="launch-slot-lane-5"]',
+  "exchange-clip-c2": '[data-demo-target="exchange-clip-c2"]',
+  "exchange-primary-c2": '[data-demo-target="exchange-primary-c2"]',
+  "exchange-submit-c2": '[data-demo-target="exchange-submit-c2"]',
+  "exchange-clip-c5": '[data-demo-target="exchange-clip-c5"]',
+  "stage-clip-lane-5": '[data-demo-target="stage-clip-lane-5"]',
+  "mixer-strip-horns": '[data-demo-target="desk-strip-horns"]',
+  "mixer-pin-horns-delay": '[data-demo-target="pin-horns-delay"]',
+  "mixer-horns-delay": '[data-demo-target="desk-delay-horns"]',
+  "dock-slot-0": '[data-demo-target="dock-slot-0"] .dock-knob',
+};
+
+export function v3SelectorForKey(key: V3UiTargetKey): string {
+  return V3_TARGET_SELECTORS[key];
+}
+
+export function isV3UiTargetKey(value: string): value is V3UiTargetKey {
+  return (V3_UI_TARGET_KEYS as readonly string[]).includes(value);
+}

@@ -158,6 +158,139 @@ export class ShellChoreographyEngine {
     }
   }
 
+  private overlayPointForElement(element: HTMLElement): { x: number; y: number } {
+    const rect = element.getBoundingClientRect();
+    const overlayRect = this.overlay.getBoundingClientRect();
+    return {
+      x: rect.left - overlayRect.left + rect.width * 0.55,
+      y: rect.top - overlayRect.top + rect.height * 0.5,
+    };
+  }
+
+  private async animateToElement(
+    participantId: string,
+    element: HTMLElement,
+    gesture: "click" | "hover" | "scrub",
+    deskLabel?: string,
+  ): Promise<void> {
+    const state = this.cursors.get(participantId);
+    if (!state || !this.visible) return;
+
+    this.updatePresence(participantId);
+    state.element.classList.remove("shell-virtual-cursor--parked");
+    state.element.classList.add("shell-virtual-cursor--active");
+    if (deskLabel) state.element.dataset.deskContext = deskLabel;
+
+    const coords = this.overlayPointForElement(element);
+    const profile = profileFor(participantId);
+    const color =
+      this.participants.find((p) => p.id === participantId)?.color ?? "var(--focus)";
+
+    await new Promise<void>((resolve) => {
+      state.busy = true;
+      const tl = gsap.timeline({
+        onComplete: () => {
+          state.busy = false;
+          resolve();
+        },
+      });
+      this.activeTimelines.push(tl);
+      tl.to(state.element, { opacity: 1, scale: 1, duration: 0.12 });
+      if (profile.hesitation > 0 && gesture !== "scrub") {
+        tl.to(state.element, {
+          x: state.x + (coords.x - state.x) * 0.15,
+          y: state.y + (coords.y - state.y) * 0.15,
+          duration: profile.hesitation,
+          ease: "sine.out",
+        });
+      }
+      const scrubEndX =
+        gesture === "scrub" && element instanceof HTMLInputElement
+          ? coords.x + (element.valueAsNumber / (Number(element.max) || 100)) * element.clientWidth * 0.35
+          : coords.x;
+      tl.to(state.element, {
+        x: scrubEndX,
+        y: coords.y,
+        duration: gesture === "scrub" ? profile.moveDuration * 1.4 : profile.moveDuration,
+        ease: profile.ease,
+        onUpdate: () => {
+          state.x = gsap.getProperty(state.element, "x") as number;
+          state.y = gsap.getProperty(state.element, "y") as number;
+        },
+      });
+      if (gesture === "click") {
+        tl.add(() => this.clickRipple(coords.x, coords.y, color));
+        tl.to(state.element, { scale: 0.78, duration: 0.06 });
+        tl.to(state.element, { scale: 1, duration: 0.1 });
+        tl.add(() => element.classList.add("cursor-clicked"));
+        tl.call(() => element.classList.remove("cursor-clicked"), [], "+=0.2");
+      } else if (gesture === "hover") {
+        tl.add(() => element.classList.add("cursor-hover"));
+        tl.call(() => element.classList.remove("cursor-hover"), [], "+=0.25");
+      }
+      state.x = scrubEndX;
+      state.y = coords.y;
+    });
+  }
+
+  /** V3 evidence path: animate cursor then invoke the real control handler via DOM activation. */
+  async moveAndActivateSelector(
+    participantId: string,
+    selector: string,
+    gesture: "click" | "hover" = "click",
+    deskLabel?: string,
+  ): Promise<{ hit: boolean; missingTarget: string | null }> {
+    if (!this.visible) return { hit: false, missingTarget: null };
+    const element = document.querySelector<HTMLElement>(selector);
+    if (!element) return { hit: false, missingTarget: selector };
+    await this.animateToElement(participantId, element, gesture, deskLabel);
+    if (gesture === "click") element.click();
+    return { hit: true, missingTarget: null };
+  }
+
+  async moveAndScrubSelector(
+    participantId: string,
+    selector: string,
+    percent: number,
+    deskLabel?: string,
+  ): Promise<{ hit: boolean; missingTarget: string | null }> {
+    if (!this.visible) return { hit: false, missingTarget: null };
+    const element = document.querySelector<HTMLElement>(selector);
+    if (!element) return { hit: false, missingTarget: selector };
+    await this.animateToElement(participantId, element, "scrub", deskLabel);
+    if (element instanceof HTMLInputElement && element.type === "range") {
+      const min = Number(element.min) || 0;
+      const max = Number(element.max) || 100;
+      const value = min + (percent / 100) * (max - min);
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set;
+      setter?.call(element, String(value));
+      element.dispatchEvent(new Event("input", { bubbles: true }));
+      element.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+    return { hit: true, missingTarget: null };
+  }
+
+  async moveAndKnobSteps(
+    participantId: string,
+    selector: string,
+    steps: number,
+    direction: "up" | "down",
+    deskLabel?: string,
+  ): Promise<{ hit: boolean; missingTarget: string | null }> {
+    if (!this.visible) return { hit: false, missingTarget: null };
+    const element = document.querySelector<HTMLElement>(selector);
+    if (!element) return { hit: false, missingTarget: selector };
+    await this.animateToElement(participantId, element, "scrub", deskLabel);
+    element.focus();
+    const key = direction === "up" ? "ArrowUp" : "ArrowDown";
+    for (let i = 0; i < steps; i += 1) {
+      element.dispatchEvent(
+        new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true }),
+      );
+    }
+    return { hit: true, missingTarget: null };
+  }
+
   async moveAndClick(
     participantId: string,
     target: ShellUiTarget,

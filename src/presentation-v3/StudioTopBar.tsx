@@ -26,6 +26,7 @@ export function StudioTopBar({ state, dispatch, viewport }: StudioTopBarProps) {
         <button
           type="button"
           className={state.room === "global" ? styles.navBtnActive : styles.navBtn}
+          data-demo-target="room-global"
           onClick={() => setPresentationRoom(dispatch, "global")}
         >
           Global
@@ -33,6 +34,7 @@ export function StudioTopBar({ state, dispatch, viewport }: StudioTopBarProps) {
         <button
           type="button"
           className={state.room === "participant" ? styles.navBtnActive : styles.navBtn}
+          data-demo-target="room-participant"
           onClick={() => setPresentationRoom(dispatch, "participant")}
         >
           {participantDeskLabel(state)}
@@ -40,6 +42,7 @@ export function StudioTopBar({ state, dispatch, viewport }: StudioTopBarProps) {
         <button
           type="button"
           className={state.room === "mixer" ? styles.navBtnActive : styles.navBtn}
+          data-demo-target="room-mixer"
           onClick={() => setPresentationRoom(dispatch, "mixer")}
         >
           Mixer
@@ -58,6 +61,7 @@ export function StudioTopBar({ state, dispatch, viewport }: StudioTopBarProps) {
               }
               style={{ borderColor: p.color }}
               title={p.name}
+              data-demo-target={`participant-${p.id}`}
               onClick={() => selectParticipant(dispatch, p.id)}
             >
               {participantInitial(p.name)}
@@ -77,6 +81,7 @@ export function StudioTopBar({ state, dispatch, viewport }: StudioTopBarProps) {
         <button
           type="button"
           className={state.exchangeOpen ? styles.exchangeBtnOpen : styles.exchangeBtn}
+          data-demo-target="exchange-toggle"
           onClick={() => toggleExchange(dispatch)}
         >
           Exchange

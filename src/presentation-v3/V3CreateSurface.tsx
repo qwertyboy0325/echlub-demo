@@ -69,6 +69,7 @@ export function V3CreateSurface({ state, dispatch }: V3CreateSurfaceProps) {
               role="tab"
               aria-selected={state.createSubMode === mode}
               className={state.createSubMode === mode ? styles.modeTabActive : styles.modeTab}
+              data-demo-target={`create-mode-${mode}`}
               onClick={() => setMode(mode)}
             >
               {MODE_LABELS[mode]}

@@ -131,6 +131,7 @@ export function ParticipantDeskRoom({ state, dispatch, viewport }: ParticipantDe
                 role="tab"
                 aria-selected={state.participantTab === tab}
                 className={state.participantTab === tab ? styles.tabSelected : styles.tab}
+                data-demo-target={`tab-${tab.toLowerCase()}`}
                 onClick={() => dispatch({ type: "SET_PARTICIPANT_TAB", tab })}
               >
                 {tab}

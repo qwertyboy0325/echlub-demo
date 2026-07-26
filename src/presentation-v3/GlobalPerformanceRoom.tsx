@@ -142,6 +142,7 @@ export function GlobalPerformanceRoom({ state, dispatch, viewport }: GlobalPerfo
                             <button
                               type="button"
                               className={styles.clipLaunch}
+                              data-demo-target={`launch-slot-${slot.id}`}
                               onClick={() => {
                                 if (canPromote && stagedClip) {
                                   dispatch({ type: "PROMOTE_CLIP", clipId: stagedClip.id, slotId: slot.id });
