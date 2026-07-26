@@ -126,7 +126,21 @@ export function MixerPerformanceRoom({ state, dispatch, viewport }: MixerPerform
                   <span className={styles.meterLabel}>meter</span>
                 </div>
                 <label className={styles.controlLabel}>
-                  Filter
+                  <span className={styles.controlLabelRow}>
+                    Filter
+                    {selected && (
+                      <button
+                        type="button"
+                        className={styles.pinBtn}
+                        data-demo-target={`pin-${desk}-filter`}
+                        onClick={() =>
+                          dispatch({ type: "MAP_MIXER_CONTROL_TO_DOCK", desk, param: "filter" })
+                        }
+                      >
+                        Pin
+                      </button>
+                    )}
+                  </span>
                   <input
                     type="range"
                     min={0}
@@ -143,7 +157,21 @@ export function MixerPerformanceRoom({ state, dispatch, viewport }: MixerPerform
                   />
                 </label>
                 <label className={styles.controlLabel}>
-                  Delay
+                  <span className={styles.controlLabelRow}>
+                    Delay
+                    {selected && (
+                      <button
+                        type="button"
+                        className={styles.pinBtn}
+                        data-demo-target={`pin-${desk}-delay`}
+                        onClick={() =>
+                          dispatch({ type: "MAP_MIXER_CONTROL_TO_DOCK", desk, param: "delay" })
+                        }
+                      >
+                        Pin
+                      </button>
+                    )}
+                  </span>
                   <input
                     type="range"
                     min={0}
@@ -161,7 +189,21 @@ export function MixerPerformanceRoom({ state, dispatch, viewport }: MixerPerform
                   />
                 </label>
                 <label className={styles.controlLabel}>
-                  Reverb
+                  <span className={styles.controlLabelRow}>
+                    Reverb
+                    {selected && (
+                      <button
+                        type="button"
+                        className={styles.pinBtn}
+                        data-demo-target={`pin-${desk}-reverb`}
+                        onClick={() =>
+                          dispatch({ type: "MAP_MIXER_CONTROL_TO_DOCK", desk, param: "reverb" })
+                        }
+                      >
+                        Pin
+                      </button>
+                    )}
+                  </span>
                   <input
                     type="range"
                     min={0}

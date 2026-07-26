@@ -112,12 +112,7 @@ export function useEngineMix(): MixParams | null {
   useEffect(() => {
     const sync = () => setMix(shellAudioAdapter.getEngine()?.getMix() ?? null);
     sync();
-    const unsubShell = shellStore.subscribe(sync);
-    const interval = window.setInterval(sync, 250);
-    return () => {
-      unsubShell();
-      window.clearInterval(interval);
-    };
+    return shellStore.subscribe(sync);
   }, []);
 
   return mix;

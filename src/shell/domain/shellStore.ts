@@ -410,6 +410,38 @@ export function shellReducer(state: ShellState, command: ShellCommand): ShellSta
             : slot,
         ),
       };
+    case "MAP_MIXER_CONTROL_TO_DOCK": {
+      const deskNames: Record<string, string> = {
+        rhythm: "Rhythm",
+        keys: "Keys",
+        horns: "Horns",
+        guitar: "Guitar",
+      };
+      const paramLabels: Record<string, string> = {
+        filter: "Filter",
+        delay: "Delay",
+        reverb: "Reverb",
+      };
+      const sourceParam = `${deskNames[command.desk] ?? command.desk} · ${paramLabels[command.param]}`;
+      const slotIndex =
+        command.slotIndex ?? state.dockSlots.findIndex((slot) => !slot.mapped);
+      if (slotIndex < 0) return state;
+      return {
+        ...state,
+        dockSlots: state.dockSlots.map((slot) =>
+          slot.index === slotIndex
+            ? {
+                ...slot,
+                label: sourceParam,
+                sourceTrack: "Mixer",
+                sourceClip: command.desk,
+                sourceParam,
+                mapped: true,
+              }
+            : slot,
+        ),
+      };
+    }
     case "SET_DOCK_VALUE":
       return {
         ...state,

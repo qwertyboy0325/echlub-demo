@@ -167,6 +167,12 @@ export type ShellCommand =
   | { type: "COMMIT_LANE_LAUNCH"; slotId: string; draftId?: string }
   | { type: "REORDER_EXCHANGE"; clipIds: string[] }
   | { type: "PIN_DOCK"; slotIndex: number; label: string; sourceTrack?: string; sourceClip?: string; sourceParam?: string }
+  | {
+      type: "MAP_MIXER_CONTROL_TO_DOCK";
+      desk: import("../../types").DeskBusId;
+      param: "filter" | "delay" | "reverb";
+      slotIndex?: number;
+    }
   | { type: "SET_DOCK_VALUE"; slotIndex: number; value: number }
   | { type: "SYNC_DOCK_FROM_MIX"; updates: { index: number; value: number }[] }
   | { type: "SET_DOCK_MODE"; mode: DockMode }

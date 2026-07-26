@@ -278,6 +278,10 @@ export class ShellAudioAdapter {
         }
         break;
       }
+      case "PIN_DOCK":
+      case "MAP_MIXER_CONTROL_TO_DOCK":
+        this.syncDockFromMix(after);
+        break;
       case "FORK_CLIP": {
         const fork = after.exchangeClips.find((c) => c.forkOf === command.clipId);
         const source = before.exchangeClips.find((c) => c.id === command.clipId);

@@ -140,6 +140,31 @@
   color: var(--pv3-muted);
 }
 
+.controlLabelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.pinBtn {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid var(--pv3-separator);
+  color: var(--pv3-muted);
+  padding: 1px 6px;
+  border-radius: 2px;
+  font-size: 9px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pinBtn:hover {
+  border-color: var(--pv3-focus);
+  color: var(--pv3-focus);
+}
+
 .controlLabel input {
   width: 100%;
   accent-color: var(--pv3-focus);

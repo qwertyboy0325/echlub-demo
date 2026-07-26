@@ -38,6 +38,7 @@ export function V3CreateSurface({ state, dispatch }: V3CreateSurfaceProps) {
   const deskDefaults = DESK_DEFAULTS[deskProfile] ?? { emphasis: "piano" as const };
   const draft = useMusicalDraft(draftId);
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
+  const [lastToggledStep, setLastToggledStep] = useState<number | null>(null);
   const [trackTarget, setTrackTarget] = useState(deskDefaults.trackTargets?.[0] ?? "Track");
   const [driveValue, setDriveValue] = useState(42);
   const projection = useMemo(() => computePianoRollProjection(draft), [draft]);
@@ -159,21 +160,57 @@ export function V3CreateSurface({ state, dispatch }: V3CreateSurfaceProps) {
         )}
 
         {state.createSubMode === "step" && (
-          <div className={styles.stepGrid} aria-label="Step sequencer">
-            {Array.from({ length: 16 }, (_, i) => {
-              const on = draft?.steps?.includes(i) ?? i % 4 === 0;
-              return (
-                <button
-                  key={i}
-                  type="button"
-                  className={on ? styles.stepCellOn : styles.stepCell}
-                  data-demo-target={`step-cell-${i}`}
-                  aria-label={`Step ${i + 1}`}
-                  aria-pressed={on}
-                  onClick={() => draftId && dispatch({ type: "TOGGLE_STEP", draftId, step: i })}
-                />
-              );
-            })}
+          <div className={styles.stepPane} aria-label="Step sequencer">
+            <div className={styles.stepMeta}>
+              <span className={styles.stepMetaTitle}>{clipTitle}</span>
+              <span className={styles.stepMetaDetail}>
+                {trackTarget} · r{draft?.revision ?? 1} · {draft?.steps?.length ?? 0}/16 hits
+              </span>
+            </div>
+            <div className={styles.stepGroups}>
+              {Array.from({ length: 4 }, (_, group) => (
+                <div key={group} className={styles.stepGroup} aria-label={`Beat group ${group + 1}`}>
+                  {Array.from({ length: 4 }, (_, offset) => {
+                    const i = group * 4 + offset;
+                    const on = draft?.steps?.includes(i) ?? false;
+                    const recent = lastToggledStep === i;
+                    return (
+                      <button
+                        key={i}
+                        type="button"
+                        className={
+                          on
+                            ? recent
+                              ? styles.stepCellOnRecent
+                              : styles.stepCellOn
+                            : recent
+                              ? styles.stepCellRecent
+                              : styles.stepCell
+                        }
+                        data-demo-target={`step-cell-${i}`}
+                        aria-label={`Step ${i + 1}`}
+                        aria-pressed={on}
+                        onClick={() => {
+                          if (!draftId) return;
+                          setLastToggledStep(i);
+                          dispatch({ type: "TOGGLE_STEP", draftId, step: i });
+                        }}
+                      >
+                        <span className={styles.stepIndex}>{i + 1}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+            <div className={styles.stepFooter}>
+              <span>
+                Pattern {draft?.steps?.map((s) => s + 1).join("·") || "empty"}
+              </span>
+              {lastToggledStep !== null && (
+                <span className={styles.stepChanged}>Edited step {lastToggledStep + 1}</span>
+              )}
+            </div>
           </div>
         )}
 

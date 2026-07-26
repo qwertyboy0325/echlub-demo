@@ -69,6 +69,22 @@ describe("dockMixSync", () => {
     expect(roundTrip).toBeCloseTo(0.35, 3);
   });
 
+  it("maps Horns · Delay desk send through mix patch", () => {
+    const patch = mixPatchFromDockParam("Horns · Delay", 0.5)!;
+    expect(patch.desk?.horns?.delaySend).toBeCloseTo(0.5 * 0.65, 4);
+    const roundTrip = dockValueFromMixParam("Horns · Delay", {
+      ...baseMix,
+      desk: { horns: { delaySend: patch.desk!.horns!.delaySend! } },
+    });
+    expect(roundTrip).toBeCloseTo(0.5, 3);
+  });
+
+  it("maps Rhythm · Filter desk filter through mix patch", () => {
+    const value = 0.4;
+    const patch = mixPatchFromDockParam("Rhythm · Filter", value)!;
+    expect(patch.desk?.rhythm?.filterHz).toBeCloseTo(200 + value * 7800, 1);
+  });
+
   it("keeps canonical mix as single source — dock never duplicates engine state", () => {
     const state = createInitialShellState();
     state.dockSlots[0] = {

@@ -108,27 +108,104 @@
   font-size: 11px;
 }
 
-.stepGrid {
+.stepPane {
   flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px;
+  align-items: flex-start;
+}
+
+.stepMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stepMetaTitle {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.stepMetaDetail {
+  font-size: 10px;
+  color: var(--pv3-muted);
+}
+
+.stepGroups {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.stepGroup {
   display: grid;
-  grid-template-columns: repeat(16, 1fr);
+  grid-template-columns: repeat(4, 40px);
   gap: 4px;
-  padding: 12px;
-  min-height: 120px;
+  padding: 6px;
+  background: var(--pv3-raised);
+  border: 1px solid var(--pv3-separator);
+  border-radius: 3px;
 }
 
 .stepCell {
-  aspect-ratio: 1;
-  background: var(--pv3-raised);
+  width: 40px;
+  height: 44px;
+  background: var(--pv3-canvas);
   border: 1px solid var(--pv3-separator);
   border-radius: 2px;
   cursor: pointer;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 0 4px;
 }
 
 .stepCellOn {
   composes: stepCell;
-  background: var(--pv3-accent);
+  background: color-mix(in srgb, var(--pv3-accent) 55%, var(--pv3-canvas));
   border-color: var(--pv3-accent);
+}
+
+.stepCellRecent {
+  composes: stepCell;
+  outline: 2px solid var(--pv3-focus);
+  outline-offset: 1px;
+}
+
+.stepCellOnRecent {
+  composes: stepCellOn;
+  outline: 2px solid var(--pv3-focus);
+  outline-offset: 1px;
+}
+
+.stepIndex {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 9px;
+  color: var(--pv3-muted);
+  line-height: 1;
+}
+
+.stepCellOn .stepIndex,
+.stepCellOnRecent .stepIndex {
+  color: #0d1117;
+  font-weight: 600;
+}
+
+.stepFooter {
+  flex-shrink: 0;
+  display: flex;
+  gap: 16px;
+  font-size: 10px;
+  color: var(--pv3-muted);
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+.stepChanged {
+  color: var(--pv3-focus);
 }
 
 .clipPane {
