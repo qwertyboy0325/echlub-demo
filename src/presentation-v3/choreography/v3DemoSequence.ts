@@ -153,7 +153,7 @@ export const V3_PRESENTATION_BEATS: V3DemoBeat[] = [
     participantId: "p1",
     actions: [
       { type: "projection", command: { type: "SET_PARTICIPANT_PROJECTION", participantId: "p1", room: "global", tab: "Create" } },
-      { type: "click", target: "launch-lane-2" },
+      { type: "click", target: "launch-lane-3" },
     ],
     afterBar: 2,
   },
@@ -178,19 +178,19 @@ export const V3_PRESENTATION_BEATS: V3DemoBeat[] = [
   },
   {
     id: "b14-launch-guitar",
-    label: "Launch guitar lane",
-    caption: "Guitar launches next bar",
+    label: "Ren enters payoff",
+    caption: "Ren watches lane buildup",
     participantId: "p4",
     actions: [
       { type: "projection", command: { type: "SET_PARTICIPANT_PROJECTION", participantId: "p4", room: "global", tab: "Create" } },
-      { type: "click", target: "launch-lane-7" },
+      { type: "hold", ms: 2000 },
     ],
     afterBar: 2,
   },
   {
     id: "b15-payoff-hold",
     label: "Multi-lane payoff",
-    caption: "Shared Master reaches 5 lanes",
+    caption: "Lanes accumulate on Shared Master",
     participantId: "p4",
     actions: [      { type: "hold", ms: 12000 },
     ],
@@ -251,7 +251,7 @@ export const V3_PRESENTATION_BEATS: V3DemoBeat[] = [
   {
     id: "b20-payoff-final",
     label: "Final payoff hold",
-    caption: "7-lane collaborative payoff",
+    caption: "Collaborative payoff",
     participantId: "p4",
     actions: [      { type: "hold", ms: 8000 }],
   },
