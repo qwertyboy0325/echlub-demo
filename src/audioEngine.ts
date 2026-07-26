@@ -539,12 +539,27 @@ export class AudioEngine {
   getPlaybackGeneration(): number { return this.playbackGeneration; }
   getMasterStepCountAtCapture(): number { return this.masterStepCount; }
 
-  /** Connect a Web Audio tap after the master limiter (evidence capture only). */
-  connectMasterTap(node: AudioNode): () => void {
+  /** Evidence capture: master limiter + private cue bus (Preview), without merging domain state. */
+  connectEvidenceTap(node: AudioNode): () => void {
     this.limiter.connect(node);
+    this.cueGain.connect(node);
     return () => {
-      this.limiter.disconnect(node);
+      try {
+        this.limiter.disconnect(node);
+      } catch {
+        /* already disconnected */
+      }
+      try {
+        this.cueGain.disconnect(node);
+      } catch {
+        /* already disconnected */
+      }
     };
+  }
+
+  /** Connect a Web Audio tap after the master limiter (legacy evidence hook). */
+  connectMasterTap(node: AudioNode): () => void {
+    return this.connectEvidenceTap(node);
   }
 
   startPrivateCue(materialRef: MaterialRef, atTransportPosition?: MusicalPosition): void {

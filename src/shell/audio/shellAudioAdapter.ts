@@ -501,7 +501,7 @@ function exposeShellAudioDiagnostics(adapter: ShellAudioAdapter): void {
     if (!engine) throw new Error("AudioEngine not ready");
     const rawContext = Tone.getContext().rawContext as AudioContext;
     const destination = rawContext.createMediaStreamDestination();
-    const disconnect = engine.connectMasterTap(destination);
+    const disconnect = engine.connectEvidenceTap(destination);
     const chunks: Blob[] = [];
     const recorder = new MediaRecorder(destination.stream, { mimeType: "audio/webm;codecs=opus" });
     recorder.addEventListener("dataavailable", (event) => {
@@ -575,6 +575,11 @@ function exposeShellAudioDiagnostics(adapter: ShellAudioAdapter): void {
       mixDelayWet: mix?.delayWet ?? null,
       mixReverbWet: mix?.reverbWet ?? null,
       mixMasterGain: mix?.masterGain ?? null,
+      hornsDelaySend: mix?.desk?.horns?.delaySend ?? null,
+      hornsDelayNormalized:
+        mix && mix.desk?.horns?.delaySend != null
+          ? Math.max(0, Math.min(1, (mix.desk.horns.delaySend ?? 0) / 0.65))
+          : null,
       deviceParams: {
         filter: mix?.filter ?? null,
         delayWet: mix?.delayWet ?? null,

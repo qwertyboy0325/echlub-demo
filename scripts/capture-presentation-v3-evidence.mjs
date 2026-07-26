@@ -304,17 +304,47 @@ async function readMappedDockSlot(page, slotIndex) {
   }, slotIndex);
 }
 
-async function setDockKnobValue(page, slotIndex, targetPercent) {
-  const selector = `[data-demo-target="dock-slot-${slotIndex}"] .dock-knob`;
-  await page.waitForSelector(selector, { timeout: 5000 });
-  await page.click(selector);
-  const current = await page.evaluate((idx) => {
+async function readDockPercent(page, slotIndex) {
+  return page.evaluate((idx) => {
     const el = document.querySelector(`[data-demo-target="dock-slot-${idx}"] .dock-slot-value`);
     return Number(el?.textContent?.trim() ?? 0);
   }, slotIndex);
-  const steps = Math.max(0, Math.ceil((targetPercent - current) / 5));
-  for (let i = 0; i < steps; i++) await page.keyboard.press("ArrowUp");
+}
+
+async function setDockKnobToPercent(page, slotIndex, targetPercent) {
+  const selector = `[data-demo-target="dock-slot-${slotIndex}"] .dock-knob`;
+  await page.waitForSelector(selector, { timeout: 5000 });
+  await page.click(selector);
+  const target = Math.max(0, Math.min(100, targetPercent));
+  for (let guard = 0; guard < 30; guard += 1) {
+    const current = await readDockPercent(page, slotIndex);
+    if (Math.abs(current - target) <= 2) break;
+    if (current < target) await page.keyboard.press("ArrowUp");
+    else await page.keyboard.press("ArrowDown");
+    await delay(80);
+  }
   await delay(350);
+}
+
+async function analyzeSilenceWindows(path, thresholdDb = -45) {
+  try {
+    const raw = await runProcess("ffmpeg", [
+      "-i",
+      path,
+      "-af",
+      `silencedetect=noise=${thresholdDb}dB:d=0.25`,
+      "-f",
+      "null",
+      "-",
+    ]);
+    const starts = [...raw.matchAll(/silence_start:\s*([\d.]+)/g)].map((m) => Number(m[1]));
+    const ends = [...raw.matchAll(/silence_end:\s*([\d.]+)/g)].map((m) => Number(m[1]));
+    const firstSoundEnd = ends.length ? ends[0] : null;
+    const lastSilenceStart = starts.length ? starts[starts.length - 1] : null;
+    return { starts, ends, firstSoundEnd, lastSilenceStart, rawTail: raw.slice(-500) };
+  } catch (err) {
+    return { error: String(err) };
+  }
 }
 
 async function analyzeAudioLoudness(path) {
@@ -630,6 +660,7 @@ try {
   overflowByFile["11-global-launched-1440.png"] = screenshots.at(-1).overflow;
 
   // --- 12 participant piano ---
+  await toggleExchange(page, false);
   await selectParticipantByName(page, "Kai");
   await setCreateMode(page, "Piano Roll");
   await page.evaluate(() => {
@@ -746,18 +777,31 @@ try {
   screenshots.push(await screenshotNamed(page, "18-mixer-control-changed-1440.png", captureRecord.viewportWide));
   overflowByFile["18-mixer-control-changed-1440.png"] = screenshots.at(-1).overflow;
 
-  try {
-    await setDockKnobValue(page, 0, 55);
-  } catch {
-    await setDockFader(page, 0, 55);
-  }
+  const dockBeforeChange = await readDockPercent(page, 0);
+  await setDockKnobToPercent(page, 0, 35);
   const hornsDelayAfterDock = await readMixerSlider(page, "Horns delay send");
   const dockAfterDock = await readMappedDockSlot(page, 0);
+  const dockAfterPercent = await readDockPercent(page, 0);
+  const evidenceAfterDock = await shellEvidence(page);
   runtimeTrace.mixerSync.afterDockChange = {
+    dockBefore: dockBeforeChange,
+    dockAfter: dockAfterPercent,
     hornsDelay: hornsDelayAfterDock,
+    hornsDelayNormalized: evidenceAfterDock?.hornsDelayNormalized ?? null,
     dockRendered: dockAfterDock,
-    evidence: await shellEvidence(page),
+    evidence: evidenceAfterDock,
   };
+  if (dockAfterPercent === dockBeforeChange) {
+    defects.push(`dock value unchanged after UI knob (${dockBeforeChange} -> ${dockAfterPercent})`);
+  }
+  if (hornsDelayAfterDock === hornsDelayAfterMixer) {
+    defects.push(
+      `Mixer Horns delay did not follow dock change (${hornsDelayAfterMixer} -> ${hornsDelayAfterDock})`,
+    );
+  }
+  if (Math.abs(hornsDelayAfterDock - 35) > 4) {
+    defects.push(`Mixer Horns delay expected ~35 after dock, got ${hornsDelayAfterDock}`);
+  }
   screenshots.push(await screenshotNamed(page, "19-mixer-dock-sync-1440.png", captureRecord.viewportWide));
   overflowByFile["19-mixer-dock-sync-1440.png"] = screenshots.at(-1).overflow;
 
@@ -810,21 +854,29 @@ try {
   await startAudioCapture(page);
   const frames = createFrameRecorder(page);
   const frameLoop = frames.startLoop();
+  const walkEvents = [];
+  const walkStart = Date.now();
+  const mark = (label) => walkEvents.push({ label, elapsedSec: (Date.now() - walkStart) / 1000 });
 
   const hold = async (ms) => delay(ms);
   await clickNavRoom(page, "Global");
-  await hold(7000);
+  mark("sparse-global");
+  await hold(4000);
   await selectParticipantByName(page, "Kai");
+  mark("participant-enter");
   await setCreateMode(page, "Piano Roll");
-  await hold(2500);
+  await hold(1500);
   const walkNote = await page.$('[data-surface="v3-create"] [data-demo-target^="piano-note-"]');
   if (walkNote) await walkNote.click();
   await setCreateMode(page, "Step");
   await page.click('[data-demo-target="step-cell-2"]');
   await page.click('[data-demo-target="step-cell-5"]');
-  await hold(2000);
+  mark("step-edited");
+  await hold(1000);
   await page.click('[data-demo-target="preview-clip"]');
-  await hold(8000);
+  mark("preview-start");
+  await hold(12000);
+  mark("preview-end");
   await page.click('[data-demo-target="save-to-library"]');
   await hold(2000);
   await page.evaluate(() => {
@@ -833,31 +885,34 @@ try {
   });
   await hold(3500);
   await page.click('[data-demo-target="share-clip"]');
-  await hold(4000);
-  await toggleExchange(page, true);
   await hold(3000);
+  mark("share-complete");
+  await toggleExchange(page, true);
+  await hold(2000);
   await toggleExchange(page, false);
   await clickNavRoom(page, "Global");
-  await hold(2500);
+  await hold(2000);
   await launchLanes(page, 2);
+  mark("launch-complete");
   await hold(2000);
   await page.click('[data-demo-target="transport-play"]');
-  await hold(18000);
+  mark("play-start");
+  await hold(14000);
+  mark("play-hold-end");
   await clickNavRoom(page, "Mixer");
   await hold(2500);
   await selectHornsStrip(page);
   await pinMixerControl(page, "horns", "delay");
-  await hold(2000);
+  await hold(1500);
   await dragRangeSlider(page, '[data-demo-target="desk-delay-horns"]', 65);
-  await hold(3500);
-  try {
-    await setDockKnobValue(page, 0, 48);
-  } catch {
-    await setDockFader(page, 0, 48);
-  }
+  mark("mixer-delay-changed");
+  await hold(2500);
+  await setDockKnobToPercent(page, 0, 35);
+  mark("dock-delay-changed");
   await hold(3500);
   await page.click('[data-demo-target="transport-restart"]');
-  await hold(6000);
+  mark("restart");
+  await hold(5000);
 
   frames.stop();
   await frameLoop.catch(() => {});
@@ -876,16 +931,37 @@ try {
   const probe = await ffprobeJson(WALKTHROUGH_MP4);
   const durationSec = Number(probe.format?.duration ?? 0);
   const audioLoudness = await analyzeAudioLoudness(WALKTHROUGH_MP4);
+  const silenceWindows = await analyzeSilenceWindows(WALKTHROUGH_MP4);
   const hasAudioStream = probe.streams?.some((s) => s.codec_type === "audio");
   if (!hasAudioStream) defects.push("walkthrough mp4 missing audio stream");
   if (audioLoudness.meanVolumeDb != null && audioLoudness.meanVolumeDb < -45) {
     defects.push(`walkthrough mean volume too low: ${audioLoudness.meanVolumeDb} dB`);
   }
+  const previewEvent = walkEvents.find((e) => e.label === "preview-start");
+  const launchEvent = walkEvents.find((e) => e.label === "launch-complete");
+  const firstSoundEnd = silenceWindows.firstSoundEnd;
+  if (previewEvent && firstSoundEnd != null && firstSoundEnd > previewEvent.elapsedSec + 8) {
+    defects.push(
+      `preview not audible before launch: first sound at ${firstSoundEnd}s, preview at ${previewEvent.elapsedSec}s`,
+    );
+  }
+  runtimeTrace.walkthroughEvents = walkEvents;
+  runtimeTrace.audioWindows = { audioLoudness, silenceWindows, previewEvent, launchEvent, firstSoundEnd };
   if (durationSec < 60 || durationSec > 95) {
     defects.push(`walkthrough duration ${durationSec.toFixed(1)}s outside 60-90s target`);
   }
 
   const mixerAudit = writeMixerBindingAudit();
+
+  const finalHead = gitHead();
+  const finalStatus = gitStatusShort();
+  const porcelain = execSync("git status --porcelain", { encoding: "utf8" }).trim();
+  captureRecord.gitHead = finalHead;
+  captureRecord.gitStatus = finalStatus;
+  captureRecord.gitPorcelain = porcelain;
+  if (porcelain.length > 0) {
+    defects.push(`working tree not clean at manifest write: ${porcelain.split("\n")[0]}`);
+  }
 
   writeFileSync(
     RUNTIME_JSON,
@@ -901,6 +977,8 @@ try {
           chunkCount: audioCapture.chunkCount,
           frameCount,
           audioLoudness,
+          silenceWindows,
+          walkEvents,
           hasAudioStream,
         },
       },
