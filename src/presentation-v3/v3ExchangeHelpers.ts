@@ -14,10 +14,10 @@ export function stagingSlotForClip(state: ShellState, clip: ExchangeClip): strin
   const forkSlot = state.arrangementSlots.find((slot) => slot.clipId === clip.id);
   if (forkSlot) return forkSlot.id;
   if (isLiveCollab) {
+    const empty = state.arrangementSlots.find((slot) => slot.state === "empty");
+    if (empty) return empty.id;
     const loaded = state.arrangementSlots.find((slot) => slot.state === "loaded" && !slot.clipId);
     if (loaded) return loaded.id;
-    const empty = state.arrangementSlots.find((slot) => slot.state === "empty");
-    return empty?.id ?? null;
   }
   const staged = state.arrangementSlots.find((slot) => slot.state === "empty" || slot.state === "staged");
   return staged?.id ?? null;

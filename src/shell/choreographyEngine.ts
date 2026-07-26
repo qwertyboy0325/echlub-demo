@@ -188,10 +188,18 @@ export class ShellChoreographyEngine {
 
     await new Promise<void>((resolve) => {
       state.busy = true;
+      let settled = false;
+      const finish = () => {
+        if (settled) return;
+        settled = true;
+        state.busy = false;
+        resolve();
+      };
+      const safety = window.setTimeout(finish, 6000);
       const tl = gsap.timeline({
         onComplete: () => {
-          state.busy = false;
-          resolve();
+          window.clearTimeout(safety);
+          finish();
         },
       });
       this.activeTimelines.push(tl);
@@ -316,10 +324,18 @@ export class ShellChoreographyEngine {
 
     await new Promise<void>((resolve) => {
       state.busy = true;
+      let settled = false;
+      const finish = () => {
+        if (settled) return;
+        settled = true;
+        state.busy = false;
+        resolve();
+      };
+      const safety = window.setTimeout(finish, 6000);
       const tl = gsap.timeline({
         onComplete: () => {
-          state.busy = false;
-          resolve();
+          window.clearTimeout(safety);
+          finish();
         },
       });
       this.activeTimelines.push(tl);

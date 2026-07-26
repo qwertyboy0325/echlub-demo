@@ -22,6 +22,7 @@ export interface V3PresenterEvidenceSnapshot {
   lastAudioConsequence: string | null;
   targetFailures: V3TargetFailure[];
   formalMode: boolean;
+  completedBeatIds: string[];
   capturedAt: string;
 }
 
@@ -46,6 +47,7 @@ function emptySnapshot(): V3PresenterEvidenceSnapshot {
     lastAudioConsequence: null,
     targetFailures: [],
     formalMode: true,
+    completedBeatIds: [],
     capturedAt: new Date().toISOString(),
   };
 }

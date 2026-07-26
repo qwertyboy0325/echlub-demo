@@ -1,11 +1,7 @@
-import type { ShellCommand, ShellState } from "../shell/domain/shellTypes";
+import type { ExchangeClip, ShellCommand, ShellState } from "../shell/domain/shellTypes";
 import { participantInitial } from "../shell/domain/participantWorkspace";
 import { thumbnailStyle } from "../ui/exchangeThumbnail";
-import {
-  primaryExchangeAction,
-  readyClipForStage,
-  stagingSlotForClip,
-} from "./v3ExchangeHelpers";
+import { stagingSlotForClip } from "./v3ExchangeHelpers";
 import styles from "./styles/exchangeOverlay.module.css";
 
 interface V3ExchangeOverlayProps {
@@ -18,6 +14,75 @@ function creatorName(state: ShellState, id: string): string {
   return p?.name ?? id;
 }
 
+type ContextualAction = {
+  label: string;
+  demoTarget: string;
+  onPress: () => void;
+};
+
+function contextualExchangeAction(
+  clip: ExchangeClip,
+  state: ShellState,
+  dispatch: (command: ShellCommand) => void,
+  close: () => void,
+): ContextualAction | null {
+  switch (clip.lifecycle) {
+    case "Available":
+      if (clip.creatorId === state.selectedParticipantId && !clip.contributorId) {
+        return {
+          label: "Mark Ready",
+          demoTarget: `exchange-ready-${clip.id}`,
+          onPress: () => dispatch({ type: "MARK_READY", clipId: clip.id }),
+        };
+      }
+      if (clip.contributorId && clip.contributorId !== clip.creatorId) {
+        return {
+          label: "Claim",
+          demoTarget: `exchange-primary-${clip.id}`,
+          onPress: () => {
+            dispatch({ type: "SELECT_EXCHANGE_CLIP", clipId: clip.id });
+            dispatch({ type: "CLAIM_CLIP", clipId: clip.id });
+          },
+        };
+      }
+      return {
+        label: "Fork",
+        demoTarget: `exchange-primary-${clip.id}`,
+        onPress: () => {
+          dispatch({ type: "SELECT_EXCHANGE_CLIP", clipId: clip.id });
+          dispatch({ type: "FORK_CLIP", clipId: clip.id });
+        },
+      };
+    case "In Progress":
+      if (clip.contributorId !== state.selectedParticipantId) return null;
+      return {
+        label: "Submit for Review",
+        demoTarget: `exchange-submit-${clip.id}`,
+        onPress: () => dispatch({ type: "SUBMIT_REVIEW", clipId: clip.id }),
+      };
+    case "Review":
+      return {
+        label: "Mark Ready",
+        demoTarget: `exchange-ready-${clip.id}`,
+        onPress: () => dispatch({ type: "MARK_READY", clipId: clip.id }),
+      };
+    case "Ready": {
+      const slotId = stagingSlotForClip(state, clip);
+      if (!slotId) return null;
+      return {
+        label: "Stage for Global",
+        demoTarget: `stage-clip-${slotId}`,
+        onPress: () => {
+          dispatch({ type: "STAGE_CLIP", clipId: clip.id, slotId });
+          close();
+        },
+      };
+    }
+    default:
+      return null;
+  }
+}
+
 export function V3ExchangeOverlay({ state, dispatch }: V3ExchangeOverlayProps) {
   if (!state.exchangeOpen) return null;
 
@@ -26,33 +91,9 @@ export function V3ExchangeOverlay({ state, dispatch }: V3ExchangeOverlayProps) {
     state.selectedExchangeClipId
       ? clips.find((c) => c.id === state.selectedExchangeClipId)
       : clips[0] ?? null;
-  const readyClip = readyClipForStage(state);
-  const stageSlotId = readyClip ? stagingSlotForClip(state, readyClip) : null;
 
   const close = () => dispatch({ type: "SET_EXCHANGE_OPEN", open: false });
-
-  const runPrimary = (clip: NonNullable<typeof selected>) => {
-    dispatch({ type: "SELECT_EXCHANGE_CLIP", clipId: clip.id });
-    const action = primaryExchangeAction(clip);
-    switch (action.kind) {
-      case "fork":
-        dispatch({ type: "FORK_CLIP", clipId: clip.id });
-        break;
-      case "claim":
-        dispatch({ type: "CLAIM_CLIP", clipId: clip.id });
-        break;
-      case "accept":
-        dispatch({ type: "MARK_READY", clipId: clip.id });
-        break;
-      case "preview":
-        if (clip.draftId) dispatch({ type: "PREVIEW_WORKSPACE", draftId: clip.draftId });
-        break;
-      case "open":
-        dispatch({ type: "SET_ROOM", room: "participant" });
-        close();
-        break;
-    }
-  };
+  const contextual = selected ? contextualExchangeAction(selected, state, dispatch, close) : null;
 
   return (
     <div className={styles.backdrop} role="presentation" onClick={close}>
@@ -104,58 +145,23 @@ export function V3ExchangeOverlay({ state, dispatch }: V3ExchangeOverlayProps) {
               })}
             </ul>
 
-            {selected && (
+            {selected && contextual && (
               <footer className={styles.detail}>
                 <div className={styles.detailHeader}>
                   <strong>{selected.title}</strong>
                   <span className={styles.meta}>
-                    r{selected.revision} · {creatorName(state, selected.creatorId)}
+                    r{selected.revision} · {creatorName(state, selected.creatorId)} · {selected.lifecycle}
                   </span>
                 </div>
                 <div className={styles.detailActions}>
                   <button
                     type="button"
                     className={styles.btnPrimary}
-                    data-demo-target={`exchange-primary-${selected.id}`}
-                    onClick={() => runPrimary(selected)}
+                    data-demo-target={contextual.demoTarget}
+                    onClick={contextual.onPress}
                   >
-                    {primaryExchangeAction(selected).label}
+                    {contextual.label}
                   </button>
-                  {selected.lifecycle === "Available" &&
-                    selected.creatorId === state.selectedParticipantId && (
-                      <button
-                        type="button"
-                        className={styles.btnSecondary}
-                        data-demo-target={`exchange-ready-${selected.id}`}
-                        onClick={() => dispatch({ type: "MARK_READY", clipId: selected.id })}
-                      >
-                        Mark Ready
-                      </button>
-                    )}
-                  {selected.lifecycle === "In Progress" &&
-                    selected.contributorId === state.selectedParticipantId && (
-                      <button
-                        type="button"
-                        className={styles.btnSecondary}
-                        data-demo-target={`exchange-submit-${selected.id}`}
-                        onClick={() => dispatch({ type: "SUBMIT_REVIEW", clipId: selected.id })}
-                      >
-                        Submit for Review
-                      </button>
-                    )}
-                  {selected.lifecycle === "Ready" && stageSlotId && (
-                    <button
-                      type="button"
-                      className={styles.btnSecondary}
-                      data-demo-target={`stage-clip-${stageSlotId}`}
-                      onClick={() => {
-                        dispatch({ type: "STAGE_CLIP", clipId: selected.id, slotId: stageSlotId });
-                        close();
-                      }}
-                    >
-                      Stage for Global
-                    </button>
-                  )}
                 </div>
               </footer>
             )}

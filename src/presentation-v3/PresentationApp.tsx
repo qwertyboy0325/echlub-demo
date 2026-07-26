@@ -8,7 +8,7 @@ import { MixerPerformanceRoom } from "./MixerPerformanceRoom";
 import { ExchangeOverlay } from "./ExchangeOverlay";
 import { V3CaptionStrip } from "./choreography/V3CaptionStrip";
 import { V3PresenterChrome } from "./choreography/V3PresenterChrome";
-import { exposeV3PresenterEvidence, runV3PresentationDemo } from "./choreography/v3ChoreographyRunner";
+import { exposeV3PresenterEvidence, runV3FollowLockProbe, runV3PresentationDemo } from "./choreography/v3ChoreographyRunner";
 import {
   formatTransportReadout,
   usePresentationShell,
@@ -65,9 +65,11 @@ export function PresentationApp() {
     exposeV3PresenterEvidence();
     const w = window as unknown as {
       __runV3PresentationDemo?: () => Promise<string[]>;
+      __runV3FollowLockProbe?: () => Promise<unknown>;
     };
     w.__runV3PresentationDemo = () =>
-      runV3PresentationDemo({ engine: engineRef.current, mode: "formal" });
+      runV3PresentationDemo({ resolveEngine: () => engineRef.current, mode: "formal" });
+    w.__runV3FollowLockProbe = () => runV3FollowLockProbe();
     return () => {
       delete w.__runV3PresentationDemo;
     };
@@ -97,10 +99,14 @@ export function PresentationApp() {
           <V3PresenterChrome engine={engineRef.current} hidden={!choreoActive} />
           <V3CaptionStrip hidden={!choreoActive} />
           <ChoreographyOverlay
-            active={choreoActive}
+            active={showChoreography}
             participants={state.participants}
             onReady={(handle) => {
               engineRef.current = handle.engine;
+              if (handle.engine && showChoreography) {
+                handle.engine.show();
+                handle.engine.parkAllOnRail();
+              }
               setChoreoActive(Boolean(handle.engine));
             }}
           />

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import type { ShellState } from "./domain/shellTypes";
 import {
@@ -19,10 +19,14 @@ interface ChoreographyOverlayProps {
 export function ChoreographyOverlay({ active, participants, onReady }: ChoreographyOverlayProps) {
   const overlayRef = useRef<HTMLDivElement | null>(null);
   const engineRef = useRef<ShellChoreographyEngine | null>(null);
+  const castKey = useMemo(
+    () => participants.map((p) => `${p.id}:${p.name}:${p.color}`).join("|"),
+    [participants],
+  );
+  const cast = useMemo(() => participantsToChoreographyCast(participants), [castKey]);
 
   useEffect(() => {
     if (!overlayRef.current) return;
-    const cast = participantsToChoreographyCast(participants);
     const engine = new ShellChoreographyEngine(overlayRef.current, cast);
     engineRef.current = engine;
     onReady?.({ engine });
@@ -31,7 +35,7 @@ export function ChoreographyOverlay({ active, participants, onReady }: Choreogra
       engineRef.current = null;
       onReady?.({ engine: null });
     };
-  }, [onReady, participants]);
+  }, [cast, onReady]);
 
   useEffect(() => {
     const engine = engineRef.current;

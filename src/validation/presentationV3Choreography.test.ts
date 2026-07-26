@@ -76,6 +76,26 @@ describe("v3DemoSequence", () => {
   });
 });
 
+describe("v3 lifecycle targets", () => {
+  it("includes exchange lifecycle action keys", () => {
+    expect(V3_UI_TARGET_KEYS).toContain("exchange-submit-c2");
+    expect(V3_UI_TARGET_KEYS).toContain("exchange-ready-c2");
+    expect(V3_UI_TARGET_KEYS).toContain("exchange-ready-c1");
+  });
+});
+
+describe("v3DemoSequence pacing", () => {
+  it("has 22 completed beats with transport-bar waits", () => {
+    expect(V3_PRESENTATION_BEATS.length).toBe(22);
+    const holdMs = V3_PRESENTATION_BEATS.reduce(
+      (sum, beat) =>
+        sum + beat.actions.filter((a) => a.type === "hold").reduce((h, a) => h + (a.type === "hold" ? a.ms : 0), 0),
+      0,
+    );
+    expect(holdMs).toBeGreaterThan(40000);
+  });
+});
+
 describe("projection boundary", () => {
   it("allows only follow projection commands", () => {
     expect(isProjectionCommand({ type: "ENABLE_FOLLOW" })).toBe(true);

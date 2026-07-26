@@ -6,6 +6,7 @@ export type V3DemoAction =
   | { type: "scrub"; target: V3UiTargetKey; percent: number }
   | { type: "knob"; target: V3UiTargetKey; steps: number; direction: "up" | "down" }
   | { type: "projection"; command: ShellCommand }
+  | { type: "open-exchange" }
   | { type: "hold"; ms: number };
 
 export interface V3DemoBeat {
@@ -27,7 +28,7 @@ export const V3_PRESENTATION_BEATS: V3DemoBeat[] = [
     participantId: "p2",
     actions: [
       { type: "projection", command: { type: "SET_PARTICIPANT_PROJECTION", participantId: "p2", room: "global", tab: "Create" } },
-      { type: "hold", ms: 1200 },
+      { type: "hold", ms: 3000 },
     ],
   },
   {
@@ -46,7 +47,6 @@ export const V3_PRESENTATION_BEATS: V3DemoBeat[] = [
     actions: [
       { type: "projection", command: { type: "ENABLE_FOLLOW" } },
       { type: "projection", command: { type: "SET_PARTICIPANT_PROJECTION", participantId: "p2", room: "participant", tab: "Create" } },
-      { type: "click", target: "tab-create" },
       { type: "click", target: "create-mode-piano" },
       { type: "click", target: "piano-note-kai-lh-sparse-4-n0" },
       { type: "scrub", target: "velocity-kai-lh-sparse-4-n0", percent: 68 },
@@ -85,9 +85,8 @@ export const V3_PRESENTATION_BEATS: V3DemoBeat[] = [
       { type: "projection", command: { type: "SET_PARTICIPANT_PROJECTION", participantId: "p1", room: "participant", tab: "Create" } },
       { type: "click", target: "exchange-toggle" },
       { type: "click", target: "exchange-clip-c1" },
-      { type: "click", target: "exchange-clip-c1" },
       { type: "click", target: "exchange-primary-c1" },
-      { type: "hold", ms: 500 },
+      { type: "hold", ms: 800 },
     ],
   },
   {
@@ -100,23 +99,23 @@ export const V3_PRESENTATION_BEATS: V3DemoBeat[] = [
       { type: "click", target: "step-cell-2" },
       { type: "click", target: "step-cell-5" },
       { type: "click", target: "preview-clip" },
-      { type: "hold", ms: 4000 },
+      { type: "hold", ms: 5000 },
       { type: "click", target: "save-library" },
-      { type: "click", target: "share-clip" },
-      { type: "click", target: "exchange-toggle" },
+      { type: "click", target: "exchange-clip-c2" },
       { type: "click", target: "exchange-submit-c2" },
       { type: "hold", ms: 500 },
     ],
   },
   {
     id: "b08-ryo-ready",
-    label: "Review to Ready",
+    label: "Mark Ready",
     caption: "Drums revision ready",
     participantId: "p1",
     actions: [
+      { type: "open-exchange" },
       { type: "click", target: "exchange-clip-c2" },
-      { type: "click", target: "exchange-primary-c2" },
-      { type: "hold", ms: 500 },
+      { type: "click", target: "exchange-ready-c2" },
+      { type: "hold", ms: 800 },
     ],
   },
   {
@@ -126,12 +125,13 @@ export const V3_PRESENTATION_BEATS: V3DemoBeat[] = [
     participantId: "p2",
     actions: [
       { type: "projection", command: { type: "SET_PARTICIPANT_PROJECTION", participantId: "p2", room: "global", tab: "Create" } },
-      { type: "click", target: "exchange-toggle" },
+      { type: "open-exchange" },
       { type: "click", target: "exchange-clip-c1" },
       { type: "click", target: "exchange-ready-c1" },
       { type: "click", target: "stage-clip-lane-1" },
+      { type: "open-exchange" },
       { type: "click", target: "exchange-clip-c2" },
-      { type: "click", target: "stage-clip-lane-3" },
+      { type: "click", target: "stage-clip-lane-2" },
       { type: "hold", ms: 400 },
     ],
   },
@@ -153,7 +153,7 @@ export const V3_PRESENTATION_BEATS: V3DemoBeat[] = [
     participantId: "p1",
     actions: [
       { type: "projection", command: { type: "SET_PARTICIPANT_PROJECTION", participantId: "p1", room: "global", tab: "Create" } },
-      { type: "click", target: "launch-lane-3" },
+      { type: "click", target: "launch-lane-2" },
     ],
     afterBar: 2,
   },
@@ -167,12 +167,12 @@ export const V3_PRESENTATION_BEATS: V3DemoBeat[] = [
   },
   {
     id: "b13-launch-horns",
-    label: "Launch horns lane",
-    caption: "Horns join payoff",
+    label: "Launch tenor lane",
+    caption: "Tenor joins payoff",
     participantId: "p3",
     actions: [
       { type: "projection", command: { type: "SET_PARTICIPANT_PROJECTION", participantId: "p3", room: "global", tab: "Create" } },
-      { type: "click", target: "launch-lane-6" },
+      { type: "click", target: "launch-lane-7" },
     ],
     afterBar: 2,
   },
@@ -192,8 +192,9 @@ export const V3_PRESENTATION_BEATS: V3DemoBeat[] = [
     label: "Multi-lane payoff",
     caption: "Shared Master reaches 5 lanes",
     participantId: "p4",
-    actions: [{ type: "hold", ms: 12000 }],
-    afterBar: 4,
+    actions: [      { type: "hold", ms: 12000 },
+    ],
+    afterBar: 3,
   },
   {
     id: "b16-mixer-map",
@@ -203,7 +204,7 @@ export const V3_PRESENTATION_BEATS: V3DemoBeat[] = [
     actions: [
       { type: "projection", command: { type: "SET_PARTICIPANT_PROJECTION", participantId: "p3", room: "mixer", tab: "Create" } },
       { type: "click", target: "room-mixer" },
-      { type: "click", target: "mixer-strip-horns" },
+      { type: "click", target: "mixer-select-horns" },
       { type: "click", target: "mixer-pin-horns-delay" },
       { type: "hold", ms: 600 },
     ],
@@ -234,22 +235,25 @@ export const V3_PRESENTATION_BEATS: V3DemoBeat[] = [
     caption: "Promoted fork replaces comp",
     participantId: "p4",
     actions: [
+      { type: "projection", command: { type: "SET_PARTICIPANT_PROJECTION", participantId: "p4", room: "participant", tab: "Create" } },
+      { type: "click", target: "participant-p4" },
+      { type: "click", target: "share-clip" },
+      { type: "open-exchange" },
+      { type: "click", target: "exchange-clip-c3" },
+      { type: "click", target: "exchange-ready-c3" },
+      { type: "click", target: "stage-clip-lane-5" },
       { type: "projection", command: { type: "SET_PARTICIPANT_PROJECTION", participantId: "p4", room: "global", tab: "Create" } },
       { type: "click", target: "room-global" },
-      { type: "click", target: "exchange-toggle" },
-      { type: "click", target: "exchange-clip-c5" },
-      { type: "click", target: "stage-clip-lane-5" },
       { type: "click", target: "launch-lane-5" },
     ],
-    afterBar: 2,
+    afterBar: 0,
   },
   {
     id: "b20-payoff-final",
     label: "Final payoff hold",
     caption: "7-lane collaborative payoff",
     participantId: "p4",
-    actions: [{ type: "hold", ms: 10000 }],
-    afterBar: 3,
+    actions: [      { type: "hold", ms: 8000 }],
   },
   {
     id: "b21-restart",
@@ -260,7 +264,7 @@ export const V3_PRESENTATION_BEATS: V3DemoBeat[] = [
       { type: "click", target: "transport-restart" },
       { type: "projection", command: { type: "ENABLE_FOLLOW" } },
       { type: "projection", command: { type: "SET_PARTICIPANT_PROJECTION", participantId: "p2", room: "global", tab: "Create" } },
-      { type: "hold", ms: 3000 },
+      { type: "hold", ms: 5000 },
     ],
   },
   {
@@ -270,9 +274,8 @@ export const V3_PRESENTATION_BEATS: V3DemoBeat[] = [
     participantId: "p2",
     actions: [
       { type: "click", target: "transport-play" },
-      { type: "hold", ms: 6000 },
+      { type: "hold", ms: 8000 },
     ],
-    afterBar: 2,
   },
 ];
 

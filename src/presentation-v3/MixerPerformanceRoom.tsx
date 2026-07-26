@@ -223,6 +223,7 @@ export function MixerPerformanceRoom({ state, dispatch, viewport }: MixerPerform
                   <button
                     type="button"
                     className={selected ? styles.channelBtnActive : styles.channelBtn}
+                    data-demo-target={`mixer-select-${desk}`}
                     onClick={() => dispatch({ type: "SELECT_MIXER_CHANNEL", channelIndex: index })}
                   >
                     Select

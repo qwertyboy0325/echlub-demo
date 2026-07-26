@@ -5,6 +5,13 @@ import { dispatchNavigationCommand } from "../../shell/choreographyRunner";
 import { musicalDomain } from "../../shell/domain/musicalDomain";
 import { shellStore } from "../../shell/domain/shellStore";
 import {
+  readAudioConsequence,
+  readLatestDomainEvent,
+  recordV3ActionTrace,
+  recordV3FollowLockTrace,
+  v3TraceElapsedMs,
+} from "./v3ActionTrace";
+import {
   projectionCommandLabel,
   recordV3ActionSuccess,
   recordV3TargetFailure,
@@ -33,6 +40,20 @@ export class V3ActionExecutionError extends Error {
   }
 }
 
+function shellSnapshot() {
+  const s = shellStore.getState();
+  return {
+    room: s.room,
+    followActive: s.followActive,
+    followLocked: s.followLocked,
+    selectedParticipantId: s.selectedParticipantId,
+    workspaceDraftId: s.workspaceDraftId,
+    transportBar: s.transportBar,
+    participantTab: s.participantTab,
+    exchangeOpen: s.exchangeOpen,
+  };
+}
+
 export async function executeV3Click(
   engine: ShellChoreographyEngine | null,
   participantId: string,
@@ -41,14 +62,28 @@ export async function executeV3Click(
   mode: V3ActionMode,
   deskLabel?: string,
 ): Promise<void> {
-  const state = shellStore.getState();
-  const resolved = resolveV3Target(key, { beatId, participantId, state });
+  const snap = shellSnapshot();
+  const resolved = resolveV3Target(key, { beatId, participantId, state: shellStore.getState() });
+  const gestureStartMs = v3TraceElapsedMs();
   if ("reason" in resolved) {
     recordV3TargetFailure(resolved);
+    recordV3ActionTrace({
+      beatId,
+      participantId,
+      room: snap.room,
+      participantTab: snap.participantTab,
+      exchangeOpen: snap.exchangeOpen,
+      actionKind: "click",
+      targetKey: key,
+      selector: V3_TARGET_SELECTORS[key],
+      invocation: "dom-click",
+      visibleConsequence: `blocked:${resolved.reason}`,
+    });
     if (mode === "formal") throw new V3ActionExecutionError(resolved);
     return;
   }
 
+  const cursorArrivalMs = v3TraceElapsedMs();
   if (engine) {
     const result = await engine.moveAndActivateSelector(
       participantId,
@@ -63,9 +98,9 @@ export async function executeV3Click(
         reason: "missing",
         beatId,
         participantId,
-        room: state.room,
-        exchangeOpen: state.exchangeOpen,
-        participantTab: state.participantTab,
+        room: snap.room,
+        exchangeOpen: snap.exchangeOpen,
+        participantTab: snap.participantTab,
       };
       recordV3TargetFailure(failure);
       if (mode === "formal") throw new V3ActionExecutionError(failure);
@@ -76,7 +111,33 @@ export async function executeV3Click(
   }
 
   await waitForDomPaint();
-  recordV3ActionSuccess(`click:${key}`, `activated ${key}`);
+  const gestureEndMs = v3TraceElapsedMs();
+  const domainEvent = readLatestDomainEvent();
+  const audioConsequence = readAudioConsequence();
+  recordV3ActionTrace({
+    beatId,
+    participantId,
+    room: snap.room,
+    participantTab: snap.participantTab,
+    exchangeOpen: snap.exchangeOpen,
+    actionKind: "click",
+    targetKey: key,
+    selector: resolved.selector,
+    resolution: {
+      visible: true,
+      enabled: true,
+      inViewport: true,
+      elementTag: resolved.interactable.tagName.toLowerCase(),
+    },
+    gestureStartMs,
+    cursorArrivalMs,
+    gestureEndMs,
+    invocation: "dom-click",
+    domainEvent,
+    visibleConsequence: `clicked ${key}`,
+    audioConsequence,
+  });
+  recordV3ActionSuccess(`click:${key}`, `activated ${key}`, domainEvent ?? undefined, audioConsequence ?? undefined);
 }
 
 export async function executeV3Scrub(
@@ -88,8 +149,9 @@ export async function executeV3Scrub(
   mode: V3ActionMode,
   deskLabel?: string,
 ): Promise<void> {
-  const state = shellStore.getState();
-  const resolved = resolveV3Target(key, { beatId, participantId, state });
+  const snap = shellSnapshot();
+  const resolved = resolveV3Target(key, { beatId, participantId, state: shellStore.getState() });
+  const gestureStartMs = v3TraceElapsedMs();
   if ("reason" in resolved) {
     recordV3TargetFailure(resolved);
     if (mode === "formal") throw new V3ActionExecutionError(resolved);
@@ -110,9 +172,9 @@ export async function executeV3Scrub(
         reason: "missing",
         beatId,
         participantId,
-        room: state.room,
-        exchangeOpen: state.exchangeOpen,
-        participantTab: state.participantTab,
+        room: snap.room,
+        exchangeOpen: snap.exchangeOpen,
+        participantTab: snap.participantTab,
       };
       recordV3TargetFailure(failure);
       if (mode === "formal") throw new V3ActionExecutionError(failure);
@@ -129,6 +191,22 @@ export async function executeV3Scrub(
   }
 
   await waitForDomPaint();
+  recordV3ActionTrace({
+    beatId,
+    participantId,
+    room: snap.room,
+    participantTab: snap.participantTab,
+    exchangeOpen: snap.exchangeOpen,
+    actionKind: "scrub",
+    targetKey: key,
+    selector: resolved.selector,
+    gestureStartMs,
+    gestureEndMs: v3TraceElapsedMs(),
+    invocation: "dom-input",
+    domainEvent: readLatestDomainEvent(),
+    visibleConsequence: `${key}→${percent}%`,
+    audioConsequence: readAudioConsequence(),
+  });
   recordV3ActionSuccess(`scrub:${key}→${percent}`, `${key} at ${percent}%`);
 }
 
@@ -141,8 +219,9 @@ export async function executeV3KnobSteps(
   beatId: string,
   mode: V3ActionMode,
 ): Promise<void> {
-  const state = shellStore.getState();
-  const resolved = resolveV3Target(key, { beatId, participantId, state });
+  const snap = shellSnapshot();
+  const resolved = resolveV3Target(key, { beatId, participantId, state: shellStore.getState() });
+  const gestureStartMs = v3TraceElapsedMs();
   if ("reason" in resolved) {
     recordV3TargetFailure(resolved);
     if (mode === "formal") throw new V3ActionExecutionError(resolved);
@@ -161,12 +240,28 @@ export async function executeV3KnobSteps(
     }
   }
   await waitForDomPaint();
+  recordV3ActionTrace({
+    beatId,
+    participantId,
+    room: snap.room,
+    participantTab: snap.participantTab,
+    exchangeOpen: snap.exchangeOpen,
+    actionKind: "knob",
+    targetKey: key,
+    selector: resolved.selector,
+    gestureStartMs,
+    gestureEndMs: v3TraceElapsedMs(),
+    invocation: "dom-keydown",
+    domainEvent: readLatestDomainEvent(),
+    visibleConsequence: `${key} ${direction}x${steps}`,
+    audioConsequence: readAudioConsequence(),
+  });
   recordV3ActionSuccess(`knob:${key}:${direction}x${steps}`);
 }
 
 export async function executeV3Projection(
   command: ShellCommand,
-  _beatId: string,
+  beatId: string,
   mode: V3ActionMode,
 ): Promise<void> {
   if (!isProjectionCommand(command)) {
@@ -175,15 +270,60 @@ export async function executeV3Projection(
     }
     return;
   }
+  const snap = shellSnapshot();
+  const gestureStartMs = v3TraceElapsedMs();
   await dispatchNavigationCommand(command, shellStore.dispatch.bind(shellStore));
+  await waitForDomPaint();
+  await new Promise((r) => setTimeout(r, 120));
+  recordV3ActionTrace({
+    beatId,
+    participantId: snap.selectedParticipantId,
+    room: shellStore.getState().room,
+    participantTab: shellStore.getState().participantTab,
+    exchangeOpen: shellStore.getState().exchangeOpen,
+    actionKind: "projection",
+    gestureStartMs,
+    gestureEndMs: v3TraceElapsedMs(),
+    invocation: "projection-dispatch",
+    domainEvent: projectionCommandLabel(command),
+    visibleConsequence: projectionCommandLabel(command),
+  });
   recordV3ActionSuccess(`projection:${command.type}`, projectionCommandLabel(command));
+}
+
+export function recordV3HoldTrace(
+  beatId: string,
+  participantId: string,
+  ms: number,
+): void {
+  const snap = shellSnapshot();
+  recordV3ActionTrace({
+    beatId,
+    participantId,
+    room: snap.room,
+    participantTab: snap.participantTab,
+    exchangeOpen: snap.exchangeOpen,
+    actionKind: "hold",
+    gestureStartMs: v3TraceElapsedMs(),
+    gestureEndMs: v3TraceElapsedMs() + ms,
+    invocation: "hold",
+    visibleConsequence: `hold ${ms}ms`,
+    audioConsequence: readAudioConsequence(),
+  });
+}
+
+export function recordFollowLockFromClick(targetKey: V3UiTargetKey): void {
+  const snap = shellSnapshot();
+  recordV3FollowLockTrace(`ui-click:${targetKey}`, "dom-click", snap);
 }
 
 export async function waitAfterBars(bars: number, epoch: number): Promise<void> {
   if (bars <= 0) return;
   const startBar = shellStore.getState().transportBar;
   const targetBar = startBar + bars;
-  await new Promise<void>((resolve) => {
+  const maxMs = bars * 5000 + 15000;
+  const startMs = Date.now();
+  await new Promise<void>((resolve, reject) => {
     const tick = () => {
       if (musicalDomain.getRestartEpoch() !== epoch && epoch > 0) {
         resolve();
@@ -191,6 +331,10 @@ export async function waitAfterBars(bars: number, epoch: number): Promise<void> 
       }
       if (shellStore.getState().transportBar >= targetBar) {
         resolve();
+        return;
+      }
+      if (Date.now() - startMs > maxMs) {
+        reject(new Error(`waitAfterBars timeout: bar ${startBar} -> ${targetBar}`));
         return;
       }
       window.setTimeout(tick, 50);
