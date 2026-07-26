@@ -347,22 +347,21 @@ async function analyzeSilenceWindows(path, thresholdDb = -45) {
   }
 }
 
-async function analyzeAudioLoudness(path) {
+async function analyzeAudioLoudness(path, startSec = 0, durationSec = null) {
   try {
-    const raw = await runProcess("ffmpeg", [
-      "-i",
-      path,
-      "-af",
-      "volumedetect",
-      "-f",
-      "null",
-      "-",
-    ]);
+    const args = ["-i", path, "-af", "volumedetect", "-f", "null", "-"];
+    if (startSec > 0 || durationSec != null) {
+      args.splice(0, 0, "-ss", String(startSec));
+      if (durationSec != null) args.splice(2, 0, "-t", String(durationSec));
+    }
+    const raw = await runProcess("ffmpeg", args);
     const maxMatch = raw.match(/max_volume:\s*([-\d.]+)\s*dB/);
     const meanMatch = raw.match(/mean_volume:\s*([-\d.]+)\s*dB/);
     return {
       maxVolumeDb: maxMatch ? Number(maxMatch[1]) : null,
       meanVolumeDb: meanMatch ? Number(meanMatch[1]) : null,
+      startSec,
+      durationSec,
       rawTail: raw.slice(-400),
     };
   } catch (err) {
@@ -934,19 +933,45 @@ try {
   const silenceWindows = await analyzeSilenceWindows(WALKTHROUGH_MP4);
   const hasAudioStream = probe.streams?.some((s) => s.codec_type === "audio");
   if (!hasAudioStream) defects.push("walkthrough mp4 missing audio stream");
-  if (audioLoudness.meanVolumeDb != null && audioLoudness.meanVolumeDb < -45) {
-    defects.push(`walkthrough mean volume too low: ${audioLoudness.meanVolumeDb} dB`);
-  }
   const previewEvent = walkEvents.find((e) => e.label === "preview-start");
+  const playEvent = walkEvents.find((e) => e.label === "play-start");
   const launchEvent = walkEvents.find((e) => e.label === "launch-complete");
   const firstSoundEnd = silenceWindows.firstSoundEnd;
+  const previewLoudness =
+    previewEvent != null
+      ? await analyzeAudioLoudness(WALKTHROUGH_MP4, previewEvent.elapsedSec, 5)
+      : null;
+  const launchLoudness =
+    playEvent != null
+      ? await analyzeAudioLoudness(WALKTHROUGH_MP4, playEvent.elapsedSec + 2, 12)
+      : null;
+  if (previewLoudness?.maxVolumeDb != null && previewLoudness.maxVolumeDb < -35) {
+    defects.push(`preview window max volume too low: ${previewLoudness.maxVolumeDb} dB`);
+  }
+  if (launchLoudness?.maxVolumeDb != null && launchLoudness.maxVolumeDb < -35) {
+    defects.push(`launch/play window max volume too low: ${launchLoudness.maxVolumeDb} dB`);
+  }
   if (previewEvent && firstSoundEnd != null && firstSoundEnd > previewEvent.elapsedSec + 8) {
     defects.push(
       `preview not audible before launch: first sound at ${firstSoundEnd}s, preview at ${previewEvent.elapsedSec}s`,
     );
   }
+  if (previewEvent && launchEvent && firstSoundEnd != null && firstSoundEnd > launchEvent.elapsedSec) {
+    defects.push(
+      `first audible output after launch (${firstSoundEnd}s > launch ${launchEvent.elapsedSec}s)`,
+    );
+  }
   runtimeTrace.walkthroughEvents = walkEvents;
-  runtimeTrace.audioWindows = { audioLoudness, silenceWindows, previewEvent, launchEvent, firstSoundEnd };
+  runtimeTrace.audioWindows = {
+    audioLoudness,
+    previewLoudness,
+    launchLoudness,
+    silenceWindows,
+    previewEvent,
+    launchEvent,
+    playEvent,
+    firstSoundEnd,
+  };
   if (durationSec < 60 || durationSec > 95) {
     defects.push(`walkthrough duration ${durationSec.toFixed(1)}s outside 60-90s target`);
   }
@@ -977,6 +1002,8 @@ try {
           chunkCount: audioCapture.chunkCount,
           frameCount,
           audioLoudness,
+          previewLoudness,
+          launchLoudness,
           silenceWindows,
           walkEvents,
           hasAudioStream,
