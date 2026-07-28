@@ -2,6 +2,15 @@
 
 Round 1 of the scripted, recordable Four-Brain DJ concept demo.
 
+> [!CAUTION]
+> **Failed product-narrative experiment.** Owner review on 2026-07-28 found
+> that the persistent multi-cursor choreography reads as visual noise rather
+> than collaboration, and that the scripted state transitions do not make
+> collaborative composition perceptible to a cold viewer. This repository is
+> retained as implementation and research evidence; it is not current proof of
+> an EchLub product direction or differentiator. See
+> [`design-research/presentation-v3-failure-decision.md`](design-research/presentation-v3-failure-decision.md).
+
 ## What is implemented
 
 - One-page recording-oriented interface.
